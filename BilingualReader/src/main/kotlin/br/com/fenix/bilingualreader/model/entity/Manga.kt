@@ -147,7 +147,7 @@ class Manga(
     var author: String = author
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SERIES)
-    var series: String = series
+    override var series: String = series
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.GENRE)
     var genre: String = genre

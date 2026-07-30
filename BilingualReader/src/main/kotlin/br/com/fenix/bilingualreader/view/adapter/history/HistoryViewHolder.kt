@@ -77,13 +77,12 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         pagesRead.text = "${history.bookMark} / ${history.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
 
         var authorText = ""
-        var seriesText = ""
+        var seriesText = history.series
         var publisherText = ""
 
         when (history) {
             is Manga -> {
                 authorText = history.author
-                seriesText = history.series
                 publisherText = history.publisher
             }
             is Book -> {

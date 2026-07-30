@@ -179,6 +179,8 @@ class GeneralConsts private constructor() {
             const val BOOK_ORDER = "BOOK_LIBRARY_ORDER"
             const val BOOK_LIBRARY_TYPE = "BOOK_LAST_LIBRARY_TYPE"
 
+            const val HISTORY_TYPE = "HISTORY_LAST_TYPE"
+
             const val LAST_LIBRARY = "LAST_LIBRARY"
             const val LIBRARY_TYPE = "LIBRARY_TYPE"
             const val LIBRARY_ID = "LIBRARY_ID"

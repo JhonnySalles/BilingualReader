@@ -124,7 +124,7 @@ class Book(
     var publisher: String = publisher
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.SERIES)
-    var series: String = series
+    override var series: String = series
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ISBN)
     var isbn: String = isbn

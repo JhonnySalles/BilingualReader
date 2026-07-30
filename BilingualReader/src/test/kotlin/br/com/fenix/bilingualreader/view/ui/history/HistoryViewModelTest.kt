@@ -6,11 +6,14 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.Separator
+import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
@@ -57,7 +60,7 @@ class HistoryViewModelTest {
     private lateinit var viewModel: HistoryViewModel
     private lateinit var application: Application
     private val context: Context by lazy { application.applicationContext }
-    
+
     private val mangaRepository: MangaRepository = mockk(relaxed = true)
     private val bookRepository: BookRepository = mockk(relaxed = true)
     private val libraryRepository: LibraryRepository = mockk(relaxed = true)
@@ -66,24 +69,24 @@ class HistoryViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        
+
         mockkStatic(Dispatchers::class)
         every { Dispatchers.IO } returns testDispatcher
         every { Dispatchers.Default } returns testDispatcher
-        
+
         mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
         try {
             mockkStatic("kotlinx.coroutines.ThreadPoolDispatcherKt")
             val realDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
             every { newSingleThreadContext(any()) } returns realDispatcher
-        } catch (e: Throwable) {}
+        } catch (_: Throwable) {}
 
         val mockCrashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
         every { Firebase.crashlytics } returns mockCrashlytics
         every { mockCrashlytics.recordException(any()) } just Runs
         every { mockCrashlytics.log(any()) } just Runs
         every { mockCrashlytics.setCustomKey(any(), any<String>()) } just Runs
-        
+
         application = ApplicationProvider.getApplicationContext()
 
         mockkConstructor(MangaRepository::class)
@@ -91,7 +94,7 @@ class HistoryViewModelTest {
         every { anyConstructed<MangaRepository>().save(any<Manga>(), any()) } answers { mangaRepository.save(firstArg<Manga>(), secondArg()) }
         every { anyConstructed<MangaRepository>().update(any<Manga>(), any()) } answers { mangaRepository.update(firstArg<Manga>(), secondArg()) }
         every { anyConstructed<MangaRepository>().delete(any<Manga>()) } answers { mangaRepository.delete(firstArg<Manga>()) }
-        
+
         mockkConstructor(BookRepository::class)
         every { anyConstructed<BookRepository>().listHistory() } answers { bookRepository.listHistory() }
         every { anyConstructed<BookRepository>().save(any<Book>(), any()) } answers { bookRepository.save(firstArg<Book>(), secondArg()) }
@@ -102,6 +105,10 @@ class HistoryViewModelTest {
         mockkConstructor(TagsRepository::class)
         every { anyConstructed<TagsRepository>().list() } returns arrayListOf()
 
+        GeneralConsts.getSharedPreferences(application).edit()
+            .putString(GeneralConsts.KEYS.LIBRARY.HISTORY_TYPE, HistoryType.LINE_DATE.toString())
+            .commit()
+
         viewModel = HistoryViewModel(application)
     }
 
@@ -109,57 +116,107 @@ class HistoryViewModelTest {
     fun tearDown() {
         try {
             unmockkAll()
-        } catch (e: Throwable) {}
+        } catch (_: Throwable) {}
         Dispatchers.resetMain()
     }
 
     @Test
     fun `list should fetch from both repositories and sort by last access`() = runTest {
         val now = LocalDateTime.now()
-        val book = Book(null, null, File("/path/Book1")).apply { lastAccess = now.minusHours(1) }
-        val manga = Manga(null, null, File("/path/Manga1")).apply { lastAccess = now }
-        
+        val book = Book(null, null, File("/path/Book1")).apply {
+            id = 1L
+            lastAccess = now.minusHours(1)
+        }
+        val manga = Manga(null, null, File("/path/Manga1")).apply {
+            id = 2L
+            lastAccess = now
+        }
+
         every { bookRepository.listHistory() } returns mutableListOf(book)
         every { mangaRepository.listHistory() } returns mutableListOf(manga)
-        
+
         mockkStatic(Dispatchers::class)
         every { Dispatchers.IO } returns testDispatcher
 
         viewModel.list()
-        
+
         val history = viewModel.history.value
         assertNotNull(history)
-        assertEquals(2, history!!.size)
-        // Manga should be first (more recent)
-        assertEquals("Manga1", history[0].name)
-        assertEquals("Book1", history[1].name)
+        // Separator + manga + Separator? + book — at least manga comes before book among History items
+        val content = history!!.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>()
+        assertEquals(2, content.size)
+        assertEquals("Manga1", content[0].name)
+        assertEquals("Book1", content[1].name)
+        assertTrue(history.any { it is Separator })
     }
 
     @Test
     fun `filterType should filter history by manga or book`() {
         val book = Book(1L, 1L, File("/path/Book1")).apply { lastAccess = LocalDateTime.now() }
         val manga = Manga(1L, 1L, File("/path/Manga1")).apply { lastAccess = LocalDateTime.now() }
-        
+
         viewModel.update(mutableListOf(book, manga))
-        
+
         viewModel.filterType(Type.MANGA)
-        assertEquals(1, viewModel.history.value!!.size)
-        assertTrue(viewModel.history.value!![0] is Manga)
-        
+        val mangaList = viewModel.history.value!!.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>()
+        assertEquals(1, mangaList.size)
+        assertTrue(mangaList[0] is Manga)
+
         viewModel.filterType(Type.BOOK)
-        assertEquals(1, viewModel.history.value!!.size)
-        assertTrue(viewModel.history.value!![0] is Book)
+        val bookList = viewModel.history.value!!.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>()
+        assertEquals(1, bookList.size)
+        assertTrue(bookList[0] is Book)
     }
 
     @Test
     fun `save should call appropriate repository based on entity type`() {
         val book = Book(null, null, File("/path/Book"))
         val manga = Manga(null, null, File("/path/Manga"))
-        
+
         viewModel.save(book)
         verify { bookRepository.save(book, any()) }
-        
+
         viewModel.save(manga)
         verify { mangaRepository.save(manga, any()) }
+    }
+
+    @Test
+    fun `changeHistoryType should cycle layout types`() {
+        assertEquals(HistoryType.LINE_DATE, viewModel.historyType.value)
+
+        viewModel.changeHistoryType()
+        assertEquals(HistoryType.SERIES_LINE, viewModel.historyType.value)
+
+        viewModel.changeHistoryType()
+        assertEquals(HistoryType.SERIES_CAROUSEL, viewModel.historyType.value)
+
+        viewModel.changeHistoryType()
+        assertEquals(HistoryType.LINE_DATE, viewModel.historyType.value)
+    }
+
+    @Test
+    fun `series layout should group items by series`() {
+        val now = LocalDateTime.now()
+        val manga1 = Manga(1L, 1L, File("/path/Manga1")).apply {
+            lastAccess = now
+            series = "One Piece"
+        }
+        val manga2 = Manga(2L, 1L, File("/path/Manga2")).apply {
+            lastAccess = now.minusHours(1)
+            series = "One Piece"
+        }
+        val book = Book(3L, 1L, File("/path/Book1")).apply {
+            lastAccess = now.minusHours(2)
+            series = "Lord of the Rings"
+        }
+
+        viewModel.update(mutableListOf(manga1, manga2, book))
+        viewModel.setHistoryType(HistoryType.SERIES_LINE)
+
+        val history = viewModel.history.value!!
+        assertTrue(history.any { it is Separator && it.title == "One Piece" })
+        assertTrue(history.any { it is Separator && it.title == "Lord of the Rings" })
+        assertEquals(2, history.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>()
+            .count { it.series == "One Piece" })
     }
 }

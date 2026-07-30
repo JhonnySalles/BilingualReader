@@ -5,33 +5,35 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 
 
-class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), HistoryBaseAdapter {
 
     private lateinit var mListener: HistoryCardListener
-    private var mHistoryList: ArrayList<History> = arrayListOf()
-    var isAnimation: Boolean = true
+    private var mHistoryList: ArrayList<Any> = arrayListOf()
+    override var isAnimation: Boolean = true
 
     companion object {
         private const val HEADER = 1
         private const val CONTENT = 0
     }
 
-    override fun getItemViewType(position: Int): Int = if (mHistoryList[position].id == null) HEADER else CONTENT
+    override fun getItemViewType(position: Int): Int =
+        if (mHistoryList[position] is Separator) HEADER else CONTENT
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             HEADER -> {
-                (holder as HistoryHeaderViewHolder).bind(mHistoryList[position])
+                (holder as HistoryHeaderViewHolder).bind(mHistoryList[position] as Separator)
 
                 if (isAnimation)
                     holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
             }
             else -> {
-                (holder as HistoryViewHolder).bind(mHistoryList[position])
+                (holder as HistoryViewHolder).bind(mHistoryList[position] as History)
 
                 if (isAnimation)
                     holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
@@ -50,21 +52,21 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return mHistoryList.size
     }
 
-    fun updateList(list: ArrayList<History>) {
+    override fun updateList(list: ArrayList<Any>) {
         mHistoryList = list
         notifyDataSetChanged()
     }
 
-    fun attachListener(listener: HistoryCardListener) {
+    override fun attachListener(listener: HistoryCardListener) {
         mListener = listener
     }
 
-    fun getItem(position: Int): History? {
+    override fun getItem(position: Int): History? {
         val item = mHistoryList.getOrNull(position)
         return if (item is History) item else null
     }
 
-    fun remove(history: History) {
+    override fun remove(history: History) {
         val index = mHistoryList.indexOf(history)
         if (index != -1) {
             mHistoryList.removeAt(index)
@@ -72,7 +74,7 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    fun notifyItemChanged(history: History) {
+    override fun notifyItemChanged(history: History) {
         if (mHistoryList.contains(history))
             notifyItemChanged(mHistoryList.indexOf(history))
     }

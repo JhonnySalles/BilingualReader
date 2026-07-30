@@ -38,7 +38,7 @@ class HistoryPopupOrder : Fragment() {
             mOrderFavorite to Order.Favorite
         )
 
-        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, true)
+        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, false)
         setChecked(mCheckList, currentOrder.first, currentOrder.second)
         addListener(mCheckList)
         observer()

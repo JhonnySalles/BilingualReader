@@ -48,6 +48,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
@@ -58,7 +59,10 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
-import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
+import br.com.fenix.bilingualreader.view.adapter.history.HistoryCoverCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.history.HistoryLineCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -84,6 +88,7 @@ class HistoryFragment : Fragment() {
     private lateinit var miSearch: MenuItem
     private var searchView: SearchView by autoCleared()
     private lateinit var miFilterType: MenuItem
+    private lateinit var miLayoutType: MenuItem
 
     private var mSkeletonLayout: LinearLayout by autoCleared()
     private var mShimmer: ShimmerLayout by autoCleared()
@@ -99,7 +104,9 @@ class HistoryFragment : Fragment() {
     private var mPopupOrderFragment: HistoryPopupOrder by autoCleared()
     private lateinit var miGridOrder: MenuItem
     private var mSortType: Order = Order.LastAccess
-    private var mSortDesc: Boolean = true
+    private var mSortDesc: Boolean = false
+    private var mHistoryType: HistoryType = HistoryType.LINE_DATE
+    private lateinit var mListener: HistoryCardListener
     private var _mBottomSheet: BottomSheetBehavior<FrameLayout>? = null
     private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
 
@@ -214,7 +221,7 @@ class HistoryFragment : Fragment() {
         miFilterType.setIcon(iconType)
 
         miGridOrder = menu.findItem(R.id.menu_history_list_order)
-        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, true)
+        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, false)
         mSortType = currentOrder.first
         mSortDesc = currentOrder.second
         val iconSort: Int = when (mSortType) {
@@ -223,6 +230,10 @@ class HistoryFragment : Fragment() {
             else -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
         }
         miGridOrder.setIcon(iconSort)
+
+        miLayoutType = menu.findItem(R.id.menu_history_type_layout)
+        mHistoryType = mViewModel.historyType.value ?: HistoryType.LINE_DATE
+        miLayoutType.setIcon(getLayoutIcon(mHistoryType, exit = true))
 
         MenuUtil.longClick(requireActivity(), R.id.menu_history_list_order) {
             onOpenMenuHistory(1)
@@ -322,6 +333,7 @@ class HistoryFragment : Fragment() {
         when (menuItem.itemId) {
             R.id.menu_history_library -> {}
             R.id.menu_history_list_order -> onChangeSort()
+            R.id.menu_history_type_layout -> mViewModel.changeHistoryType()
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -461,21 +473,22 @@ class HistoryFragment : Fragment() {
             }
 
             override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-                if (viewHolder.itemViewType == 1) { // 1 is HEADER in HistoryCardAdapter
+                if (mHistoryType == HistoryType.SERIES_CAROUSEL)
                     return 0
-                }
+                if (viewHolder.itemViewType == 1) // HEADER
+                    return 0
                 return super.getSwipeDirs(recyclerView, viewHolder)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.bindingAdapterPosition
                 if (position == RecyclerView.NO_POSITION) return
-                val adapter = mRecyclerView.adapter as? HistoryCardAdapter ?: return
+                val adapter = mRecyclerView.adapter as? HistoryBaseAdapter ?: return
                 val history = adapter.getItem(position) ?: return
                 mRecyclerView.post {
                     mViewModel.remove(history)
-                    mRecyclerView.adapter?.notifyItemRemoved(position)
-                    
+                    updateList(mViewModel.history.value ?: arrayListOf())
+
                     var excluded = false
                     val dialog: AlertDialog =
                         MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
@@ -488,8 +501,8 @@ class HistoryFragment : Fragment() {
                                 excluded = true
                             }.setOnDismissListener {
                                 if (!excluded) {
-                                    mViewModel.add(history, position)
-                                    mRecyclerView.adapter?.notifyItemInserted(position)
+                                    mViewModel.add(history)
+                                    updateList(mViewModel.history.value ?: arrayListOf())
                                 }
                             }
                             .create()
@@ -500,10 +513,7 @@ class HistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val historyAdapter = HistoryCardAdapter()
-        mRecyclerView.adapter = historyAdapter
-        mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
-        val listener = object : HistoryCardListener {
+        mListener = object : HistoryCardListener {
             override fun onClick(history: History) {
                 when (history) {
                     is Manga -> open(history)
@@ -518,7 +528,7 @@ class HistoryFragment : Fragment() {
                 }
             }
         }
-        historyAdapter.attachListener(listener)
+        generateLayout(mViewModel.historyType.value ?: HistoryType.LINE_DATE)
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -609,8 +619,38 @@ class HistoryFragment : Fragment() {
 
     }
 
+    private fun generateLayout(type: HistoryType) {
+        mHistoryType = type
+        val adapter: HistoryBaseAdapter = when (type) {
+            HistoryType.SERIES_CAROUSEL -> HistorySeriesCardAdapter()
+            else -> HistoryLineCardAdapter()
+        }
+        adapter.attachListener(mListener)
+        mRecyclerView.adapter = adapter as RecyclerView.Adapter<*>
+        mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+        updateList(mViewModel.history.value ?: arrayListOf())
+    }
+
+    private fun getLayoutIcon(type: HistoryType, exit: Boolean): Int {
+        return when (type) {
+            HistoryType.LINE_DATE -> if (exit) R.drawable.ico_animated_type_grid_list_exit else R.drawable.ico_animated_type_grid_list_enter
+            HistoryType.SERIES_LINE -> if (exit) R.drawable.ico_animated_type_grid_gridmedium_separator_exit else R.drawable.ico_animated_type_grid_gridmedium_separator_enter
+            HistoryType.SERIES_CAROUSEL -> if (exit) R.drawable.ico_animated_type_grid_gridbig_separator_exit else R.drawable.ico_animated_type_grid_gridbig_separator_enter
+        }
+    }
+
+    private fun onChangeIconLayout(type: HistoryType) {
+        if (!::miLayoutType.isInitialized)
+            return
+
+        val initial = getLayoutIcon(mHistoryType, exit = true)
+        val final = getLayoutIcon(type, exit = false)
+        MenuUtil.animatedSequenceDrawable(miLayoutType, initial, final)
+        mHistoryType = type
+    }
+
     private fun setAnimationRecycler(isAnimate: Boolean) {
-        (mRecyclerView.adapter as HistoryCardAdapter).isAnimation = isAnimate
+        (mRecyclerView.adapter as? HistoryBaseAdapter)?.isAnimation = isAnimate
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -659,8 +699,8 @@ class HistoryFragment : Fragment() {
         }
     }
 
-    private fun updateList(list: ArrayList<History>) {
-        (mRecyclerView.adapter as HistoryCardAdapter).updateList(list)
+    private fun updateList(list: ArrayList<Any>) {
+        (mRecyclerView.adapter as? HistoryBaseAdapter)?.updateList(list)
     }
 
     private fun observer() {
@@ -689,6 +729,15 @@ class HistoryFragment : Fragment() {
 
         mViewModel.order.observe(viewLifecycleOwner) {
             onChangeIconSort(it.first, it.second)
+        }
+
+        mViewModel.historyType.observe(viewLifecycleOwner) {
+            if (!::mListener.isInitialized)
+                return@observe
+            if (it == mHistoryType && mRecyclerView.adapter != null)
+                return@observe
+            onChangeIconLayout(it)
+            generateLayout(it)
         }
     }
 
@@ -802,7 +851,7 @@ class HistoryFragment : Fragment() {
                 manga.excluded = true
                 mViewModel.updateDelete(manga)
                 mRecyclerView.adapter?.let {
-                    (it as HistoryCardAdapter).notifyItemChanged(manga)
+                    (it as HistoryBaseAdapter).notifyItemChanged(manga)
                 }
             }
 
@@ -833,7 +882,7 @@ class HistoryFragment : Fragment() {
                 book.excluded = true
                 mViewModel.updateDelete(book)
                 mRecyclerView.adapter?.let {
-                    (it as HistoryCardAdapter).notifyItemChanged(book)
+                    (it as HistoryBaseAdapter).notifyItemChanged(book)
                 }
             }
 
@@ -863,13 +912,13 @@ class HistoryFragment : Fragment() {
                 R.id.menu_item_manga_file_favorite -> {
                     manga.favorite = !manga.favorite
                     mViewModel.save(manga)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(manga)
                 }
                 R.id.menu_item_manga_file_clear -> {
                     manga.lastAccess = LocalDateTime.MIN
                     manga.bookMark = 0
                     mViewModel.clear(manga)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(manga)
                 }
                 R.id.menu_item_manga_file_delete -> {
                     val dialog: AlertDialog =
@@ -883,7 +932,7 @@ class HistoryFragment : Fragment() {
                                 R.string.action_positive
                             ) { _, _ ->
                                 mViewModel.deletePermanent(manga)
-                                (mRecyclerView.adapter as HistoryCardAdapter).remove(manga)
+                                mViewModel.remove(manga)
                             }
                             .setNegativeButton(
                                 R.string.action_negative
@@ -914,13 +963,13 @@ class HistoryFragment : Fragment() {
                 R.id.menu_item_book_file_favorite -> {
                     book.favorite = !book.favorite
                     mViewModel.save(book)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(book)
                 }
                 R.id.menu_item_book_file_clear -> {
                     book.lastAccess = LocalDateTime.MIN
                     book.bookMark = 0
                     mViewModel.clear(book)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(book)
                 }
                 R.id.menu_item_book_file_delete -> {
                     val dialog: AlertDialog =
@@ -934,7 +983,7 @@ class HistoryFragment : Fragment() {
                                 R.string.action_positive
                             ) { _, _ ->
                                 mViewModel.deletePermanent(book)
-                                (mRecyclerView.adapter as HistoryCardAdapter).remove(book)
+                                mViewModel.remove(book)
                             }
                             .setNegativeButton(
                                 R.string.action_negative
@@ -996,6 +1045,7 @@ class HistoryFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        HistoryCoverCardAdapter.clearCoverCache()
         mHandler.removeCallbacksAndMessages(null)
         _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
         _mBottomSheet = null
