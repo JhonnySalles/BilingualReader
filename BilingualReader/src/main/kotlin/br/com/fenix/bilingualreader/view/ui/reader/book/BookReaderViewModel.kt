@@ -797,6 +797,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
                 bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.RGB_565)
                 val canvas = Canvas(bitmap)
+                canvas.drawColor(if (isDark) Color.BLACK else Color.WHITE)
                 val measuredWidth = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.width, View.MeasureSpec.EXACTLY)
                 val measuredHeight = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.height, View.MeasureSpec.EXACTLY)
                 textView.measure(measuredWidth, measuredHeight)
