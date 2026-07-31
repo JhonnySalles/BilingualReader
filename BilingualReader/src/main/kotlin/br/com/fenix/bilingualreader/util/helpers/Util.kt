@@ -927,6 +927,16 @@ class ImageUtil {
             return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         }
 
+        fun decodeImageBase64(image: String, reqWidth: Int, reqHeight: Int): Bitmap? {
+            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+            options.inJustDecodeBounds = false
+            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+        }
+
         fun imageToInputStream(image: Bitmap): InputStream {
             val output = ByteArrayOutputStream()
             return output.use { otp ->

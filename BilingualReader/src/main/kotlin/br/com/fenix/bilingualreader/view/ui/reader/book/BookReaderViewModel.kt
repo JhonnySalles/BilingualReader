@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.text.LineBreaker.JUSTIFICATION_MODE_INTER_WORD
@@ -17,7 +16,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
-import android.util.Base64
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -739,21 +737,52 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     // --------------------------------------------------------- Book - Chapters ---------------------------------------------------------
     var isLoadChapters = false
     var stopLoadChapters = false
-    private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView : TextView) : Bitmap? {
+
+    private fun createChapterThumbnailTextView(context: Context, renderWidth: Int, renderHeight: Int, fontScale: Float): TextView {
+        val textView = TextView(context)
+        changeTextStyle(textView)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (getFontSize() * fontScale).coerceAtLeast(4f))
+        textView.layoutParams.width = renderWidth
+        textView.layoutParams.height = renderHeight
+        return textView
+    }
+
+    private fun getChapterThumbnailRenderSize(): Triple<Int, Int, Float> {
+        val metrics = Resources.getSystem().displayMetrics
+        val renderWidth = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH * ReaderConsts.PAGE.PAGE_CHAPTER_THUMBNAIL_SCALE,
+            metrics
+        ).toInt()
+        val renderHeight = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT * ReaderConsts.PAGE.PAGE_CHAPTER_THUMBNAIL_SCALE,
+            metrics
+        ).toInt()
+        val fontScale = (renderWidth.toFloat() / metrics.widthPixels).coerceIn(0.15f, 0.6f)
+        return Triple(renderWidth, renderHeight, fontScale)
+    }
+
+    private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView: TextView, imageMaxWidth: Int): Bitmap? {
         try {
-            var text = parse.getPage(page).pageHTMLWithImages.orEmpty()
+            val documentPage = parse.getPage(page)
+            var text = documentPage.pageHTMLWithImages.orEmpty()
 
             if (text.contains("<image-begin>image"))
                 text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
-            val html = "<body>${TextUtil.formatHtml(text)}</body>"
-
-            val isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
-
-            val bitmap :Bitmap
+            val content = TextUtil.formatHtml(text).trim()
+            val isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
+            val bitmap: Bitmap
 
             if (!isOnlyImage) {
-                val processed = SpannableString(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY))
+                val html = "<body>$content</body>"
+                val processed = SpannableString(
+                    if (html.contains("<img"))
+                        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY, ImageGetter(context, textView, imageMaxWidth), null)
+                    else
+                        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+                )
 
                 val marks = mAnnotation.filter { it.page == page }
                 if (marks.isNotEmpty()) {
@@ -764,20 +793,27 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     }
                 }
                 textView.text = processed
-                parse.getPage(page).recycle()
+                documentPage.recycle()
 
-                bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.ARGB_8888)
+                bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.RGB_565)
                 val canvas = Canvas(bitmap)
                 val measuredWidth = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.width, View.MeasureSpec.EXACTLY)
                 val measuredHeight = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.height, View.MeasureSpec.EXACTLY)
                 textView.measure(measuredWidth, measuredHeight)
                 textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
-
                 textView.draw(canvas)
             } else {
-                val image = text.substringAfter("<img").substringBefore("/>")
-                val bytes: ByteArray = Base64.decode(image.substringAfter(",").trim(), Base64.DEFAULT)
-                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                documentPage.recycle()
+                val images = TextUtil.getImagesFromTag(text)
+                val bitmaps = images.mapNotNull {
+                    ImageUtil.decodeImageBase64(it.substringAfter(",").trim(), imageMaxWidth, imageMaxWidth)
+                }
+                bitmap = when {
+                    bitmaps.isEmpty() -> return null
+                    bitmaps.size == 1 -> bitmaps[0]
+                    TextUtil.hasBrBetweenImages(text) -> ImageUtil.combineImagesVertically(bitmaps) ?: bitmaps[0]
+                    else -> ImageUtil.combineImagesHorizontally(bitmaps) ?: bitmaps[0]
+                }
             }
             return bitmap
         } catch (e: Exception) {
@@ -818,25 +854,31 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 list.add(Chapters(title.title, i, i + 1, 0f, false, isSelected = number == i + 1))
             }
 
-            val textView = TextView(context)
-            changeTextStyle(textView)
-            textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
-            textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+            val (renderWidth, renderHeight, fontScale) = getChapterThumbnailRenderSize()
+            val textView = createChapterThumbnailTextView(context, renderWidth, renderHeight, fontScale)
+
+            val startIndex = list.indexOfFirst { !it.isTitle && it.page - 1 >= number }
+                .let { if (it >= 0) it else list.indexOfLast { c -> !c.isTitle } }
+            val orderedIndices = mutableListOf<Int>()
+            if (startIndex >= 0) {
+                for (i in startIndex until list.size)
+                    if (!list[i].isTitle) orderedIndices.add(i)
+                for (i in startIndex - 1 downTo 0)
+                    if (!list[i].isTitle) orderedIndices.add(i)
+            }
 
             SharedData.setChapters(parse, list)
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
-                    for (chapter in list) {
+                    for (index in orderedIndices) {
                         if (stopLoadChapters)
                             break
 
-                        if (chapter.isTitle)
-                            continue
-
-                        chapter.image = loadImage(context, parse, chapter.number, textView)
+                        val chapter = list[index]
+                        chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
                         withContext(Dispatchers.Main) {
                             if (!stopLoadChapters)
-                                SharedData.callListeners(chapter.number)
+                                SharedData.callListeners(index)
                         }
                     }
                 }
@@ -855,24 +897,23 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun refreshImageChapter(context: Context, parse: DocumentParse) {
-        val textView = TextView(context)
-        changeTextStyle(textView)
-        textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
-        textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+        val (renderWidth, renderHeight, fontScale) = getChapterThumbnailRenderSize()
+        val textView = createChapterThumbnailTextView(context, renderWidth, renderHeight, fontScale)
+        val chapters = SharedData.chapters.value ?: return
 
         CoroutineScope(Dispatchers.IO).launch {
             val deferred = async {
-                for (chapter in SharedData.chapters.value!!) {
+                for ((index, chapter) in chapters.withIndex()) {
                     if (stopLoadChapters)
                         break
 
                     if (chapter.isTitle || chapter.image != null)
                         continue
 
-                    chapter.image = loadImage(context, parse, chapter.number, textView)
+                    chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
                     withContext(Dispatchers.Main) {
                         if (!stopLoadChapters)
-                            SharedData.callListeners(chapter.number)
+                            SharedData.callListeners(index)
                     }
                 }
             }

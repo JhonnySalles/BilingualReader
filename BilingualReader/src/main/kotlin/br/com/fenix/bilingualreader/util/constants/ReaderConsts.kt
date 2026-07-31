@@ -23,6 +23,7 @@ class ReaderConsts {
     object PAGE {
         const val PAGE_CHAPTER_LIST_HEIGHT = 150
         const val PAGE_CHAPTER_LIST_WIDTH = 100
+        const val PAGE_CHAPTER_THUMBNAIL_SCALE = 3f
     }
 
     object PAGESLINK {
