@@ -87,9 +87,12 @@ import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaCoverCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorLineCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
@@ -322,6 +325,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_exit
             LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_exit
             LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_exit
+            LibraryMangaType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_exit
+            LibraryMangaType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_exit
             LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_exit
             else -> R.drawable.ico_animated_type_grid_list_exit
         }
@@ -409,6 +414,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun onDestroyView() {
+        MangaCoverCardAdapter.clearCoverCache()
         (mRecyclerView.itemAnimator as? BlurAwareItemAnimator)?.destroy()
         mHandler.removeCallbacksAndMessages(null)
         _searchView = null
@@ -542,7 +548,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             when (mViewModel.libraryType.value) {
                 LibraryMangaType.SEPARATOR_BIG,
                 LibraryMangaType.SEPARATOR_MEDIUM,
-                    -> updateList(mViewModel.listMangas.value!!)
+                LibraryMangaType.SEPARATOR_CAROUSEL,
+                LibraryMangaType.SEPARATOR_LINE -> updateList(mViewModel.listMangas.value!!)
                 else -> notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
             }
         }
@@ -628,6 +635,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_exit
             LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_exit
             LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_exit
+            LibraryMangaType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_exit
+            LibraryMangaType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_exit
             LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_exit
             else -> null
         }
@@ -638,6 +647,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_enter
             LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_enter
             LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_enter
+            LibraryMangaType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_enter
+            LibraryMangaType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_enter
             LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_enter
             else -> null
         }
@@ -819,29 +830,25 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
                     intent.putExtras(bundle)
 
-                    val idText = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-                        R.id.manga_grid_text_title
-                    else
-                        R.id.manga_line_text_title
+                    val type = mViewModel.libraryType.value
+                    if (type == LibraryMangaType.SEPARATOR_CAROUSEL) {
+                        context?.startActivity(intent)
+                        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                    } else {
+                        val isLine = type == LibraryMangaType.LINE || type == LibraryMangaType.SEPARATOR_LINE
+                        val idText = if (isLine) R.id.manga_line_text_title else R.id.manga_grid_text_title
+                        val idProgress = if (isLine) R.id.manga_line_progress else R.id.manga_grid_progress
+                        val idCover = if (isLine) R.id.manga_line_image_cover else R.id.manga_grid_image_cover
 
-                    val idProgress = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-                        R.id.manga_grid_progress
-                    else
-                        R.id.manga_line_progress
+                        val pImageCover: Pair<View, String> = Pair(root.findViewById<ImageView>(idCover), "transition_manga_cover")
+                        val pTitle: Pair<View, String> = Pair(root.findViewById<TextView>(idText), "transition_manga_title")
+                        val pProgress: Pair<View, String> = Pair(root.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
-                    val idCover = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-                        R.id.manga_grid_image_cover
-                    else
-                        R.id.manga_line_image_cover
+                        val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pProgress))
 
-                    val pImageCover: Pair<View, String> = Pair(root.findViewById<ImageView>(idCover), "transition_manga_cover")
-                    val pTitle: Pair<View, String> = Pair(root.findViewById<TextView>(idText), "transition_manga_title")
-                    val pProgress: Pair<View, String> = Pair(root.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
-
-                    val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pProgress))
-
-                    context?.startActivity(intent, options.toBundle())
-                    requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        context?.startActivity(intent, options.toBundle())
+                        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                    }
                 } else {
                     removeList(manga)
                     mViewModel.delete(manga)
@@ -950,20 +957,17 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent.putExtras(bundle)
 
-        val idText = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-            R.id.manga_grid_text_title
-        else
-            R.id.manga_line_text_title
+        val type = mViewModel.libraryType.value
+        if (type == LibraryMangaType.SEPARATOR_CAROUSEL) {
+            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_DETAIL)
+            return
+        }
 
-        val idProgress = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-            R.id.manga_grid_progress
-        else
-            R.id.manga_line_progress
-
-        val idCover = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-            R.id.manga_grid_image_cover
-        else
-            R.id.manga_line_image_cover
+        val isLine = type == LibraryMangaType.LINE || type == LibraryMangaType.SEPARATOR_LINE
+        val idText = if (isLine) R.id.manga_line_text_title else R.id.manga_grid_text_title
+        val idProgress = if (isLine) R.id.manga_line_progress else R.id.manga_grid_progress
+        val idCover = if (isLine) R.id.manga_line_image_cover else R.id.manga_grid_image_cover
 
         val pImageCover: Pair<View, String> = Pair(view.findViewById<ImageView>(idCover), "transition_manga_cover")
         val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_manga_title")
@@ -1041,23 +1045,39 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun generateLayout(type: LibraryMangaType) {
-        if (type == LibraryMangaType.LINE){
-            val lineAdapter = MangaLineCardAdapter()
-            mRecyclerView.adapter = lineAdapter
-            mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
-            lineAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
-        } else {
-            val gridAdapter = when (type) {
-                LibraryMangaType.SEPARATOR_BIG,
-                LibraryMangaType.SEPARATOR_MEDIUM,
-                    -> MangaSeparatorGridCardAdapter(requireContext(), type)
-                else -> MangaGridCardAdapter(type)
+        when (type) {
+            LibraryMangaType.LINE -> {
+                val lineAdapter = MangaLineCardAdapter()
+                mRecyclerView.adapter = lineAdapter
+                mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+                lineAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
             }
-            mRecyclerView.adapter = gridAdapter
-            mRecyclerView.layoutManager = getGridLayout()
-            gridAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+            LibraryMangaType.SEPARATOR_LINE -> {
+                val lineAdapter = MangaSeparatorLineCardAdapter(requireContext())
+                mRecyclerView.adapter = lineAdapter
+                mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+                lineAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+            }
+            LibraryMangaType.SEPARATOR_CAROUSEL -> {
+                val seriesAdapter = MangaSeriesCardAdapter(requireContext())
+                mRecyclerView.adapter = seriesAdapter
+                mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+                seriesAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+            }
+            else -> {
+                val gridAdapter = when (type) {
+                    LibraryMangaType.SEPARATOR_BIG,
+                    LibraryMangaType.SEPARATOR_MEDIUM -> MangaSeparatorGridCardAdapter(requireContext(), type)
+                    else -> MangaGridCardAdapter(type)
+                }
+                mRecyclerView.adapter = gridAdapter
+                mRecyclerView.layoutManager = getGridLayout()
+                gridAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+            }
         }
     }
 
@@ -1205,6 +1225,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             }
 
             override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
+                if (mViewModel.libraryType.value == LibraryMangaType.SEPARATOR_CAROUSEL)
+                    return 0
                 if (viewHolder.itemViewType == 1) { // 1 is HEADER in separator adapters
                     return 0
                 }
@@ -1269,7 +1291,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         when (mViewModel.libraryType.value) {
             LibraryMangaType.SEPARATOR_BIG,
             LibraryMangaType.SEPARATOR_MEDIUM,
-                -> updateList(mViewModel.listMangas.value!!)
+            LibraryMangaType.SEPARATOR_CAROUSEL,
+            LibraryMangaType.SEPARATOR_LINE -> updateList(mViewModel.listMangas.value!!)
             else -> notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
         }
     }
@@ -1326,8 +1349,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (mViewModel.libraryType.value != LibraryMangaType.LINE) {
-                if (mViewModel.libraryType.value == LibraryMangaType.GRID_SMALL && resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
+            val type = mViewModel.libraryType.value
+            if (type != LibraryMangaType.LINE && type != LibraryMangaType.SEPARATOR_LINE && type != LibraryMangaType.SEPARATOR_CAROUSEL) {
+                if (type == LibraryMangaType.GRID_SMALL && resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
                     mViewModel.changeLibraryType()
                 else {
                     mRecyclerView.layoutManager = getGridLayout()
@@ -1341,9 +1365,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun getSkeletonRowCount(type: LibraryMangaType): Int {
         val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
-        val skeletonTitleHeight = if (type == LibraryMangaType.SEPARATOR_MEDIUM || type == LibraryMangaType.SEPARATOR_BIG) resources.getDimension(R.dimen.manga_grid_skeleton_title_height).toInt() else 0
+        val skeletonTitleHeight = if (type == LibraryMangaType.SEPARATOR_MEDIUM || type == LibraryMangaType.SEPARATOR_BIG ||
+            type == LibraryMangaType.SEPARATOR_CAROUSEL || type == LibraryMangaType.SEPARATOR_LINE
+        ) resources.getDimension(R.dimen.manga_grid_skeleton_title_height).toInt() else 0
         val resource = when(type) {
-            LibraryMangaType.LINE -> R.dimen.manga_line_skeleton_height
+            LibraryMangaType.LINE,
+            LibraryMangaType.SEPARATOR_LINE,
+            LibraryMangaType.SEPARATOR_CAROUSEL -> R.dimen.manga_line_skeleton_height
             LibraryMangaType.SEPARATOR_BIG -> R.dimen.manga_grid_skeleton_height_separator_big
             LibraryMangaType.SEPARATOR_MEDIUM -> R.dimen.manga_grid_skeleton_height_separator_medium
             LibraryMangaType.GRID_BIG -> R.dimen.manga_grid_skeleton_height_big
@@ -1387,11 +1415,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
             val type = mViewModel.libraryType.value ?: LibraryMangaType.LINE
 
-            if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.SEPARATOR_MEDIUM)
+            if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.SEPARATOR_MEDIUM ||
+                type == LibraryMangaType.SEPARATOR_CAROUSEL || type == LibraryMangaType.SEPARATOR_LINE
+            )
                 mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_manga_skeleton_title, null))
 
             for (i in 0..getSkeletonRowCount(type)) {
-                if (type == LibraryMangaType.LINE)
+                if (type == LibraryMangaType.LINE || type == LibraryMangaType.SEPARATOR_LINE || type == LibraryMangaType.SEPARATOR_CAROUSEL)
                     mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_manga_skeleton, null))
                 else {
                     val row = mInflater.inflate(R.layout.grid_card_manga_skeleton, null)

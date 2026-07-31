@@ -692,9 +692,9 @@ class HistoryFragment : Fragment() {
     private fun getLayoutIcon(type: HistoryType, exit: Boolean): Int {
         return when (type) {
             HistoryType.LINE -> if (exit) R.drawable.ico_animated_type_grid_list_exit else R.drawable.ico_animated_type_grid_list_enter
-            HistoryType.SEPARATOR_LINE,
+            HistoryType.SEPARATOR_LINE -> if (exit) R.drawable.ico_animated_type_grid_list_separator_exit else R.drawable.ico_animated_type_grid_list_separator_enter
             HistoryType.SEPARATOR_MEDIUM -> if (exit) R.drawable.ico_animated_type_grid_gridmedium_separator_exit else R.drawable.ico_animated_type_grid_gridmedium_separator_enter
-            HistoryType.SEPARATOR_CAROUSEL -> if (exit) R.drawable.ico_animated_type_grid_gridmedium_carousel_exit else R.drawable.ico_animated_type_grid_gridmedium_carousel_enter
+            HistoryType.SEPARATOR_CAROUSEL -> if (exit) R.drawable.ico_animated_type_grid_carousel_exit else R.drawable.ico_animated_type_grid_carousel_enter
             HistoryType.SEPARATOR_BIG -> if (exit) R.drawable.ico_animated_type_grid_gridbig_separator_exit else R.drawable.ico_animated_type_grid_gridbig_separator_enter
         }
     }

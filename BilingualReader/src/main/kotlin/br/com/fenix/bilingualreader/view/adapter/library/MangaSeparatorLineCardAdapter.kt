@@ -5,19 +5,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Separator
-import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 
-class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryMangaType) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Manga, MangaCardListener> {
+class MangaSeparatorLineCardAdapter(private val context: Context) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Manga, MangaCardListener> {
 
     private lateinit var mListener: MangaCardListener
-    private var mMangaList: MutableList<*> = mutableListOf<Manga>()
+    private var mMangaList: MutableList<Any> = mutableListOf()
     override var isAnimation: Boolean = true
 
     companion object {
@@ -25,31 +24,18 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
         private const val CONTENT = 0
     }
 
-    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewAttachedToWindow(holder)
-
-        val lp = holder.itemView.layoutParams
-        when (holder.itemViewType) {
-            HEADER -> {
-                if (lp is StaggeredGridLayoutManager.LayoutParams)
-                    lp.isFullSpan = true
-            }
-            else -> {
-                if (lp is StaggeredGridLayoutManager.LayoutParams)
-                    lp.isFullSpan = false
-            }
-        }
-    }
-
-    override fun getItemViewType(position: Int): Int = if (mMangaList[position] is Separator) HEADER else CONTENT
+    override fun getItemViewType(position: Int): Int =
+        if (mMangaList[position] is Separator) HEADER else CONTENT
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            HEADER -> MangaSeparatorHeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.grid_separator_header, parent, false))
-            else ->  {
-                val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_manga, parent, false)
-                MangaSeparatorGridViewHolder(type, item, mListener)
-            }
+            HEADER -> MangaSeparatorHeaderViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.grid_separator_header, parent, false)
+            )
+            else -> MangaLineViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.line_card_manga, parent, false),
+                mListener
+            )
         }
     }
 
@@ -59,26 +45,23 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
                 (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
             }
             else -> {
-                (holder as MangaSeparatorGridViewHolder).bind(mMangaList[position] as Manga)
+                (holder as MangaLineViewHolder).bind(mMangaList[position] as Manga)
                 if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
+                    holder.itemView.animation =
+                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_line)
             }
         }
     }
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
         when (holder.itemViewType) {
-            HEADER -> { }
-            else -> {
-                holder.itemView.clearAnimation()
-            }
+            HEADER -> {}
+            else -> holder.itemView.clearAnimation()
         }
         super.onViewDetachedFromWindow(holder)
     }
 
-    override fun getItemCount(): Int {
-        return mMangaList.size
-    }
+    override fun getItemCount(): Int = mMangaList.size
 
     override fun attachListener(listener: MangaCardListener) {
         mListener = listener
@@ -87,7 +70,7 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
     override fun removeList(manga: Manga) {
         val index = mMangaList.indexOf(manga)
         if (index != -1) {
-            (mMangaList as MutableList<Any>).removeAt(index)
+            mMangaList.removeAt(index)
             notifyItemRemoved(index)
         }
     }
@@ -99,9 +82,9 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
 
     override fun updateList(order: Order, list: MutableList<Manga>) {
         val currentSize = mMangaList.size
-        if (order == Order.None || list.isEmpty())
-            mMangaList = list
-        else {
+        if (order == Order.None || list.isEmpty()) {
+            mMangaList = list.toMutableList()
+        } else {
             val newList = mutableListOf<Any>()
             var last = AdapterUtils.getMangaSeparator(context, order, list[0])
             var count = 0
@@ -111,6 +94,7 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
                 if (last != item) {
                     last.items = count
                     last = item
+                    count = 0
                     newList.add(item)
                 }
                 count++
@@ -122,5 +106,4 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
         notifyItemRangeRemoved(0, currentSize)
         notifyItemRangeInserted(0, mMangaList.size)
     }
-
 }

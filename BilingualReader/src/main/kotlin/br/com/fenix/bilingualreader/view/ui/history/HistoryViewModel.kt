@@ -87,11 +87,11 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
     fun changeHistoryType() {
         val next = when (mHistoryType.value) {
-            HistoryType.LINE -> HistoryType.SEPARATOR_LINE
-            HistoryType.SEPARATOR_LINE -> HistoryType.SEPARATOR_CAROUSEL
-            HistoryType.SEPARATOR_CAROUSEL -> HistoryType.SEPARATOR_BIG
+            HistoryType.LINE -> HistoryType.SEPARATOR_BIG
             HistoryType.SEPARATOR_BIG -> HistoryType.SEPARATOR_MEDIUM
-            HistoryType.SEPARATOR_MEDIUM -> HistoryType.LINE
+            HistoryType.SEPARATOR_MEDIUM -> HistoryType.SEPARATOR_CAROUSEL
+            HistoryType.SEPARATOR_CAROUSEL -> HistoryType.SEPARATOR_LINE
+            HistoryType.SEPARATOR_LINE -> HistoryType.LINE
             else -> HistoryType.SEPARATOR_LINE
         }
         setHistoryType(next)

@@ -726,6 +726,8 @@
     <string name="popup_library_manga_type_grid_small">Grid small</string>
     <string name="popup_library_manga_type_separator_big">Grid big with separator</string>
     <string name="popup_library_manga_type_separator_medium">Grid medium with separator</string>
+    <string name="popup_library_manga_type_separator_carousel">Carousel with separator</string>
+    <string name="popup_library_manga_type_separator_line">Line with separator</string>
     <string name="popup_library_manga_type_line">Line</string>
 
     <!-- POPUP LIBRARY - Book -->
@@ -749,6 +751,8 @@
     <string name="popup_library_book_type_grid_small">Grid small</string>
     <string name="popup_library_book_type_separator_big">Grid big with separator</string>
     <string name="popup_library_book_type_separator_medium">Grid medium with separator</string>
+    <string name="popup_library_book_type_separator_carousel">Carousel with separator</string>
+    <string name="popup_library_book_type_separator_line">Line with separator</string>
     <string name="popup_library_book_type_line">Line</string>
 
     <!-- MANGA DETAIL -->

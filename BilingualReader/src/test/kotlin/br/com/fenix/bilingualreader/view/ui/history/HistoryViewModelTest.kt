@@ -187,7 +187,7 @@ class HistoryViewModelTest {
         assertEquals(HistoryType.SEPARATOR_LINE, viewModel.historyType.value)
 
         viewModel.changeHistoryType()
-        assertEquals(HistoryType.SEPARATOR_CAROUSEL, viewModel.historyType.value)
+        assertEquals(HistoryType.LINE, viewModel.historyType.value)
 
         viewModel.changeHistoryType()
         assertEquals(HistoryType.SEPARATOR_BIG, viewModel.historyType.value)
@@ -196,7 +196,7 @@ class HistoryViewModelTest {
         assertEquals(HistoryType.SEPARATOR_MEDIUM, viewModel.historyType.value)
 
         viewModel.changeHistoryType()
-        assertEquals(HistoryType.LINE, viewModel.historyType.value)
+        assertEquals(HistoryType.SEPARATOR_CAROUSEL, viewModel.historyType.value)
 
         viewModel.changeHistoryType()
         assertEquals(HistoryType.SEPARATOR_LINE, viewModel.historyType.value)

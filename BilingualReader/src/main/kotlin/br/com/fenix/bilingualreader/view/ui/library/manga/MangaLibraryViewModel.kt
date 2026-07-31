@@ -144,6 +144,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 Order.Date -> list.sortByDescending { it.dateCreate }
                 Order.LastAccess -> list.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
                 Order.Favorite -> list.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
+                Order.Author -> list.sortWith(compareByDescending<Manga> { it.author }.thenByDescending { it.name })
+                Order.Series -> list.sortWith(compareByDescending<Manga> { it.series }.thenByDescending { it.name })
                 else -> list.sortByDescending { it.name }
             }
         } else {
@@ -151,6 +153,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 Order.Date -> list.sortBy { it.dateCreate }
                 Order.LastAccess -> list.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
                 Order.Favorite -> list.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
+                Order.Author -> list.sortWith(compareByDescending<Manga> { it.author }.thenBy { it.name })
+                Order.Series -> list.sortWith(compareByDescending<Manga> { it.series }.thenBy { it.name })
                 else -> list.sortBy { it.name }
             }
         }
@@ -448,7 +452,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             LibraryMangaType.GRID_MEDIUM -> if (isLandscape) LibraryMangaType.GRID_SMALL else LibraryMangaType.SEPARATOR_BIG
             LibraryMangaType.GRID_SMALL -> LibraryMangaType.SEPARATOR_BIG
             LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.SEPARATOR_MEDIUM
-            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.LINE
+            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.SEPARATOR_CAROUSEL
+            LibraryMangaType.SEPARATOR_CAROUSEL -> LibraryMangaType.SEPARATOR_LINE
+            LibraryMangaType.SEPARATOR_LINE -> LibraryMangaType.LINE
             else -> LibraryMangaType.LINE
         }
         setLibraryType(type)

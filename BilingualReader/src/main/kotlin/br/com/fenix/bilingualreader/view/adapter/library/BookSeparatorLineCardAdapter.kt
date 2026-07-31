@@ -5,19 +5,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Separator
-import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 
-class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookType) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Book, BookCardListener> {
+class BookSeparatorLineCardAdapter(private val context: Context) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
     private lateinit var mListener: BookCardListener
-    private var mBookList: MutableList<*> = mutableListOf<Book>()
+    private var mBookList: MutableList<Any> = mutableListOf()
     override var isAnimation: Boolean = true
 
     companion object {
@@ -25,31 +24,18 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
         private const val CONTENT = 0
     }
 
-    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
-        super.onViewAttachedToWindow(holder)
-
-        val lp = holder.itemView.layoutParams
-        when (holder.itemViewType) {
-            HEADER -> {
-                if (lp is StaggeredGridLayoutManager.LayoutParams)
-                    lp.isFullSpan = true
-            }
-            else -> {
-                if (lp is StaggeredGridLayoutManager.LayoutParams)
-                    lp.isFullSpan = false
-            }
-        }
-    }
-
-    override fun getItemViewType(position: Int): Int = if (mBookList[position] is Separator) HEADER else CONTENT
+    override fun getItemViewType(position: Int): Int =
+        if (mBookList[position] is Separator) HEADER else CONTENT
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            HEADER -> BookSeparatorHeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.grid_separator_header, parent, false))
-            else ->  {
-                val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_book, parent, false)
-                BookSeparatorGridViewHolder(type, item, mListener)
-            }
+            HEADER -> BookSeparatorHeaderViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.grid_separator_header, parent, false)
+            )
+            else -> BookLineViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.line_card_book, parent, false),
+                mListener
+            )
         }
     }
 
@@ -59,26 +45,23 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
                 (holder as BookSeparatorHeaderViewHolder).bind(mBookList[position] as Separator)
             }
             else -> {
-                (holder as BookSeparatorGridViewHolder).bind(mBookList[position] as Book)
+                (holder as BookLineViewHolder).bind(mBookList[position] as Book)
                 if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
+                    holder.itemView.animation =
+                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_line)
             }
         }
     }
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
         when (holder.itemViewType) {
-            HEADER -> { }
-            else -> {
-                holder.itemView.clearAnimation()
-            }
+            HEADER -> {}
+            else -> holder.itemView.clearAnimation()
         }
         super.onViewDetachedFromWindow(holder)
     }
 
-    override fun getItemCount(): Int {
-        return mBookList.size
-    }
+    override fun getItemCount(): Int = mBookList.size
 
     override fun attachListener(listener: BookCardListener) {
         mListener = listener
@@ -87,7 +70,7 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
     override fun removeList(book: Book) {
         val index = mBookList.indexOf(book)
         if (index != -1) {
-            (mBookList as MutableList<Any>).removeAt(index)
+            mBookList.removeAt(index)
             notifyItemRemoved(index)
         }
     }
@@ -99,9 +82,9 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
 
     override fun updateList(order: Order, list: MutableList<Book>) {
         val currentSize = mBookList.size
-        if (order == Order.None || list.isEmpty())
-            mBookList = list
-        else {
+        if (order == Order.None || list.isEmpty()) {
+            mBookList = list.toMutableList()
+        } else {
             val newList = mutableListOf<Any>()
             var last = AdapterUtils.getBookSeparator(context, order, list[0])
             var count = 0
@@ -111,6 +94,7 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
                 if (last != item) {
                     last.items = count
                     last = item
+                    count = 0
                     newList.add(item)
                 }
                 count++
@@ -122,5 +106,4 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
         notifyItemRangeRemoved(0, currentSize)
         notifyItemRangeInserted(0, mBookList.size)
     }
-
 }

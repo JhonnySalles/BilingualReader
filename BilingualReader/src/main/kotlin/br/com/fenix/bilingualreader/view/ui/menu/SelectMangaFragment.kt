@@ -226,13 +226,19 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun recyclerLayout() {
-        val type = LibraryMangaType.valueOf(
-            GeneralConsts.getSharedPreferences(requireContext()).getString(
-                GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
-                LibraryMangaType.LINE.toString()
+        var type = try {
+            LibraryMangaType.valueOf(
+                GeneralConsts.getSharedPreferences(requireContext()).getString(
+                    GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
+                    LibraryMangaType.LINE.toString()
+                ).toString()
             )
-                .toString()
-        )
+        } catch (_: Exception) {
+            LibraryMangaType.LINE
+        }
+
+        if (type == LibraryMangaType.SEPARATOR_CAROUSEL || type == LibraryMangaType.SEPARATOR_LINE)
+            type = LibraryMangaType.LINE
 
         if (type != LibraryMangaType.LINE) {
             val gridAdapter = when (type) {

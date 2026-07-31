@@ -86,9 +86,12 @@ import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.BookCoverCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookSeparatorGridCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.BookSeparatorLineCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.BookSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
@@ -326,6 +329,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             LibraryBookType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_exit
             LibraryBookType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_exit
             LibraryBookType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_exit
+            LibraryBookType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_exit
+            LibraryBookType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_exit
             LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_exit
             else -> R.drawable.ico_animated_type_grid_list_exit
         }
@@ -417,6 +422,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     override fun onDestroyView() {
+        BookCoverCardAdapter.clearCoverCache()
         (mRecyclerView.itemAnimator as? BlurAwareItemAnimator)?.destroy()
         mHandler.removeCallbacksAndMessages(null)
         _searchView = null
@@ -530,7 +536,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mViewModel.sorted(orderBy)
             when (mViewModel.libraryType.value) {
                 LibraryBookType.SEPARATOR_BIG,
-                LibraryBookType.SEPARATOR_MEDIUM -> updateList(mViewModel.listBook.value!!)
+                LibraryBookType.SEPARATOR_MEDIUM,
+                LibraryBookType.SEPARATOR_CAROUSEL,
+                LibraryBookType.SEPARATOR_LINE -> updateList(mViewModel.listBook.value!!)
                 else -> notifyDataSet(0, (mViewModel.listBook.value?.size ?: 1))
             }
         }
@@ -616,6 +624,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             LibraryBookType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_exit
             LibraryBookType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_exit
             LibraryBookType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_exit
+            LibraryBookType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_exit
+            LibraryBookType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_exit
             LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_exit
             else -> null
         }
@@ -625,6 +635,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             LibraryBookType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_enter
             LibraryBookType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_enter
             LibraryBookType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_enter
+            LibraryBookType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_enter
+            LibraryBookType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_enter
             LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_enter
             else -> null
         }
@@ -807,35 +819,27 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
                     intent.putExtras(bundle)
 
-                    val idText = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-                        R.id.book_grid_title
-                    else
-                        R.id.book_line_title
+                    val type = mViewModel.libraryType.value
+                    if (type == LibraryBookType.SEPARATOR_CAROUSEL) {
+                        context?.startActivity(intent)
+                        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                    } else {
+                        val isLine = type == LibraryBookType.LINE || type == LibraryBookType.SEPARATOR_LINE
+                        val idText = if (isLine) R.id.book_line_title else R.id.book_grid_title
+                        val idAuthor = if (isLine) R.id.book_line_author else R.id.book_grid_sub_title
+                        val idProgress = if (isLine) R.id.book_line_progress else R.id.book_grid_progress
+                        val idCover = if (isLine) R.id.book_line_image_cover else R.id.book_grid_image_cover
 
-                    val idAuthor = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-                        R.id.book_grid_sub_title
-                    else
-                        R.id.book_line_author
+                        val pImageCover: Pair<View, String> = Pair(root.findViewById<ImageView>(idCover), "transition_book_cover")
+                        val pTitle: Pair<View, String> = Pair(root.findViewById<TextView>(idText), "transition_book_title")
+                        val pAuthor: Pair<View, String> = Pair(root.findViewById<TextView>(idAuthor), "transition_book_author")
+                        val pProgress: Pair<View, String> = Pair(root.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
-                    val idProgress = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-                        R.id.book_grid_progress
-                    else
-                        R.id.book_line_progress
+                        val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pAuthor, pProgress))
 
-                    val idCover = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-                        R.id.book_grid_image_cover
-                    else
-                        R.id.book_line_image_cover
-
-                    val pImageCover: Pair<View, String> = Pair(root.findViewById<ImageView>(idCover), "transition_book_cover")
-                    val pTitle: Pair<View, String> = Pair(root.findViewById<TextView>(idText), "transition_book_title")
-                    val pAuthor: Pair<View, String> = Pair(root.findViewById<TextView>(idAuthor), "transition_book_author")
-                    val pProgress: Pair<View, String> = Pair(root.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
-
-                    val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pAuthor, pProgress))
-
-                    context?.startActivity(intent, options.toBundle())
-                    requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        context?.startActivity(intent, options.toBundle())
+                        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                    }
                 } else {
                     removeList(book)
                     mViewModel.delete(book)
@@ -947,25 +951,18 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         intent.putExtras(bundle)
 
-        val idText = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-            R.id.book_grid_title
-        else
-            R.id.book_line_title
+        val type = mViewModel.libraryType.value
+        if (type == LibraryBookType.SEPARATOR_CAROUSEL) {
+            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_DETAIL)
+            return
+        }
 
-        val idAuthor = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-            R.id.book_grid_sub_title
-        else
-            R.id.book_line_author
-
-        val idProgress = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-            R.id.book_grid_progress
-        else
-            R.id.book_line_progress
-
-        val idCover = if (mViewModel.libraryType.value != LibraryBookType.LINE)
-            R.id.book_grid_image_cover
-        else
-            R.id.book_line_image_cover
+        val isLine = type == LibraryBookType.LINE || type == LibraryBookType.SEPARATOR_LINE
+        val idText = if (isLine) R.id.book_line_title else R.id.book_grid_title
+        val idAuthor = if (isLine) R.id.book_line_author else R.id.book_grid_sub_title
+        val idProgress = if (isLine) R.id.book_line_progress else R.id.book_grid_progress
+        val idCover = if (isLine) R.id.book_line_image_cover else R.id.book_grid_image_cover
 
         val pImageCover: Pair<View, String> = Pair(view.findViewById<ImageView>(idCover), "transition_book_cover")
         val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_book_title")
@@ -1034,22 +1031,39 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun generateLayout(type: LibraryBookType) {
-        if (type == LibraryBookType.LINE) {
-            val lineAdapter = BookLineCardAdapter()
-            mRecyclerView.adapter = lineAdapter
-            mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
-            lineAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
-        } else {
-            val gridAdapter = when (type) {
-                LibraryBookType.SEPARATOR_BIG,
-                LibraryBookType.SEPARATOR_MEDIUM -> BookSeparatorGridCardAdapter(requireContext(), type)
-                else -> BookGridCardAdapter(type)
+        when (type) {
+            LibraryBookType.LINE -> {
+                val lineAdapter = BookLineCardAdapter()
+                mRecyclerView.adapter = lineAdapter
+                mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+                lineAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
             }
-            mRecyclerView.adapter = gridAdapter
-            mRecyclerView.layoutManager = getGridLayout()
-            gridAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+            LibraryBookType.SEPARATOR_LINE -> {
+                val lineAdapter = BookSeparatorLineCardAdapter(requireContext())
+                mRecyclerView.adapter = lineAdapter
+                mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+                lineAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+            }
+            LibraryBookType.SEPARATOR_CAROUSEL -> {
+                val seriesAdapter = BookSeriesCardAdapter(requireContext())
+                mRecyclerView.adapter = seriesAdapter
+                mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
+                seriesAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+            }
+            else -> {
+                val gridAdapter = when (type) {
+                    LibraryBookType.SEPARATOR_BIG,
+                    LibraryBookType.SEPARATOR_MEDIUM -> BookSeparatorGridCardAdapter(requireContext(), type)
+                    else -> BookGridCardAdapter(type)
+                }
+                mRecyclerView.adapter = gridAdapter
+                mRecyclerView.layoutManager = getGridLayout()
+                gridAdapter.attachListener(mListener)
+                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+            }
         }
     }
 
@@ -1196,7 +1210,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     override fun popupOrderOnChange() {
         when (mViewModel.libraryType.value) {
             LibraryBookType.SEPARATOR_BIG,
-            LibraryBookType.SEPARATOR_MEDIUM -> updateList(mViewModel.listBook.value!!)
+            LibraryBookType.SEPARATOR_MEDIUM,
+            LibraryBookType.SEPARATOR_CAROUSEL,
+            LibraryBookType.SEPARATOR_LINE -> updateList(mViewModel.listBook.value!!)
             else -> notifyDataSet(0, (mViewModel.listBook.value?.size ?: 1))
         }
     }
@@ -1223,6 +1239,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
 
         override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
+            if (mViewModel.libraryType.value == LibraryBookType.SEPARATOR_CAROUSEL)
+                return 0
             if (viewHolder.itemViewType == 1) { // 1 is HEADER in separator adapters
                 return 0
             }
@@ -1326,9 +1344,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun getSkeletonRowCount(type: LibraryBookType): Int {
         val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
-        val skeletonTitleHeight = if (type == LibraryBookType.SEPARATOR_MEDIUM || type == LibraryBookType.SEPARATOR_BIG) resources.getDimension(R.dimen.book_grid_skeleton_title_height).toInt() else 0
+        val skeletonTitleHeight = if (type == LibraryBookType.SEPARATOR_MEDIUM || type == LibraryBookType.SEPARATOR_BIG ||
+            type == LibraryBookType.SEPARATOR_CAROUSEL || type == LibraryBookType.SEPARATOR_LINE
+        ) resources.getDimension(R.dimen.book_grid_skeleton_title_height).toInt() else 0
         val resource = when(type) {
-            LibraryBookType.LINE -> R.dimen.book_line_skeleton_height
+            LibraryBookType.LINE,
+            LibraryBookType.SEPARATOR_LINE,
+            LibraryBookType.SEPARATOR_CAROUSEL -> R.dimen.book_line_skeleton_height
             LibraryBookType.SEPARATOR_BIG -> R.dimen.book_grid_skeleton_height_separator_big
             LibraryBookType.SEPARATOR_MEDIUM -> R.dimen.book_grid_skeleton_height_separator_medium
             LibraryBookType.GRID_BIG -> R.dimen.book_grid_skeleton_height_big
@@ -1371,11 +1393,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
             val type = mViewModel.libraryType.value ?: LibraryBookType.LINE
 
-            if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.SEPARATOR_MEDIUM)
+            if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.SEPARATOR_MEDIUM ||
+                type == LibraryBookType.SEPARATOR_CAROUSEL || type == LibraryBookType.SEPARATOR_LINE
+            )
                 mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_book_skeleton_title, null))
 
             for (i in 0..getSkeletonRowCount(type)) {
-                if (type == LibraryBookType.LINE)
+                if (type == LibraryBookType.LINE || type == LibraryBookType.SEPARATOR_LINE || type == LibraryBookType.SEPARATOR_CAROUSEL)
                     mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_book_skeleton, null))
                 else {
                     val row = mInflater.inflate(R.layout.grid_card_book_skeleton, null)
@@ -1433,7 +1457,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (mViewModel.libraryType.value != LibraryBookType.LINE) {
+            val type = mViewModel.libraryType.value
+            if (type != LibraryBookType.LINE && type != LibraryBookType.SEPARATOR_LINE && type != LibraryBookType.SEPARATOR_CAROUSEL) {
                 mRecyclerView.layoutManager = getGridLayout()
                 mRecyclerView.adapter?.notifyItemRangeChanged(0, mRecyclerView.adapter?.itemCount ?: 0)
             }

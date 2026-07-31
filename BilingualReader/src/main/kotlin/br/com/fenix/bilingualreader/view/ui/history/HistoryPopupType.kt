@@ -25,10 +25,10 @@ class HistoryPopupType : Fragment() {
 
         mCheckMap = mapOf(
             HistoryType.LINE to root.findViewById(R.id.popup_history_type_line),
-            HistoryType.SEPARATOR_LINE to root.findViewById(R.id.popup_history_type_separator_line),
-            HistoryType.SEPARATOR_CAROUSEL to root.findViewById(R.id.popup_history_type_separator_carousel),
             HistoryType.SEPARATOR_BIG to root.findViewById(R.id.popup_history_type_separator_big),
-            HistoryType.SEPARATOR_MEDIUM to root.findViewById(R.id.popup_history_type_separator_medium)
+            HistoryType.SEPARATOR_MEDIUM to root.findViewById(R.id.popup_history_type_separator_medium),
+            HistoryType.SEPARATOR_CAROUSEL to root.findViewById(R.id.popup_history_type_separator_carousel),
+            HistoryType.SEPARATOR_LINE to root.findViewById(R.id.popup_history_type_separator_line)
         )
 
         setChecked(mViewModel.historyType.value ?: HistoryType.SEPARATOR_LINE)

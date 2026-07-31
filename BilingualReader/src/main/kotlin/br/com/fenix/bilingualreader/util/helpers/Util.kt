@@ -68,6 +68,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
@@ -75,6 +76,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -1776,7 +1778,9 @@ class AdapterUtil {
                 LibraryMangaType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_big).toInt()
                 LibraryMangaType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_grid_card_layout_width_landscape_medium else R.dimen.manga_grid_card_layout_width_medium).toInt()
                 LibraryMangaType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_separator_grid_card_layout_width_landscape_medium else R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
-                LibraryMangaType.LINE -> -1
+                LibraryMangaType.LINE,
+                LibraryMangaType.SEPARATOR_LINE,
+                LibraryMangaType.SEPARATOR_CAROUSEL -> -1
             }
 
             val height = when (type) {
@@ -1785,7 +1789,9 @@ class AdapterUtil {
                 LibraryMangaType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.manga_separator_grid_card_layout_height_big).toInt()
                 LibraryMangaType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_grid_card_layout_height_landscape_medium else R.dimen.manga_grid_card_layout_height_medium).toInt()
                 LibraryMangaType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_separator_grid_card_layout_height_landscape_medium else R.dimen.manga_separator_grid_card_layout_height_medium).toInt()
-                LibraryMangaType.LINE -> context.resources.getDimension(R.dimen.manga_line_card_layout_height).toInt()
+                LibraryMangaType.LINE,
+                LibraryMangaType.SEPARATOR_LINE -> context.resources.getDimension(R.dimen.manga_line_card_layout_height).toInt()
+                LibraryMangaType.SEPARATOR_CAROUSEL -> -1
             }
 
             val size = Pair(width, height)
@@ -1799,7 +1805,9 @@ class AdapterUtil {
                 LibraryBookType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.book_separator_grid_card_layout_width_big).toInt()
                 LibraryBookType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_grid_card_layout_width_landscape_medium else R.dimen.book_grid_card_layout_width_medium).toInt()
                 LibraryBookType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_separator_grid_card_layout_width_landscape_medium else R.dimen.book_separator_grid_card_layout_width_medium).toInt()
-                LibraryBookType.LINE -> -1
+                LibraryBookType.LINE,
+                LibraryBookType.SEPARATOR_LINE,
+                LibraryBookType.SEPARATOR_CAROUSEL -> -1
             }
 
             val height = when (type) {
@@ -1807,12 +1815,46 @@ class AdapterUtil {
                 LibraryBookType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.book_separator_grid_card_layout_height_big).toInt()
                 LibraryBookType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_grid_card_layout_height_landscape_medium else R.dimen.book_grid_card_layout_height_medium).toInt()
                 LibraryBookType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_separator_grid_card_layout_height_landscape_medium else R.dimen.book_separator_grid_card_layout_height_medium).toInt()
-                LibraryBookType.LINE -> context.resources.getDimension(R.dimen.book_line_card_layout_height).toInt()
+                LibraryBookType.LINE,
+                LibraryBookType.SEPARATOR_LINE -> context.resources.getDimension(R.dimen.book_line_card_layout_height).toInt()
+                LibraryBookType.SEPARATOR_CAROUSEL -> -1
             }
 
             val size = Pair(width, height)
             mBookCardSize[type] = size
             return size
+        }
+
+        fun getBookSeparator(context: Context, order: Order, book: Book): Separator {
+            val favorite = context.getString(R.string.book_library_separator_favorite)
+            val notFavorite = context.getString(R.string.book_library_separator_non_favorite)
+            val title = when (order) {
+                Order.Name -> book.title.substring(0, 1).uppercase()
+                Order.Date -> GeneralConsts.formatCountDays(context, book.dateCreate)
+                Order.LastAccess -> GeneralConsts.formatCountDays(context, book.lastAccess)
+                Order.Author -> if (book.author.isEmpty()) "" else book.author.lowercase()
+                Order.Genre -> if (book.genre.isEmpty()) "" else book.genre.lowercase()
+                Order.Series -> if (book.series.isEmpty()) "" else book.series.lowercase()
+                Order.Favorite -> if (book.favorite) favorite else notFavorite
+                else -> ""
+            }
+            return Separator(title)
+        }
+
+        fun getMangaSeparator(context: Context, order: Order, manga: Manga): Separator {
+            val favorite = context.getString(R.string.manga_library_separator_favorite)
+            val notFavorite = context.getString(R.string.manga_library_separator_non_favorite)
+            val title = when (order) {
+                Order.Name -> manga.title.substring(0, 1).uppercase()
+                Order.Date -> GeneralConsts.formatCountDays(context, manga.dateCreate)
+                Order.LastAccess -> GeneralConsts.formatCountDays(context, manga.lastAccess)
+                Order.Author -> if (manga.author.isEmpty()) "" else manga.author.lowercase()
+                Order.Genre -> if (manga.genre.isEmpty()) "" else manga.genre.lowercase()
+                Order.Series -> if (manga.series.isEmpty()) "" else manga.series.lowercase()
+                Order.Favorite -> if (manga.favorite) favorite else notFavorite
+                else -> ""
+            }
+            return Separator(title)
         }
 
         fun getMangaCardSize(context: Context, type: LibraryMangaType, isLandscape: Boolean) : Pair<Int, Int> {
