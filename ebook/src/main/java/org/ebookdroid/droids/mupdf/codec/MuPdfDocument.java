@@ -216,7 +216,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
             
 
-            if (open == -1)
+            if (open <= 0)
                 throw new RuntimeException("Document is corrupted");
 
             // final int pages = getPageCountWithException(open);
@@ -231,7 +231,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     private static native void free(long handle);
 
     private synchronized int getPageCountWithException(final long handle) {
-        if (isRecycled()) return 0;
+        if (handle == 0 || isRecycled()) return 0;
         final int count = getPageCountSafe(handle, Dips.screenWidth(), Dips.screenHeight(), Dips.spToPx(AppState.get().fontSizeSp));
         if (count == 0)
             throw new RuntimeException("Document is corrupted");
@@ -240,7 +240,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     }
 
     private synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
-        if (isRecycled()) return 0;
+        if (handle == 0 || isRecycled()) return 0;
         final int count = getPageCountSafe(handle, w, h, Dips.spToPx(size));
         if (count == 0)
             throw new RuntimeException("Document is corrupted");
@@ -254,7 +254,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     private static int cacheCount;
 
     private int getPageCountSafe(long handle, int w, int h, int size) {
-        if (isRecycled()) return 0;
+        if (handle == 0 || isRecycled()) return 0;
 
         if (handle == cacheHandle && size == cacheSize && w + h == cacheWH) {
             
@@ -263,7 +263,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
         try {
             TempHolder.lock.lock();
-            if (isRecycled()) return 0;
+            if (handle == 0 || isRecycled()) return 0;
             cacheHandle = handle;
             cacheSize = size;
             cacheWH = w + h;

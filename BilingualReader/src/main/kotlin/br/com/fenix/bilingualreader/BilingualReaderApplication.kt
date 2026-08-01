@@ -15,6 +15,15 @@ class BilingualReaderApplication : Application(), ImageLoaderFactory {
         io.sentry.android.core.SentryAndroid.init(this) { options ->
             options.isDebug = BuildConfig.DEBUG
             options.tracesSampleRate = 1.0
+            
+            // Ignorar erros 504 (Gateway Timeout) originados por requisições HTTP para a API de terceiros
+            options.beforeSend = io.sentry.SentryOptions.BeforeSendCallback { event, _ ->
+                val exception = event.exceptions?.firstOrNull()
+                if (exception?.type == "SentryHttpClientException" && exception.value?.contains("504") == true) {
+                    return@BeforeSendCallback null
+                }
+                event
+            }
         }
     }
 

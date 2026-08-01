@@ -90,12 +90,14 @@ class MobiContext : PdfContext() {
             } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val notesResult = EpubBookExtractor.extractFooterNotes(epubPath)
-                        val notes = notesResult.getOrNull()
-                        if (notes != null) {
-                            muPdfDocument.setFootNotes(notes)
-                            JsonHelper.mapToFile(jsonFile, notes)
-                            LOGGER.info("Save notes to file: {}", jsonFile)
+                        if (epubPath.endsWith(".epub", ignoreCase = true)) {
+                            val notesResult = EpubBookExtractor.extractFooterNotes(epubPath)
+                            val notes = notesResult.getOrNull()
+                            if (notes != null) {
+                                muPdfDocument.setFootNotes(notes)
+                                JsonHelper.mapToFile(jsonFile, notes)
+                                LOGGER.info("Save notes to file: {}", jsonFile)
+                            }
                         }
                         removeTempFiles()
                     } catch (e: Exception) {

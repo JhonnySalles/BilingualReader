@@ -36,7 +36,7 @@ public class MuPdfOutline {
     }
 
     private void ttOutline(final List<OutlineLink> ls, long outline, final int level) {
-        while (outline != -1) {
+        while (outline != -1 && outline != 0) {
             final String title = getTitle(outline);
             final String link = getLink(outline, docHandle);
             if (title != null) {

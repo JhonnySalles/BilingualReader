@@ -19,8 +19,10 @@ class SafeSurfaceView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : SurfaceView(context, attrs, defStyleAttr) {
 
+    var ignoreListeners: Boolean = false
+
     override fun addOnAttachStateChangeListener(listener: OnAttachStateChangeListener) {
-        if (listener.javaClass.name.contains("ModelViewer")) {
+        if (ignoreListeners || listener.javaClass.name.contains("ModelViewer")) {
             // BLOQUEADO: Ignoramos silenciosamente o listener interno do ModelViewer
             return
         }

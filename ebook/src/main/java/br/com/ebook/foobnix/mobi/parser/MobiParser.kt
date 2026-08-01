@@ -46,6 +46,9 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
 
         @JvmStatic
         fun getBytes(buffer: ByteBuffer, offset: Int, length: Int): ByteArray {
+            if (length <= 0 || offset < 0 || offset + length > buffer.capacity()) {
+                return ByteArray(0)
+            }
             val bytes = ByteArray(length)
             val originalPosition = buffer.position()
             buffer.position(offset)

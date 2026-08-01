@@ -719,10 +719,12 @@ class HistoryFragment : Fragment() {
         if (view != null) {
             setupPopupBackgrounds()
             mViewModel.list {
-                if (it > -1)
-                    mRecyclerView.adapter?.notifyItemChanged(0, it)
-                else
-                    mRecyclerView.adapter?.notifyDataSetChanged()
+                if (view != null) {
+                    if (it > -1)
+                        mRecyclerView.adapter?.notifyItemChanged(0, it)
+                    else
+                        mRecyclerView.adapter?.notifyDataSetChanged()
+                }
             }
         }
     }

@@ -102,7 +102,10 @@ class BookCover3DView(
         val uiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK).apply {
             isOpaque = false
         }
+        val safeView = surfaceView as? SafeSurfaceView
+        safeView?.ignoreListeners = true
         val viewer = ModelViewer(surfaceView, uiHelper = uiHelper).also { this.modelViewer = it }
+        safeView?.ignoreListeners = false
         
         // Agora com o SafeSurfaceView, o listener destrutivo do Filament é ignorado nativamente.
         // O ciclo de vida fica totalmente sob nosso controle!
@@ -626,6 +629,7 @@ class BookCover3DView(
             val materialProvider = fMaterialProvider.get(viewer) as com.google.android.filament.gltfio.MaterialProvider
 
             resourceLoader.evictResourceData()
+            resourceLoader.destroy()
 
             val asset = viewer.asset
             if (asset != null) {
@@ -639,10 +643,6 @@ class BookCover3DView(
             assetLoader.destroy()
             materialProvider.destroyMaterials()
             materialProvider.destroy()
-            
-            // INTENCIONALMENTE OMITIDO: resourceLoader.destroy()
-            // Se chamarmos resourceLoader.destroy(), ele aciona internamente asyncCancelLoad() e o C++ quebra
-            // com SEGV_MAPERR. Omitir isso causa um micro-vazamento de um ponteiro vazio, mas previne a falha crítica.
 
             // Chama detach() do UiHelper para destruir o SwapChain ANTES do Engine (previne IllegalStateException)
             val fUiHelper = viewer.javaClass.getDeclaredField("uiHelper")

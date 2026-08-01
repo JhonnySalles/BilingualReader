@@ -923,18 +923,33 @@ class ImageUtil {
         }
 
         fun decodeImageBase64(image: String): Bitmap? {
-            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
-            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            return try {
+                val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
+                if (imageBytes == null || imageBytes.isEmpty()) return null
+                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            } catch (e: Exception) {
+                null
+            } catch (e: OutOfMemoryError) {
+                null
+            }
         }
 
         fun decodeImageBase64(image: String, reqWidth: Int, reqHeight: Int): Bitmap? {
-            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
-            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
-            options.inJustDecodeBounds = false
-            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+            return try {
+                val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
+                if (imageBytes == null || imageBytes.isEmpty()) return null
+                
+                val options = BitmapFactory.Options()
+                options.inJustDecodeBounds = true
+                val ignored: Bitmap? = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+                options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+                options.inJustDecodeBounds = false
+                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+            } catch (e: Exception) {
+                null
+            } catch (e: OutOfMemoryError) {
+                null
+            }
         }
 
         fun imageToInputStream(image: Bitmap): InputStream {
