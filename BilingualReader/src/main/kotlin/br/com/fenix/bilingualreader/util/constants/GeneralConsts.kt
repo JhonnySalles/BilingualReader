@@ -154,6 +154,7 @@ class GeneralConsts private constructor() {
 
     object DEFAULTS {
         const val DEFAULT_HANDLE_SEARCH_FILTER = 500L
+        const val DEFAULT_COVER_DELAY = 1300L
     }
 
     object PATTERNS {

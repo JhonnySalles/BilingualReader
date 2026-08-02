@@ -197,6 +197,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private var mDialog: AlertDialog? = null
 
     private var mIsSeekBarChange = false
+    private var mCoverStartTime = System.currentTimeMillis()
     private var mPageStartReading = LocalDateTime.now()
     private var mPagesAverage = mutableListOf<Long>()
 
@@ -355,6 +356,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             activity?.supportStartPostponedEnterTransition()
         }
 
+        mCoverStartTime = System.currentTimeMillis()
         mPageStartReading = LocalDateTime.now()
         mPagesAverage = mutableListOf()
 
@@ -578,30 +580,36 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             if (isLoaded && mParse != null) {
                 val pages = mParse!!.getPageCount(mViewModel.getFontSize(isBook = true).toInt())
                 mPageSeekBar.max = pages -1
-                mCoverContent.animate().alpha(0.0f)
-                    .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            mCoverContent.visibility = View.GONE
 
-                            mViewPager.post {
-                                mViewPager.requestLayout()
-                                (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
-                            }
-                            mViewRecycler.post {
-                                mViewRecycler.requestLayout()
-                            }
+                val elapsedTime = System.currentTimeMillis() - mCoverStartTime
+                val delay = if (elapsedTime < GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY) GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY - elapsedTime else 0L
 
-                            val preferences = GeneralConsts.getSharedPreferences(requireContext())
-                            if (preferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
-                                with(preferences.edit()) {
-                                    this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
-                                    this.commit()
+                mHandler.postDelayed({
+                    mCoverContent.animate().alpha(0.0f)
+                        .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                super.onAnimationEnd(animation)
+                                mCoverContent.visibility = View.GONE
+
+                                mViewPager.post {
+                                    mViewPager.requestLayout()
+                                    (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
                                 }
-                                (requireActivity() as BookReaderActivity).openTouchFunctions()
+                                mViewRecycler.post {
+                                    mViewRecycler.requestLayout()
+                                }
+
+                                val preferences = GeneralConsts.getSharedPreferences(requireContext())
+                                if (preferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
+                                    with(preferences.edit()) {
+                                        this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
+                                        this.commit()
+                                    }
+                                    (requireActivity() as BookReaderActivity).openTouchFunctions()
+                                }
                             }
-                        }
-                    })
+                        })
+                }, delay)
                 setBookDots(pages)
                 if (mBook != null && mBook!!.pages != pages) {
                     if (mBook!!.completed) {

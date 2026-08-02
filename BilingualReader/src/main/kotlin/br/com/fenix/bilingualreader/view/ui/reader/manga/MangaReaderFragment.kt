@@ -209,6 +209,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun pageCacheKey(page: Int): String = "$page@${filtersSignature()}"
 
     private var mIsSeekBarChange = false
+    private var mCoverStartTime = System.currentTimeMillis()
     private var mPageStartReading = LocalDateTime.now()
     private var mPagesAverage = mutableListOf<Long>()
     private var mChapterSelected = ""
@@ -487,6 +488,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mTouchScreen = TouchUtils.getTouch(requireContext(), Type.MANGA)
         mLastPageContainer.visibility = View.GONE
 
+        mCoverStartTime = System.currentTimeMillis()
         mPageStartReading = LocalDateTime.now()
         mPagesAverage = mutableListOf()
 
@@ -675,9 +677,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         var run: Runnable? = null
         run = Runnable {
             val image = getCurrencyImageView()
-            if (image == null || image.isGone)
-                mHandler.postDelayed(run!!, 800)
-            else {
+            val elapsedTime = System.currentTimeMillis() - mCoverStartTime
+
+            if (image == null || image.isGone || elapsedTime < GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY) {
+                val nextCheckDelay = if (elapsedTime < GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY) GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY - elapsedTime else 300L
+                mHandler.postDelayed(run!!, nextCheckDelay)
+            } else {
                 mCoverContent.animate().alpha(0.0f).setDuration(600L).setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
