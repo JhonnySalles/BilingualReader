@@ -77,6 +77,7 @@ import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.listener.ReaderListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
+import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -886,6 +887,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         if (mLastFloatingButtons)
             openFloatingButtons()
+
+        if (mManga != null) {
+            val fileLinkRepository = FileLinkRepository(applicationContext)
+            val linkedFile = fileLinkRepository.get(mManga!!)
+            mSubtitleController.setFileLink(linkedFile)
+        }
     }
 
     override fun onStop() {

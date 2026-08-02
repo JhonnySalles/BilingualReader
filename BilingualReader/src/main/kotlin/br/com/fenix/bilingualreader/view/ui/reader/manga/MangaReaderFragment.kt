@@ -202,6 +202,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
     }
 
+    fun getActiveFilters(): List<Transformation> =
+        mViewModel.filters.value ?: emptyList()
+
     private fun filtersSignature(): String =
         (mViewModel.filters.value ?: emptyList<Transformation>()).joinToString("|") { it.cacheKey }
 

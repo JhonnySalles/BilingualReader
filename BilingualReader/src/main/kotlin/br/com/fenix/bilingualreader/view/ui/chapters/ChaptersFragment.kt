@@ -184,8 +184,10 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         adapter.attachListener(listener)
         mRecyclerView.adapter = adapter
 
-        val columnWidth: Int = resources.getDimension(R.dimen.chapters_grid_card_layout_width).toInt() + 1
-        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
+        val cardWidth: Int = resources.getDimensionPixelSize(R.dimen.chapters_grid_card_layout_width)
+        val cardMargin: Int = resources.getDimensionPixelSize(R.dimen.chapters_grid_card_margin)
+        val totalItemWidth: Int = cardWidth + (cardMargin * 2)
+        val spaceCount: Int = max(1, Resources.getSystem().displayMetrics.widthPixels / totalItemWidth)
         mRecyclerView.layoutManager = StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
 
         observer()

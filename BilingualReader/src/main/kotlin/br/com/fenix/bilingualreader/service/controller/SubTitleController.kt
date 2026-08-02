@@ -691,8 +691,30 @@ class SubTitleController private constructor(private val context: Context) {
         val view: ImageView = mReaderFragment?.getCurrencyImageView() ?: return
 
         if (!clearDrawing()) {
-            target = MyTarget(view)
-            loadSubTitleImage(target!!)
+            var linkedBitmap = try {
+                context.contentResolver.openInputStream(path)?.use { stream ->
+                    ImageUtil.decodeInputStream(stream)
+                } ?: BitmapFactory.decodeFile(path.path)
+            } catch (e: Exception) {
+                mLOGGER.error("Error loading page link image: ${e.message}", e)
+                null
+            }
+
+            if (linkedBitmap != null) {
+                val filters = mReaderFragment?.getActiveFilters() ?: emptyList()
+                if (filters.isNotEmpty()) {
+                    runBlocking(Dispatchers.IO) {
+                        for (filter in filters) {
+                            linkedBitmap = filter.transform(linkedBitmap!!, coil.size.Size.ORIGINAL)
+                        }
+                    }
+                }
+
+                target = MyTarget(view)
+                target?.onBitmapLoaded(linkedBitmap!!)
+            } else {
+                Toast.makeText(context, R.string.reading_manga_open_exception, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -1058,7 +1080,7 @@ class SubTitleController private constructor(private val context: Context) {
         mLinkedFile
 
     fun locateFileLink(pageName: String) {
-        if (mLinkedFile == null || mLinkedFile!!.parseFileLink == null)
+        if (mLinkedFile == null || mLinkedFile!!.pagesLink == null)
             return
 
         mLinkedFile!!.pagesLink!!.first { it.mangaPageName.compareTo(pageName, true) == 0 }.let {
