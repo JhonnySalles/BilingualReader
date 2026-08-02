@@ -57,7 +57,7 @@ class BookImageCoverController private constructor() {
             val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key)
 
             if (file.exists()) {
-                return BitmapFactory.decodeFile(file.absolutePath) ?: return null
+                return ImageUtil.decodeFile(file) ?: return null
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)

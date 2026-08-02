@@ -25,11 +25,7 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.squareup.picasso.Transformation
-import jp.wasabeef.picasso.transformations.ColorFilterTransformation
-import jp.wasabeef.picasso.transformations.GrayscaleTransformation
-import jp.wasabeef.picasso.transformations.gpu.InvertFilterTransformation
-import jp.wasabeef.picasso.transformations.gpu.SepiaFilterTransformation
+import coil.transform.Transformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -263,23 +259,84 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         if (mCustomFilter.value!!) {
             val color = Color.argb(mColorAlpha.value!!, mColorRed.value!!, mColorGreen.value!!, mColorBlue.value!!)
-            filters.add(ColorFilterTransformation(color))
+            filters.add(CoilColorFilterTransformation(color))
         }
 
         if (mBlueLight.value!!)
-            filters.add(ColorFilterTransformation(mBlueLightColor))
+            filters.add(CoilColorFilterTransformation(mBlueLightColor))
 
         if (mGrayScale.value!!)
-            filters.add(GrayscaleTransformation())
+            filters.add(CoilGrayscaleTransformation())
 
         if (mInvertColor.value!!)
-            filters.add(InvertFilterTransformation(app.applicationContext))
+            filters.add(CoilInvertTransformation())
 
         if (mSepia.value!!)
-            filters.add(SepiaFilterTransformation(app.applicationContext))
+            filters.add(CoilSepiaTransformation())
 
         mFilters.value = filters
     }
+
+class CoilGrayscaleTransformation : Transformation {
+    override val cacheKey: String = "GrayscaleFilter"
+    override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
+        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val canvas = android.graphics.Canvas(output)
+        val paint = android.graphics.Paint()
+        val matrix = android.graphics.ColorMatrix()
+        matrix.setSaturation(0f)
+        paint.colorFilter = android.graphics.ColorMatrixColorFilter(matrix)
+        canvas.drawBitmap(output, 0f, 0f, paint)
+        return output
+    }
+}
+
+class CoilColorFilterTransformation(val color: Int) : Transformation {
+    override val cacheKey: String = "ColorFilter_$color"
+    override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
+        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val canvas = android.graphics.Canvas(output)
+        val paint = android.graphics.Paint()
+        paint.colorFilter = android.graphics.PorterDuffColorFilter(color, android.graphics.PorterDuff.Mode.SRC_ATOP)
+        canvas.drawBitmap(output, 0f, 0f, paint)
+        return output
+    }
+}
+
+class CoilInvertTransformation : Transformation {
+    override val cacheKey: String = "InvertFilter"
+    override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
+        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val canvas = android.graphics.Canvas(output)
+        val paint = android.graphics.Paint()
+        val matrix = android.graphics.ColorMatrix(floatArrayOf(
+            -1f, 0f, 0f, 0f, 255f,
+            0f, -1f, 0f, 0f, 255f,
+            0f, 0f, -1f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f
+        ))
+        paint.colorFilter = android.graphics.ColorMatrixColorFilter(matrix)
+        canvas.drawBitmap(output, 0f, 0f, paint)
+        return output
+    }
+}
+
+class CoilSepiaTransformation : Transformation {
+    override val cacheKey: String = "SepiaFilter"
+    override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
+        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val canvas = android.graphics.Canvas(output)
+        val paint = android.graphics.Paint()
+        val matrix = android.graphics.ColorMatrix()
+        matrix.setSaturation(0f)
+        val sepiaMatrix = android.graphics.ColorMatrix()
+        sepiaMatrix.setScale(1f, 0.95f, 0.82f, 1f)
+        matrix.postConcat(sepiaMatrix)
+        paint.colorFilter = android.graphics.ColorMatrixColorFilter(matrix)
+        canvas.drawBitmap(output, 0f, 0f, paint)
+        return output
+    }
+}
 
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     fun save(manga: Manga) {
@@ -297,23 +354,15 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var stopLoadChapters = false
     private fun loadImage(parse: Parse, page: Int, isSmallSize: Boolean = true) : Bitmap? {
         try {
-            var stream = parse.getPage(page)
+            val stream = parse.getPage(page)
             val image = if (isSmallSize) {
-                val option = BitmapFactory.Options()
-                option.inJustDecodeBounds = true
-                BitmapFactory.decodeStream(stream, null, option)
-                option.inSampleSize = ImageUtil.calculateInSampleSize(
-                    option,
+                ImageUtil.decodeInputStream(
+                    stream,
                     ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH,
                     ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT
                 )
-                option.inJustDecodeBounds = false
-                Util.closeInputStream(stream)
-
-                stream = parse.getPage(page)
-                BitmapFactory.decodeStream(stream, null, option)
             } else
-                BitmapFactory.decodeStream(stream)
+                ImageUtil.decodeInputStream(stream)
 
             Util.closeInputStream(stream)
             return image

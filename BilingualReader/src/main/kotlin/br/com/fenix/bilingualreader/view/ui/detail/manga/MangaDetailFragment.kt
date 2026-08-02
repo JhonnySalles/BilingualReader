@@ -419,7 +419,7 @@ class MangaDetailFragment : Fragment() {
 
                     if (parse.hasFullCover()) {
                         val fullStream = parse.getFullCover()
-                        val fullBmp = fullStream?.use { android.graphics.BitmapFactory.decodeStream(it) }
+                        val fullBmp = fullStream?.use { ImageUtil.decodeInputStream(it) }
                         if (fullBmp != null) {
                             m3DCoverFront = fullBmp
                             m3DCoverBack = null
@@ -432,8 +432,8 @@ class MangaDetailFragment : Fragment() {
                         }
                     } else {
                         val (frontStream, backStream) = parse.getCover()
-                        val frontBmp = frontStream?.use { android.graphics.BitmapFactory.decodeStream(it) }
-                        val backBmp = backStream?.use { android.graphics.BitmapFactory.decodeStream(it) }
+                        val frontBmp = frontStream?.use { ImageUtil.decodeInputStream(it) }
+                        val backBmp = backStream?.use { ImageUtil.decodeInputStream(it) }
                         if (frontBmp != null) {
                             m3DCoverFront = frontBmp
                             m3DCoverBack = backBmp

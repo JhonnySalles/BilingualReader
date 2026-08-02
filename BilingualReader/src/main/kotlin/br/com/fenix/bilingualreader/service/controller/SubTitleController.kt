@@ -50,8 +50,6 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -685,7 +683,7 @@ class SubTitleController private constructor(private val context: Context) {
         val view: ImageView = mReaderFragment!!.getCurrencyImageView() ?: return
         if (!clearDrawing()) {
             target = MyTarget(view, ImageLoadType.TEXT)
-            mReaderFragment!!.loadImage(target!!, MangaReaderFragment.mCurrentPage, false)
+            loadSubTitleImage(target!!)
         }
     }
 
@@ -694,7 +692,15 @@ class SubTitleController private constructor(private val context: Context) {
 
         if (!clearDrawing()) {
             target = MyTarget(view)
-            mReaderFragment!!.loadImage(target!!, path, false)
+            loadSubTitleImage(target!!)
+        }
+    }
+
+    private fun loadSubTitleImage(t: MyTarget) {
+        val fragment = mReaderFragment ?: return
+        val drawable = fragment.getCurrencyImageView()?.drawable
+        if (drawable is android.graphics.drawable.BitmapDrawable) {
+            t.onBitmapLoaded(drawable.bitmap)
         }
     }
 
@@ -705,10 +711,10 @@ class SubTitleController private constructor(private val context: Context) {
 
     fun removeImageBackup(pageNumber: Int) = mImageBackup.remove(pageNumber)
 
-    inner class MyTarget(layout: View, private val type: ImageLoadType = ImageLoadType.RELOAD, private val isKeepScroll: Boolean = true) : Target {
+    inner class MyTarget(layout: View, private val type: ImageLoadType = ImageLoadType.RELOAD, private val isKeepScroll: Boolean = true) {
         private val mLayout: WeakReference<View> = WeakReference(layout)
 
-        override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+        fun onBitmapLoaded(bitmap: Bitmap) {
             val layout = mLayout.get() ?: return
             val imageView = layout.findViewById<View>(R.id.page_image_view) as BaseImageView
             when (type) {
@@ -809,15 +815,6 @@ class SubTitleController private constructor(private val context: Context) {
                 }
             }
         }
-
-        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-            mLOGGER.error("Bitmap load fail: " + e.message, e)
-            Telemetry.recordException(e, "Bitmap load fail: " + e.message)
-        }
-
-        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-        }
-
     }
 
     ///////////////////////// LANGUAGE ///////////////
@@ -1046,7 +1043,7 @@ class SubTitleController private constructor(private val context: Context) {
         val view: ImageView = mReaderFragment?.getCurrencyImageView() ?: return
         mOcrLang = ocr.getLanguage() ?: return
         if (!clearDrawing())
-            mReaderFragment!!.loadImage(MyTarget(view, type), MangaReaderFragment.mCurrentPage, false)
+            loadSubTitleImage(MyTarget(view, type))
     }
 
     fun setUseFileLink(useInSearchTranslate: Boolean) {

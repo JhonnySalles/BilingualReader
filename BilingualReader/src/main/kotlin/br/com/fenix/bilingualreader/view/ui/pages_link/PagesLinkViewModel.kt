@@ -275,7 +275,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         try {
             val parse = mLinkedFile.value?.parseManga!!
             val stream: InputStream = parse.getPage(page)
-            image.setImageBitmap(BitmapFactory.decodeStream(stream))
+            image.setImageBitmap(br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(stream))
             Util.closeInputStream(stream)
         } catch (i: InterruptedIOException) {
             mLOGGER.info("Interrupted error when generate bitmap: " + i.message)
@@ -291,7 +291,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         try {
             val parse = mLinkedFile.value?.parseFileLink!!
             val stream: InputStream = parse.getPage(page)
-            image.setImageBitmap(BitmapFactory.decodeStream(stream))
+            image.setImageBitmap(br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(stream))
             Util.closeInputStream(stream)
         } catch (i: InterruptedIOException) {
             mLOGGER.info("Interrupted error when generate bitmap: " + i.message)
@@ -1679,16 +1679,21 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         return if (index == -1) Pair(false, null) else
             try {
                 val stream: InputStream = parse.getPage(index)
-                val image = BitmapFactory.decodeStream(stream)
-                val isDualPage = (image.width / image.height) > 0.9
-                val bitmap = Bitmap.createScaledBitmap(
-                    image,
-                    ReaderConsts.PAGESLINK.IMAGES_WIDTH,
-                    ReaderConsts.PAGESLINK.IMAGES_HEIGHT,
-                    false
-                )
-                Util.closeInputStream(stream)
-                Pair(isDualPage, bitmap)
+                val image = br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(stream)
+                if (image != null) {
+                    val isDualPage = (image.width / image.height) > 0.9
+                    val bitmap = Bitmap.createScaledBitmap(
+                        image,
+                        ReaderConsts.PAGESLINK.IMAGES_WIDTH,
+                        ReaderConsts.PAGESLINK.IMAGES_HEIGHT,
+                        false
+                    )
+                    Util.closeInputStream(stream)
+                    Pair(isDualPage, bitmap)
+                } else {
+                    Util.closeInputStream(stream)
+                    Pair(false, null)
+                }
             } catch (i: InterruptedIOException) {
                 mLOGGER.info("Interrupted error when generate bitmap: " + i.message)
                 Pair(false, null)

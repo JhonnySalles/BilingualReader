@@ -163,8 +163,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.12.2'
     implementation 'net.sf.kxml:kxml2:2.3.0'
 
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'jp.wasabeef:picasso-transformations:2.4.0'
     implementation 'org.apache.commons:commons-compress:1.22'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'commons-codec:commons-codec:1.15'
@@ -227,8 +225,14 @@ dependencies {
     //Loading Skeleton
     implementation 'io.supercharge:shimmerlayout:2.1.0'
 
-    // COIL
+    // COIL & IMAGE CODERS
     implementation 'io.coil-kt:coil:2.6.0'
+    implementation 'io.coil-kt:coil-gif:2.6.0'
+    implementation 'io.coil-kt:coil-svg:2.6.0'
+    implementation 'com.github.awxkee:jxl-coder:1.8.0'
+    implementation 'com.github.awxkee:avif-coder:1.8.0'
+    implementation 'io.github.beyka:Android-TiffBitmapFactory:0.9.9.1'
+    implementation 'dev.keiji.jp2:jp2-android:1.0.5'
 
     // SENTRY
     implementation 'io.sentry:sentry-android:7.14.0'

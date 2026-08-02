@@ -52,7 +52,7 @@ class ImageController private constructor() {
             val file = File(cacheDirBase, GeneralConsts.CACHE_FOLDER.IMAGE + '/' + key)
 
             if (file.exists())
-                return BitmapFactory.decodeFile(file.absolutePath)
+                return ImageUtil.decodeFile(file)
 
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
@@ -73,7 +73,7 @@ class ImageController private constructor() {
         if (image == null) {
             try {
                 val stream = URL(link).openStream()
-                image = BitmapFactory.decodeStream(stream)
+                image = stream.use { ImageUtil.decodeInputStream(it) }
                 if (image != null)
                     saveBitmapToCache(context, hash, image)
             } catch (e: IOException) {

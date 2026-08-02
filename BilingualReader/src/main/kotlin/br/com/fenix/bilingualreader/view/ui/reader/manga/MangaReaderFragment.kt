@@ -113,14 +113,11 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.squareup.picasso.MemoryPolicy
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Picasso.LoadedFrom
-import com.squareup.picasso.Target
-import com.squareup.picasso.Transformation
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import androidx.lifecycle.lifecycleScope
+import coil.transform.Transformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -196,9 +193,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     var mKeepZoomBetweenPage = false
 
     var mParse: Parse? = null
-    lateinit var mPicasso: Picasso
     private lateinit var mComicHandler: MangaHandler
-    var mTargets = SparseArray<Target>()
+    var mTargets = SparseArray<MyTarget>()
     private var mLastZoomScale = 0f
 
     private val mPageCache: LruCache<String, Bitmap> = object : LruCache<String, Bitmap>(
@@ -208,7 +204,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun filtersSignature(): String =
-        (mViewModel.filters.value ?: emptyList<Transformation>()).joinToString("|") { it.key() }
+        (mViewModel.filters.value ?: emptyList<Transformation>()).joinToString("|") { it.cacheKey }
 
     private fun pageCacheKey(page: Int): String = "$page@${filtersSignature()}"
 
@@ -542,9 +538,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                                 mFileName = file.name
                                 mLocalCurrentPage = max(0, min(mLocalCurrentPage, parse.numPages()))
                                 mComicHandler = MangaHandler(parse)
-                                mPicasso = Picasso.Builder(requireContext())
-                                    .addRequestHandler(mComicHandler)
-                                    .build()
 
                                 if (mSavedInstanceState == null)
                                     mSubtitleController.getListChapter(mManga, parse)
@@ -625,7 +618,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 mIsSeekBarChange = true
-                mPicasso.pauseTag(this@MangaReaderFragment.requireActivity())
 
                 try {
                     val view = getCurrencyImageView() ?: return
@@ -649,7 +641,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 mIsSeekBarChange = false
-                mPicasso.resumeTag(this@MangaReaderFragment.requireActivity())
             }
         })
 
@@ -907,8 +898,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mSubtitleController.mReaderFragment = null
         // Preserva o cache de disco do RAR entre sessoes (o trimCache limita o total).
         Util.destroyParse(mParse, isClearCache = false)
-        if (::mPicasso.isInitialized)
-            mPicasso.shutdown()
 
         mPageCache.evictAll()
         mHandler.removeCallbacksAndMessages(null)
@@ -1253,7 +1242,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             val layout = `object` as View
             mSubtitleController.removeImageBackup(position)
-            mPicasso.cancelRequest(mTargets[position])
             mTargets.delete(position)
             container.removeView(layout)
             // Nao reciclar o bitmap aqui: ele pode estar retido pelo mPageCache (LRU)
@@ -1282,7 +1270,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         fun bind(position: Int, itemCount: Int) {
             if (lastPosition > -1) {
                 mSubtitleController.removeImageBackup(lastPosition)
-                mTargets[lastPosition]?.run { mPicasso.cancelRequest(this) }
                 mTargets.delete(lastPosition)
             }
 
@@ -1351,42 +1338,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    fun loadImage(t: Target, position: Int, resize: Boolean = true) {
-        try {
-            val request = mPicasso.load(mComicHandler.getPageUri(position))
-                .memoryPolicy(MemoryPolicy.NO_STORE)
-                .tag(requireActivity())
-
-            if (resize)
-                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
-                    .centerInside()
-                    .onlyScaleDown()
-
-            request.transform(mViewModel.filters.value!!).into(t)
-        } catch (e: Exception) {
-            mLOGGER.error("Error in open image: " + e.message, e)
-            Telemetry.recordException(e, "Error in open image: " + e.message)
-        }
-    }
-
-    fun loadImage(t: Target, path: Uri, resize: Boolean = true) {
-        try {
-            val request = mPicasso.load(path)
-                .memoryPolicy(MemoryPolicy.NO_STORE)
-                .tag(requireActivity())
-
-            if (resize)
-                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
-                    .centerInside()
-                    .onlyScaleDown()
-
-            request.transform(mViewModel.filters.value!!).into(t)
-        } catch (e: Exception) {
-            mLOGGER.error("Error in open image: " + e.message, e)
-            Telemetry.recordException(e, "Error in open image: " + e.message)
-        }
-    }
-
     fun loadImage(t: MyTarget, pages: Int) {
         val pos: Int = if (mScrollingMode == ScrollingType.HorizontalRightToLeft)
             pages - t.position - 1
@@ -1398,26 +1349,36 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         val cached = mPageCache.get(key)
         if (cached != null && !cached.isRecycled) {
-            t.onBitmapLoaded(cached, LoadedFrom.MEMORY)
+            t.onBitmapLoaded(cached, true)
             return
         }
 
-        try {
-            mPicasso.load(mComicHandler.getPageUri(pos))
-                .memoryPolicy(MemoryPolicy.NO_STORE)
-                .tag(requireActivity())
-                .resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
-                .centerInside()
-                .onlyScaleDown()
-                .transform(mViewModel.filters.value!!)
-                .into(t)
-        } catch (e: Exception) {
-            mLOGGER.error("Error in open image: " + e.message, e)
-            Telemetry.recordException(e, "Error in open image: " + e.message)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                var bitmap = mComicHandler.loadPage(pos)
+                if (bitmap != null) {
+                    val filters = mViewModel.filters.value ?: emptyList()
+                    for (filter in filters) {
+                        bitmap = filter.transform(bitmap!!, coil.size.Size.ORIGINAL)
+                    }
+                    val finalBitmap = bitmap
+                    withContext(Dispatchers.Main) {
+                        t.onBitmapLoaded(finalBitmap!!, false)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        t.onBitmapFailed(Exception("Failed to decode image at page $pos"), null)
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    t.onBitmapFailed(e, null)
+                }
+            }
         }
     }
 
-    inner class MyTarget(layout: View, val position: Int, val onLoaded: (View) -> (Unit)) : Target, View.OnClickListener {
+    inner class MyTarget(layout: View, val position: Int, val onLoaded: (View) -> (Unit)) : View.OnClickListener {
         private val mLayout: WeakReference<View> = WeakReference(layout)
         var cacheKey: String? = null
 
@@ -1428,19 +1389,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             layout.findViewById<View>(R.id.reload_button).visibility = reloadButton
         }
 
-        override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
+        fun onBitmapLoaded(bitmap: Bitmap, isFromMemory: Boolean = false) {
             val layout = mLayout.get() ?: return
             setVisibility(View.VISIBLE, View.GONE, View.GONE)
             val iv = layout.findViewById<View>(R.id.page_image_view) as ImageView
             iv.setImageBitmap(bitmap)
 
-            if (from != LoadedFrom.MEMORY && !bitmap.isRecycled)
+            if (!isFromMemory && !bitmap.isRecycled)
                 cacheKey?.let { mPageCache.put(it, bitmap) }
 
             onLoaded(layout)
         }
 
-        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
+        fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
             mLOGGER.error("Bitmap load fail: " + e.message, e)
             Telemetry.recordException(e, "Bitmap load fail: " + e.message)
             val layout = mLayout.get() ?: return
@@ -1449,16 +1410,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ib.setOnClickListener(this@MyTarget)
         }
 
-        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-
-        }
-
         override fun onClick(v: View) {
             mLayout.get() ?: return
             setVisibility(View.GONE, View.VISIBLE, View.GONE)
             loadImage(this, getItemsCount())
         }
-
     }
 
     inner class MyTouchListener : SimpleOnGestureListener() {
@@ -1892,7 +1848,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     values
                 )
                 os = requireContext().contentResolver.openOutputStream(uri!!)!!
-                val bitmap = BitmapFactory.decodeStream(it)
+                val bitmap = br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(it)
                 bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
 
                 if (isShare) {

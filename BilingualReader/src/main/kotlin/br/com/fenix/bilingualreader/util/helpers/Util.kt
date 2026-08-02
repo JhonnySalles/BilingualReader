@@ -635,7 +635,7 @@ class FileUtil(val context: Context) {
 
         fun isImage(filename: String): Boolean {
             return filename.lowercase(Locale.getDefault())
-                .matches(Regex(".*\\.(jpg|jpeg|bmp|gif|png|webp)$"))
+                .matches(Regex(".*\\.(jpg|jpeg|bmp|gif|png|webp|avif|heic|heif|jxl|tiff|tif|pcx|jpf|jp2|j2k|jpx|pbm|pgm|ppm|pnm|iff)$"))
         }
 
         fun isHtml(filename: String): Boolean {
@@ -890,11 +890,9 @@ class ImageUtil {
             image.setOnClickListener { oneClick() }
         }
 
-        fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-            val height = options.outHeight
-            val width = options.outWidth
+        fun calculateInSampleSize(width: Int, height: Int, reqWidth: Int, reqHeight: Int): Int {
             var inSampleSize = 1
-            if (height > reqHeight || width > reqWidth) {
+            if (reqWidth > 0 && reqHeight > 0 && (height > reqHeight || width > reqWidth)) {
                 val halfHeight = height / 2
                 val halfWidth = width / 2
 
@@ -906,6 +904,387 @@ class ImageUtil {
             }
             return inSampleSize
         }
+
+        fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+            return calculateInSampleSize(options.outWidth, options.outHeight, reqWidth, reqHeight)
+        }
+
+        private fun isJp2(bytes: ByteArray): Boolean {
+            if (bytes.size < 12) return false
+            val isJp2Box = bytes[0] == 0x00.toByte() && bytes[1] == 0x00.toByte() &&
+                           bytes[2] == 0x00.toByte() && bytes[3] == 0x0C.toByte() &&
+                           bytes[4] == 0x6A.toByte() && bytes[5] == 0x50.toByte() &&
+                           bytes[6] == 0x20.toByte() && bytes[7] == 0x20.toByte()
+            val isJ2kStream = bytes[0] == 0xFF.toByte() && bytes[1] == 0x4F.toByte() &&
+                              bytes[2] == 0xFF.toByte() && bytes[3] == 0x51.toByte()
+            return isJp2Box || isJ2kStream
+        }
+
+        private fun isTiff(bytes: ByteArray): Boolean {
+            if (bytes.size < 4) return false
+            val le = bytes[0] == 0x49.toByte() && bytes[1] == 0x49.toByte() && bytes[2] == 0x2A.toByte() && bytes[3] == 0x00.toByte()
+            val be = bytes[0] == 0x4D.toByte() && bytes[1] == 0x4D.toByte() && bytes[2] == 0x00.toByte() && bytes[3] == 0x2A.toByte()
+            return le || be
+        }
+
+        private fun isNativeFormat(bytes: ByteArray): Boolean {
+            if (bytes.size < 4) return false
+            val isJpeg = bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte()
+            val isPng = bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() && bytes[2] == 0x4E.toByte() && bytes[3] == 0x47.toByte()
+            val isGif = bytes[0] == 0x47.toByte() && bytes[1] == 0x49.toByte() && bytes[2] == 0x46.toByte()
+            val isWebp = bytes.size >= 12 && bytes[0] == 'R'.toByte() && bytes[1] == 'I'.toByte() && bytes[2] == 'F'.toByte() && bytes[3] == 'F'.toByte() &&
+                         bytes[8] == 'W'.toByte() && bytes[9] == 'E'.toByte() && bytes[10] == 'B'.toByte() && bytes[11] == 'P'.toByte()
+            val isBmp = bytes[0] == 0x42.toByte() && bytes[1] == 0x4D.toByte()
+            return isJpeg || isPng || isGif || isWebp || isBmp
+        }
+
+        fun decodeByteArray(
+            bytes: ByteArray,
+            reqWidth: Int = 0,
+            reqHeight: Int = 0
+        ): Bitmap? {
+            if (bytes.isEmpty()) return null
+
+            // 1. JXL
+            try {
+                if (com.awxkee.jxlcoder.JxlCoder.isJXL(bytes)) {
+                    val jxlCoder = com.awxkee.jxlcoder.JxlCoder()
+                    val w = if (reqWidth > 0) reqWidth else 0
+                    val h = if (reqHeight > 0) reqHeight else 0
+                    if (w > 0 && h > 0) {
+                        return jxlCoder.decodeSampled(bytes, w, h)
+                    }
+                    return jxlCoder.decode(bytes)
+                }
+            } catch (ignored: Throwable) {}
+
+            // 2. AVIF / HEIF
+            try {
+                val heifCoder = com.radzivon.bartoshyk.avif.coder.HeifCoder()
+                if (heifCoder.isAvif(bytes) || heifCoder.isHeif(bytes)) {
+                    return heifCoder.decode(bytes)
+                }
+            } catch (ignored: Throwable) {}
+
+            // 3. JPEG 2000
+            if (isJp2(bytes)) {
+                try {
+                    val jp2Bitmap = com.gemalto.jp2.JP2Decoder(bytes).decode()
+                    if (jp2Bitmap != null) return jp2Bitmap
+                } catch (ignored: Throwable) {}
+            }
+
+            // 4. TIFF
+            if (isTiff(bytes)) {
+                try {
+                    val tempFile = File.createTempFile("tiff_", ".tif")
+                    try {
+                        tempFile.writeBytes(bytes)
+                        val tiffOptions = org.beyka.tiffbitmapfactory.TiffBitmapFactory.Options()
+                        if (reqWidth > 0 && reqHeight > 0) {
+                            tiffOptions.inJustDecodeBounds = true
+                            org.beyka.tiffbitmapfactory.TiffBitmapFactory.decodeFile(tempFile, tiffOptions)
+                            if (tiffOptions.outWidth > 0 && tiffOptions.outHeight > 0) {
+                                tiffOptions.inSampleSize = calculateInSampleSize(tiffOptions.outWidth, tiffOptions.outHeight, reqWidth, reqHeight)
+                            }
+                            tiffOptions.inJustDecodeBounds = false
+                        }
+                        val tiffBitmap = org.beyka.tiffbitmapfactory.TiffBitmapFactory.decodeFile(tempFile, tiffOptions)
+                        if (tiffBitmap != null) return tiffBitmap
+                    } finally {
+                        tempFile.delete()
+                    }
+                } catch (ignored: Throwable) {}
+            }
+
+            // 5. PCX
+            val pcxBitmap = decodePcx(bytes)
+            if (pcxBitmap != null) return pcxBitmap
+
+            // 6. PBM / PGM / PPM
+            val pbmBitmap = decodePbm(bytes)
+            if (pbmBitmap != null) return pbmBitmap
+
+            // 7. IFF ILBM
+            val iffBitmap = decodeIff(bytes)
+            if (iffBitmap != null) return iffBitmap
+
+            // 8. Standard Android Decoders
+            val options = BitmapFactory.Options()
+            if (reqWidth > 0 && reqHeight > 0) {
+                options.inJustDecodeBounds = true
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+                options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight, reqWidth, reqHeight)
+                options.inJustDecodeBounds = false
+            }
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+            if (bitmap != null) return bitmap
+
+            if (isNativeFormat(bytes) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                try {
+                    val source = android.graphics.ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes))
+                    val decoded = android.graphics.ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                        decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
+                        if (reqWidth > 0 && reqHeight > 0) {
+                            val sample = calculateInSampleSize(info.size.width, info.size.height, reqWidth, reqHeight)
+                            if (sample > 1) decoder.setTargetSampleSize(sample)
+                        }
+                    }
+                    if (decoded != null) return decoded
+                } catch (ignored: Throwable) {}
+            }
+
+            return null
+        }
+
+        private fun decodePcx(bytes: ByteArray): Bitmap? {
+            if (bytes.size < 128 || bytes[0] != 0x0A.toByte()) return null
+            try {
+                val bitsPerPixel = bytes[3].toInt() and 0xFF
+                val xMin = (bytes[4].toInt() and 0xFF) or ((bytes[5].toInt() and 0xFF) shl 8)
+                val yMin = (bytes[6].toInt() and 0xFF) or ((bytes[7].toInt() and 0xFF) shl 8)
+                val xMax = (bytes[8].toInt() and 0xFF) or ((bytes[9].toInt() and 0xFF) shl 8)
+                val yMax = (bytes[10].toInt() and 0xFF) or ((bytes[11].toInt() and 0xFF) shl 8)
+                val width = xMax - xMin + 1
+                val height = yMax - yMin + 1
+                val numPlanes = bytes[65].toInt() and 0xFF
+                val bytesPerLine = (bytes[66].toInt() and 0xFF) or ((bytes[67].toInt() and 0xFF) shl 8)
+
+                if (width <= 0 || height <= 0 || width > 8192 || height > 8192) return null
+
+                val palette = IntArray(256)
+                if (bytes.size >= width * height && bytes[bytes.size - 769] == 0x0C.toByte()) {
+                    val paletteOffset = bytes.size - 768
+                    for (i in 0 until 256) {
+                        val r = bytes[paletteOffset + i * 3].toInt() and 0xFF
+                        val g = bytes[paletteOffset + i * 3 + 1].toInt() and 0xFF
+                        val b = bytes[paletteOffset + i * 3 + 2].toInt() and 0xFF
+                        palette[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+                    }
+                }
+
+                val pixels = IntArray(width * height)
+                var scanOffset = 128
+                var row = 0
+                val scanLine = ByteArray(bytesPerLine * numPlanes)
+
+                while (row < height && scanOffset < bytes.size) {
+                    var lineIdx = 0
+                    while (lineIdx < scanLine.size && scanOffset < bytes.size) {
+                        val b = bytes[scanOffset++].toInt() and 0xFF
+                        if ((b and 0xC0) == 0xC0) {
+                            val count = b and 0x3F
+                            if (scanOffset >= bytes.size) break
+                            val valByte = bytes[scanOffset++]
+                            for (c in 0 until count) {
+                                if (lineIdx < scanLine.size) scanLine[lineIdx++] = valByte
+                            }
+                        } else {
+                            scanLine[lineIdx++] = b.toByte()
+                        }
+                    }
+
+                    if (numPlanes == 1 && bitsPerPixel == 8) {
+                        for (col in 0 until width) {
+                            val colorIdx = scanLine[col].toInt() and 0xFF
+                            pixels[row * width + col] = palette[colorIdx]
+                        }
+                    } else if (numPlanes == 3 && bitsPerPixel == 8) {
+                        for (col in 0 until width) {
+                            val r = scanLine[col].toInt() and 0xFF
+                            val g = scanLine[bytesPerLine + col].toInt() and 0xFF
+                            val b = scanLine[bytesPerLine * 2 + col].toInt() and 0xFF
+                            pixels[row * width + col] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+                        }
+                    }
+                    row++
+                }
+                return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+            } catch (e: Exception) {
+                return null
+            }
+        }
+
+        private fun decodePbm(bytes: ByteArray): Bitmap? {
+            if (bytes.size < 10 || bytes[0] != 'P'.code.toByte()) return null
+            val magic = bytes[1].toInt().toChar()
+            if (magic !in listOf('1', '2', '3', '4', '5', '6')) return null
+
+            try {
+                var idx = 2
+                fun skipWhitespaceAndComments() {
+                    while (idx < bytes.size) {
+                        val b = bytes[idx].toInt().toChar()
+                        if (b == '#') {
+                            while (idx < bytes.size && bytes[idx].toInt().toChar() != '\n') idx++
+                        } else if (b.isWhitespace()) {
+                            idx++
+                        } else break
+                    }
+                }
+
+                fun readToken(): String {
+                    skipWhitespaceAndComments()
+                    val start = idx
+                    while (idx < bytes.size && !bytes[idx].toInt().toChar().isWhitespace() && bytes[idx].toInt().toChar() != '#') idx++
+                    return String(bytes, start, idx - start)
+                }
+
+                val widthStr = readToken()
+                val heightStr = readToken()
+                if (widthStr.isEmpty() || heightStr.isEmpty()) return null
+                val width = widthStr.toIntOrNull() ?: return null
+                val height = heightStr.toIntOrNull() ?: return null
+                if (width <= 0 || height <= 0 || width > 8192 || height > 8192) return null
+
+                val maxVal = if (magic in listOf('2', '3', '5', '6')) readToken().toIntOrNull() ?: 255 else 1
+                skipWhitespaceAndComments()
+
+                val pixels = IntArray(width * height)
+
+                if (magic == '4') { // Binary PBM (1 bit per pixel)
+                    var pixelIdx = 0
+                    while (pixelIdx < width * height && idx < bytes.size) {
+                        val b = bytes[idx++].toInt() and 0xFF
+                        for (bit in 7 downTo 0) {
+                            if (pixelIdx < width * height) {
+                                val isWhite = ((b shl (7 - bit)) and 0x80) == 0
+                                pixels[pixelIdx++] = if (isWhite) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
+                                if (pixelIdx % width == 0) break
+                            }
+                        }
+                    }
+                } else if (magic == '5') { // Binary PGM (Grayscale)
+                    var pixelIdx = 0
+                    while (pixelIdx < width * height && idx < bytes.size) {
+                        val v = (bytes[idx++].toInt() and 0xFF) * 255 / maxVal
+                        pixels[pixelIdx++] = (0xFF shl 24) or (v shl 16) or (v shl 8) or v
+                    }
+                } else if (magic == '6') { // Binary PPM (RGB)
+                    var pixelIdx = 0
+                    while (pixelIdx < width * height && idx + 2 < bytes.size) {
+                        val r = (bytes[idx++].toInt() and 0xFF) * 255 / maxVal
+                        val g = (bytes[idx++].toInt() and 0xFF) * 255 / maxVal
+                        val b = (bytes[idx++].toInt() and 0xFF) * 255 / maxVal
+                        pixels[pixelIdx++] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+                    }
+                }
+
+                return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+            } catch (e: Exception) {
+                return null
+            }
+        }
+
+        private fun decodeIff(bytes: ByteArray): Bitmap? {
+            if (bytes.size < 12) return null
+            val form = String(bytes, 0, 4, Charsets.US_ASCII)
+            val ilbm = String(bytes, 8, 4, Charsets.US_ASCII)
+            if (form != "FORM" || ilbm != "ILBM") return null
+
+            try {
+                var offset = 12
+                var width = 0
+                var height = 0
+                var numPlanes = 0
+                var compression = 0
+                val palette = IntArray(256)
+                var bodyBytes: ByteArray? = null
+
+                while (offset + 8 <= bytes.size) {
+                    val chunkType = String(bytes, offset, 4, Charsets.US_ASCII)
+                    val chunkSize = ((bytes[offset + 4].toInt() and 0xFF) shl 24) or
+                            ((bytes[offset + 5].toInt() and 0xFF) shl 16) or
+                            ((bytes[offset + 6].toInt() and 0xFF) shl 8) or
+                            (bytes[offset + 7].toInt() and 0xFF)
+                    val dataOffset = offset + 8
+                    if (dataOffset + chunkSize > bytes.size) break
+
+                    when (chunkType) {
+                        "BMHD" -> {
+                            width = ((bytes[dataOffset].toInt() and 0xFF) shl 8) or (bytes[dataOffset + 1].toInt() and 0xFF)
+                            height = ((bytes[dataOffset + 2].toInt() and 0xFF) shl 8) or (bytes[dataOffset + 3].toInt() and 0xFF)
+                            numPlanes = bytes[dataOffset + 8].toInt() and 0xFF
+                            compression = bytes[dataOffset + 10].toInt() and 0xFF
+                        }
+                        "CMAP" -> {
+                            val colorCount = chunkSize / 3
+                            for (i in 0 until minOf(256, colorCount)) {
+                                val r = bytes[dataOffset + i * 3].toInt() and 0xFF
+                                val g = bytes[dataOffset + i * 3 + 1].toInt() and 0xFF
+                                val b = bytes[dataOffset + i * 3 + 2].toInt() and 0xFF
+                                palette[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+                            }
+                        }
+                        "BODY" -> {
+                            bodyBytes = bytes.copyOfRange(dataOffset, dataOffset + chunkSize)
+                        }
+                    }
+                    offset += 8 + chunkSize + (chunkSize % 2)
+                }
+
+                if (width <= 0 || height <= 0 || bodyBytes == null) return null
+                val pixels = IntArray(width * height)
+                val rowBytes = (width + 15) / 16 * 2
+                var bodyIdx = 0
+
+                if (compression == 0) {
+                    for (y in 0 until height) {
+                        val planeData = Array(numPlanes) { ByteArray(rowBytes) }
+                        for (p in 0 until numPlanes) {
+                            if (bodyIdx + rowBytes <= bodyBytes.size) {
+                                System.arraycopy(bodyBytes, bodyIdx, planeData[p], 0, rowBytes)
+                                bodyIdx += rowBytes
+                            }
+                        }
+                        for (x in 0 until width) {
+                            var colorIdx = 0
+                            val bytePos = x / 8
+                            val bitPos = 7 - (x % 8)
+                            for (p in 0 until numPlanes) {
+                                val bit = (planeData[p][bytePos].toInt() shr bitPos) and 1
+                                colorIdx = colorIdx or (bit shl p)
+                            }
+                            pixels[y * width + x] = palette[colorIdx]
+                        }
+                    }
+                    return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+                }
+                return null
+            } catch (e: Exception) {
+                return null
+            }
+        }
+
+        fun decodeInputStream(
+            stream: InputStream,
+            reqWidth: Int = 0,
+            reqHeight: Int = 0
+        ): Bitmap? {
+            val bytes = Util.toByteArray(stream) ?: return null
+            return decodeByteArray(bytes, reqWidth, reqHeight)
+        }
+
+        fun decodeFile(
+            path: String,
+            reqWidth: Int = 0,
+            reqHeight: Int = 0
+        ): Bitmap? {
+            val file = File(path)
+            if (!file.exists()) return null
+            return try {
+                val bytes = file.readBytes()
+                decodeByteArray(bytes, reqWidth, reqHeight)
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        fun decodeFile(
+            file: File,
+            reqWidth: Int = 0,
+            reqHeight: Int = 0
+        ): Bitmap? = decodeFile(file.absolutePath, reqWidth, reqHeight)
 
         fun imageToByteArray(image: Bitmap): ByteArray? {
             val output = ByteArrayOutputStream()
@@ -922,29 +1301,11 @@ class ImageUtil {
             )
         }
 
-        fun decodeImageBase64(image: String): Bitmap? {
+        fun decodeImageBase64(image: String, reqWidth: Int = 0, reqHeight: Int = 0): Bitmap? {
             return try {
                 val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
                 if (imageBytes == null || imageBytes.isEmpty()) return null
-                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            } catch (e: Exception) {
-                null
-            } catch (e: OutOfMemoryError) {
-                null
-            }
-        }
-
-        fun decodeImageBase64(image: String, reqWidth: Int, reqHeight: Int): Bitmap? {
-            return try {
-                val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
-                if (imageBytes == null || imageBytes.isEmpty()) return null
-                
-                val options = BitmapFactory.Options()
-                options.inJustDecodeBounds = true
-                val ignored: Bitmap? = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
-                options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
-                options.inJustDecodeBounds = false
-                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, options)
+                decodeByteArray(imageBytes, reqWidth, reqHeight)
             } catch (e: Exception) {
                 null
             } catch (e: OutOfMemoryError) {
