@@ -383,7 +383,7 @@ internal class LoadAndDisplayImageTask(
      * moment)); **false** - otherwise
      */
     private val isTaskNotActual: Boolean
-        private get() = isViewCollected || isViewReused
+        get() = isViewCollected || isViewReused
 
     /**
      * @throws TaskCancelledException
@@ -401,7 +401,7 @@ internal class LoadAndDisplayImageTask(
      * **false** - otherwise
      */
     private val isViewCollected: Boolean
-        private get() {
+        get() {
             if (imageAware.isCollected) {
                 d(LOG_TASK_CANCELLED_IMAGEAWARE_COLLECTED, memoryCacheKey)
                 return true
@@ -418,21 +418,11 @@ internal class LoadAndDisplayImageTask(
         if (isViewReused) {
             throw TaskCancelledException()
         }
-    }// Check whether memory cache key (image URI) for current ImageAware is
-    // actual.
-    // If ImageAware is reused for another task then current task should be
-    // cancelled.
-    /**
-     * @return **true** - if current ImageAware is reused for displaying
-     * another image; **false** - otherwise
-     */
+    }
+
     private val isViewReused: Boolean
-        private get() {
+        get() {
             val currentCacheKey = engine.getLoadingUriForView(imageAware)
-            // Check whether memory cache key (image URI) for current ImageAware is
-            // actual.
-            // If ImageAware is reused for another task then current task should be
-            // cancelled.
             val imageAwareWasReused = memoryCacheKey != currentCacheKey
             if (imageAwareWasReused) {
                 d(LOG_TASK_CANCELLED_IMAGEAWARE_REUSED, memoryCacheKey)
@@ -457,7 +447,7 @@ internal class LoadAndDisplayImageTask(
      * otherwise
      */
     private val isTaskInterrupted: Boolean
-        private get() {
+        get() {
             if (Thread.interrupted()) {
                 d(LOG_TASK_INTERRUPTED, memoryCacheKey)
                 return true

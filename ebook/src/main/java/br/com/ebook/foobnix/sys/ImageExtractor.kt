@@ -114,7 +114,7 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
 
         @JvmStatic
         @Synchronized
-        fun singleCodecContext(path: String, passw: String, w: Int, h: Int): CodecDocument? {
+        fun singleCodecContext(path: String, passw: String, @Suppress("UNUSED_PARAMETER") w: Int, @Suppress("UNUSED_PARAMETER") h: Int): CodecDocument? {
             return try {
                 val codecCtx = BookType.getCodecContextByPath(path)
                 TempHolder.get().init(path)

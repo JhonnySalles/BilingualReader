@@ -134,7 +134,7 @@ abstract class BaseDiskCache @JvmOverloads constructor(
 
     /** Returns file object (not null) for incoming image URI. File object can reference to non-existing file.  */
     protected fun getFile(imageUri: String?): File {
-        val fileName = fileNameGenerator.generate(imageUri)
+        val fileName = fileNameGenerator.generate(imageUri ?: "") ?: ""
         var dir: File? = directory
         if (!directory.exists() && !directory.mkdirs()) {
             if (reserveCacheDir != null && (reserveCacheDir.exists() || reserveCacheDir.mkdirs())) {

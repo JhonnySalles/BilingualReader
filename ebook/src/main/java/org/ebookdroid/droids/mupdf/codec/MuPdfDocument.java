@@ -208,7 +208,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
         try {
             TempHolder.lock.lock();
-            int allocatedMemory = AppState.get().allocatedMemorySize * 1024 * 1024;
+            long maxAlloc = Runtime.getRuntime().maxMemory() / 4;
+            int allocatedMemory = (int) Math.min((long) AppState.get().allocatedMemorySize * 1024 * 1024, Math.max(16 * 1024 * 1024, maxAlloc));
 
             
 

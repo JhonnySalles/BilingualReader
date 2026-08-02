@@ -34,7 +34,9 @@ object EpubCoverInjector {
         try {
             ZipInputStream(BufferedInputStream(FileInputStream(epubFile))).use { zis ->
                 ZipOutputStream(BufferedOutputStream(FileOutputStream(tempFile))).use { zos ->
-                    zos.setLevel(0)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        zos.setLevel(0)
+                    }
                     var entry: ZipEntry?
                     var opfPath = ""
                     var opfContent = ""

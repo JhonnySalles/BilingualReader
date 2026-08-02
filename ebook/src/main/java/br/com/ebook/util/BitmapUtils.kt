@@ -28,6 +28,7 @@ object BitmapUtils {
     private const val BUFFER_SIZE = 16 * 1024
 
     @JvmStatic
+    @Suppress("DEPRECATION")
     fun getBookCoverWithTitleBitmap(title: String?, author: String?): Bitmap {
         val cleanAuthor = if (TxtUtils.isEmpty(author)) "" else author!!
         var cleanTitle = if (TxtUtils.isEmpty(title)) "" else title!!

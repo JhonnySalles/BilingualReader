@@ -79,6 +79,7 @@ class ImageDecodingInfo(
         copyOptions(displayOptions.decodingOptions, decodingOptions)
     }
 
+    @Suppress("DEPRECATION")
     private fun copyOptions(srcOptions: BitmapFactory.Options, destOptions: BitmapFactory.Options) {
         destOptions.inDensity = srcOptions.inDensity
         destOptions.inDither = srcOptions.inDither
@@ -96,6 +97,7 @@ class ImageDecodingInfo(
     }
 
     @TargetApi(10)
+    @Suppress("DEPRECATION")
     private fun copyOptions10(srcOptions: BitmapFactory.Options, destOptions: BitmapFactory.Options) {
         destOptions.inPreferQualityOverSpeed = srcOptions.inPreferQualityOverSpeed
     }

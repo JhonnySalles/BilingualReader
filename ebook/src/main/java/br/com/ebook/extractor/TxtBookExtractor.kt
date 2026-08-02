@@ -89,23 +89,25 @@ object TxtBookExtractor : BookExtractor {
 
                 var line: String?
                 while (input.readLine().also { line = it } != null) {
-                    var outLn: String? = null
-                    if (EbookSettings.isPreText) {
-                        outLn = retab(line!!, 8)
-                        outLn = TextUtils.htmlEncode(outLn)
-                        if (TxtUtils.isLineStartEndUpperCase(outLn)) {
-                            outLn = "<b>$outLn</b>"
+                    val currentLine = line!!
+                    val outLn: String = if (EbookSettings.isPreText) {
+                        var preLn = retab(currentLine, 8)
+                        preLn = TextUtils.htmlEncode(preLn)
+                        if (TxtUtils.isLineStartEndUpperCase(preLn)) {
+                            "<b>$preLn</b>"
+                        } else {
+                            preLn
                         }
                     } else {
-                        val trimmedLine = line!!.trim()
+                        val trimmedLine = currentLine.trim()
                         if (EbookSettings.isLineBreaksText) {
-                            outLn = if (trimmedLine.isEmpty()) "<br/>" else format(line!!)
+                            if (trimmedLine.isEmpty()) "<br/>" else format(currentLine)
                         } else {
-                            outLn = when {
+                            when {
                                 trimmedLine.isEmpty() -> "<br/>"
-                                TxtUtils.isLineStartEndUpperCase(line) -> "<b>${format(line!!)}</b>"
-                                line!!.contains("Title:") -> "<b>${format(line!!)}</b>"
-                                else -> "<p>${format(line!!)}</p>"
+                                TxtUtils.isLineStartEndUpperCase(currentLine) -> "<b>${format(currentLine)}</b>"
+                                currentLine.contains("Title:") -> "<b>${format(currentLine)}</b>"
+                                else -> "<p>${format(currentLine)}</p>"
                             }
                         }
                     }

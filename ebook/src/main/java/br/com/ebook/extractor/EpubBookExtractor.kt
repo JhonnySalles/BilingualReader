@@ -91,8 +91,9 @@ object EpubBookExtractor : BookExtractor {
                             val spineItems = opfDoc.select("spine > itemref")
                             var hasCoverPage = false
                             if (spineItems.isNotEmpty()) {
-                                val firstIdref = spineItems.first().attr("idref")
-                                val firstItem = opfDoc.select("item[id=$firstIdref]").firstOrNull()
+                                val firstItemRef = spineItems.firstOrNull()
+                                val firstIdref = firstItemRef?.attr("idref")
+                                val firstItem = if (firstIdref != null) opfDoc.select("item[id=$firstIdref]").firstOrNull() else null
                                 if (firstItem != null) {
                                     val href = firstItem.attr("href")
                                     val id = firstItem.attr("id")
@@ -157,25 +158,37 @@ object EpubBookExtractor : BookExtractor {
             
             ZipFile(file, StandardCharsets.UTF_8).use { zipFile ->
                 ZipOutputStream(BufferedOutputStream(FileOutputStream(outputPath))).use { zos ->
-                    zos.setLevel(0)
-                    
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        zos.setLevel(0)
+                    }
+
+                    val mimetypeEntry = zipFile.getEntry("mimetype")
+                    if (mimetypeEntry != null) {
+                        zipFile.getInputStream(mimetypeEntry).use { inputStream ->
+                            Fb2BookExtractor.writeToZipNoClose(zos, "mimetype", inputStream)
+                        }
+                    } else {
+                        Fb2BookExtractor.writeToZipNoClose(zos, "mimetype", ByteArrayInputStream("application/epub+zip".toByteArray(StandardCharsets.UTF_8)))
+                    }
+
                     if (injectCoverPageEntryName.isNotEmpty() && injectCoverPageContent.isNotEmpty()) {
                         Fb2BookExtractor.writeToZipNoClose(zos, injectCoverPageEntryName, ByteArrayInputStream(injectCoverPageContent.toByteArray(StandardCharsets.UTF_8)))
                     }
-                    
+
                     val entries = zipFile.entries()
                     while (entries.hasMoreElements()) {
                         if (TempHolder.get().loadingCancelled) break
                         val entry = entries.nextElement()
                         val name = entry.name
+                        if (name == "mimetype") continue
+
                         val nameLow = name.lowercase(Locale.getDefault())
                         
                         if (name == opfPath && opfContentModified.isNotEmpty()) {
                             val opfBytes = opfContentModified.toByteArray(StandardCharsets.UTF_8)
                             Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(opfBytes))
                         } else if (name == coverPageEntryName) {
-                            var coverHtml = ""
-                            zipFile.getInputStream(entry).use { inputStream ->
+                            val coverHtml: String = zipFile.getInputStream(entry).use { inputStream ->
                                 val coverDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
                                 val svg = coverDoc.select("svg").firstOrNull()
                                 if (svg != null) {
@@ -188,10 +201,10 @@ object EpubBookExtractor : BookExtractor {
                                                   <img src="$imgHref" alt="Cover" />
                                                 </div>
                                             """.trimIndent()
-                                            coverDoc.body()?.html(newBody)
+                                            coverDoc.body().html(newBody)
                                             val head = coverDoc.head()
-                                            head?.select("style")?.remove()
-                                            head?.append("""
+                                            head.select("style").remove()
+                                            head.append("""
                                                 <style type="text/css">
                                                   body { margin: 0; padding: 0; text-align: center; background-color: #ffffff; }
                                                   img { max-width: 100%; max-height: 100%; height: auto; width: auto; margin: 0 auto; display: block; }
@@ -200,7 +213,7 @@ object EpubBookExtractor : BookExtractor {
                                         }
                                     }
                                 }
-                                coverHtml = coverDoc.toString()
+                                coverDoc.toString()
                             }
                             
                             if (BookCSS.get().isAutoHypens) {
@@ -242,12 +255,23 @@ object EpubBookExtractor : BookExtractor {
             val file = File(inputPath)
             ZipFile(file, StandardCharsets.UTF_8).use { zipFile ->
                 ZipOutputStream(BufferedOutputStream(FileOutputStream(outputPath))).use { zos ->
-                    zos.setLevel(0)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        zos.setLevel(0)
+                    }
+
+                    val mimetypeEntry = zipFile.getEntry("mimetype")
+                    if (mimetypeEntry != null) {
+                        zipFile.getInputStream(mimetypeEntry).use { inputStream ->
+                            Fb2BookExtractor.writeToZipNoClose(zos, "mimetype", inputStream)
+                        }
+                    }
+
                     val entries = zipFile.entries()
                     while (entries.hasMoreElements()) {
                         if (TempHolder.get().loadingCancelled) break
                         val entry = entries.nextElement()
                         val name = entry.name
+                        if (name == "mimetype") continue
                         val nameLow = name.lowercase(Locale.getDefault())
 
                         if (!name.endsWith("container.xml") && (nameLow.endsWith("html") || nameLow.endsWith("htm") || nameLow.endsWith("xml"))) {

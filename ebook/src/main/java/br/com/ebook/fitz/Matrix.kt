@@ -72,24 +72,24 @@ class Matrix {
     }
 
     fun rotate(degrees: Float): Matrix {
-        var degrees = degrees
-        while (degrees < 0) degrees += 360f
-        while (degrees >= 360) degrees -= 360f
-        if (Math.abs(0 - degrees) < 0.0001) {
+        var deg = degrees
+        while (deg < 0) deg += 360f
+        while (deg >= 360) deg -= 360f
+        if (Math.abs(0 - deg) < 0.0001) {
             // Nothing to do
-        } else if (Math.abs(90 - degrees) < 0.0001) {
+        } else if (Math.abs(90 - deg) < 0.0001) {
             val save_a = a
             val save_b = b
             a = c
             b = d
             c = -save_a
             d = -save_b
-        } else if (Math.abs(180 - degrees) < 0.0001) {
+        } else if (Math.abs(180 - deg) < 0.0001) {
             a = -a
             b = -b
             c = -c
             d = -d
-        } else if (Math.abs(270 - degrees) < 0.0001) {
+        } else if (Math.abs(270 - deg) < 0.0001) {
             val save_a = a
             val save_b = b
             a = -c
@@ -97,8 +97,8 @@ class Matrix {
             c = save_a
             d = save_b
         } else {
-            val sin = Math.sin(degrees * Math.PI / 180.0).toFloat()
-            val cos = Math.cos(degrees * Math.PI / 180.0).toFloat()
+            val sin = Math.sin(deg * Math.PI / 180.0).toFloat()
+            val cos = Math.cos(deg * Math.PI / 180.0).toFloat()
             val save_a = a
             val save_b = b
             a = cos * save_a + sin * c
@@ -131,26 +131,26 @@ class Matrix {
         }
 
         fun Rotate(degrees: Float): Matrix {
-            var degrees = degrees
+            var deg = degrees
             val sin: Float
             val cos: Float
-            while (degrees < 0) degrees += 360f
-            while (degrees >= 360) degrees -= 360f
-            if (Math.abs(0 - degrees) < 0.0001) {
+            while (deg < 0) deg += 360f
+            while (deg >= 360) deg -= 360f
+            if (Math.abs(0 - deg) < 0.0001) {
                 sin = 0f
                 cos = 1f
-            } else if (Math.abs(90 - degrees) < 0.0001) {
+            } else if (Math.abs(90 - deg) < 0.0001) {
                 sin = 1f
                 cos = 0f
-            } else if (Math.abs(180 - degrees) < 0.0001) {
+            } else if (Math.abs(180 - deg) < 0.0001) {
                 sin = 0f
                 cos = -1f
-            } else if (Math.abs(270 - degrees) < 0.0001) {
+            } else if (Math.abs(270 - deg) < 0.0001) {
                 sin = -1f
                 cos = 0f
             } else {
-                sin = Math.sin(degrees * Math.PI / 180.0).toFloat()
-                cos = Math.cos(degrees * Math.PI / 180.0).toFloat()
+                sin = Math.sin(deg * Math.PI / 180.0).toFloat()
+                cos = Math.cos(deg * Math.PI / 180.0).toFloat()
             }
             return Matrix(cos, sin, -sin, cos, 0f, 0f)
         }

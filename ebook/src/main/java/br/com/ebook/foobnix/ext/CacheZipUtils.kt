@@ -72,7 +72,7 @@ object CacheZipUtils {
     val cacheLock = ReentrantLock()
 
     @JvmStatic
-    fun init(c: Context, dir: File) {
+    fun init(@Suppress("UNUSED_PARAMETER") c: Context, dir: File) {
         CACHE_BOOK_DIR = File(dir, "Book")
         CACHE_UN_ZIP_DIR = File(dir, "UnZip")
         ATTACHMENTS_CACHE_DIR = File(dir, "Attachments")
@@ -206,7 +206,9 @@ object CacheZipUtils {
     fun zipFolder(srcFolder: String, destZipFile: String) {
         FileOutputStream(destZipFile).use { fileWriter ->
             ZipOutputStream(fileWriter).use { zip ->
-                zip.setLevel(0)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    zip.setLevel(0)
+                }
                 addFolderToZip("", srcFolder, zip)
                 zip.flush()
             }

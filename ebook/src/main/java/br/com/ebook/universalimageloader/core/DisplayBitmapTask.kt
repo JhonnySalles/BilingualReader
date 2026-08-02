@@ -76,7 +76,7 @@ internal class DisplayBitmapTask(private val bitmap: Bitmap, imageLoadingInfo: I
      * actual
      */
     private val isViewWasReused: Boolean
-        private get() {
+        get() {
             val currentCacheKey = engine.getLoadingUriForView(imageAware)
             return memoryCacheKey != currentCacheKey
         }

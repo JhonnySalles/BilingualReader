@@ -228,20 +228,19 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
             val end = recordsOffset[i + 1]
             val coded = getBytes(raw, start, end - start)
 
-            var decoded: ByteArray? = null
-            if (compression == COMPRESSION_PalmDOC) {
-                decoded = lz77(coded)
+            val decoded: ByteArray? = if (compression == COMPRESSION_PalmDOC) {
+                lz77(coded)
             } else if (compression == COMPRESSION_NONE) {
-                decoded = coded
+                coded
             } else if (compression == COMPRESSION_HUFF) {
                 try {
-                    decoded = coded
+                    coded
                 } catch (e: Exception) {
                     LOGGER.error("Error to export all: " + e.message, e)
-                    decoded = "error".toByteArray()
+                    "error".toByteArray()
                 }
             } else {
-                decoded = ("Compression not supported $compression").toByteArray()
+                ("Compression not supported $compression").toByteArray()
             }
 
             if (decoded != null && decoded.size >= 4) {

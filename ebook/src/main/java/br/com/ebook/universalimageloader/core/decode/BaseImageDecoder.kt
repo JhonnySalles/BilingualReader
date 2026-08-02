@@ -67,7 +67,8 @@ class BaseImageDecoder
      * if image URI has unsupported scheme(protocol)
      */
     @Throws(IOException::class)
-    override fun decode(decodingInfo: ImageDecodingInfo?): Bitmap? {
+    override fun decode(imageDecodingInfo: ImageDecodingInfo?): Bitmap? {
+        val decodingInfo = imageDecodingInfo
         var decodedBitmap: Bitmap?
         val imageInfo: ImageFileInfo
         var imageStream = getImageStream(decodingInfo)

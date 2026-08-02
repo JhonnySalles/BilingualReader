@@ -35,7 +35,7 @@ object MemoryCacheUtils {
      */
 	@JvmStatic
 	fun generateKey(imageUri: String?, targetSize: ImageSize): String {
-        return StringBuilder(imageUri).append(URI_AND_SIZE_SEPARATOR).append(targetSize.width).append(WIDTH_AND_HEIGHT_SEPARATOR)
+        return StringBuilder(imageUri ?: "").append(URI_AND_SIZE_SEPARATOR).append(targetSize.width).append(WIDTH_AND_HEIGHT_SEPARATOR)
             .append(targetSize.height).toString()
     }
 

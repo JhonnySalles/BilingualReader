@@ -86,7 +86,6 @@ class AndroidLame(builder: LameBuilder) {
                 LameBuilder.Mode.MONO -> 3
                 LameBuilder.Mode.DEFAULT -> 4
             }
-            return -1
         }
 
         private fun getIntForVbrMode(mode: VbrMode): Int {
@@ -97,7 +96,6 @@ class AndroidLame(builder: LameBuilder) {
                 VbrMode.VBR_MTRH -> 4
                 VbrMode.VBR_DEFAUT -> 6
             }
-            return -1
         }
     }
 }

@@ -32,7 +32,7 @@ class FuzzyKeyMemoryCache(private val cache: MemoryCache, private val keyCompara
         // Search equal key and remove this entry
         synchronized(cache) {
             var keyToRemove: String? = null
-            for (cacheKey in cache.keys()!!) {
+            for (cacheKey in cache.keys()) {
                 if (keyComparator.compare(key, cacheKey) == 0) {
                     keyToRemove = cacheKey
                     break

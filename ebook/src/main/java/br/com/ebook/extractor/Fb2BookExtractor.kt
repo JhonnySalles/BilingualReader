@@ -352,7 +352,9 @@ object Fb2BookExtractor : BookExtractor {
             }
 
             ZipOutputStream(BufferedOutputStream(FileOutputStream(File(toName)))).use { zos ->
-                zos.setLevel(0)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    zos.setLevel(0)
+                }
                 writeToZip(zos, "mimetype", "application/epub+zip")
                 writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
 
@@ -438,7 +440,9 @@ object Fb2BookExtractor : BookExtractor {
     fun convertFolderToEpub(inputFolder: File, outputFile: File, author: String, title: String, outline: List<OutlineLink>): Boolean {
         try {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(outputFile))).use { zos ->
-                zos.setLevel(0)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    zos.setLevel(0)
+                }
                 writeToZip(zos, "mimetype", "application/epub+zip")
                 writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
 

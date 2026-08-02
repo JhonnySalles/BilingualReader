@@ -555,17 +555,18 @@ class ExtUtils {
         }
 
         @JvmStatic
-        fun showDocumentInner(c: Context, uri: Uri?, page: Int) {
+        fun showDocumentInner(c: Context, uri: Uri?, @Suppress("UNUSED_PARAMETER") page: Int) {
             if (!isValidFile(uri)) {
                 Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show()
                 return
             }
+            val uriPath = uri?.path ?: ""
             if (AppState.get().isAlwaysOpenAsMagazine) {
-                openHorizontalView(c, File(uri!!.path), page - 1)
+                openHorizontalView(c, File(uriPath), page - 1)
             }
         }
 
-        private fun openHorizontalView(c: Context, file: File?, page: Int) {
+        private fun openHorizontalView(c: Context, file: File?, @Suppress("UNUSED_PARAMETER") page: Int) {
             if (file == null) {
                 Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show()
                 return
@@ -646,21 +647,19 @@ class ExtUtils {
 
         @JvmStatic
         fun getMimeType(file: File): String {
-            var mime = ""
-            try {
+            return try {
                 val name = file.name.lowercase(Locale.getDefault())
                 val ext = getFileExtension(name)
                 val mimeType = mimeCache["." + ext]
                 if (mimeType != null) {
-                    mime = mimeType
+                    mimeType
                 } else {
                     val codecType = BookType.getByUri(name)
-                    mime = codecType?.firstMimeType ?: ""
+                    codecType?.firstMimeType ?: ""
                 }
             } catch (e: Exception) {
-                mime = "application/" + getFileExtension(file)
+                "application/" + getFileExtension(file)
             }
-            return mime
         }
 
         @JvmStatic

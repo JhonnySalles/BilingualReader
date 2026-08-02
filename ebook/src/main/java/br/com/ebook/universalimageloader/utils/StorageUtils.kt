@@ -106,7 +106,7 @@ object StorageUtils {
      */
     fun getIndividualCacheDirectory(context: Context, cacheDir: String?): File {
         val appCacheDir = getCacheDirectory(context)
-        var individualCacheDir = File(appCacheDir, cacheDir)
+        var individualCacheDir = File(appCacheDir, cacheDir ?: INDIVIDUAL_DIR_NAME)
         if (!individualCacheDir.exists()) {
             if (!individualCacheDir.mkdir()) {
                 individualCacheDir = appCacheDir

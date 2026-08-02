@@ -53,6 +53,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
@@ -1021,17 +1022,8 @@ class ImageUtil {
             if (bitmap != null) return bitmap
 
             if (isNativeFormat(bytes) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                try {
-                    val source = android.graphics.ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes))
-                    val decoded = android.graphics.ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-                        decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
-                        if (reqWidth > 0 && reqHeight > 0) {
-                            val sample = calculateInSampleSize(info.size.width, info.size.height, reqWidth, reqHeight)
-                            if (sample > 1) decoder.setTargetSampleSize(sample)
-                        }
-                    }
-                    if (decoded != null) return decoded
-                } catch (ignored: Throwable) {}
+                val decoded = decodeBitmapNative(bytes, reqWidth, reqHeight)
+                if (decoded != null) return decoded
             }
 
             return null
@@ -1285,6 +1277,22 @@ class ImageUtil {
             reqWidth: Int = 0,
             reqHeight: Int = 0
         ): Bitmap? = decodeFile(file.absolutePath, reqWidth, reqHeight)
+
+        @RequiresApi(Build.VERSION_CODES.P)
+        fun decodeBitmapNative(bytes: ByteArray, reqWidth: Int, reqHeight: Int): Bitmap? {
+            return try {
+                val source = android.graphics.ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes))
+                android.graphics.ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                    decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
+                    if (reqWidth > 0 && reqHeight > 0) {
+                        val sample = ImageUtil.calculateInSampleSize(info.size.width, info.size.height, reqWidth, reqHeight)
+                        if (sample > 1) decoder.setTargetSampleSize(sample)
+                    }
+                }
+            } catch (ignored: Throwable) {
+                null
+            }
+        }
 
         fun imageToByteArray(image: Bitmap): ByteArray? {
             val output = ByteArrayOutputStream()
@@ -1836,35 +1844,6 @@ class AnimationUtil {
             }
         }
 
-    }
-}
-
-
-fun com.google.android.material.button.MaterialButton.executeWithAnimation(action: () -> Unit) {
-    val avd = this.icon as? AnimatedVectorDrawable
-    if (avd != null) {
-        var isActionRun = false
-        val runAction = {
-            if (!isActionRun) {
-                isActionRun = true
-                action()
-            }
-        }
-        val handler = Handler(Looper.getMainLooper())
-        val runnable = Runnable { runAction() }
-        avd.clearAnimationCallbacks()
-        avd.registerAnimationCallback(object : Animatable2.AnimationCallback() {
-            override fun onAnimationEnd(drawable: Drawable?) {
-                super.onAnimationEnd(drawable)
-                handler.removeCallbacks(runnable)
-                runAction()
-            }
-        })
-        avd.reset()
-        avd.start()
-        handler.postDelayed(runnable, 400)
-    } else {
-        action()
     }
 }
 
@@ -2488,6 +2467,34 @@ class TouchUtil {
             return touch.toMap()
         }
 
+    }
+}
+
+fun com.google.android.material.button.MaterialButton.executeWithAnimation(action: () -> Unit) {
+    val avd = this.icon as? AnimatedVectorDrawable
+    if (avd != null) {
+        var isActionRun = false
+        val runAction = {
+            if (!isActionRun) {
+                isActionRun = true
+                action()
+            }
+        }
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = Runnable { runAction() }
+        avd.clearAnimationCallbacks()
+        avd.registerAnimationCallback(object : Animatable2.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                super.onAnimationEnd(drawable)
+                handler.removeCallbacks(runnable)
+                runAction()
+            }
+        })
+        avd.reset()
+        avd.start()
+        handler.postDelayed(runnable, 400)
+    } else {
+        action()
     }
 }
 

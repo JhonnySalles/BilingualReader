@@ -42,7 +42,7 @@ class Fb2Context : PdfContext() {
 
         if (outName == null) {
             outName = cache.path
-            val file = ExtUtils.validNameFileCharacter(fileName, cache.parent, "fb2_temp_" + fileName.hashCode())
+            val file = ExtUtils.validNameFileCharacter(fileName, cache.parent ?: "", "fb2_temp_" + fileName.hashCode())
             if (!Fb2BookExtractor.convert(file, outName)) {
                 throw RuntimeException("FB2 not converted")
             }
@@ -62,7 +62,7 @@ class Fb2Context : PdfContext() {
             }
 
             outName = cache1.path
-            val file = ExtUtils.validNameFileCharacter(fileName, cache1.parent, "fb2_temp_" + fileName.hashCode())
+            val file = ExtUtils.validNameFileCharacter(fileName, cache1.parent ?: "", "fb2_temp_" + fileName.hashCode())
 
             if (!Fb2BookExtractor.convertFB2(file, outName)) {
                 throw RuntimeException("FB2 not converted")

@@ -54,8 +54,6 @@ class MobiContext : PdfContext() {
                 fileNameEpub = cache.path
             } else {
                 try {
-                    val outName = if (BookCSS.get().isAutoHypens) "temp".hashCode() else originalHashCode
-                    
                     val contentResult = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
                         MobiBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR?.path ?: "")
                     }
