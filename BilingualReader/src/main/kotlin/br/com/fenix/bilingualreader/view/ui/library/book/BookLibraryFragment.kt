@@ -15,7 +15,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Message
 import android.provider.BaseColumns
 import android.util.Pair
 import android.view.ContextThemeWrapper
@@ -112,7 +111,10 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
-class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
+import br.com.fenix.bilingualreader.view.managers.BookLibraryHandler
+
+
+class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, BookLibraryHandler.Listener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookLibraryFragment::class.java)
 
@@ -196,7 +198,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
     }
 
-    private val mUpdateHandler: Handler = UpdateHandler()
+    private val mUpdateHandler: Handler = BookLibraryHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -432,21 +434,20 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         super.onDestroyView()
     }
 
-    private inner class UpdateHandler : Handler() {
-        override fun handleMessage(msg: Message) {
-            val obj = msg.obj
-            when (msg.what) {
-                GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATED_ADD -> refreshLibraryAddDelayed(obj as Book)
-                GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(obj as Book)
-                GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATE_FINISHED -> {
-                    setIsRefreshing(false)
-                    if (obj as Boolean && ::mViewModel.isInitialized && _mRecyclerView != null) { // Bug when rotate is necessary verify is initialized
-                        mViewModel.updateList { change, indexes ->
-                            if (change && _mRecyclerView != null)
-                                notifyDataSet(indexes)
-                        }
-                    }
-                }
+    override fun onBookAdd(book: Book) {
+        refreshLibraryAddDelayed(book)
+    }
+
+    override fun onBookRemove(book: Book) {
+        refreshLibraryRemoveDelayed(book)
+    }
+
+    override fun onBookUpdateFinished(isProcessed: Boolean) {
+        setIsRefreshing(false)
+        if (isProcessed && ::mViewModel.isInitialized && _mRecyclerView != null) {
+            mViewModel.updateList { change, indexes ->
+                if (change && _mRecyclerView != null)
+                    notifyDataSet(indexes)
             }
         }
     }

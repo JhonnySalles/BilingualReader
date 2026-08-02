@@ -24,9 +24,10 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
-import java.lang.ref.WeakReference
 import java.time.LocalDate
 import java.util.UUID
+
+import br.com.fenix.bilingualreader.view.managers.MangaScannerHandler
 
 class ScannerManga(private val context: Context) {
 
@@ -35,14 +36,6 @@ class ScannerManga(private val context: Context) {
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mThreads = mutableMapOf<UUID, LibraryUpdateRunnable>()
     private var mRunning = mutableMapOf<Library, LibraryUpdateRunnable>()
-
-    private inner class RestartHandler(scanner: ScannerManga, var library: Library) :
-        Handler() {
-        private val mScannerRef: WeakReference<ScannerManga> = WeakReference<ScannerManga>(scanner)
-        override fun handleMessage(msg: Message) {
-            mScannerRef.get()?.scanLibrary(library)
-        }
-    }
 
     // Singleton - One thread initialize only
     companion object {
@@ -170,7 +163,7 @@ class ScannerManga(private val context: Context) {
             mIsStopped = false
             if (mIsRestarted) {
                 mIsRestarted = false
-                val mRestartHandler: Handler = RestartHandler(this@ScannerManga, mLibrary)
+                val mRestartHandler: Handler = MangaScannerHandler(this@ScannerManga, mLibrary)
                 mRestartHandler.sendEmptyMessageDelayed(1, 200)
             } else if (!isSilent)
                 notifyLibraryUpdateFinished(isProcessed)

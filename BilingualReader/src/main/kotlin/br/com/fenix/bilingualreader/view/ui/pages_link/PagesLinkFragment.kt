@@ -15,7 +15,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Message
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.DragEvent
@@ -69,10 +68,10 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
-import java.lang.ref.WeakReference
+import br.com.fenix.bilingualreader.view.managers.PagesLinkHandler
 
 
-class PagesLinkFragment : Fragment() {
+class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
 
     private val mLOGGER = LoggerFactory.getLogger(PagesLinkFragment::class.java)
 
@@ -109,7 +108,7 @@ class PagesLinkFragment : Fragment() {
     private lateinit var mMangaName: TextView
 
     private lateinit var mMapLanguage: HashMap<String, Languages>
-    private val mImageLoadHandler: Handler = ImageLoadHandler(this)
+    private val mImageLoadHandler: Handler = PagesLinkHandler(this)
     private var mShowScrollButton: Boolean = true
     private val mHandler = Handler(Looper.getMainLooper())
 
@@ -1038,87 +1037,69 @@ class PagesLinkFragment : Fragment() {
             mHandler.postDelayed(mVerifyAllImagesFinishedDelay, 1000L)
     }
 
-    private inner class ImageLoadHandler(fragment: PagesLinkFragment) : Handler() {
-        private val mOwner: WeakReference<PagesLinkFragment> = WeakReference(fragment)
-        override fun handleMessage(msg: Message) {
-            val imageLoad = msg.obj as PagesLinkViewModel.ImageLoad
-            when (msg.what) {
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_START -> {
-                    mForceImageReload.visibility = View.GONE
-                    processImageLoading(true)
-                }
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_UPDATED -> {
-                    processImageLoading()
-                    notifyItemChanged(imageLoad.type, imageLoad.index)
-                }
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_LOAD_ERROR -> mHandler.postDelayed(
-                    { mViewModel.reLoadImages(imageLoad.type) },
-                    500L
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_LOAD_ERROR_ENABLE_MANUAL -> mForceImageReload.visibility = View.VISIBLE
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_ADDED -> notifyItemChanged(imageLoad.type, imageLoad.index, add = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_REMOVED -> notifyItemChanged(
-                    imageLoad.type,
-                    imageLoad.index,
-                    remove = true
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_FINISHED -> {
-                    processImageLoading(isEnding = true)
-                    verifyAllImagesFinished()
-                }
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_ALL_IMAGES_LOADED -> {
-                    processImageLoading(isEnding = true)
-                    if (mAutoReorderPages) {
-                        mAutoReorderPages = false
-                        mViewModel.autoReorderDoublePages(imageLoad.type, isNotify = false)
-                    }
+    override fun onImageStart() {
+        mForceImageReload.visibility = View.GONE
+        processImageLoading(true)
+    }
 
-                    mForceImageReload.visibility = if (!mViewModel.allImagesLoaded()) View.VISIBLE else View.GONE
-                }
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_ITEM_CHANGE -> notifyItemChanged(imageLoad.type, imageLoad.index)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_ITEM_ADD -> notifyItemChanged(imageLoad.type, imageLoad.index, add = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_ITEM_REMOVE -> notifyItemChanged(imageLoad.type, imageLoad.index, remove = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_AUTO_PAGES_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_AUTO_PAGES_FINISHED -> processImages(
-                    isEnding = true,
-                    message = getString(R.string.page_link_process_reorder_auto_done)
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_DOUBLE_PAGES_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_DOUBLE_PAGES_FINISHED -> processImages(
-                    isEnding = true,
-                    message = getString(R.string.page_link_process_reorder_dual_pages_done)
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_SIMPLE_PAGES_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_SIMPLE_PAGES_FINISHED -> processImages(
-                    isEnding = true,
-                    message = getString(R.string.page_link_process_reorder_single_page_done)
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_SORTED_PAGES_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_SORTED_PAGES_FINISHED -> processImages(
-                    isEnding = true,
-                    message = getString(R.string.page_link_process_reorder_sorted_page_done)
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_RETURN_PAGES_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_RETURN_PAGES_FINISHED -> processImages(
-                    isEnding = true,
-                    message = getString(R.string.page_link_process_reorder_sorted_page_done)
-                )
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_GET_NOT_LINKED_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_REORDER_GET_NOT_LINKED_FINISHED -> processImages(
-                    isEnding = true,
-                    message = getString(R.string.page_link_process_reorder_sorted_page_done)
-                )
+    override fun onImageUpdated(type: PageLinkType, index: Int?) {
+        processImageLoading()
+        notifyItemChanged(type, index)
+    }
 
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_UNDO_LAST_CHANGE_START -> processImages(isInitial = true)
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_UNDO_LAST_CHANGE_FINISHED -> {
-                    processImages(
-                        isEnding = true,
-                        message = getString(R.string.page_link_process_undo_last_change_done)
-                    )
-                    notifyItemChanged(PageLinkType.LINKED, null)
-                    notifyItemChanged(PageLinkType.NOT_LINKED, null)
-                }
-            }
+    override fun onImageLoadError(type: PageLinkType) {
+        mHandler.postDelayed({ mViewModel.reLoadImages(type) }, 500L)
+    }
+
+    override fun onEnableManualReload() {
+        mForceImageReload.visibility = View.VISIBLE
+    }
+
+    override fun onImageAdded(type: PageLinkType, index: Int?) {
+        notifyItemChanged(type, index, add = true)
+    }
+
+    override fun onImageRemoved(type: PageLinkType, index: Int?) {
+        notifyItemChanged(type, index, remove = true)
+    }
+
+    override fun onImageFinished() {
+        processImageLoading(isEnding = true)
+        verifyAllImagesFinished()
+    }
+
+    override fun onAllImagesLoaded(type: PageLinkType) {
+        processImageLoading(isEnding = true)
+        if (mAutoReorderPages) {
+            mAutoReorderPages = false
+            mViewModel.autoReorderDoublePages(type, isNotify = false)
         }
+        mForceImageReload.visibility = if (!mViewModel.allImagesLoaded()) View.VISIBLE else View.GONE
+    }
+
+    override fun onItemChange(type: PageLinkType, index: Int?) {
+        notifyItemChanged(type, index)
+    }
+
+    override fun onItemAdd(type: PageLinkType, index: Int?) {
+        notifyItemChanged(type, index, add = true)
+    }
+
+    override fun onItemRemove(type: PageLinkType, index: Int?) {
+        notifyItemChanged(type, index, remove = true)
+    }
+
+    override fun onProcessImagesStart() {
+        processImages(isInitial = true)
+    }
+
+    override fun onProcessImagesFinished(messageResId: Int) {
+        processImages(isEnding = true, message = getString(messageResId))
+    }
+
+    override fun onUndoLastChangeFinished() {
+        processImages(isEnding = true, message = getString(R.string.page_link_process_undo_last_change_done))
+        notifyItemChanged(PageLinkType.LINKED, null)
+        notifyItemChanged(PageLinkType.NOT_LINKED, null)
     }
 }

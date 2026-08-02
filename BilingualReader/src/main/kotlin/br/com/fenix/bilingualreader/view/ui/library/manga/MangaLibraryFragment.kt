@@ -15,7 +15,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Message
 import android.provider.BaseColumns
 import android.util.Pair
 import android.view.ContextThemeWrapper
@@ -112,7 +111,10 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
-class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
+import br.com.fenix.bilingualreader.view.managers.MangaLibraryHandler
+
+
+class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, MangaLibraryHandler.Listener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaLibraryFragment::class.java)
 
@@ -195,7 +197,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
     }
 
-    private val mUpdateHandler: Handler = UpdateHandler()
+    private val mUpdateHandler: Handler = MangaLibraryHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -424,21 +426,20 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         super.onDestroyView()
     }
 
-    private inner class UpdateHandler : Handler() {
-        override fun handleMessage(msg: Message) {
-            val obj = msg.obj
-            when (msg.what) {
-                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_ADD -> refreshLibraryAddDelayed(obj as Manga)
-                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(obj as Manga)
-                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATE_FINISHED -> {
-                    setIsRefreshing(false)
-                    if (obj as Boolean && ::mViewModel.isInitialized && _mRecyclerView != null) { // Bug when rotate is necessary verify is initialized
-                        mViewModel.updateList { change, indexes ->
-                            if (change && _mRecyclerView != null)
-                                notifyDataSet(indexes)
-                        }
-                    }
-                }
+    override fun onMangaAdd(manga: Manga) {
+        refreshLibraryAddDelayed(manga)
+    }
+
+    override fun onMangaRemove(manga: Manga) {
+        refreshLibraryRemoveDelayed(manga)
+    }
+
+    override fun onMangaUpdateFinished(isProcessed: Boolean) {
+        setIsRefreshing(false)
+        if (isProcessed && ::mViewModel.isInitialized && _mRecyclerView != null) {
+            mViewModel.updateList { change, indexes ->
+                if (change && _mRecyclerView != null)
+                    notifyDataSet(indexes)
             }
         }
     }

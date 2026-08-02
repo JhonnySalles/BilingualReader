@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.managers
 
-import android.net.Uri
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import io.mockk.every
 import io.mockk.mockk
@@ -18,12 +17,12 @@ import java.io.ByteArrayInputStream
 @Config(sdk = [33])
 class MangaHandlerTest {
 
-    private lateinit var handler: MangaHandler
+    private lateinit var handler: MangaReaderHandler
     private val mockParse: Parse = mockk()
 
     @Before
     fun setUp() {
-        handler = MangaHandler(mockParse)
+        handler = MangaReaderHandler(mockParse)
     }
 
     @Test

@@ -10,7 +10,6 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
@@ -107,7 +106,7 @@ import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewScrolling
 import br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
-import br.com.fenix.bilingualreader.view.managers.MangaHandler
+import br.com.fenix.bilingualreader.view.managers.MangaReaderHandler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
@@ -193,7 +192,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     var mKeepZoomBetweenPage = false
 
     var mParse: Parse? = null
-    private lateinit var mComicHandler: MangaHandler
+    private lateinit var mComicHandler: MangaReaderHandler
     var mTargets = SparseArray<MyTarget>()
     private var mLastZoomScale = 0f
 
@@ -539,7 +538,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                                 mSubtitleController.mReaderFragment = this@MangaReaderFragment
                                 mFileName = file.name
                                 mLocalCurrentPage = max(0, min(mLocalCurrentPage, parse.numPages()))
-                                mComicHandler = MangaHandler(parse)
+                                mComicHandler = MangaReaderHandler(parse)
 
                                 if (mSavedInstanceState == null)
                                     mSubtitleController.getListChapter(mManga, parse)

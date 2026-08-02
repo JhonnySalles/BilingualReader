@@ -8,6 +8,7 @@ import android.os.Process
 import android.widget.Toast
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.view.managers.OcrImageHandler
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
@@ -134,17 +135,9 @@ class Tesseract(
     }
 
     fun processAsync(language: Languages, image: Bitmap, setText: (String?) -> (Unit)) {
-        val thread = Thread(ImageProcessRunnable(language, image, ImageUpdate(setText)))
+        val thread = Thread(ImageProcessRunnable(language, image, OcrImageHandler(setText)))
         thread.priority = Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_LESS_FAVORABLE
         thread.start()
-    }
-
-    private inner class ImageUpdate(private var setText: (String?) -> (Unit)) : Handler() {
-        override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                1 -> setText(msg.obj as String?)
-            }
-        }
     }
 
     private inner class ImageProcessRunnable(
