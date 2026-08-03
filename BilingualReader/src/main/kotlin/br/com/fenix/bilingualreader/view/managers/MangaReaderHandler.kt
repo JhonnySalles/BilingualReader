@@ -14,7 +14,7 @@ class MangaReaderHandler(private var mParse: Parse) {
         val reqWidth = if (targetWidth > 0) targetWidth else ReaderConsts.READER.MAX_PAGE_WIDTH
         val reqHeight = if (targetHeight > 0) targetHeight else ReaderConsts.READER.MAX_PAGE_HEIGHT
 
-        val stream = mParse.getPage(pageNum) ?: return null
+        val stream = mParse.getPage(pageNum)
         val bitmap = ImageUtil.decodeInputStream(stream, reqWidth, reqHeight)
         Util.closeInputStream(stream)
         return bitmap

@@ -227,7 +227,7 @@ class ScannerBook(private val context: Context) {
                                         Book(mLibrary.id, null, it)
 
                                     book.path = it.path
-                                    book.folder = it.parent
+                                    book.folder = it.parent ?: ""
                                     book.excluded = false
                                     book.lastVerify = LocalDate.now()
                                     book.id = storage.save(book, null)

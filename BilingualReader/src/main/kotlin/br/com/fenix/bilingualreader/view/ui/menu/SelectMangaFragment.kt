@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory
 import kotlin.math.max
 
 
+@Suppress("DEPRECATION", "UNCHECKED_CAST")
 class SelectMangaFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(SelectMangaFragment::class.java)

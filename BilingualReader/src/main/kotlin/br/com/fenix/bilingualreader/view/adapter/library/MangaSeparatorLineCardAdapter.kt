@@ -67,8 +67,8 @@ class MangaSeparatorLineCardAdapter(private val context: Context) :
         mListener = listener
     }
 
-    override fun removeList(manga: Manga) {
-        val index = mMangaList.indexOf(manga)
+    override fun removeList(item: Manga) {
+        val index = mMangaList.indexOf(item)
         if (index != -1) {
             mMangaList.removeAt(index)
             notifyItemRemoved(index)

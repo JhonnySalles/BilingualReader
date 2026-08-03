@@ -119,7 +119,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             }
     }
 
-    private fun zoom(v: View?, event: MotionEvent): Boolean {
+    private fun zoom(@Suppress("UNUSED_PARAMETER") v: View?, event: MotionEvent): Boolean {
         if (event.pointerCount == 2) {
             try {
                 mIsChangeSize = false

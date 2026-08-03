@@ -132,6 +132,7 @@
     <string name="config_manga_reading_show_clock_and_battery">Show clock and battery percent?</string>
     <string name="config_manga_reading_use_magnifier_type">Use zoom in magnifying mode?</string>
     <string name="config_manga_reading_keep_zoom_between_pages">Keep zooming between pages?</string>
+    <string name="config_manga_process_vocabulary">Process manga vocabulary</string>
 
     <string name="config_system_format_date">Date format</string>
     <string name="config_system_language">System language</string>

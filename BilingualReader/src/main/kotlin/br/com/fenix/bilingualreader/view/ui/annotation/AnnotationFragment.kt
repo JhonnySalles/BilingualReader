@@ -66,6 +66,7 @@ import eightbitlab.com.blurview.BlurView
 import org.slf4j.LoggerFactory
 
 
+@Suppress("DEPRECATION")
 class AnnotationFragment : Fragment(), AnnotationListener {
 
     private val mLOGGER = LoggerFactory.getLogger(AnnotationFragment::class.java)
@@ -321,7 +322,6 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         }
         mBottomSheet.isDraggable = true
 
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilter, mBottomSheet, root.findViewById<ImageView>(R.id.annotation_popup_filter_touch))

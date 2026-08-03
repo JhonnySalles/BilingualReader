@@ -135,6 +135,7 @@ import java.util.LinkedList
 import kotlin.math.abs
 
 
+@Suppress("DEPRECATION", "UNCHECKED_CAST")
 class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, TTSListener, TextSelectCallbackListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderFragment::class.java)
@@ -1038,8 +1039,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         ScrollingType.Pagination -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
                         ScrollingType.PaginationRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
                         ScrollingType.PaginationVertical -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
-                        ScrollingType.Scrolling -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
-                        else -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                        ScrollingType.Scrolling,
+                        ScrollingType.ScrollingDivider,
+                        ScrollingType.Vertical,
+                        ScrollingType.Horizontal,
+                        ScrollingType.HorizontalRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
                     }
                 }
 
@@ -1052,7 +1056,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         PaginationType.Zooming -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
                         PaginationType.Depth -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
                         PaginationType.Fade -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
-                        else -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
                     }
                 }
             }

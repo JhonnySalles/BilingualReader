@@ -84,9 +84,10 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
         mListener = listener
     }
 
-    override fun removeList(manga: Manga) {
-        val index = mMangaList.indexOf(manga)
+    override fun removeList(item: Manga) {
+        val index = mMangaList.indexOf(item)
         if (index != -1) {
+            @Suppress("UNCHECKED_CAST")
             (mMangaList as MutableList<Any>).removeAt(index)
             notifyItemRemoved(index)
         }

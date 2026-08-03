@@ -105,21 +105,29 @@ data class ShareItem(
     ) {
         this.lastAccess = (firebase[FIELD_LASTACCESS] as Timestamp).toDate()
         this.sync = (firebase[FIELD_SYNC] as Timestamp).toDate()
-        if (firebase.containsKey(FIELD_HISTORY))
+        if (firebase.containsKey(FIELD_HISTORY)) {
+            @Suppress("UNCHECKED_CAST")
             getHistory(firebase[FIELD_HISTORY] as Map<String, *>)
+        }
 
-        if (firebase.containsKey(FIELD_ANNOTATION))
+        if (firebase.containsKey(FIELD_ANNOTATION)) {
+            @Suppress("UNCHECKED_CAST")
             getAnnotation(firebase[FIELD_ANNOTATION] as Map<String, *>)
+        }
     }
 
     private fun getHistory(histories: Map<String, *>) {
-        for (history in histories)
+        for (history in histories) {
+            @Suppress("UNCHECKED_CAST")
             this.history?.set(history.key, ShareHistory(history.value as Map<String, *>))
+        }
     }
 
     private fun getAnnotation(annotations: Map<String, *>) {
-        for (annotation in annotations)
+        for (annotation in annotations) {
+            @Suppress("UNCHECKED_CAST")
             this.annotation?.set(annotation.key, ShareAnnotation(annotation.value as Map<String, *>))
+        }
     }
 
     constructor(manga: Manga, list: List<History>, annotations: List<MangaAnnotation>) : this(manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {

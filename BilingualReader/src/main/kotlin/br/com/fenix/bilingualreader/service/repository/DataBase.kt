@@ -134,17 +134,17 @@ abstract class DataBase : RoomDatabase() {
         }
 
         private var rdc: Callback = object : Callback() {
-            override fun onCreate(database: SupportSQLiteDatabase) {
+            override fun onCreate(db: SupportSQLiteDatabase) {
                 mLOGGER.info("Create initial database data....")
 
                 val kanji = mAssets.open("kanji.sql").bufferedReader().use(BufferedReader::readText)
-                execSqlBatch(database, Migrations.SQLINITIAL.KANJI, kanji)
+                execSqlBatch(db, Migrations.SQLINITIAL.KANJI, kanji)
 
                 val kanjax = mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
-                execSqlBatch(database, Migrations.SQLINITIAL.KANJAX, kanjax)
+                execSqlBatch(db, Migrations.SQLINITIAL.KANJAX, kanjax)
 
                 val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
-                execSqlBatch(database, Migrations.SQLINITIAL.VOCABULARY, vocabulary)
+                execSqlBatch(db, Migrations.SQLINITIAL.VOCABULARY, vocabulary)
 
                 mLOGGER.info("Completed initial database data.")
             }

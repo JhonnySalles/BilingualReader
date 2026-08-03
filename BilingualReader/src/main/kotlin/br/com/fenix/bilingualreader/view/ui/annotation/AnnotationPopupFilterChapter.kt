@@ -49,6 +49,7 @@ class AnnotationPopupFilterChapter : Fragment() {
             return
         
         (mChapters.adapter as ArrayAdapter<*>).clear()
+        @Suppress("UNCHECKED_CAST")
         (mChapters.adapter as ArrayAdapter<String>).addAll(chapters.keys)
         (mChapters.adapter as ArrayAdapter<*>).notifyDataSetChanged()
     }

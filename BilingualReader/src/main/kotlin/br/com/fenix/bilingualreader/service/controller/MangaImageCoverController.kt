@@ -189,7 +189,7 @@ class MangaImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
+    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true) {
         imageView.load(manga) {
             allowHardware(false)
             crossfade(true)
@@ -215,7 +215,7 @@ class MangaImageCoverController private constructor() {
         manga: Manga,
         imageView: ImageView,
         notLocate: Bitmap?,
-        isCoverSize: Boolean = true,
+        @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true,
         onFinish: (Bitmap?) -> (Unit)
     ) {
         imageView.load(manga) {

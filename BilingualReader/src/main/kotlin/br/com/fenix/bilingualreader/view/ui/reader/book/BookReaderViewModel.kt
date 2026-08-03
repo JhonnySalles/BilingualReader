@@ -637,7 +637,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 if (isProcessJapaneseText && isJapanese)
                     Formatter.generateTextView(context, processed, isFurigana)
 
-                val createSpanSelect = { annotation: BookAnnotation, start: Int, end: Int ->
+                val createSpanSelect = { annotation: BookAnnotation, _: Int, _: Int ->
                     val span = SpannableString(holder.textView.text)
                     createSpan(context, span, annotation, listener)
                     holder.textView.text = span
@@ -677,13 +677,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun createSpan(context: Context, span: SpannableString, annotation: BookAnnotation, listener: TextSelectCallbackListener?) {
-        var click: ClickableSpan? = null
         val delete = { delete: BookAnnotation ->
             mAnnotation.remove(delete)
             listener?.textSelectRemoveMark(annotation)
             true
         }
-        click = PopupAnnotations.generateClick(context, annotation, app.getColor(annotation.color.getColor()), delete) { alter ->
+        val click = PopupAnnotations.generateClick(context, annotation, app.getColor(annotation.color.getColor()), delete) { alter ->
             if (alter)
                 listener?.textSelectChangeMark(annotation)
         }

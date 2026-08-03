@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
 
+@Suppress("DEPRECATION")
 class TouchScreenFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(TouchScreenFragment::class.java)

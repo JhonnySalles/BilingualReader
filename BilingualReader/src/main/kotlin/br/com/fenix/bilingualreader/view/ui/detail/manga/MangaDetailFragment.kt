@@ -58,6 +58,7 @@ import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
+@Suppress("DEPRECATION")
 class MangaDetailFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaDetailFragment::class.java)
@@ -742,9 +743,9 @@ class MangaDetailFragment : Fragment() {
         val manga = mViewModel.manga.value ?: return
         val onUpdate: (History) -> (Unit) = { mViewModel.save(manga) }
         PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
-            .getPopupBookMark(manga, onUpdate) { change, manga ->
+            .getPopupBookMark(manga, onUpdate) { change, itemManga ->
                 if (change)
-                    onUpdate(manga)
+                    onUpdate(itemManga)
             }
     }
 
@@ -808,7 +809,6 @@ class MangaDetailFragment : Fragment() {
         ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
         layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
 
-        val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
         val buttonContainer = layout.findViewById<LinearLayout>(R.id.popup_detail_button_container)
         val btnImage = layout.findViewById<com.google.android.material.button.MaterialButton>(R.id.popup_detail_btn_image)
         val btn3D = layout.findViewById<com.google.android.material.button.MaterialButton>(R.id.popup_detail_btn_3d)

@@ -40,6 +40,7 @@ import com.pedromassango.doubleclick.DoubleClickListener
 import kotlin.math.abs
 
 
+@Suppress("DEPRECATION")
 class FloatingSubtitleReader constructor(
     private val context: Context,
     private val activity: AppCompatActivity

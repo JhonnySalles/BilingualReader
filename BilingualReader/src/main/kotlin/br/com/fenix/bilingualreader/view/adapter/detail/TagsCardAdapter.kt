@@ -60,7 +60,7 @@ class TagsCardAdapter(var context: Context, list: MutableList<String>) : BaseAda
         newView?.findViewById<LinearLayout>(R.id.list_item_tag_content)?.let {
             val shapeDrawable = MaterialShapeDrawable(mShapeAppearanceModel!!)
             shapeDrawable.fillColor = ColorStateList.valueOf(ColorUtil.randomColor())
-            ViewCompat.setBackground(it, shapeDrawable)
+            it.background = shapeDrawable
         }
 
         newView?.findViewById<TextView>(R.id.list_item_tag)?.text = theme

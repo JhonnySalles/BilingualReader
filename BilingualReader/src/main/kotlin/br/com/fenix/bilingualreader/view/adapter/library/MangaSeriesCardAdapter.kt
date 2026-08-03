@@ -66,14 +66,14 @@ class MangaSeriesCardAdapter(private val context: Context) :
         mListener = listener
     }
 
-    override fun removeList(manga: Manga) {
+    override fun removeList(item: Manga) {
         for (i in mMangaList.indices.reversed()) {
-            val item = mMangaList[i]
-            if (item is MangaGroup) {
-                val index = item.items.indexOf(manga)
+            val group = mMangaList[i]
+            if (group is MangaGroup) {
+                val index = group.items.indexOf(item)
                 if (index != -1) {
-                    item.items.removeAt(index)
-                    if (item.items.isEmpty()) {
+                    group.items.removeAt(index)
+                    if (group.items.isEmpty()) {
                         mMangaList.removeAt(i)
                         if (i > 0 && mMangaList[i - 1] is Separator)
                             mMangaList.removeAt(i - 1)

@@ -382,9 +382,9 @@ class ZoomRecyclerView : RecyclerView {
         mTranY = correctXY[1]
     }
 
-    private fun correctTranslateXY(x: Float, y: Float): FloatArray {
-        var x = x
-        var y = y
+    private fun correctTranslateXY(posX: Float, posY: Float): FloatArray {
+        var x = posX
+        var y = posY
         if (mScaleFactor <= 1) {
             return floatArrayOf(x, y)
         }

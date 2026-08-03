@@ -207,7 +207,7 @@ class SubTitleController private constructor(private val context: Context) {
                 }
 
                 val listSubTitleChapter = getChapterFromJson(listJson)
-                mVocabularyRepository.processVocabulary(mManga?.id, listSubTitleChapter)
+                mVocabularyRepository.processMangaVocabulary(context, mManga?.id, listSubTitleChapter)
 
                 withContext(Dispatchers.Main) {
                     setListChapter(listSubTitleChapter)
@@ -378,7 +378,7 @@ class SubTitleController private constructor(private val context: Context) {
         val hash = String(DigestUtils.md5(image))
         Util.closeInputStream(image)
         val path: String = mParse.getPagePath(pageNumber) ?: ""
-        val (chapterKey, _, pageNumber) = findKeys(path, hash)
+        val (chapterKey, _, foundPageNumber) = findKeys(path, hash)
 
         return if (chapterKey.isNotEmpty()) {
             SubTitle(
@@ -386,7 +386,7 @@ class SubTitleController private constructor(private val context: Context) {
                 mSubtitleLang,
                 chapterKey,
                 "",
-                pageNumber,
+                foundPageNumber,
                 pathSubtitle,
                 subTitleChapterSelected.value
             )

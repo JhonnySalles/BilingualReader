@@ -250,7 +250,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                     val listJson: List<String> = parse.getSubtitles()
                     if (listJson.isNotEmpty()) {
                         val listSubTitleChapter: MutableList<SubTitleChapter> = SubTitleController.getChapterFromJson(listJson)
-                        mVocabularyRepository.processVocabulary(manga.id, listSubTitleChapter, true)
+                        mVocabularyRepository.processMangaVocabulary(app.applicationContext, manga.id, listSubTitleChapter, true)
                     }
                 } finally {
                     Util.destroyParse(parse)

@@ -114,6 +114,7 @@ import kotlin.reflect.KProperty
 import br.com.fenix.bilingualreader.view.managers.BookLibraryHandler
 
 
+@Suppress("DEPRECATION")
 class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, BookLibraryHandler.Listener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookLibraryFragment::class.java)
@@ -628,7 +629,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             LibraryBookType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_exit
             LibraryBookType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_exit
             LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_exit
-            else -> null
         }
 
         val final: Int? = when (type) {
@@ -639,7 +639,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             LibraryBookType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_enter
             LibraryBookType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_enter
             LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_enter
-            else -> null
         }
 
         if (initial != null && final != null)
@@ -1069,14 +1068,17 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
+        @Suppress("UNCHECKED_CAST")
         (mRecyclerView.adapter as BaseAdapter<*, *>).isAnimation = isAnimate
     }
 
     private fun removeList(book: Book) {
+        @Suppress("UNCHECKED_CAST")
         (mRecyclerView.adapter as BaseAdapter<Book, *>).removeList(book)
     }
 
     private fun updateList(list: MutableList<Book>) {
+        @Suppress("UNCHECKED_CAST")
         (mRecyclerView.adapter as BaseAdapter<Book, *>).updateList(mSortType, list)
     }
 
@@ -1411,7 +1413,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     val items = getSkeletonGridItemPerRow(type)
                     val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
                     container.removeAllViews()
-                    for (i in 0..items) {
+                    for (idx in 0..items) {
                         val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)
                         val params = FrameLayout.LayoutParams(width, height)
                         params.setMargins(margin, margin, divider, 0)

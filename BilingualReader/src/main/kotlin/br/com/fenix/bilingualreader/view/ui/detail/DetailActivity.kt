@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.view.ui.detail.book.BookDetailFragment
 import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 
 
+@Suppress("DEPRECATION")
 class DetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

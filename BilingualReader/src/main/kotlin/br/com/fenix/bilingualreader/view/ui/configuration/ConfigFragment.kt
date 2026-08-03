@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -87,6 +86,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
+@Suppress("DEPRECATION")
 class ConfigFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(ConfigFragment::class.java)
@@ -149,9 +149,10 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaScrollingModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaReaderPaginationType: TextInputLayout
     private lateinit var mMangaPaginationTypeAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mMangaShowClockAndBattery: SwitchMaterial
-    private lateinit var mMangaUseMagnifierType: SwitchMaterial
-    private lateinit var mMangaKeepZoomBetweenPages: SwitchMaterial
+    private lateinit var mMangaReaderShowClockAndBattery: SwitchMaterial
+    private lateinit var mMangaReaderUseMagnifierType: SwitchMaterial
+    private lateinit var mMangaReaderKeepZoomBetweenPages: SwitchMaterial
+    private lateinit var mMangaReaderProcessVocabulary: SwitchMaterial
 
     private lateinit var mMangaTouchScreenButton: MaterialButton
 
@@ -263,9 +264,10 @@ class ConfigFragment : Fragment() {
         mMangaPaginationTypeAutoComplete  = view.findViewById(R.id.config_manga_menu_autocomplete_pagination_type)
 
         mMangaTouchScreenButton = view.findViewById(R.id.config_manga_touch_screen)
-        mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
-        mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
-        mMangaKeepZoomBetweenPages = view.findViewById(R.id.config_manga_switch_keep_zoom_between_pages)
+        mMangaReaderShowClockAndBattery = view.findViewById(R.id.config_manga_reader_switch_show_clock_and_battery)
+        mMangaReaderUseMagnifierType = view.findViewById(R.id.config_manga_reader_switch_use_magnifier_type)
+        mMangaReaderKeepZoomBetweenPages = view.findViewById(R.id.config_manga_reader_switch_keep_zoom_between_pages)
+        mMangaReaderProcessVocabulary = view.findViewById(R.id.config_manga_reader_process_vocabulary)
 
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
         mConfigSystemFormatDateAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_format_date)
@@ -291,18 +293,14 @@ class ConfigFragment : Fragment() {
         mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
         mConfigSystemThemeGlassmorphism.setOnCheckedChangeListener { _, isChecked ->
             val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-            sharedPreferences.edit(commit = true) {
-                putBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, isChecked)
-            }
+            sharedPreferences.edit().putBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, isChecked).apply()
             (requireActivity() as? MainActivity)?.setupTitleBackgrounds()
         }
 
         mConfigSystemUse3dCover = view.findViewById(R.id.config_system_use_3d_cover)
         mConfigSystemUse3dCover.setOnCheckedChangeListener { _, isChecked ->
             val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-            sharedPreferences.edit(commit = true) {
-                putBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, isChecked)
-            }
+            sharedPreferences.edit().putBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, isChecked).apply()
         }
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
@@ -844,8 +842,8 @@ class ConfigFragment : Fragment() {
 
                 if (clear) {
                     val extra = data?.extras
-                    if (extra!!.containsKey(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)) {
-                        val type = Type.valueOf(extra!!.getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)!!)
+                    if (extra != null && extra.containsKey(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)) {
+                        val type = Type.valueOf(extra.getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)!!)
                         val libraries = extra.getLongArray(GeneralConsts.KEYS.LIBRARY.LIBRARY_ARRAY_ID)!!
                         for (library in libraries)
                             when(type) {
@@ -1010,17 +1008,22 @@ class ConfigFragment : Fragment() {
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
-                mMangaShowClockAndBattery.isChecked
+                mMangaReaderShowClockAndBattery.isChecked
             )
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
-                mMangaUseMagnifierType.isChecked
+                mMangaReaderUseMagnifierType.isChecked
             )
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
-                mMangaKeepZoomBetweenPages.isChecked
+                mMangaReaderKeepZoomBetweenPages.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.MANGA_PROCESS_VOCABULARY,
+                mMangaReaderProcessVocabulary.isChecked
             )
 
             this.putBoolean(
@@ -1214,16 +1217,20 @@ class ConfigFragment : Fragment() {
             mMangaMapPaginationType.entries.first { it.value == mMangaPaginationSelect }.key,
             false
         )
-        mMangaShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
+        mMangaReaderShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
-        mMangaUseMagnifierType.isChecked = sharedPreferences.getBoolean(
+        mMangaReaderUseMagnifierType.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
             false
         )
-        mMangaKeepZoomBetweenPages.isChecked = sharedPreferences.getBoolean(
+        mMangaReaderKeepZoomBetweenPages.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
+            false
+        )
+        mMangaReaderProcessVocabulary.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.MANGA_PROCESS_VOCABULARY,
             false
         )
         mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(
@@ -1400,18 +1407,18 @@ class ConfigFragment : Fragment() {
         )
 
         mConfigSystemShareMarkMangaLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)) {
-            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, Date().toString())
-            val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
-            val lastSync = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, null)
+            val dateSync = if (sync != null) SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync) else null
+            val lastSync = if (dateSync != null) SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync) else ""
             mConfigSystemShareMarkMangaLastSync.text = getString(R.string.config_system_share_mark_manga, lastSync)
             View.VISIBLE
         } else
             View.GONE
 
         mConfigSystemShareMarkBookLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)) {
-            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, Date().toString())
-            val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
-            val lastSync = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, null)
+            val dateSync = if (sync != null) SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync) else null
+            val lastSync = if (dateSync != null) SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync) else ""
             mConfigSystemShareMarkBookLastSync.text = getString(R.string.config_system_share_mark_book, lastSync)
             View.VISIBLE
         } else

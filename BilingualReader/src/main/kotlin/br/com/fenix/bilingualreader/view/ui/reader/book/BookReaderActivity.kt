@@ -72,6 +72,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
+@Suppress("DEPRECATION")
 class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderActivity::class.java)
@@ -420,11 +421,11 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         index.setTextColor(getColorFromAttr(R.attr.colorPrimary))
         title.addView(index)
         title.setOnLongClickListener {
-            val title = if (mToolBarTitle != null) mToolBarTitle!!.text else mToolBarTop.title
+            val titleText = if (mToolBarTitle != null) mToolBarTitle!!.text else mToolBarTop.title
             val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("Copied Text", title)
+            val clip = ClipData.newPlainText("Copied Text", titleText)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, getString(R.string.action_copy, title), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.action_copy, titleText), Toast.LENGTH_LONG).show()
 
             true
         }
@@ -442,11 +443,11 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     @SuppressLint("MissingSuperCall")
-    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+    override fun onSaveInstanceState(outState: Bundle) {
         if (mBook != null)
-            savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
+            outState.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
 
-        super.onSaveInstanceState(savedInstanceState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

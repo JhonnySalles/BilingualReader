@@ -84,9 +84,10 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
         mListener = listener
     }
 
-    override fun removeList(book: Book) {
-        val index = mBookList.indexOf(book)
+    override fun removeList(item: Book) {
+        val index = mBookList.indexOf(item)
         if (index != -1) {
+            @Suppress("UNCHECKED_CAST")
             (mBookList as MutableList<Any>).removeAt(index)
             notifyItemRemoved(index)
         }

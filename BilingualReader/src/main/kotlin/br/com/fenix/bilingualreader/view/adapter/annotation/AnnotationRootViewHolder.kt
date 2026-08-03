@@ -10,7 +10,7 @@ import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 
 class AnnotationRootViewHolder(itemView: View, private val listener: AnnotationsListener) : RecyclerView.ViewHolder(itemView) {
 
-    fun bind(annotation: Annotation, isFirst: Boolean) {
+    fun bind(annotation: Annotation, @Suppress("UNUSED_PARAMETER") isFirst: Boolean) {
         itemView.findViewById<TextView>(R.id.annotation_title_divider_title).text = annotation.chapter
         itemView.findViewById<TextView>(R.id.annotation_title_divider_sub_title).text = annotation.annotation
     }

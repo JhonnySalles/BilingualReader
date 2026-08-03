@@ -933,8 +933,8 @@ class ImageUtil {
             val isJpeg = bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte()
             val isPng = bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() && bytes[2] == 0x4E.toByte() && bytes[3] == 0x47.toByte()
             val isGif = bytes[0] == 0x47.toByte() && bytes[1] == 0x49.toByte() && bytes[2] == 0x46.toByte()
-            val isWebp = bytes.size >= 12 && bytes[0] == 'R'.toByte() && bytes[1] == 'I'.toByte() && bytes[2] == 'F'.toByte() && bytes[3] == 'F'.toByte() &&
-                         bytes[8] == 'W'.toByte() && bytes[9] == 'E'.toByte() && bytes[10] == 'B'.toByte() && bytes[11] == 'P'.toByte()
+            val isWebp = bytes.size >= 12 && bytes[0] == 'R'.code.toByte() && bytes[1] == 'I'.code.toByte() && bytes[2] == 'F'.code.toByte() && bytes[3] == 'F'.code.toByte() &&
+                         bytes[8] == 'W'.code.toByte() && bytes[9] == 'E'.code.toByte() && bytes[10] == 'B'.code.toByte() && bytes[11] == 'P'.code.toByte()
             val isBmp = bytes[0] == 0x42.toByte() && bytes[1] == 0x4D.toByte()
             return isJpeg || isPng || isGif || isWebp || isBmp
         }
@@ -984,12 +984,14 @@ class ImageUtil {
                         val tiffOptions = org.beyka.tiffbitmapfactory.TiffBitmapFactory.Options()
                         if (reqWidth > 0 && reqHeight > 0) {
                             tiffOptions.inJustDecodeBounds = true
+                            @Suppress("DEPRECATION")
                             org.beyka.tiffbitmapfactory.TiffBitmapFactory.decodeFile(tempFile, tiffOptions)
                             if (tiffOptions.outWidth > 0 && tiffOptions.outHeight > 0) {
                                 tiffOptions.inSampleSize = calculateInSampleSize(tiffOptions.outWidth, tiffOptions.outHeight, reqWidth, reqHeight)
                             }
                             tiffOptions.inJustDecodeBounds = false
                         }
+                        @Suppress("DEPRECATION")
                         val tiffBitmap = org.beyka.tiffbitmapfactory.TiffBitmapFactory.decodeFile(tempFile, tiffOptions)
                         if (tiffBitmap != null) return tiffBitmap
                     } finally {
@@ -1331,17 +1333,17 @@ class ImageUtil {
 
         fun applyCoverEffect(context: Context, cover: Bitmap?, type: Type) : Bitmap? {
             val image = cover ?: (AppCompatResources.getDrawable(context, R.mipmap.reader_cover_not_found)?.toBitmap() ?: return null)
-            val cover = ImageProcess.toGrayscale(image.copy(Bitmap.Config.ARGB_8888, true))
-            val canvas = Canvas(cover)
+            val itemCover = ImageProcess.toGrayscale(image.copy(Bitmap.Config.ARGB_8888, true))
+            val canvas = Canvas(itemCover)
 
             val effect = when(type) {
                 Type.MANGA -> AppCompatResources.getDrawable(context, R.mipmap.book_not_found_effect)
                 Type.BOOK -> AppCompatResources.getDrawable(context, R.mipmap.book_not_found_effect)
             }
 
-            effect?.setBounds(0, 0, cover.width, cover.height)
+            effect?.setBounds(0, 0, image.width, image.height)
             effect?.draw(canvas)
-            return cover
+            return itemCover
         }
 
         fun combineImagesHorizontally(bitmaps: List<Bitmap>): Bitmap? {
@@ -1618,9 +1620,8 @@ class ThemeUtil {
             return typedValue.data
         }
 
+        @Suppress("DEPRECATION")
         fun statusBarTransparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
-            val wic = WindowInsetsControllerCompat(window, window.decorView)
-
             if (isDarkTheme)
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
             else
@@ -1737,8 +1738,8 @@ class TextUtil {
         fun replaceHtmlTags(html: String): String = html.replace("<[^>]*>".toRegex(), "")
 
         fun highlightWordInText(html: String, contain: String, @ColorInt color: Int): String {
-            val color = ColorUtil.getColor(color)
-            return highlightWordInText(html, contain, color)
+            val itemColor = ColorUtil.getColor(color)
+            return highlightWordInText(html, contain, itemColor)
         }
 
         fun highlightWordInText(html: String, contain: String, color: String): String = replaceHtmlTags(html).replace(contain, "<font color=$color>$contain</font>")
@@ -1797,6 +1798,7 @@ class AnimationUtil {
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
+                            ending()
                         }
                     })
             } else {
@@ -1808,6 +1810,7 @@ class AnimationUtil {
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
+                            ending()
                         }
                     })
             }
@@ -1886,7 +1889,7 @@ class ColorUtil {
             Palette.from(bitmap)
                 .maximumColorCount(3)
                 .clearFilters()
-                .setRegion( if(isPositionRight) bitmap.width - iconWidth else 0, 0, bitmap.width, iconWidth)
+                .setRegion( if(isPositionRight) bitmap.width - iconWidth else 0, 0, bitmap.width, iconHeight)
                 .generate { palette ->
                     val dark = when (isDark(palette)) {
                         LIGHTNESS_DARK -> true
@@ -1904,11 +1907,9 @@ class ColorUtil {
                 .generate()
 
             var mostPopulous: Swatch? = null
-            if (palette != null) {
-                for (swatch in palette.swatches) {
-                    if (mostPopulous == null || swatch.population > mostPopulous.population) {
-                        mostPopulous = swatch
-                    }
+            for (swatch in palette.swatches) {
+                if (mostPopulous == null || swatch.population > mostPopulous.population) {
+                    mostPopulous = swatch
                 }
             }
 

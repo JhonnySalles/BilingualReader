@@ -184,9 +184,8 @@ class RarParse : Parse {
     }
 
     override fun getPage(num: Int): InputStream {
-        var isSolid = false
         synchronized(this) {
-            isSolid = mArchive?.mainHeader?.isSolid ?: false
+            val isSolid = mArchive?.mainHeader?.isSolid ?: false
             if (isSolid && !mSolidFileExtracted) {
                 val files = mArchive?.fileHeaders ?: emptyList()
                 for (h in files) {

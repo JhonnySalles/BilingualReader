@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
 
+@Suppress("DEPRECATION")
 class PopupMangaSubtitleConfiguration : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(PopupMangaSubtitleConfiguration::class.java)

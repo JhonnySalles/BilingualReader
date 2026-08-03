@@ -100,7 +100,7 @@ class BookImageCoverController private constructor() {
         }
 
         val file = book.file
-        if (file == null || !file.exists()) {
+        if (!file.exists()) {
             return null
         }
 
@@ -121,7 +121,7 @@ class BookImageCoverController private constructor() {
 
         if (image == null) {
             val file = book.file
-            if (file == null || !file.exists())
+            if (!file.exists())
                 return image
 
             image = getCoverFromFile(context, hash, book.file, isCoverSize)
@@ -152,7 +152,7 @@ class BookImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
+    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true) {
         imageView.load(book) {
             allowHardware(false)
             crossfade(true)
@@ -173,7 +173,7 @@ class BookImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
+    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
         imageView.load(book) {
             allowHardware(false)
             crossfade(true)

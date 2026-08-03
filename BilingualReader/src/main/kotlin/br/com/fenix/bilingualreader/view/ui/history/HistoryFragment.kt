@@ -82,6 +82,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
+@Suppress("DEPRECATION")
 class HistoryFragment : Fragment() {
 
     private lateinit var mPreferences: SharedPreferences
@@ -976,7 +977,7 @@ class HistoryFragment : Fragment() {
         }
     }
 
-    fun openMenu(manga: Manga, view: View, position: Int) {
+    fun openMenu(manga: Manga, view: View, _position: Int) {
         val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
         val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
         popup.menuInflater.inflate(R.menu.menu_item_manga_file, popup.menu)
@@ -1027,7 +1028,7 @@ class HistoryFragment : Fragment() {
         popup.show()
     }
 
-    fun openMenu(book: Book, view: View, position: Int) {
+    fun openMenu(book: Book, view: View, _position: Int) {
         val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
         val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
         popup.menuInflater.inflate(R.menu.menu_item_book_file, popup.menu)

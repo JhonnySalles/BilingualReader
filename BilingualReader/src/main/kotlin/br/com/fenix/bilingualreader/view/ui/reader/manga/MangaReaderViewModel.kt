@@ -280,7 +280,7 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 class CoilGrayscaleTransformation : Transformation {
     override val cacheKey: String = "GrayscaleFilter"
     override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
-        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val output = input.copy(input.config, true)
         val canvas = android.graphics.Canvas(output)
         val paint = android.graphics.Paint()
         val matrix = android.graphics.ColorMatrix()
@@ -294,7 +294,7 @@ class CoilGrayscaleTransformation : Transformation {
 class CoilColorFilterTransformation(val color: Int) : Transformation {
     override val cacheKey: String = "ColorFilter_$color"
     override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
-        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val output = input.copy(input.config, true)
         val canvas = android.graphics.Canvas(output)
         val paint = android.graphics.Paint()
         paint.colorFilter = android.graphics.PorterDuffColorFilter(color, android.graphics.PorterDuff.Mode.SRC_ATOP)
@@ -306,7 +306,7 @@ class CoilColorFilterTransformation(val color: Int) : Transformation {
 class CoilInvertTransformation : Transformation {
     override val cacheKey: String = "InvertFilter"
     override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
-        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val output = input.copy(input.config, true)
         val canvas = android.graphics.Canvas(output)
         val paint = android.graphics.Paint()
         val matrix = android.graphics.ColorMatrix(floatArrayOf(
@@ -324,7 +324,7 @@ class CoilInvertTransformation : Transformation {
 class CoilSepiaTransformation : Transformation {
     override val cacheKey: String = "SepiaFilter"
     override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
-        val output = input.copy(input.config ?: Bitmap.Config.ARGB_8888, true)
+        val output = input.copy(input.config, true)
         val canvas = android.graphics.Canvas(output)
         val paint = android.graphics.Paint()
         val matrix = android.graphics.ColorMatrix()
@@ -526,17 +526,17 @@ class CoilSepiaTransformation : Transformation {
     private fun generateTitle(annotations: List<MangaAnnotation>) : MutableList<MangaAnnotation>{
         val list = mutableListOf<MangaAnnotation>()
         if (annotations.isNotEmpty()) {
-            val annotation = annotations[0]
-            val idMaga = annotation.id_parent
-            var title = MangaAnnotation(idMaga, annotation.chapter, annotation.folder, "", isRoot = true, isTitle = true)
+            val firstAnnotation = annotations[0]
+            val idMaga = firstAnnotation.id_parent
+            var title = MangaAnnotation(idMaga, firstAnnotation.chapter, firstAnnotation.folder, "", isRoot = true, isTitle = true)
             list.add(title)
-            for (annotation in annotations) {
-                if (list.none { it.chapter.equals(annotation.chapter, ignoreCase = true) }) {
-                    title = MangaAnnotation(idMaga, annotation.chapter, annotation.folder, "", isRoot = true, isTitle = true)
+            for (itemAnnotation in annotations) {
+                if (list.none { it.chapter.equals(itemAnnotation.chapter, ignoreCase = true) }) {
+                    title = MangaAnnotation(idMaga, itemAnnotation.chapter, itemAnnotation.folder, "", isRoot = true, isTitle = true)
                     list.add(title)
                 }
                 title.count++
-                list.add(annotation)
+                list.add(itemAnnotation)
             }
         }
         return list

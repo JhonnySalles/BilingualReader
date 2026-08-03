@@ -36,12 +36,12 @@ class InformationRelatedViewHolder(itemView: View, private val listener: Informa
             ImageController.instance.setImageAsync(itemView.context, information.imageLink!!, image)
 
         title.text = information.title
-        alternativeTitles.text = Html.fromHtml(information.alternativeTitles)
-        status.text = Html.fromHtml(information.status)
-        publish.text = Html.fromHtml(information.release)
-        volumes.text = Html.fromHtml(information.volumes + ", " + information.chapters)
-        authors.text = Html.fromHtml(information.authors)
-        genres.text = Html.fromHtml(information.genres)
+        alternativeTitles.text = androidx.core.text.HtmlCompat.fromHtml(information.alternativeTitles, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
+        status.text = androidx.core.text.HtmlCompat.fromHtml(information.status, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
+        publish.text = androidx.core.text.HtmlCompat.fromHtml(information.release, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
+        volumes.text = androidx.core.text.HtmlCompat.fromHtml(information.volumes + ", " + information.chapters, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
+        authors.text = androidx.core.text.HtmlCompat.fromHtml(information.authors, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
+        genres.text = androidx.core.text.HtmlCompat.fromHtml(information.genres, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
     }
 
 }

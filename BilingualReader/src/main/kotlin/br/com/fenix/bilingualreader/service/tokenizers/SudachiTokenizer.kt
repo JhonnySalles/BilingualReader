@@ -49,6 +49,7 @@ class SudachiTokenizer(
             // Load language files from asset packs
             mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "system_small.dic")
             //mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "char.def")
+            @Suppress("DEPRECATION")
             val dict = com.worksap.nlp.sudachi.DictionaryFactory().create(settings)
             tokenizer = dict.create()
         }

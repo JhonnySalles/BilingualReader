@@ -40,6 +40,7 @@ import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
 
+@Suppress("DEPRECATION")
 class ConfigLibrariesFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(ConfigLibrariesFragment::class.java)

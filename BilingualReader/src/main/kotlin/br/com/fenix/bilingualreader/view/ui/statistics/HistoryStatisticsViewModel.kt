@@ -454,6 +454,7 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             return results
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = arrayListOf<History>()
             filterResults?.let {

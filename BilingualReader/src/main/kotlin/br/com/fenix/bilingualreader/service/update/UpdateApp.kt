@@ -85,6 +85,7 @@ class UpdateApp(var mContext: Context) {
 
     fun download(link : String) {
         try {
+            @Suppress("DEPRECATION")
             DownloadApp(link).execute()
         } catch (e: Exception) {
             mLOGGER.error("Error update app: " + e.message, e)
@@ -94,6 +95,7 @@ class UpdateApp(var mContext: Context) {
     }
 
 
+    @Suppress("DEPRECATION")
     private inner class DownloadApp(var url: String) : AsyncTask<String?, Long, File?>() {
 
         private lateinit var mPopup : AlertDialog
@@ -117,7 +119,7 @@ class UpdateApp(var mContext: Context) {
         }
 
         override fun doInBackground(vararg params: String?): File? {
-            var count = 0
+            var count: Int
             return try {
                 val download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val file = File(download, "BilingualReader.apk")

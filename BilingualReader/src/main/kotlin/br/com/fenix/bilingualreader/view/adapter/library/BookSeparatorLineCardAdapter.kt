@@ -67,8 +67,8 @@ class BookSeparatorLineCardAdapter(private val context: Context) :
         mListener = listener
     }
 
-    override fun removeList(book: Book) {
-        val index = mBookList.indexOf(book)
+    override fun removeList(item: Book) {
+        val index = mBookList.indexOf(item)
         if (index != -1) {
             mBookList.removeAt(index)
             notifyItemRemoved(index)

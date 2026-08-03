@@ -383,16 +383,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             } else {
                 val list = withContext(Dispatchers.IO) { mBookRepository.list(mLibrary) }
                 val indexes = mutableListOf<Pair<ListMode, Int>>()
-                if (list != null) {
-                    indexes.add(Pair(ListMode.FULL, list.size))
-                    mListBook.value = list.toMutableList()
-                    setFullFromList(list)
-                    sorted()
-                } else {
-                    mListBook.value = mutableListOf()
-                    mFullMap.clear()
-                    indexes.add(Pair(ListMode.FULL, 0))
-                }
+                indexes.add(Pair(ListMode.FULL, list.size))
+                mListBook.value = list.toMutableList()
+                setFullFromList(list)
+                sorted()
                 setSuggestionsFromFull()
                 refreshComplete(false, indexes)
             }
@@ -620,6 +614,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Book>()
             filterResults?.let {
+                @Suppress("UNCHECKED_CAST")
                 list.addAll(it.values as Collection<Book>)
             }
             mListBook.value = list

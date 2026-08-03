@@ -39,6 +39,7 @@ import java.util.Date
 import java.util.Locale
 
 
+@Suppress("DEPRECATION")
 class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase(context) {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkFirebaseController::class.java)
@@ -52,6 +53,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
     private lateinit var mDB: FirebaseFirestore
     private var mUser = ""
 
+    @Suppress("DEPRECATION")
     override fun initialize(ending: (access: ShareMarkType) -> (Unit)) {
         if (!::mDB.isInitialized) {
             try {
@@ -113,6 +115,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     if (document.exists()) {
                         val item = document.data ?: mapOf()
+                        @Suppress("UNCHECKED_CAST")
                         mangas.putAll(item as Map<String, Date>)
                     }
 
@@ -140,9 +143,9 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                 }
                             } else {
                                 if (mangas.containsKey(manga.name)) {
-                                    val document = collection.document(manga.name).get().await()
-                                    if (document.exists()) {
-                                        val item = ShareItem(document.data as Map<String, *>)
+                                    val docSnapshot = collection.document(manga.name).get().await()
+                                    if (docSnapshot.exists()) {
+                                        val item = ShareItem(docSnapshot.data as Map<String, *>)
                                         share.add(item)
                                         if (compare(item, manga)) {
                                             repositoryManga.update(manga, alteration)
@@ -172,7 +175,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 share.forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
                             val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
                             if (list.isNotEmpty())
                                 for (shared in list)
@@ -283,6 +286,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     if (document.exists()) {
                         val item = document.data ?: mapOf()
+                        @Suppress("UNCHECKED_CAST")
                         books.putAll(item as Map<String, Date>)
                     }
 
@@ -310,9 +314,9 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                 }
                             } else {
                                 if (books.containsKey(book.name)) {
-                                    val document = collection.document(book.name).get().await()
-                                    if (document.exists()) {
-                                        val item = ShareItem(document.data as Map<String, *>)
+                                    val docSnapshot = collection.document(book.name).get().await()
+                                    if (docSnapshot.exists()) {
+                                        val item = ShareItem(docSnapshot.data as Map<String, *>)
                                         share.add(item)
                                         if (compare(item, book)) {
                                             repositoryBook.update(book, alteration)
@@ -342,7 +346,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 share.forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
                             val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
                             if (list.isNotEmpty())
                                 for (shared in list)

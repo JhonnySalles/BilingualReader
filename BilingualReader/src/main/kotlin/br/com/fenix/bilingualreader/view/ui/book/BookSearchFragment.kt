@@ -51,6 +51,7 @@ import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 
+@Suppress("DEPRECATION")
 class BookSearchFragment : Fragment(), BookParseListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookSearchFragment::class.java)

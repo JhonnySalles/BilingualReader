@@ -343,9 +343,6 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
             val yearFilter = mYears.value.orEmpty()
 
             for (history in mListFull.value!!) {
-                if (history == null || history.id == null)
-                    continue
-
                 if (contentFilter.isNotEmpty() && history.type !in contentFilter)
                     continue
 
@@ -512,6 +509,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
             return results
         }
 
+        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = arrayListOf<Any>()
             filterResults?.let {

@@ -59,6 +59,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
+@Suppress("DEPRECATION")
 class StatisticsFragment : Fragment() {
 
     companion object {

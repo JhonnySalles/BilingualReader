@@ -36,8 +36,8 @@ class MangaLineCardAdapter : RecyclerView.Adapter<MangaLineViewHolder>(), BaseAd
         return mMangaList.size
     }
 
-    override fun removeList(manga: Manga) {
-        val index = mMangaList.indexOf(manga)
+    override fun removeList(item: Manga) {
+        val index = mMangaList.indexOf(item)
         if (index != -1) {
             mMangaList.removeAt(index)
             notifyItemRemoved(index)

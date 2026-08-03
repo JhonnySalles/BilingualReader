@@ -67,7 +67,7 @@ class MyAnimeListTracker(var mContext: Context) {
         })
     }
 
-    fun updateUserManga(search: String, listener: ApiListener<List<MalMangaDetail>>) {
+    fun updateUserManga(@Suppress("UNUSED_PARAMETER") search: String, listener: ApiListener<List<MalMangaDetail>>) {
         validToken("", listener) {
 
         }

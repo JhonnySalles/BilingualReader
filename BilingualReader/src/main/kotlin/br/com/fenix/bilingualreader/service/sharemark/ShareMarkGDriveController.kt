@@ -57,6 +57,7 @@ import java.util.Date
 import java.util.Locale
 
 
+@Suppress("DEPRECATION")
 class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(context)  {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkGDriveController::class.java)
@@ -119,8 +120,6 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
 
         if (share.marks == null)
             share.marks = mutableSetOf()
-        else if (share.marks!!.any { it == null })
-            share.marks = share.marks!!.filter { it != null }.toMutableSet()
     }
 
     private fun setHttpTimeout(requestInitializer : HttpRequestInitializer) : HttpRequestInitializer {
@@ -131,6 +130,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun getDriveService(): Drive? {
         GoogleSignIn.getLastSignedInAccount(context)?.let { googleAccount ->
             val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE_FILE))
@@ -166,10 +166,10 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
         }
     }
 
-    private fun uploadShareFile(drive: Drive, idFolder: String, name: String, file: File): String {
+    private fun uploadShareFile(drive: Drive, idFolder: String, name: String, targetFile: File): String {
         return try {
             val gfile = com.google.api.services.drive.model.File()
-            val fileContent = FileContent("application/json", file)
+            val fileContent = FileContent("application/json", targetFile)
             gfile.name = name
 
             val parents: MutableList<String> = ArrayList(1)
@@ -437,10 +437,10 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 list.parallelStream().forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
-                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
-                            if (list.isNotEmpty())
-                                for (shared in list)
+                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
+                            val historyList = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
+                            if (historyList.isNotEmpty())
+                                for (shared in historyList)
                                     repositoryHistory.save(
                                         History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
@@ -549,10 +549,10 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 list.parallelStream().forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
-                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
-                            if (list.isNotEmpty())
-                                for (shared in list)
+                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
+                            val historyList = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
+                            if (historyList.isNotEmpty())
+                                for (shared in historyList)
                                     repositoryHistory.save(
                                         History(null, book.fkLibrary!!, book.id!!, book.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),

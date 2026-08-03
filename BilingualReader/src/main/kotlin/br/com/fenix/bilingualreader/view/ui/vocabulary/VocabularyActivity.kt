@@ -22,6 +22,7 @@ import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookFragme
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFragment
 
 
+@Suppress("DEPRECATION")
 class VocabularyActivity : AppCompatActivity() {
 
     companion object VocabularyData {

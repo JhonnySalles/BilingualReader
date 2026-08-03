@@ -136,7 +136,6 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         type.text = when(history.type) {
             Type.BOOK -> itemView.context.getString(R.string.history_book)
             Type.MANGA -> itemView.context.getString(R.string.history_manga)
-            else -> ""
         }
 
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE

@@ -114,6 +114,7 @@ import kotlin.reflect.KProperty
 import br.com.fenix.bilingualreader.view.managers.MangaLibraryHandler
 
 
+@Suppress("DEPRECATION")
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, MangaLibraryHandler.Listener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaLibraryFragment::class.java)
@@ -639,7 +640,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_exit
             LibraryMangaType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_exit
             LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_exit
-            else -> null
         }
 
         val final: Int? = when (type) {
@@ -651,7 +651,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.SEPARATOR_CAROUSEL -> R.drawable.ico_animated_type_grid_carousel_enter
             LibraryMangaType.SEPARATOR_LINE -> R.drawable.ico_animated_type_grid_list_separator_enter
             LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_enter
-            else -> null
         }
 
         if (initial != null && final != null)
@@ -1083,14 +1082,17 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
+        @Suppress("UNCHECKED_CAST")
         (mRecyclerView.adapter as BaseAdapter<*, *>).isAnimation = isAnimate
     }
 
     private fun removeList(manga: Manga) {
+        @Suppress("UNCHECKED_CAST")
         (mRecyclerView.adapter as BaseAdapter<Manga, *>).removeList(manga)
     }
 
     private fun updateList(list: MutableList<Manga>) {
+        @Suppress("UNCHECKED_CAST")
         (mRecyclerView.adapter as BaseAdapter<Manga, *>).updateList(mSortType, list)
     }
 
@@ -1433,7 +1435,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     val items = getSkeletonGridItemPerRow(type)
                     val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
                     container.removeAllViews()
-                    for (i in 0..items) {
+                    for (idx in 0..items) {
                         val item = mInflater.inflate(R.layout.grid_card_manga_skeleton_item, null)
                         val params = FrameLayout.LayoutParams(width, height)
                         params.setMargins(margin, margin, divider, 0)

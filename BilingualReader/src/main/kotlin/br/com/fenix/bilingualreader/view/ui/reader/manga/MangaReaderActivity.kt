@@ -117,6 +117,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
+@Suppress("DEPRECATION")
 class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener, ReaderListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderActivity::class.java)
@@ -461,7 +462,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     if (!layout!!.isVisible) {
                         var afterVisible: Runnable? = null
                         afterVisible = Runnable {
-                            if (!layout!!.isVisible)
+                            if (!layout.isVisible)
                                 mHandler.postDelayed(afterVisible!!, 300)
                             else
                                 refreshCover()
@@ -854,13 +855,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     @SuppressLint("MissingSuperCall")
-    override fun onSaveInstanceState(savedInstanceState: Bundle) {
-       savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
+    override fun onSaveInstanceState(outState: Bundle) {
+       outState.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
 
         if (mManga != null)
-            savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga)
+            outState.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga)
 
-        super.onSaveInstanceState(savedInstanceState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

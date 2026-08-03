@@ -40,8 +40,8 @@ class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<Book
         mListener = listener
     }
 
-    override fun removeList(book: Book) {
-        val index = mMangaList.indexOf(book)
+    override fun removeList(item: Book) {
+        val index = mMangaList.indexOf(item)
         if (index != -1) {
             mMangaList.removeAt(index)
             notifyItemRemoved(index)

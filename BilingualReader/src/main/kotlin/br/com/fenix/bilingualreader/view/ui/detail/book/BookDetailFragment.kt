@@ -63,6 +63,7 @@ import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
+@Suppress("DEPRECATION")
 class BookDetailFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(BookDetailFragment::class.java)
@@ -670,9 +671,9 @@ class BookDetailFragment : Fragment() {
         val book = mViewModel.book.value ?: return
         val onUpdate: (History) -> (Unit) = { mViewModel.save(book) }
         PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
-            .getPopupBookMark(book, onUpdate) { change, book ->
+            .getPopupBookMark(book, onUpdate) { change, itemBook ->
                 if (change)
-                    onUpdate(book)
+                    onUpdate(itemBook)
             }
     }
 
@@ -725,7 +726,6 @@ class BookDetailFragment : Fragment() {
         ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
         layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
 
-        val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
         val buttonContainer = layout.findViewById<LinearLayout>(R.id.popup_detail_button_container)
         val btnImage = layout.findViewById<MaterialButton>(R.id.popup_detail_btn_image)
         val btn3D = layout.findViewById<MaterialButton>(R.id.popup_detail_btn_3d)

@@ -53,7 +53,7 @@ class WebViewAdapter(activity: Activity, context: Context, model: BookReaderView
         TODO("Not yet implemented")
     }
 
-    override fun readingLine(line: Speech) {
+    override fun readingLine(speech: Speech) {
         TODO("Not yet implemented")
     }
 

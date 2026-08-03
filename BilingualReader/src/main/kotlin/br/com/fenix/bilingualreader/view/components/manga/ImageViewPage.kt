@@ -41,6 +41,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 
+@Suppress("DEPRECATION")
 open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet), AutoScroll, BaseImageView {
 
     companion object {

@@ -222,12 +222,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             mMangaLibraryModel.isLoading = false
                             BookLibraryFragment()
                         }
-
-                        else -> {
-                            mMangaLibraryModel.setLibrary(defaultManga)
-                            mBookLibraryModel.isLoading = false
-                            MangaLibraryFragment()
-                        }
                     }
 
                     intent.dataString?.let {
@@ -549,6 +543,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun setupBlurViews() {
         if (!::mBlurTop.isInitialized)
             return

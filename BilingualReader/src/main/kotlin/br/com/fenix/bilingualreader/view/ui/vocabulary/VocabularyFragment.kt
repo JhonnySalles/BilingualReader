@@ -57,6 +57,7 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 
+@Suppress("DEPRECATION")
 class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener,
     InitializeVocabulary<Vocabulary> {
 
@@ -332,9 +333,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
         }
-        mBottomSheet.isDraggable = true
-
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_touch))

@@ -222,6 +222,7 @@ class TextViewEllipsizing @JvmOverloads constructor(context: Context, attrs: Att
          * @return [android.text.Layout] with the given text.
          */
         protected fun createWorkingLayout(workingText: CharSequence?): Layout {
+            @Suppress("DEPRECATION")
             return StaticLayout(
                 workingText, paint,
                 measuredWidth - paddingLeft - paddingRight,
@@ -234,7 +235,7 @@ class TextViewEllipsizing @JvmOverloads constructor(context: Context, attrs: Att
          * Get how many lines of text we are allowed to display.
          */
         protected val linesCount: Int
-            protected get() = if (ellipsizingLastFullyVisibleLine()) {
+            get() = if (ellipsizingLastFullyVisibleLine()) {
                 val fullyVisibleLinesCount: Int = fullyVisibleLinesCount
                 if (fullyVisibleLinesCount == -1) 1 else fullyVisibleLinesCount
             } else {
@@ -245,7 +246,7 @@ class TextViewEllipsizing @JvmOverloads constructor(context: Context, attrs: Att
          * Get how many lines of text we can display so their full height is visible.
          */
         protected val fullyVisibleLinesCount: Int
-            protected get() {
+            get() {
                 val layout = createWorkingLayout("")
                 val height = height - compoundPaddingTop - compoundPaddingBottom
                 val lineHeight = layout.getLineBottom(0)
@@ -305,7 +306,7 @@ class TextViewEllipsizing @JvmOverloads constructor(context: Context, attrs: Att
          * @return Text without end punctuation.
          */
         fun stripEndPunctuation(workingText: CharSequence?): String {
-            return mEndPunctPattern!!.matcher(workingText).replaceFirst("")
+            return mEndPunctPattern!!.matcher(workingText ?: "").replaceFirst("")
         }
     }
 

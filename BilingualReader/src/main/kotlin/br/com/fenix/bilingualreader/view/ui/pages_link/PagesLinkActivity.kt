@@ -20,6 +20,7 @@ import java.io.File
 import java.util.Calendar
 
 
+@Suppress("DEPRECATION")
 class PagesLinkActivity : AppCompatActivity() {
 
     private val mLOGGER = LoggerFactory.getLogger(PagesLinkActivity::class.java)

@@ -236,7 +236,7 @@ class ScannerManga(private val context: Context) {
                                                     Manga(mLibrary.id, null, it)
 
                                                 manga.path = it.path
-                                                manga.folder = it.parent
+                                                manga.folder = it.parent ?: ""
                                                 manga.excluded = false
                                                 manga.lastVerify = LocalDate.now()
 

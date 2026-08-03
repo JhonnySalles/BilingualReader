@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory
 import br.com.fenix.bilingualreader.view.managers.PagesLinkHandler
 
 
+@Suppress("DEPRECATION")
 class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
 
     private val mLOGGER = LoggerFactory.getLogger(PagesLinkFragment::class.java)

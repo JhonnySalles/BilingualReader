@@ -258,7 +258,7 @@ class VocabularyRepository(var context: Context) {
 
         val newList = mutableListOf<Pair<Vocabulary, Int>>()
 
-        for ((index, vocabulary) in list.withIndex()) {
+        for (vocabulary in list) {
             if (vocabulary != null) {
                 var appears = 0
                 pages.parallelStream().forEach { v -> if (v == vocabulary) appears++ }
@@ -269,8 +269,12 @@ class VocabularyRepository(var context: Context) {
         return newList
     }
 
-    fun processVocabulary(idManga: Long?, subTitleChapters: List<SubTitleChapter>, forced : Boolean = false) {
-        if (subTitleChapters.isEmpty() || idManga == null)
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
+    fun processMangaVocabulary(context: Context, idManga: Long?, subTitleChapters: Collection<SubTitleChapter>, forced: Boolean = false) {
+        val prefs = GeneralConsts.getSharedPreferences(context)
+        val isProcess = prefs.getBoolean(GeneralConsts.KEYS.READER.MANGA_PROCESS_VOCABULARY, true)
+
+        if (!isProcess || idManga == null)
             return
 
         val manga = mBase.getMangaDao().get(idManga) ?: return
@@ -346,6 +350,7 @@ class VocabularyRepository(var context: Context) {
         mDataBaseDAO.updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
     fun processVocabulary(context: Context, idBook: Long?) {
         val prefs = GeneralConsts.getSharedPreferences(context)
         val isProcess = prefs.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY, true)

@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory
 import kotlin.math.max
 
 
+@Suppress("DEPRECATION")
 class ChaptersFragment : Fragment(), ChapterLoadListener {
 
     private val mLOGGER = LoggerFactory.getLogger(ChaptersFragment::class.java)
@@ -291,7 +292,7 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         }
     }
 
-    private fun setupBlurViews(root: View) {
+    private fun setupBlurViews(_root: View) {
         if (!::mBlurTop.isInitialized)
             return
 

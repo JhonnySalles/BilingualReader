@@ -80,6 +80,7 @@ import kotlin.math.ceil
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+@Suppress("DEPRECATION")
 class HistoryStatisticsFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(HistoryStatisticsFragment::class.java)

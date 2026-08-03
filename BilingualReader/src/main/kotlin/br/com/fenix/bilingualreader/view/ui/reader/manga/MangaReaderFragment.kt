@@ -133,6 +133,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
+@Suppress("DEPRECATION")
 class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderFragment::class.java)
@@ -720,7 +721,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.Horizontal,
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
-                    -> {
+                ScrollingType.Pagination,
+                ScrollingType.PaginationVertical,
+                ScrollingType.PaginationRightToLeft -> {
                     mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
                     mViewPager.adapter = ComicPagerAdapter()
                     mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
@@ -791,8 +794,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mViewPager.visibility = View.GONE
                     mViewRecycler.visibility = View.VISIBLE
                 }
-
-                else -> {}
             }
         } else
             when (mScrollingMode) {

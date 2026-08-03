@@ -30,8 +30,9 @@ class DirectoryParse : Parse {
         if (!file.isDirectory)
             throw IOException("Not a directory: " + file.absolutePath)
 
-        if (file.listFiles() != null) {
-            for (f in file.listFiles()) {
+        val files = file.listFiles()
+        if (files != null) {
+            for (f in files) {
                 if (f.isDirectory)
                     throw IOException("Probably not a comic directory")
 

@@ -61,7 +61,7 @@ class Information() {
     private fun setManga(context: Context, manga: MalMangaDetail) {
         this.link = "https://myanimelist.net/manga/${manga.id}"
         this.imageLink = manga.mainPicture?.medium ?: ""
-        this.title = manga.title ?: ""
+        this.title = manga.title
         this.alternativeTitles = ""
 
         manga.alternativeTitles?.let {
@@ -72,11 +72,11 @@ class Information() {
             if (!ja.isNullOrEmpty())
                 this.alternativeTitles += ja + ", "
             val syns = it.synonyms
-            if (!syns.isNullOrEmpty()) {
+            if (syns.isNotEmpty()) {
                 this.alternativeTitles += syns.filterNotNull().joinToString() + ", "
             }
 
-            this.synonyms = syns?.toString() ?: ""
+            this.synonyms = syns.toString()
         }
 
         if (this.alternativeTitles.isNotEmpty()) {
@@ -134,13 +134,11 @@ class Information() {
                 R.string.manga_detail_web_information_authors,
                 manga.authors.mapNotNull {
                     val author = it.author
-                    if (author != null) {
-                        val firstName = author.firstName ?: ""
-                        val lastName = author.lastName ?: ""
-                        val name = "$firstName $lastName".trim()
-                        val role = it.role ?: ""
-                        if (role.isNotEmpty()) "$name ($role)" else name
-                    } else null
+                    val firstName = author.firstName
+                    val lastName = author.lastName
+                    val name = "$firstName $lastName".trim()
+                    val role = it.role
+                    if (role.isNotEmpty()) "$name ($role)" else name
                 }.joinToString()
             )
         else

@@ -20,6 +20,7 @@ import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
 import br.com.fenix.bilingualreader.view.ui.statistics.HistoryStatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.touch_screen.TouchScreenFragment
 
+@Suppress("DEPRECATION")
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var mTheme : Themes

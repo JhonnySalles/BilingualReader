@@ -34,13 +34,12 @@ class AnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             when (annotation.type) {
                 Type.MANGA -> MANGA
                 Type.BOOK -> BOOK
-                else -> CONTENT
             }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val pos = holder.adapterPosition
+        val pos = holder.bindingAdapterPosition
         when (getItemViewType(position)) {
             ROOT -> {
                 (holder as AnnotationRootViewHolder).bind((mAnnotationList[position]), pos == 0)

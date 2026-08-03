@@ -66,14 +66,14 @@ class BookSeriesCardAdapter(private val context: Context) :
         mListener = listener
     }
 
-    override fun removeList(book: Book) {
+    override fun removeList(item: Book) {
         for (i in mBookList.indices.reversed()) {
-            val item = mBookList[i]
-            if (item is BookGroup) {
-                val index = item.items.indexOf(book)
+            val group = mBookList[i]
+            if (group is BookGroup) {
+                val index = group.items.indexOf(item)
                 if (index != -1) {
-                    item.items.removeAt(index)
-                    if (item.items.isEmpty()) {
+                    group.items.removeAt(index)
+                    if (group.items.isEmpty()) {
                         mBookList.removeAt(i)
                         if (i > 0 && mBookList[i - 1] is Separator)
                             mBookList.removeAt(i - 1)

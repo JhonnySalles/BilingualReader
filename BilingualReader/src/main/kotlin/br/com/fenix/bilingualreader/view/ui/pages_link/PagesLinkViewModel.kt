@@ -439,12 +439,12 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                 endThread(true)
                 mLinkedFile.value = LinkedFile(
                     mManga!!, mLinkedFile.value!!.parseManga, parse.numPages(), path,
-                    file.name, file.extension, file.parent
+                    file.name, file.extension, file.parent ?: ""
                 )
                 mLinkedFile.value!!.parseFileLink = parse
                 mPagesLink.value?.forEach { it.clearPageLink() }
 
-                var folder = ""
+                var folder: String
                 var lastFolder = ""
                 var padding = 0
                 val mangaParse = mLinkedFile.value!!.parseManga!!
@@ -1764,18 +1764,18 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                                     page.isFileLeftDualPage = isDualPage
 
                                     if (page.isDualImage) {
-                                        val number = page.fileLinkRightPage
+                                        val rightNumber = page.fileLinkRightPage
                                         generateBitmap(
                                             parsePageLink!!,
                                             page.fileLinkRightPage
                                         ) { IsDualPage, Image ->
                                             run {
-                                                mFileLinkImageList.find { it.first == number }?.let {
+                                                mFileLinkImageList.find { it.first == rightNumber }?.let {
                                                     mFileLinkImageList.remove(it)
-                                                    mFileLinkImageList.add(Triple(number, isDualPage, image))
+                                                    mFileLinkImageList.add(Triple(rightNumber, isDualPage, image))
                                                 }
 
-                                                if (page.fileLinkRightPage == number) {
+                                                if (page.fileLinkRightPage == rightNumber) {
                                                     page.imageRightFileLinkPage = Image
                                                     page.isFileRightDualPage = IsDualPage
                                                 }
@@ -1815,18 +1815,18 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                                 page.isFileLeftDualPage = isDualPage
 
                                 if (page.isDualImage) {
-                                    val number = page.fileLinkRightPage
+                                    val rightNumber = page.fileLinkRightPage
                                     generateBitmap(
                                         parsePageLink!!,
                                         page.fileLinkRightPage
                                     ) { IsDualPage, Image ->
                                         run {
-                                            mFileLinkImageList.find { it.first == number }?.let {
+                                            mFileLinkImageList.find { it.first == rightNumber }?.let {
                                                 mFileLinkImageList.remove(it)
-                                                mFileLinkImageList.add(Triple(number, isDualPage, image))
+                                                mFileLinkImageList.add(Triple(rightNumber, isDualPage, image))
                                             }
 
-                                            if (page.fileLinkRightPage == number) {
+                                            if (page.fileLinkRightPage == rightNumber) {
                                                 page.imageRightFileLinkPage = Image
                                                 page.isFileRightDualPage = IsDualPage
                                             }
