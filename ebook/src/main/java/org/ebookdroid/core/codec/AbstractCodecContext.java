@@ -64,9 +64,6 @@ public abstract class AbstractCodecContext implements CodecContext {
             return openDocumentInnerCanceled(fileNameOriginal, password);
         }
 
-
-        
-
         File cacheFileName = getCacheFileName(fileNameOriginal);
         CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
 

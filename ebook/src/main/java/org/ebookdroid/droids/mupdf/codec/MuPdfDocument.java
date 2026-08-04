@@ -211,13 +211,9 @@ public class MuPdfDocument extends AbstractCodecDocument {
             long maxAlloc = Runtime.getRuntime().maxMemory() / 4;
             int allocatedMemory = (int) Math.min((long) AppState.get().allocatedMemorySize * 1024 * 1024, Math.max(16 * 1024 * 1024, maxAlloc));
 
-            
-
             final long open = open(allocatedMemory, format, fname, pwd, css, BookCSS.get().documentStyle == BookCSS.STYLES_ONLY_USER ? 0 : 1);
 
-            
-
-            if (open <= 0)
+            if (open == 0)
                 throw new RuntimeException("Document is corrupted");
 
             // final int pages = getPageCountWithException(open);

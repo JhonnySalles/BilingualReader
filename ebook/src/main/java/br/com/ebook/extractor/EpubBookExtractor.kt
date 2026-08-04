@@ -162,14 +162,7 @@ object EpubBookExtractor : BookExtractor {
                         zos.setLevel(0)
                     }
 
-                    val mimetypeEntry = zipFile.getEntry("mimetype")
-                    if (mimetypeEntry != null) {
-                        zipFile.getInputStream(mimetypeEntry).use { inputStream ->
-                            Fb2BookExtractor.writeToZipNoClose(zos, "mimetype", inputStream)
-                        }
-                    } else {
-                        Fb2BookExtractor.writeToZipNoClose(zos, "mimetype", ByteArrayInputStream("application/epub+zip".toByteArray(StandardCharsets.UTF_8)))
-                    }
+                    Fb2BookExtractor.writeMimetypeToZip(zos)
 
                     if (injectCoverPageEntryName.isNotEmpty() && injectCoverPageContent.isNotEmpty()) {
                         Fb2BookExtractor.writeToZipNoClose(zos, injectCoverPageEntryName, ByteArrayInputStream(injectCoverPageContent.toByteArray(StandardCharsets.UTF_8)))
@@ -259,12 +252,7 @@ object EpubBookExtractor : BookExtractor {
                         zos.setLevel(0)
                     }
 
-                    val mimetypeEntry = zipFile.getEntry("mimetype")
-                    if (mimetypeEntry != null) {
-                        zipFile.getInputStream(mimetypeEntry).use { inputStream ->
-                            Fb2BookExtractor.writeToZipNoClose(zos, "mimetype", inputStream)
-                        }
-                    }
+                    Fb2BookExtractor.writeMimetypeToZip(zos)
 
                     val entries = zipFile.entries()
                     while (entries.hasMoreElements()) {

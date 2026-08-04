@@ -416,8 +416,8 @@ public class BookCSS {
         String backgroundColor = MagicHelper.colorToString(MagicHelper.getBgColor());
         String textColor = MagicHelper.colorToString(MagicHelper.getTextColor());
 
-        builder.append("documentStyle" + documentStyle + "{}");
-        builder.append("isAutoHypens1" + isAutoHypens + hypenLang + "{}");
+        builder.append("/* documentStyle").append(documentStyle).append(" */\n");
+        builder.append("/* isAutoHypens1").append(isAutoHypens).append(hypenLang).append(" */\n");
 
         // PAGE BEGIN
         builder.append("@page{");
@@ -429,7 +429,7 @@ public class BookCSS {
         // PAGE END
 
         // FB2
-        builder.append("section>title{page-break-before:avoide;}");
+        builder.append("section>title{page-break-before:avoid;}");
         builder.append("section>title>p{text-align:center !important; text-indent:0px !important;}");
         builder.append("title>p{text-align:center !important; text-indent:0px !important;}");
         builder.append("subtitle{text-align:center !important; text-indent:0px !important;}");

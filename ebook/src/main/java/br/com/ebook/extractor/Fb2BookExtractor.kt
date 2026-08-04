@@ -31,6 +31,7 @@ import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.util.Locale
+import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -355,7 +356,7 @@ object Fb2BookExtractor : BookExtractor {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                     zos.setLevel(0)
                 }
-                writeToZip(zos, "mimetype", "application/epub+zip")
+                writeMimetypeToZip(zos)
                 writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
 
                 // Step 2: Write binaries to ZIP and prepare manifest/spine
@@ -443,7 +444,7 @@ object Fb2BookExtractor : BookExtractor {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                     zos.setLevel(0)
                 }
-                writeToZip(zos, "mimetype", "application/epub+zip")
+                writeMimetypeToZip(zos)
                 writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
 
                 var meta = Fb2Templates.content_opf.replace("fb2.fb2", "temp" + ExtUtils.REFLOW_HTML)
@@ -689,6 +690,20 @@ object Fb2BookExtractor : BookExtractor {
 
     fun writeToZip(zos: ZipOutputStream, name: String, content: String) {
         writeToZip(zos, name, ByteArrayInputStream(content.toByteArray(StandardCharsets.UTF_8)))
+    }
+
+    fun writeMimetypeToZip(zos: ZipOutputStream) {
+        val bytes = "application/epub+zip".toByteArray(StandardCharsets.UTF_8)
+        val entry = ZipEntry("mimetype")
+        entry.method = ZipEntry.STORED
+        entry.size = bytes.size.toLong()
+        entry.compressedSize = bytes.size.toLong()
+        val crc = CRC32()
+        crc.update(bytes)
+        entry.crc = crc.value
+        zos.putNextEntry(entry)
+        zos.write(bytes)
+        zos.closeEntry()
     }
 
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
