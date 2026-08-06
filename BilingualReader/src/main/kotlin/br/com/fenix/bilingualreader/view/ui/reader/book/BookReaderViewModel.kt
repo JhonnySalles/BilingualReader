@@ -252,9 +252,20 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> 10
         }
 
-        val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
+        val horizontalGravity = when {
+            isJapaneseStyle() -> Gravity.START
+            alignment == AlignmentLayoutType.Right -> Gravity.END
+            alignment == AlignmentLayoutType.Center -> Gravity.CENTER_HORIZONTAL
+            else -> Gravity.START // Left and Justify
+        }
+
+        val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
         params.setMargins(margin, margin, margin, margin + 10)
-        params.gravity = Gravity.CENTER_HORIZONTAL
+        params.gravity = horizontalGravity
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -265,23 +276,23 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
         textView.setLineSpacing(spacing, 1f)
 
-        textView.textAlignment =  if (isJapaneseStyle())
-                View.TEXT_ALIGNMENT_TEXT_START
-            else {
-                    when (alignmentType.value) {
-                    AlignmentLayoutType.Justify -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            textView.justificationMode = if (!isJapaneseStyle() && alignment == AlignmentLayoutType.Justify)
+                JUSTIFICATION_MODE_INTER_WORD
+            else
+                0
+        }
 
-                        View.TEXT_ALIGNMENT_INHERIT
-                    }
-
-                    AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
-                    AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
-                    AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
-                    else -> View.TEXT_ALIGNMENT_TEXT_START
-                }
+        textView.gravity = horizontalGravity or Gravity.TOP
+        textView.textAlignment = if (isJapaneseStyle())
+            View.TEXT_ALIGNMENT_TEXT_START
+        else {
+            when (alignment) {
+                AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
+                AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
+                else -> View.TEXT_ALIGNMENT_TEXT_START // Left and Justify
             }
+        }
 
         textView.requestLayout()
     }
@@ -597,8 +608,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                         ImageUtil.decodeImageBase64(img)
                     }
                     if (bitmaps.isNotEmpty()) {
+                        val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
                         val combined = if (TextUtil.hasBrBetweenImages(text)) {
-                            ImageUtil.combineImagesVertically(bitmaps)
+                            ImageUtil.combineImagesVertically(bitmaps, alignment)
                         } else {
                             ImageUtil.combineImagesHorizontally(bitmaps)
                         }
@@ -811,7 +823,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 bitmap = when {
                     bitmaps.isEmpty() -> return null
                     bitmaps.size == 1 -> bitmaps[0]
-                    TextUtil.hasBrBetweenImages(text) -> ImageUtil.combineImagesVertically(bitmaps) ?: bitmaps[0]
+                    TextUtil.hasBrBetweenImages(text) -> ImageUtil.combineImagesVertically(
+                        bitmaps,
+                        alignmentType.value ?: AlignmentLayoutType.Justify
+                    ) ?: bitmaps[0]
                     else -> ImageUtil.combineImagesHorizontally(bitmaps) ?: bitmaps[0]
                 }
             }

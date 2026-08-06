@@ -33,6 +33,7 @@ import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -807,6 +808,8 @@ class HistoryFragment : Fragment() {
                 return@observe
             onChangeIconLayout(it)
             generateLayout(it)
+            if (mSkeletonLayout.isVisible)
+                showSkeleton(true)
         }
     }
 
@@ -1079,11 +1082,78 @@ class HistoryFragment : Fragment() {
         popup.show()
     }
 
-    private fun getSkeletonRowCount(): Int {
+    private fun getSkeletonRowCount(type: HistoryType): Int {
         val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
-        val skeletonTitleHeight = resources.getDimension(R.dimen.history_skeleton_title_height).toInt()
-        val skeletonRowHeight = resources.getDimension(R.dimen.history_skeleton_height).toInt()
+        val skeletonTitleHeight = if (type != HistoryType.LINE)
+            resources.getDimension(R.dimen.history_skeleton_title_height).toInt() else 0
+        val resource = when (type) {
+            HistoryType.LINE,
+            HistoryType.SEPARATOR_LINE -> R.dimen.history_skeleton_height
+            HistoryType.SEPARATOR_CAROUSEL -> R.dimen.history_carousel_skeleton_height
+            HistoryType.SEPARATOR_BIG -> R.dimen.history_grid_skeleton_height_separator_big
+            HistoryType.SEPARATOR_MEDIUM -> R.dimen.history_grid_skeleton_height_separator_medium
+        }
+        val skeletonRowHeight = resources.getDimension(resource).toInt()
         return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+    }
+
+    private fun getSkeletonCarouselItemPerRow(): Int {
+        val itemWidth = resources.getDimension(R.dimen.history_cover_width).toInt()
+        val margin = resources.getDimension(R.dimen.history_carousel_skeleton_item_margin).toInt()
+        return max(1, Resources.getSystem().displayMetrics.widthPixels / (itemWidth + margin))
+    }
+
+    private fun getSkeletonGridItemPerRow(type: HistoryType): Int {
+        val columnWidth = getSkeletonItemWidth(type) + 1
+        return max(1, (Resources.getSystem().displayMetrics.widthPixels - 3) / columnWidth)
+    }
+
+    private fun getSkeletonItemHeight(type: HistoryType): Int {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        return AdapterUtils.getHistoryCardSize(requireContext(), type, isLandscape).second
+    }
+
+    private fun getSkeletonItemWidth(type: HistoryType): Int {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        return AdapterUtils.getHistoryCardSize(requireContext(), type, isLandscape).first
+    }
+
+    private fun addCarouselSkeletonRow() {
+        val row = mInflater.inflate(R.layout.line_card_history_carousel_skeleton, null)
+        val container = row.findViewById<LinearLayout>(R.id.carousel_skeleton_items)
+        val width = resources.getDimension(R.dimen.history_cover_width).toInt()
+        val height = resources.getDimension(R.dimen.history_cover_height).toInt()
+        val margin = resources.getDimension(R.dimen.history_carousel_skeleton_item_margin).toInt()
+        val items = getSkeletonCarouselItemPerRow()
+        container.removeAllViews()
+        for (idx in 0 until items) {
+            val item = mInflater.inflate(R.layout.line_card_history_carousel_skeleton_item, null)
+            val params = LinearLayout.LayoutParams(width, height)
+            params.marginEnd = margin
+            item.layoutParams = params
+            container.addView(item)
+        }
+        mSkeletonLayout.addView(row)
+    }
+
+    private fun addGridSkeletonRow(type: HistoryType) {
+        val row = mInflater.inflate(R.layout.grid_card_history_skeleton, null)
+        val container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
+        val height = getSkeletonItemHeight(type)
+        val width = getSkeletonItemWidth(type)
+        val margin = resources.getDimension(R.dimen.history_grid_skeleton_divider).toInt()
+        val items = getSkeletonGridItemPerRow(type)
+        val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
+        container.removeAllViews()
+        for (idx in 0..items) {
+            val item = mInflater.inflate(R.layout.grid_card_history_skeleton_item, null)
+            val params = FrameLayout.LayoutParams(width, height)
+            params.setMargins(margin, margin, divider, 0)
+            item.layoutParams = params
+            container.addView(item)
+        }
+        container.invalidate()
+        mSkeletonLayout.addView(row)
     }
 
     private fun showSkeleton(show: Boolean) {
@@ -1092,9 +1162,23 @@ class HistoryFragment : Fragment() {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
 
-            mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
-            for (i in 0..getSkeletonRowCount())
-                mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton, null))
+            val type = mViewModel.historyType.value ?: mHistoryType
+
+            if (type != HistoryType.LINE)
+                mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
+
+            for (i in 0..getSkeletonRowCount(type)) {
+                when (type) {
+                    HistoryType.LINE,
+                    HistoryType.SEPARATOR_LINE ->
+                        mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton, null))
+                    HistoryType.SEPARATOR_CAROUSEL ->
+                        addCarouselSkeletonRow()
+                    HistoryType.SEPARATOR_BIG,
+                    HistoryType.SEPARATOR_MEDIUM ->
+                        addGridSkeletonRow(type)
+                }
+            }
 
             mRecyclerView.animate().cancel()
             mSkeletonLayout.animate().cancel()

@@ -200,6 +200,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private var mIsSeekBarChange = false
     private var mCoverStartTime = System.currentTimeMillis()
     private var mPageStartReading = LocalDateTime.now()
+    private var mReadingPageInternal = 0
     private var mPagesAverage = mutableListOf<Long>()
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
@@ -359,6 +360,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mCoverStartTime = System.currentTimeMillis()
         mPageStartReading = LocalDateTime.now()
+        mReadingPageInternal = 0
         mPagesAverage = mutableListOf()
 
         onLoading(isFinished = false, isLoaded = false)
@@ -1135,6 +1137,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
             mPagesAverage.clear()
+            mReadingPageInternal = getCurrentPage(isInternal = true)
             generatePageAverage(isOnlyCalculate = true)
         }
     }
@@ -1674,12 +1677,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun generatePageAverage(isOnlyCalculate: Boolean = false) {
         if (mIsSeekBarChange) {
             mPageStartReading = LocalDateTime.now()
+            mReadingPageInternal = getCurrentPage(isInternal = true)
             return
         }
 
         if (!isOnlyCalculate) {
-            val pageSeconds = ChronoUnit.SECONDS.between(mPageStartReading, LocalDateTime.now())
+            val measuredSeconds = ChronoUnit.SECONDS.between(mPageStartReading, LocalDateTime.now())
             mPageStartReading = LocalDateTime.now()
+
+            val charCount = try {
+                val documentPage = mParse?.getPage(mReadingPageInternal)
+                val html = documentPage?.pageHTMLWithImages.orEmpty()
+                documentPage?.recycle()
+                TextUtil.replaceHtmlTags(TextUtil.formatHtml(html)).trim().length
+            } catch (e: Exception) {
+                0
+            }
+            val minSeconds = charCount * ReaderConsts.READER.BOOK_MIN_MS_PER_CHAR / 1000L
+            val pageSeconds = maxOf(measuredSeconds, minSeconds)
 
             if (mPagesAverage.size > 5) {
                 val first = mPagesAverage.first()
@@ -1704,6 +1719,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mPagesAverage.add(pageSeconds)
 
             mPagesAverage.sort()
+            mReadingPageInternal = getCurrentPage(isInternal = true)
         }
 
         if (mPagesAverage.isEmpty())
@@ -1724,7 +1740,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             it.id = mHistoryRepository.save(it)
         }
 
-        if (mPagesAverage.size < 2) {
+        if (mPagesAverage.size < 3) {
             mTimeToEnding.text = ""
             return
         }

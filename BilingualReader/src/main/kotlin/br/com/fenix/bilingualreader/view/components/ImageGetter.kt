@@ -21,14 +21,18 @@ class ImageGetter(val context: Context, val textView: TextView, val maxWidth: In
         try {
             val image = TextUtil.getImageFromTag(text)
             val base64 = image.substringAfter(",").trim()
-            val targetWidth = if (maxWidth > 0) maxWidth else {
-                if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                    context.resources.displayMetrics.heightPixels
-                else
-                    context.resources.displayMetrics.widthPixels
+            val screenWidth = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                context.resources.displayMetrics.heightPixels
+            else
+                context.resources.displayMetrics.widthPixels
+            val textViewWidth = textView.width - textView.paddingLeft - textView.paddingRight
+            val targetWidth = when {
+                maxWidth > 0 -> maxWidth
+                textViewWidth > 0 -> textViewWidth
+                else -> screenWidth
             }
 
-            var bmp = if (maxWidth > 0)
+            var bmp = if (maxWidth > 0 || textViewWidth > 0)
                 ImageUtil.decodeImageBase64(base64, targetWidth, targetWidth)
             else
                 ImageUtil.decodeImageBase64(base64)

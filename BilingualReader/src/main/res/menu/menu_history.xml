@@ -30,7 +30,7 @@
         android:title="@string/menu_history_library"
         android:icon="@drawable/ico_animated_menu_type_library"
         android:orderInCategory="103"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
         <menu/>
     </item>
 
@@ -38,7 +38,7 @@
         android:title="@string/menu_history_type"
         android:icon="@drawable/ico_menu_type_all"
         android:orderInCategory="104"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
         <menu/>
     </item>
 </menu>

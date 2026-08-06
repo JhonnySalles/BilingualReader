@@ -31,7 +31,7 @@
             android:textIsSelectable="true"
             android:autoLink="all"
             android:linksClickable="true"
-            android:gravity="center"
+            android:gravity="start|top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/book_reader_text_padding_top_bottom"

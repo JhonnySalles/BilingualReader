@@ -326,9 +326,25 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val btnMenuPage = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_page_linked)
         btnMenuPage.setOnClickListener {
-            btnMenuPage.setIconResource(if (mSubtitleController.isDrawing()) R.drawable.ico_animated_page_linked_remove else R.drawable.ico_animated_page_linked_insert)
-            btnMenuPage.executeWithAnimation {
-                mSubtitleController.drawPageLinked()
+            when {
+                mSubtitleController.isDrawing() -> {
+                    btnMenuPage.setIconResource(R.drawable.ico_animated_page_linked_remove)
+                    btnMenuPage.executeWithAnimation {
+                        mSubtitleController.drawPageLinked()
+                    }
+                }
+                mSubtitleController.hasLinkedPage(MangaReaderFragment.mCurrentPage) -> {
+                    btnMenuPage.setIconResource(R.drawable.ico_animated_page_linked_insert)
+                    btnMenuPage.executeWithAnimation {
+                        mSubtitleController.drawPageLinked()
+                    }
+                }
+                else -> {
+                    btnMenuPage.setIconResource(R.drawable.ico_animated_page_linked_empty)
+                    btnMenuPage.executeWithAnimation {
+                        btnMenuPage.setIconResource(R.drawable.ico_animated_page_linked_insert)
+                    }
+                }
             }
         }
 

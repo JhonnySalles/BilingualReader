@@ -70,6 +70,8 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             if (font != holder.value.style) {
                 holder.value.style = font
                 mViewModel.changeTextStyle(holder.value.textView)
+                if (holder.value.isOnlyImage)
+                    mViewModel.prepareHtml(context, mParse, holder.key, holder.value, mTextSelectCallback)
             }
         }
     }

@@ -1042,6 +1042,13 @@ class SubTitleController private constructor(private val context: Context) {
 
     fun isDrawing() = mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)
 
+    fun hasLinkedPage(page: Int): Boolean {
+        if (mLinkedFile == null || mLinkedFile!!.pagesLink == null)
+            return false
+        val link = mLinkedFile!!.pagesLink!!.firstOrNull { it.mangaPage.compareTo(page) == 0 }
+        return link != null && link.fileLinkLeftPage > -1
+    }
+
     private fun clearDrawing() : Boolean {
         return if (isDrawing()) {
             val view: ImageView = mReaderFragment!!.getCurrencyImageView() ?: return false

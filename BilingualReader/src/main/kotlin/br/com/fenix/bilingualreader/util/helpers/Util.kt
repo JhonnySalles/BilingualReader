@@ -70,6 +70,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Separator
+import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
@@ -1369,7 +1370,7 @@ class ImageUtil {
             return result
         }
 
-        fun combineImagesVertically(bitmaps: List<Bitmap>): Bitmap? {
+        fun combineImagesVertically(bitmaps: List<Bitmap>, alignment: AlignmentLayoutType = AlignmentLayoutType.Left): Bitmap? {
             if (bitmaps.isEmpty()) return null
             if (bitmaps.size == 1) return bitmaps[0]
 
@@ -1386,7 +1387,12 @@ class ImageUtil {
             val canvas = Canvas(result)
             var currentY = 0f
             for (bmp in bitmaps) {
-                canvas.drawBitmap(bmp, 0f, currentY, null)
+                val offsetX = when (alignment) {
+                    AlignmentLayoutType.Right -> (width - bmp.width).toFloat()
+                    AlignmentLayoutType.Center -> ((width - bmp.width) / 2f)
+                    else -> 0f // Left and Justify
+                }
+                canvas.drawBitmap(bmp, offsetX, currentY, null)
                 currentY += bmp.height
             }
             return result

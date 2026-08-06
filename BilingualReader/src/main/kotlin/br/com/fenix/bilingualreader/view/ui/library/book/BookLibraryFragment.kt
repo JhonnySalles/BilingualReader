@@ -1352,8 +1352,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         ) resources.getDimension(R.dimen.book_grid_skeleton_title_height).toInt() else 0
         val resource = when(type) {
             LibraryBookType.LINE,
-            LibraryBookType.SEPARATOR_LINE,
-            LibraryBookType.SEPARATOR_CAROUSEL -> R.dimen.book_line_skeleton_height
+            LibraryBookType.SEPARATOR_LINE -> R.dimen.book_line_skeleton_height
+            LibraryBookType.SEPARATOR_CAROUSEL -> R.dimen.book_carousel_skeleton_height
             LibraryBookType.SEPARATOR_BIG -> R.dimen.book_grid_skeleton_height_separator_big
             LibraryBookType.SEPARATOR_MEDIUM -> R.dimen.book_grid_skeleton_height_separator_medium
             LibraryBookType.GRID_BIG -> R.dimen.book_grid_skeleton_height_big
@@ -1361,6 +1361,30 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
         val skeletonRowHeight = resources.getDimension(resource).toInt()
         return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+    }
+
+    private fun getSkeletonCarouselItemPerRow(): Int {
+        val itemWidth = resources.getDimension(R.dimen.book_carousel_skeleton_item_width).toInt()
+        val margin = resources.getDimension(R.dimen.book_carousel_skeleton_item_margin).toInt()
+        return max(1, Resources.getSystem().displayMetrics.widthPixels / (itemWidth + margin))
+    }
+
+    private fun addCarouselSkeletonRow() {
+        val row = mInflater.inflate(R.layout.line_card_book_carousel_skeleton, null)
+        val container = row.findViewById<LinearLayout>(R.id.carousel_skeleton_items)
+        val width = resources.getDimension(R.dimen.book_carousel_skeleton_item_width).toInt()
+        val height = resources.getDimension(R.dimen.book_carousel_skeleton_item_height).toInt()
+        val margin = resources.getDimension(R.dimen.book_carousel_skeleton_item_margin).toInt()
+        val items = getSkeletonCarouselItemPerRow()
+        container.removeAllViews()
+        for (idx in 0 until items) {
+            val item = mInflater.inflate(R.layout.line_card_book_carousel_skeleton_item, null)
+            val params = LinearLayout.LayoutParams(width, height)
+            params.marginEnd = margin
+            item.layoutParams = params
+            container.addView(item)
+        }
+        mSkeletonLayout.addView(row)
     }
 
     private fun getSkeletonGridItemPerRow(type: LibraryBookType): Int {
@@ -1402,26 +1426,30 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_book_skeleton_title, null))
 
             for (i in 0..getSkeletonRowCount(type)) {
-                if (type == LibraryBookType.LINE || type == LibraryBookType.SEPARATOR_LINE || type == LibraryBookType.SEPARATOR_CAROUSEL)
-                    mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_book_skeleton, null))
-                else {
-                    val row = mInflater.inflate(R.layout.grid_card_book_skeleton, null)
-                    var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
-                    val height = getSkeletonItemHeight(type)
-                    val width = getSkeletonItemWidth(type)
-                    val margin = resources.getDimension(R.dimen.book_grid_skeleton_divider).toInt()
-                    val items = getSkeletonGridItemPerRow(type)
-                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
-                    container.removeAllViews()
-                    for (idx in 0..items) {
-                        val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)
-                        val params = FrameLayout.LayoutParams(width, height)
-                        params.setMargins(margin, margin, divider, 0)
-                        item.layoutParams = params
-                        container.addView(item)
+                when (type) {
+                    LibraryBookType.LINE, LibraryBookType.SEPARATOR_LINE ->
+                        mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_book_skeleton, null))
+                    LibraryBookType.SEPARATOR_CAROUSEL ->
+                        addCarouselSkeletonRow()
+                    else -> {
+                        val row = mInflater.inflate(R.layout.grid_card_book_skeleton, null)
+                        var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
+                        val height = getSkeletonItemHeight(type)
+                        val width = getSkeletonItemWidth(type)
+                        val margin = resources.getDimension(R.dimen.book_grid_skeleton_divider).toInt()
+                        val items = getSkeletonGridItemPerRow(type)
+                        val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
+                        container.removeAllViews()
+                        for (idx in 0..items) {
+                            val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)
+                            val params = FrameLayout.LayoutParams(width, height)
+                            params.setMargins(margin, margin, divider, 0)
+                            item.layoutParams = params
+                            container.addView(item)
+                        }
+                        container.invalidate()
+                        mSkeletonLayout.addView(row)
                     }
-                    container.invalidate()
-                    mSkeletonLayout.addView(row)
                 }
             }
 
