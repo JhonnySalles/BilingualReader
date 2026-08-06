@@ -71,6 +71,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
@@ -382,7 +383,7 @@ class HistoryStatisticsFragment : Fragment() {
 
         mMenuPopupHistoryStatistics = root.findViewById(R.id.history_statistics_popup_menu)
         mMenuPopupHistoryStatisticsBackground = root.findViewById(R.id.history_statistics_popup_header_background)
-        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mBlurTop, mMenuPopupHistoryStatisticsBackground))
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator()
         mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
         mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
 
@@ -1063,7 +1064,7 @@ class HistoryStatisticsFragment : Fragment() {
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-        mBlurTop.setupWith(rootView, blurAlgorithm)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

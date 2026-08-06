@@ -111,6 +111,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
@@ -1363,7 +1364,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
                 val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
                 val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(this)
-                bv.setupWith(rootView, blurAlgorithm)
+                GlassSetup.setupGlass(bv, rootView, blurAlgorithm)
                     .setFrameClearDrawable(background)
                     .setBlurRadius(15f)
                 bv.setBlurAutoUpdate(true)

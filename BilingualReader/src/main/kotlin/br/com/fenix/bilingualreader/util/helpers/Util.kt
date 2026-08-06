@@ -93,8 +93,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -1791,6 +1793,7 @@ class AnimationUtil {
 
         const val duration = 200L
         fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
+            GlassRenderScheduler.suspendFor(duration + 50L, "popupOpen")
             frame.visibility = View.VISIBLE
             if (isVertical) {
                 if (navigationColor)
@@ -1804,6 +1807,7 @@ class AnimationUtil {
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
+                            GlassRenderScheduler.requestUpdateAll()
                             ending()
                         }
                     })
@@ -1816,6 +1820,7 @@ class AnimationUtil {
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
+                            GlassRenderScheduler.requestUpdateAll()
                             ending()
                         }
                     })
@@ -1823,6 +1828,7 @@ class AnimationUtil {
         }
 
         fun animatePopupClose(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+            GlassRenderScheduler.suspendFor(duration + 50L, "popupClose")
             if (isVertical) {
                 val positionInitial = frame.translationY
                 frame.animate()
@@ -1833,6 +1839,7 @@ class AnimationUtil {
                             super.onAnimationEnd(animation)
                             frame.visibility = View.GONE
                             frame.translationY = positionInitial
+                            GlassRenderScheduler.requestUpdateAll()
 
                             if (navigationColor)
                                 PopupUtil.updateNavigationBarColor(activity, false)
@@ -1848,6 +1855,7 @@ class AnimationUtil {
                             super.onAnimationEnd(animation)
                             frame.visibility = View.GONE
                             frame.translationX = positionInitial
+                            GlassRenderScheduler.requestUpdateAll()
                         }
                     })
             }
@@ -2021,7 +2029,7 @@ class PopupUtil {
                     val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
                     val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
                     val rootView = customRootView ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-                    bg.setupWith(rootView, blurAlgorithm)
+                    GlassSetup.setupGlass(bg, rootView, blurAlgorithm)
                         .setFrameClearDrawable(background)
                         .setBlurRadius(15f)
                     bg.setBlurEnabled(true)
@@ -2540,14 +2548,14 @@ fun Button.executeWithAnimation(action: () -> Unit) {
 }
 
 fun BlurView.blurOnceDeferred(handler: Handler, delayMs: Long = 100L) {
+    // delayMs kept for call-site compatibility; scheduler coalesces the one-shot update
+    if (delayMs <= 0L) {
+        GlassRenderScheduler.requestUpdate(this)
+        return
+    }
     Choreographer.getInstance().postFrameCallback {
         if (isAttachedToWindow) {
-            setBlurAutoUpdate(true)
-            handler.postDelayed({
-                if (isAttachedToWindow) {
-                    setBlurAutoUpdate(false)
-                }
-            }, delayMs)
+            GlassRenderScheduler.requestUpdate(this)
         }
     }
 }

@@ -394,7 +394,7 @@ class HistoryFragment : Fragment() {
 
         mMenuPopupHistory = root.findViewById(R.id.history_popup_menu)
         mMenuPopupHistoryBackground = root.findViewById(R.id.history_popup_header_background)
-        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mMenuPopupHistoryBackground))
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator()
         mPopupHistoryTab = root.findViewById(R.id.history_popup_tab)
         mPopupHistoryView = root.findViewById(R.id.history_popup_view_pager)
 

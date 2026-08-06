@@ -24,7 +24,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
@@ -94,6 +93,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorLineCardA
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -679,7 +679,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         mMenuPopupLibrary = root.findViewById(R.id.manga_library_popup_menu_library)
         mMenuPopupLibraryBackground = root.findViewById(R.id.manga_library_popup_header_background)
-        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mMenuPopupLibraryBackground))
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator()
         mPopupLibraryTab = root.findViewById(R.id.manga_library_popup_library_tab)
         mPopupLibraryView = root.findViewById(R.id.manga_library_popup_library_view_pager)
 
@@ -764,11 +764,16 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
                     if (isGlass) {
                         mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                        GlassRenderScheduler.requestUpdate(mMenuPopupLibraryBackground)
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(50)
                     }
                 } else {
                     (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
                     if (isGlass && isPopupVisible) {
                         mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    }
+                    if (isGlass) {
+                        GlassRenderScheduler.setScrollRateCap(mMenuPopupLibraryBackground, true)
                     }
                 }
             }
@@ -832,6 +837,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
                     val type = mViewModel.libraryType.value
                     if (type == LibraryMangaType.SEPARATOR_CAROUSEL) {
+                        GlassRenderScheduler.suspendFor(400L, "activityTransition")
                         context?.startActivity(intent)
                         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                     } else {
@@ -846,6 +852,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
                         val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pProgress))
 
+                        GlassRenderScheduler.suspendFor(400L, "activityTransition")
                         context?.startActivity(intent, options.toBundle())
                         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                     }
@@ -959,6 +966,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         val type = mViewModel.libraryType.value
         if (type == LibraryMangaType.SEPARATOR_CAROUSEL) {
+            GlassRenderScheduler.suspendFor(400L, "activityTransition")
             requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
             startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_DETAIL)
             return
@@ -974,6 +982,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val pProgress: Pair<View, String> = Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
         val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pProgress))
+        GlassRenderScheduler.suspendFor(400L, "activityTransition")
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_DETAIL, options.toBundle())
     }
@@ -1051,21 +1060,21 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 mRecyclerView.adapter = lineAdapter
                 mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
                 lineAdapter.attachListener(mListener)
-                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+                mRecyclerView.layoutAnimation = null
             }
             LibraryMangaType.SEPARATOR_LINE -> {
                 val lineAdapter = MangaSeparatorLineCardAdapter(requireContext())
                 mRecyclerView.adapter = lineAdapter
                 mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
                 lineAdapter.attachListener(mListener)
-                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+                mRecyclerView.layoutAnimation = null
             }
             LibraryMangaType.SEPARATOR_CAROUSEL -> {
                 val seriesAdapter = MangaSeriesCardAdapter(requireContext())
                 mRecyclerView.adapter = seriesAdapter
                 mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
                 seriesAdapter.attachListener(mListener)
-                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+                mRecyclerView.layoutAnimation = null
             }
             else -> {
                 val gridAdapter = when (type) {
@@ -1076,7 +1085,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 mRecyclerView.adapter = gridAdapter
                 mRecyclerView.layoutManager = getGridLayout()
                 gridAdapter.attachListener(mListener)
-                mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+                mRecyclerView.layoutAnimation = null
             }
         }
     }
@@ -1533,10 +1542,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun animateReplaceSkeleton() {
         setAnimationRecycler(false)
+        GlassRenderScheduler.suspendFor(1050L, "skeleton")
         mRecyclerView.visibility = View.VISIBLE
         mRecyclerView.alpha = 0f
         mRecyclerView.animate().alpha(1f).setDuration(700).start()
-        mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
+        mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction {
+            showSkeleton(false)
+            GlassRenderScheduler.requestUpdateAll()
+        }.start()
     }
 
 }

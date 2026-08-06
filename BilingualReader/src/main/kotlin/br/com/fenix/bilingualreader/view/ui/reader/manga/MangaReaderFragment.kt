@@ -113,6 +113,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import androidx.lifecycle.lifecycleScope
@@ -2225,23 +2226,23 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
-        mBlurTop.setupWith(rootView, blurAlgorithmTop)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithmTop)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        mBlurBottom.setupWith(rootView, blurAlgorithmBottom)
+        GlassSetup.setupGlass(mBlurBottom, rootView, blurAlgorithmBottom)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        mBlurProgress.setupWith(rootView, blurAlgorithmProgress)
+        GlassSetup.setupGlass(mBlurProgress, rootView, blurAlgorithmProgress)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        mBlurNavPrevious.setupWith(rootView, blurAlgorithmPrev)
+        GlassSetup.setupGlass(mBlurNavPrevious, rootView, blurAlgorithmPrev)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        mBlurNavNext.setupWith(rootView, blurAlgorithmNext)
+        GlassSetup.setupGlass(mBlurNavNext, rootView, blurAlgorithmNext)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

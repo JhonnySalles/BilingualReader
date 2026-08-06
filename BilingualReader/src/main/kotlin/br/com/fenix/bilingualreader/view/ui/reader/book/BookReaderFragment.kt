@@ -123,6 +123,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
@@ -2097,11 +2098,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
-        mBlurTop.setupWith(rootView, blurAlgorithmTop)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithmTop)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        mBlurBottom.setupWith(rootView, blurAlgorithmBottom)
+        GlassSetup.setupGlass(mBlurBottom, rootView, blurAlgorithmBottom)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

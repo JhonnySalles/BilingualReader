@@ -64,6 +64,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
@@ -670,8 +671,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        val rootView = fragmentRoot.findViewById(R.id.book_annotation_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-        mBlurTop.setupWith(rootView, blurAlgorithm)
+        val rootView: ViewGroup = fragmentRoot.findViewById(R.id.book_annotation_content)
+            ?: decorView.findViewById(android.R.id.content)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

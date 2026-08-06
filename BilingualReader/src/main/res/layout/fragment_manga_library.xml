@@ -50,7 +50,6 @@
                         android:layout_centerHorizontal="true"
                         android:clipToPadding="false"
                         android:columnCount="3"
-                        android:layoutAnimation="@anim/layout_animation_library_line"
                         android:paddingBottom="@dimen/manga_library_padding"
                         android:scrollbars="vertical"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>

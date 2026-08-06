@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -14,6 +13,7 @@ import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class MangaSeriesCardAdapter(private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Manga, MangaCardListener> {
@@ -43,21 +43,45 @@ class MangaSeriesCardAdapter(private val context: Context) :
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            when (getItemViewType(position)) {
+                HEADER -> (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
+                else -> (holder as MangaSeriesViewHolder).bind(mMangaList[position] as MangaGroup, mOrder)
+            }
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             HEADER -> {
                 (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
                 if (isAnimation)
-                    holder.itemView.animation =
-                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_line)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as MangaSeriesViewHolder).bind(mMangaList[position] as MangaGroup, mOrder)
                 if (isAnimation)
-                    holder.itemView.animation =
-                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_line)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int = mMangaList.size
@@ -89,7 +113,6 @@ class MangaSeriesCardAdapter(private val context: Context) :
 
     override fun updateList(order: Order, list: MutableList<Manga>) {
         mOrder = order
-        val currentSize = mMangaList.size
         if (order == Order.None || list.isEmpty()) {
             mMangaList = list.toMutableList()
         } else {
@@ -115,8 +138,7 @@ class MangaSeriesCardAdapter(private val context: Context) :
             newList.add(MangaGroup(last.title, groupItems))
             mMangaList = newList
         }
-        notifyItemRangeRemoved(0, currentSize)
-        notifyItemRangeInserted(0, mMangaList.size)
+        notifyDataSetChanged()
     }
 }
 
