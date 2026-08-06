@@ -44,7 +44,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -106,6 +105,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -1124,7 +1124,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
         mViewModel.libraryType.observe(viewLifecycleOwner) {
             onChangeLayout(it)
-            if (mSkeletonLayout.isVisible)
+            if (mViewModel.loading.value == true)
                 showSkeleton(true)
         }
     }
@@ -1380,12 +1380,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         setupPopupBackgrounds()
     }
 
-    private fun getSkeletonRowCount(type: LibraryMangaType): Int {
-        val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
-        val skeletonTitleHeight = if (type == LibraryMangaType.SEPARATOR_MEDIUM || type == LibraryMangaType.SEPARATOR_BIG ||
-            type == LibraryMangaType.SEPARATOR_CAROUSEL || type == LibraryMangaType.SEPARATOR_LINE
-        ) resources.getDimension(R.dimen.manga_grid_skeleton_title_height).toInt() else 0
-        val resource = when(type) {
+    private fun getSkeletonTitleHeight(): Int =
+        resources.getDimension(R.dimen.manga_grid_skeleton_title_height).toInt()
+
+    private fun getSkeletonContentRowHeight(type: LibraryMangaType): Int {
+        val resource = when (type) {
             LibraryMangaType.LINE,
             LibraryMangaType.SEPARATOR_LINE -> R.dimen.manga_line_skeleton_height
             LibraryMangaType.SEPARATOR_CAROUSEL -> R.dimen.manga_carousel_skeleton_height
@@ -1395,8 +1394,19 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.GRID_MEDIUM -> R.dimen.manga_grid_skeleton_height_big
             LibraryMangaType.GRID_SMALL -> R.dimen.manga_grid_skeleton_height_small
         }
-        val skeletonRowHeight = resources.getDimension(resource).toInt()
-        return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+        return resources.getDimension(resource).toInt()
+    }
+
+    private fun getSkeletonRowCount(type: LibraryMangaType): Int {
+        val pxHeight = Resources.getSystem().displayMetrics.heightPixels
+        val rowHeight = getSkeletonContentRowHeight(type)
+        return max(1, ceil((pxHeight / rowHeight.toDouble())).toInt())
+    }
+
+    private fun getSkeletonGroupCount(type: LibraryMangaType, contentRowsPerGroup: Int = 1): Int {
+        val pxHeight = Resources.getSystem().displayMetrics.heightPixels
+        val groupHeight = getSkeletonTitleHeight() + (getSkeletonContentRowHeight(type) * contentRowsPerGroup)
+        return max(2, min(3, ceil((pxHeight / groupHeight.toDouble())).toInt()))
     }
 
     private fun getSkeletonCarouselItemPerRow(): Int {
@@ -1405,15 +1415,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         return max(1, Resources.getSystem().displayMetrics.widthPixels / (itemWidth + margin))
     }
 
-    private fun addCarouselSkeletonRow() {
+    private fun addCarouselSkeletonRow(itemCount: Int) {
         val row = mInflater.inflate(R.layout.line_card_manga_carousel_skeleton, null)
         val container = row.findViewById<LinearLayout>(R.id.carousel_skeleton_items)
         val width = resources.getDimension(R.dimen.manga_carousel_skeleton_item_width).toInt()
         val height = resources.getDimension(R.dimen.manga_carousel_skeleton_item_height).toInt()
         val margin = resources.getDimension(R.dimen.manga_carousel_skeleton_item_margin).toInt()
-        val items = getSkeletonCarouselItemPerRow()
         container.removeAllViews()
-        for (idx in 0 until items) {
+        for (idx in 0 until itemCount) {
             val item = mInflater.inflate(R.layout.line_card_manga_carousel_skeleton_item, null)
             val params = LinearLayout.LayoutParams(width, height)
             params.marginEnd = margin
@@ -1430,15 +1439,15 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             else -> type
         }
         val columnWidth = getSkeletonItemWidth(typeWidth) + 1
-        return max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth.toInt())
+        return max(1, (Resources.getSystem().displayMetrics.widthPixels - 3) / columnWidth.toInt())
     }
 
-    private fun getSkeletonItemHeight(type: LibraryMangaType) : Int {
+    private fun getSkeletonItemHeight(type: LibraryMangaType): Int {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         return AdapterUtils.getMangaCardSize(requireContext(), type, isLandscape).second
     }
 
-    private fun getSkeletonItemWidth(type: LibraryMangaType) : Int {
+    private fun getSkeletonItemWidth(type: LibraryMangaType): Int {
         val typeWidth = when (type) {
             LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.GRID_MEDIUM
             LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.GRID_BIG
@@ -1446,6 +1455,30 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         return AdapterUtils.getMangaCardSize(requireContext(), typeWidth, isLandscape).first
+    }
+
+    private fun addGridSkeletonRow(type: LibraryMangaType) {
+        val row = mInflater.inflate(R.layout.grid_card_manga_skeleton, null)
+        val container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
+        val height = getSkeletonItemHeight(type)
+        val width = getSkeletonItemWidth(type)
+        val margin = resources.getDimension(R.dimen.manga_grid_skeleton_divider).toInt()
+        val items = getSkeletonGridItemPerRow(type)
+        val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
+        container.removeAllViews()
+        for (idx in 0..items) {
+            val item = mInflater.inflate(R.layout.grid_card_manga_skeleton_item, null)
+            val params = FrameLayout.LayoutParams(width, height)
+            params.setMargins(margin, margin, divider, 0)
+            item.layoutParams = params
+            container.addView(item)
+        }
+        container.invalidate()
+        mSkeletonLayout.addView(row)
+    }
+
+    private fun addMangaSkeletonTitle() {
+        mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_manga_skeleton_title, null))
     }
 
     private fun showSkeleton(show: Boolean) {
@@ -1456,36 +1489,41 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
             val type = mViewModel.libraryType.value ?: LibraryMangaType.LINE
 
-            if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.SEPARATOR_MEDIUM ||
-                type == LibraryMangaType.SEPARATOR_CAROUSEL || type == LibraryMangaType.SEPARATOR_LINE
-            )
-                mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_manga_skeleton_title, null))
-
-            for (i in 0..getSkeletonRowCount(type)) {
-                when (type) {
-                    LibraryMangaType.LINE, LibraryMangaType.SEPARATOR_LINE ->
+            when (type) {
+                LibraryMangaType.LINE -> {
+                    for (i in 0 until getSkeletonRowCount(type))
                         mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_manga_skeleton, null))
-                    LibraryMangaType.SEPARATOR_CAROUSEL ->
-                        addCarouselSkeletonRow()
-                    else -> {
-                        val row = mInflater.inflate(R.layout.grid_card_manga_skeleton, null)
-                        var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
-                        val height = getSkeletonItemHeight(type)
-                        val width = getSkeletonItemWidth(type)
-                        val margin = resources.getDimension(R.dimen.manga_grid_skeleton_divider).toInt()
-                        val items = getSkeletonGridItemPerRow(type)
-                        val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
-                        container.removeAllViews()
-                        for (idx in 0..items) {
-                            val item = mInflater.inflate(R.layout.grid_card_manga_skeleton_item, null)
-                            val params = FrameLayout.LayoutParams(width, height)
-                            params.setMargins(margin, margin, divider, 0)
-                            item.layoutParams = params
-                            container.addView(item)
+                }
+                LibraryMangaType.SEPARATOR_LINE -> {
+                    val lineItemsPerGroup = 2
+                    val groups = getSkeletonGroupCount(type, lineItemsPerGroup)
+                    repeat(groups) {
+                        addMangaSkeletonTitle()
+                        repeat(lineItemsPerGroup) {
+                            mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_manga_skeleton, null))
                         }
-                        container.invalidate()
-                        mSkeletonLayout.addView(row)
                     }
+                }
+                LibraryMangaType.SEPARATOR_CAROUSEL -> {
+                    val full = getSkeletonCarouselItemPerRow()
+                    val counts = listOf(full, max(1, full - 1), max(1, full - 2))
+                    val groups = getSkeletonGroupCount(type)
+                    for (i in 0 until groups) {
+                        addMangaSkeletonTitle()
+                        addCarouselSkeletonRow(counts[i])
+                    }
+                }
+                LibraryMangaType.SEPARATOR_BIG,
+                LibraryMangaType.SEPARATOR_MEDIUM -> {
+                    val groups = getSkeletonGroupCount(type)
+                    repeat(groups) {
+                        addMangaSkeletonTitle()
+                        addGridSkeletonRow(type)
+                    }
+                }
+                else -> {
+                    for (i in 0 until getSkeletonRowCount(type))
+                        addGridSkeletonRow(type)
                 }
             }
 

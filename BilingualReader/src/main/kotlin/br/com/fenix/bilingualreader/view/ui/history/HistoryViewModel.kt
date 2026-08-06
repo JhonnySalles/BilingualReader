@@ -150,18 +150,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         mLoading.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            var list = mutableListOf<History>()
-
-            val mangas = mMangaRepository.listHistory()
-            if (mangas != null)
-                list.addAll(mangas)
-
-            val books = mBookRepository.listHistory()
-            if (books != null)
-                list.addAll(books)
-
-            val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-            list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+            var list = loadHistoryList()
 
             withContext(Dispatchers.Main) {
                 mLoading.value = false
@@ -178,18 +167,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         mLoading.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            var list = mutableListOf<History>()
-
-            val mangas = mMangaRepository.listHistory()
-            if (mangas != null)
-                list.addAll(mangas)
-
-            val books = mBookRepository.listHistory()
-            if (books != null)
-                list.addAll(books)
-
-            val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-            list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+            var list = loadHistoryList()
 
             withContext(Dispatchers.Main) {
                 mLoading.value = false
@@ -206,6 +184,25 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 refreshComplete(mList.value!!.size - 1)
             }
         }
+    }
+
+    private fun loadHistoryList(): MutableList<History> {
+        var list = mutableListOf<History>()
+
+        val mangas = mMangaRepository.listHistory()
+        if (mangas != null)
+            list.addAll(mangas)
+
+        val books = mBookRepository.listHistory()
+        if (books != null)
+            list.addAll(books)
+
+        list = list.filter { it.id != null }.toMutableList()
+
+        val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+        return list.sortedByDescending { it.lastAccess }
+            .distinctBy { it.lastAccess!!.format(format) }
+            .toMutableList()
     }
 
     private fun refreshAvailableYears(list: List<History>?) {
@@ -264,6 +261,8 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
     fun save(history: History?) {
         history ?: return
+        if (history.id == null && history.title.isBlank())
+            return
         viewModelScope.launch(Dispatchers.IO) {
             when (history) {
                 is Manga -> {

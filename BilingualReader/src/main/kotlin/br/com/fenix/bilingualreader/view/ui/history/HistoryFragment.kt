@@ -33,7 +33,6 @@ import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -79,6 +78,7 @@ import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
 import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -808,7 +808,7 @@ class HistoryFragment : Fragment() {
                 return@observe
             onChangeIconLayout(it)
             generateLayout(it)
-            if (mSkeletonLayout.isVisible)
+            if (mViewModel.loading.value == true)
                 showSkeleton(true)
         }
     }
@@ -1082,10 +1082,10 @@ class HistoryFragment : Fragment() {
         popup.show()
     }
 
-    private fun getSkeletonRowCount(type: HistoryType): Int {
-        val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
-        val skeletonTitleHeight = if (type != HistoryType.LINE)
-            resources.getDimension(R.dimen.history_skeleton_title_height).toInt() else 0
+    private fun getSkeletonTitleHeight(): Int =
+        resources.getDimension(R.dimen.history_skeleton_title_height).toInt()
+
+    private fun getSkeletonContentRowHeight(type: HistoryType): Int {
         val resource = when (type) {
             HistoryType.LINE,
             HistoryType.SEPARATOR_LINE -> R.dimen.history_skeleton_height
@@ -1093,8 +1093,19 @@ class HistoryFragment : Fragment() {
             HistoryType.SEPARATOR_BIG -> R.dimen.history_grid_skeleton_height_separator_big
             HistoryType.SEPARATOR_MEDIUM -> R.dimen.history_grid_skeleton_height_separator_medium
         }
-        val skeletonRowHeight = resources.getDimension(resource).toInt()
-        return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+        return resources.getDimension(resource).toInt()
+    }
+
+    private fun getSkeletonRowCount(type: HistoryType): Int {
+        val pxHeight = Resources.getSystem().displayMetrics.heightPixels
+        val rowHeight = getSkeletonContentRowHeight(type)
+        return max(1, ceil((pxHeight / rowHeight.toDouble())).toInt())
+    }
+
+    private fun getSkeletonGroupCount(type: HistoryType, contentRowsPerGroup: Int = 1): Int {
+        val pxHeight = Resources.getSystem().displayMetrics.heightPixels
+        val groupHeight = getSkeletonTitleHeight() + (getSkeletonContentRowHeight(type) * contentRowsPerGroup)
+        return max(2, min(3, ceil((pxHeight / groupHeight.toDouble())).toInt()))
     }
 
     private fun getSkeletonCarouselItemPerRow(): Int {
@@ -1118,15 +1129,14 @@ class HistoryFragment : Fragment() {
         return AdapterUtils.getHistoryCardSize(requireContext(), type, isLandscape).first
     }
 
-    private fun addCarouselSkeletonRow() {
+    private fun addCarouselSkeletonRow(itemCount: Int) {
         val row = mInflater.inflate(R.layout.line_card_history_carousel_skeleton, null)
         val container = row.findViewById<LinearLayout>(R.id.carousel_skeleton_items)
         val width = resources.getDimension(R.dimen.history_cover_width).toInt()
         val height = resources.getDimension(R.dimen.history_cover_height).toInt()
         val margin = resources.getDimension(R.dimen.history_carousel_skeleton_item_margin).toInt()
-        val items = getSkeletonCarouselItemPerRow()
         container.removeAllViews()
-        for (idx in 0 until items) {
+        for (idx in 0 until itemCount) {
             val item = mInflater.inflate(R.layout.line_card_history_carousel_skeleton_item, null)
             val params = LinearLayout.LayoutParams(width, height)
             params.marginEnd = margin
@@ -1156,6 +1166,10 @@ class HistoryFragment : Fragment() {
         mSkeletonLayout.addView(row)
     }
 
+    private fun addHistorySkeletonTitle() {
+        mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
+    }
+
     private fun showSkeleton(show: Boolean) {
         if (view == null) return
         if (show) {
@@ -1164,19 +1178,37 @@ class HistoryFragment : Fragment() {
 
             val type = mViewModel.historyType.value ?: mHistoryType
 
-            if (type != HistoryType.LINE)
-                mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
-
-            for (i in 0..getSkeletonRowCount(type)) {
-                when (type) {
-                    HistoryType.LINE,
-                    HistoryType.SEPARATOR_LINE ->
+            when (type) {
+                HistoryType.LINE -> {
+                    for (i in 0 until getSkeletonRowCount(type))
                         mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton, null))
-                    HistoryType.SEPARATOR_CAROUSEL ->
-                        addCarouselSkeletonRow()
-                    HistoryType.SEPARATOR_BIG,
-                    HistoryType.SEPARATOR_MEDIUM ->
+                }
+                HistoryType.SEPARATOR_LINE -> {
+                    val lineItemsPerGroup = 2
+                    val groups = getSkeletonGroupCount(type, lineItemsPerGroup)
+                    repeat(groups) {
+                        addHistorySkeletonTitle()
+                        repeat(lineItemsPerGroup) {
+                            mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton, null))
+                        }
+                    }
+                }
+                HistoryType.SEPARATOR_CAROUSEL -> {
+                    val full = getSkeletonCarouselItemPerRow()
+                    val counts = listOf(full, max(1, full - 1), max(1, full - 2))
+                    val groups = getSkeletonGroupCount(type)
+                    for (i in 0 until groups) {
+                        addHistorySkeletonTitle()
+                        addCarouselSkeletonRow(counts[i])
+                    }
+                }
+                HistoryType.SEPARATOR_BIG,
+                HistoryType.SEPARATOR_MEDIUM -> {
+                    val groups = getSkeletonGroupCount(type)
+                    repeat(groups) {
+                        addHistorySkeletonTitle()
                         addGridSkeletonRow(type)
+                    }
                 }
             }
 
