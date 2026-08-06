@@ -25,7 +25,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -614,6 +613,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         onChangeIconLayout(type)
         generateLayout(type)
+        enableCardAnimationOnce()
         updateList(mViewModel.listBook.value!!)
     }
 
@@ -744,8 +744,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
 
                 val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
@@ -920,6 +918,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             Storage.takePermission(requireContext(), requireActivity())
 
         generateLayout(mViewModel.libraryType.value!!)
+        enableCardAnimationOnce()
         setIsRefreshing(true)
         ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
 
@@ -1078,7 +1077,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
         @Suppress("UNCHECKED_CAST")
-        (mRecyclerView.adapter as BaseAdapter<*, *>).isAnimation = isAnimate
+        (mRecyclerView.adapter as? BaseAdapter<*, *>)?.isAnimation = isAnimate
+    }
+
+    /** Enables entry animation for the next bind pass only (load / layout change). */
+    private fun enableCardAnimationOnce() {
+        setAnimationRecycler(true)
+        mRecyclerView.post { setAnimationRecycler(false) }
     }
 
     private fun removeList(book: Book) {
@@ -1478,7 +1483,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mSkeletonLayout.alpha = 1f
             mRecyclerView.visibility = View.VISIBLE
             mRecyclerView.alpha = 1f
-            setAnimationRecycler(true)
+            enableCardAnimationOnce()
         }
 
     }
@@ -1545,7 +1550,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun animateReplaceSkeleton() {
         setAnimationRecycler(false)
-        GlassRenderScheduler.suspendFor(1050L, "skeleton")
+        GlassRenderScheduler.suspendFor(300L, "skeleton")
         mRecyclerView.visibility = View.VISIBLE
         mRecyclerView.alpha = 0f
         mRecyclerView.animate().alpha(1f).setDuration(700).start()

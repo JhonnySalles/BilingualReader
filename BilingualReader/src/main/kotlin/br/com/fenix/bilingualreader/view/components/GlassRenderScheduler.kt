@@ -23,14 +23,14 @@ import java.util.concurrent.atomic.AtomicInteger
 object GlassRenderScheduler {
 
     private const val TOKEN_SAFETY_MS = 2_000L
-    private const val DEFAULT_BUDGET_NS = 5_000_000L
-    private const val LOW_RAM_BUDGET_NS = 3_000_000L
+    private const val DEFAULT_BUDGET_NS = 8_000_000L
+    private const val LOW_RAM_BUDGET_NS = 5_000_000L
     private const val COST_CEILING_NS = 4_000_000L
     private const val LOW_RAM_COST_CEILING_NS = 2_500_000L
-    private const val MAX_BACKOFF = 4
-    private const val FORCE_AFTER_SKIPPED = 8
+    private const val MAX_BACKOFF = 2
+    private const val FORCE_AFTER_SKIPPED = 4
     private const val MIN_INTERVAL_NS = 16_000_000L
-    private const val SCROLL_MIN_INTERVAL_NS = 33_000_000L
+    private const val SCROLL_MIN_INTERVAL_NS = 22_000_000L
     private const val COST_EMA_ALPHA = 0.2
 
     enum class Mode { ON_DEMAND, CONTINUOUS }

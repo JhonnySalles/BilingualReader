@@ -25,7 +25,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -624,6 +623,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         onChangeIconLayout(type)
         generateLayout(type)
+        enableCardAnimationOnce()
         updateList(mViewModel.listMangas.value!!)
     }
 
@@ -755,8 +755,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
 
                 val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
@@ -925,6 +923,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             Storage.takePermission(requireContext(), requireActivity())
 
         generateLayout(mViewModel.libraryType.value!!)
+        enableCardAnimationOnce()
         setIsRefreshing(true)
         ScannerManga.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
 
@@ -1092,7 +1091,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
         @Suppress("UNCHECKED_CAST")
-        (mRecyclerView.adapter as BaseAdapter<*, *>).isAnimation = isAnimate
+        (mRecyclerView.adapter as? BaseAdapter<*, *>)?.isAnimation = isAnimate
+    }
+
+    /** Enables entry animation for the next bind pass only (load / layout change). */
+    private fun enableCardAnimationOnce() {
+        setAnimationRecycler(true)
+        mRecyclerView.post { setAnimationRecycler(false) }
     }
 
     private fun removeList(manga: Manga) {
@@ -1500,7 +1505,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             mSkeletonLayout.alpha = 1f
             mRecyclerView.visibility = View.VISIBLE
             mRecyclerView.alpha = 1f
-            setAnimationRecycler(true)
+            enableCardAnimationOnce()
         }
     }
     override fun onPause() {
@@ -1542,7 +1547,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun animateReplaceSkeleton() {
         setAnimationRecycler(false)
-        GlassRenderScheduler.suspendFor(1050L, "skeleton")
+        GlassRenderScheduler.suspendFor(300L, "skeleton")
         mRecyclerView.visibility = View.VISIBLE
         mRecyclerView.alpha = 0f
         mRecyclerView.animate().alpha(1f).setDuration(700).start()

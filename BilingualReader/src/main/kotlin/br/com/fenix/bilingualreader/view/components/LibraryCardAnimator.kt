@@ -19,7 +19,6 @@ object LibraryCardAnimator {
 
     fun animate(view: View, style: Style) {
         view.animate().cancel()
-        GlassRenderScheduler.suspendFor(DURATION_MS + 50L, "libraryCard")
 
         when (style) {
             Style.LINE -> {
