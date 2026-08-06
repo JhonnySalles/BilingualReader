@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
+import android.os.Build;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,9 +162,9 @@ public class BookCSS {
 
         linkColorDay = LINK_COLOR_UNIVERSAL;
         linkColorNight = LINK_COLOR_UNIVERSAL;
-        customCSS1 = "pre > * {white-space: pre; font-size: 0.7em;} /* pre, normal*/ \n" + //
-                "svg {display:block} \n" + //
-                "figure > * {font-size: 0.7em}";
+        customCSS1 = "pre{white-space:pre;font-size:0.7em;}\n" + //
+                "svg{display:block;}\n" + //
+                "figure{font-size:0.7em;}";
 
         
 
@@ -410,37 +411,132 @@ public class BookCSS {
         return "initial";
     }
 
-    public String toCssString() {
-        StringBuilder builder = new StringBuilder();
+    /** Android 8–12 (API <= 31): MuPDF is more sensitive to invalid / complex CSS. */
+    static boolean isLegacyCssDevice() {
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.S;
+    }
 
+    static String quoteFontFamily(String name) {
+        if (TxtUtils.isEmpty(name)) {
+            return "'serif'";
+        }
+        String safe = name.replace("'", "\\'");
+        return "'" + safe + "'";
+    }
+
+    /**
+     * Builds a CSS url(...) value for @font-face. Returns null if the path cannot be made safe.
+     */
+    static String cssUrl(String path) {
+        if (TxtUtils.isEmpty(path)) {
+            return null;
+        }
+        try {
+            String normalized = path.replace('\\', '/');
+            StringBuilder encoded = new StringBuilder();
+            for (int i = 0; i < normalized.length(); i++) {
+                char c = normalized.charAt(i);
+                if (c == ' ') {
+                    encoded.append("%20");
+                } else if (c == '\'') {
+                    encoded.append("%27");
+                } else if (c == '"') {
+                    encoded.append("%22");
+                } else if (c == '\n' || c == '\r' || c == '\t') {
+                    continue;
+                } else {
+                    encoded.append(c);
+                }
+            }
+            String result = encoded.toString();
+            if (result.isEmpty() || result.contains("*/")) {
+                return null;
+            }
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Basic validation/sanitization of user custom CSS before injecting into MuPDF.
+     * Returns empty string if braces are unbalanced or content looks unsafe.
+     */
+    static String sanitizeCustomCss(String css, boolean compat) {
+        if (TxtUtils.isEmpty(css)) {
+            return "";
+        }
+        String cleaned = css.replace("\n", " ").replace("\r", " ").trim();
+        if (cleaned.contains("*/") && !cleaned.contains("/*")) {
+            return "";
+        }
+        int open = 0;
+        for (int i = 0; i < cleaned.length(); i++) {
+            char c = cleaned.charAt(i);
+            if (c == '{') {
+                open++;
+            } else if (c == '}') {
+                open--;
+                if (open < 0) {
+                    return "";
+                }
+            }
+        }
+        if (open != 0) {
+            return "";
+        }
+        if (compat) {
+            // Drop rules that use fragile child/universal selectors on older MuPDF builds.
+            cleaned = cleaned.replaceAll("[^{}]*[>*][^{}]*\\{[^{}]*\\}", "");
+            cleaned = cleaned.trim();
+            open = 0;
+            for (int i = 0; i < cleaned.length(); i++) {
+                char c = cleaned.charAt(i);
+                if (c == '{') {
+                    open++;
+                } else if (c == '}') {
+                    open--;
+                    if (open < 0) {
+                        return "";
+                    }
+                }
+            }
+            if (open != 0) {
+                return "";
+            }
+        }
+        return cleaned;
+    }
+
+    private void appendFontFace(StringBuilder builder, String family, String fontName, String weight, String style) {
+        if (!isFontFileName(fontName)) {
+            return;
+        }
+        String url = cssUrl(getFontPath(fontName));
+        if (url == null) {
+            return;
+        }
+        builder.append("@font-face{font-family:").append(family).append(";src:url('").append(url)
+                .append("') format('truetype');");
+        if (weight != null) {
+            builder.append("font-weight:").append(weight).append(";");
+        }
+        if (style != null) {
+            builder.append("font-style:").append(style).append(";");
+        }
+        builder.append("}");
+    }
+
+    private void appendPageAndColors(StringBuilder builder) {
         String backgroundColor = MagicHelper.colorToString(MagicHelper.getBgColor());
         String textColor = MagicHelper.colorToString(MagicHelper.getTextColor());
 
-        builder.append("/* documentStyle").append(documentStyle).append(" */\n");
-        builder.append("/* isAutoHypens1").append(isAutoHypens).append(hypenLang).append(" */\n");
-
-        // PAGE BEGIN
         builder.append("@page{");
         builder.append(String.format("margin-top:%s !important;", em(marginTop + 1)));
         builder.append(String.format("margin-right:%s !important;", em(marginRight)));
         builder.append(String.format("margin-bottom:%s !important;", em(marginBottom - 1)));
         builder.append(String.format("margin-left:%s !important;", em(marginLeft)));
         builder.append("}");
-        // PAGE END
-
-        // FB2
-        builder.append("section>title{page-break-before:avoid;}");
-        builder.append("section>title>p{text-align:center !important; text-indent:0px !important;}");
-        builder.append("title>p{text-align:center !important; text-indent:0px !important;}");
-        builder.append("subtitle{text-align:center !important; text-indent:0px !important;}");
-        builder.append("image{text-align:center; text-indent:0px;}");
-        builder.append("section+section>title{page-break-before:always;}");
-        builder.append(String.format("empty-line{padding-top:%s;}", em(emptyLine)));
-        builder.append("epigraph{text-align:right; margin-left:2em;font-style: italic;}");
-        builder.append("text-author{font-style: italic;font-weight: bold;}");
-        builder.append("p>image{display:block;}");
-
-        // FB2 END
 
         builder.append("p,div,body{");
         builder.append(String.format("background-color:%s !important;", backgroundColor));
@@ -448,96 +544,129 @@ public class BookCSS {
         builder.append(String.format("line-height:%s !important;", em(lineHeight)));
         builder.append("}");
 
-        builder.append("body{");
-        builder.append("padding:0 !important; margin:0 !important;");
-        builder.append("}");
+        builder.append("body{padding:0 !important;margin:0 !important;}");
+    }
 
-        if (documentStyle == STYLES_DOC_AND_USER || documentStyle == STYLES_ONLY_USER) {
+    private void appendFb2Rules(StringBuilder builder, boolean compat) {
+        builder.append(String.format("empty-line{padding-top:%s;}", em(emptyLine)));
+        builder.append("epigraph{text-align:right;margin-left:2em;font-style:italic;}");
+        builder.append("text-author{font-style:italic;font-weight:bold;}");
+        builder.append("image{text-align:center;text-indent:0px;display:block;}");
+        builder.append("subtitle{text-align:center !important;text-indent:0px !important;}");
+        builder.append("title{text-align:center !important;text-indent:0px !important;}");
 
-            if (AppState.get().isDayNotInvert) {
-                builder.append("a{color:" + linkColorDay + " !important;}");
-            } else {
-                builder.append("a{color:" + linkColorNight + " !important;}");
-            }
+        if (compat) {
+            // Avoid child/sibling selectors that older MuPDF CSS parsers reject.
+            builder.append("title p{text-align:center !important;text-indent:0px !important;}");
+        } else {
+            builder.append("section>title{page-break-before:avoid;}");
+            builder.append("section>title>p{text-align:center !important;text-indent:0px !important;}");
+            builder.append("title>p{text-align:center !important;text-indent:0px !important;}");
+            builder.append("section+section>title{page-break-before:always;}");
+            builder.append("p>image{display:block;}");
+        }
+    }
 
-            // FONTS BEGIN
-            if (isFontFileName(normalFont)) {
-                builder.append("@font-face {font-family: my; src: url('" + getFontPath(normalFont) + "') format('truetype'); font-weight: normal; font-style: normal;}");
-            }
-
-            if (isFontFileName(boldFont)) {
-                builder.append("@font-face {font-family: my; src: url('" + getFontPath(boldFont) + "') format('truetype'); font-weight: bold; font-style: normal;}");
-            }
-
-            if (isFontFileName(italicFont)) {
-                builder.append("@font-face {font-family: my; src: url('" + getFontPath(italicFont) + "') format('truetype'); font-weight: normal; font-style: italic;}");
-            }
-
-            if (isFontFileName(boldItalicFont)) {
-                builder.append("@font-face {font-family: my; src: url('" + getFontPath(boldItalicFont) + "') format('truetype'); font-weight: bold; font-style: italic;}");
-            }
-
-            if (isFontFileName(headersFont)) {
-                builder.append("@font-face {font-family: myHeader; src: url('" + getFontPath(headersFont) + "') format('truetype');}");
-                builder.append("h1{font-size:1.50em; text-align: center; font-weight: normal; font-family: myHeader;}");
-                builder.append("h2{font-size:1.30em; text-align: center; font-weight: normal; font-family: myHeader;}");
-                builder.append("h3{font-size:1.15em; text-align: center; font-weight: normal; font-family: myHeader;}");
-                builder.append("h4{font-size:1.00em; text-align: center; font-weight: normal; font-family: myHeader;}");
-                builder.append("h5{font-size:0.80em; text-align: center; font-weight: normal; font-family: myHeader;}");
-                builder.append("h6{font-size:0.60em; text-align: center; font-weight: normal; font-family: myHeader;}");
-
-                builder.append("title,title>p,title>p>strong  {font-size:1.2em;  font-weight: normal; font-family: myHeader;}");
-                builder.append(/*                 */ "subtitle{font-size:1.0em; font-weight: normal; font-family: myHeader;}");
-
-            } else {
-                builder.append("h1{font-size:1.50em; text-align: center; font-weight: bold; font-family: " + headersFont + ";}");
-                builder.append("h2{font-size:1.30em; text-align: center; font-weight: bold; font-family: " + headersFont + ";}");
-                builder.append("h3{font-size:1.15em; text-align: center; font-weight: bold; font-family: " + headersFont + ";}");
-                builder.append("h4{font-size:1.00em; text-align: center; font-weight: bold; font-family: " + headersFont + ";}");
-                builder.append("h5{font-size:0.80em; text-align: center; font-weight: bold; font-family: " + headersFont + ";}");
-                builder.append("h6{font-size:0.60em; text-align: center; font-weight: bold; font-family: " + headersFont + ";}");
-
-                builder.append("title   {font-size:1.2em; font-weight: bold; font-family: " + headersFont + ";}");
-                builder.append("subtitle{font-size:1.0em; font-weight: bold; font-family: " + headersFont + ";}");
-            }
-
-            builder.append("h1,h2,h3,h4,h5,h6,img {text-indent:0px !important; text-align: center;}");
-
-            // FONTS END
-
-            // BODY BEGIN
-
-            // BODY END
-
-            builder.append("body,p{");
-
-            if (isFontFileName(normalFont)) {
-                builder.append("font-family: my !important;");
-            } else {
-                builder.append("font-family:" + normalFont + " !important; font-weight:normal;");
-            }
-
-            builder.append(String.format("text-indent:%s;", em(textIndent)));
-            builder.append(String.format("text-align:%s !important;", getTextAlignConst(textAlign)));
-            builder.append("}");
-
-            builder.append(String.format("p+p{text-indent:%s;}", em(textIndent)));
-
-            if (!isFontFileName(boldFont)) {
-                builder.append("b{font-family:" + boldFont + ";font-weight: bold;}");
-            }
-
-            if (!isFontFileName(italicFont)) {
-                builder.append("i{font-family:" + italicFont + "; font-style: italic, oblique;}");
-            }
-            builder.append("body,p,b,i,em{font-size:medium !important;}");
-            builder.append(customCSS1.replace("\n", ""));
-
+    private void appendUserFontsAndBody(StringBuilder builder, boolean compat) {
+        if (AppState.get().isDayNotInvert) {
+            builder.append("a{color:").append(linkColorDay).append(" !important;}");
+        } else {
+            builder.append("a{color:").append(linkColorNight).append(" !important;}");
         }
 
-        String result = builder.toString();
-        return result;
+        appendFontFace(builder, "my", normalFont, "normal", "normal");
+        appendFontFace(builder, "my", boldFont, "bold", "normal");
+        appendFontFace(builder, "my", italicFont, "normal", "italic");
+        appendFontFace(builder, "my", boldItalicFont, "bold", "italic");
 
+        if (isFontFileName(headersFont) && cssUrl(getFontPath(headersFont)) != null) {
+            appendFontFace(builder, "myHeader", headersFont, null, null);
+            builder.append("h1{font-size:1.50em;text-align:center;font-weight:normal;font-family:myHeader;}");
+            builder.append("h2{font-size:1.30em;text-align:center;font-weight:normal;font-family:myHeader;}");
+            builder.append("h3{font-size:1.15em;text-align:center;font-weight:normal;font-family:myHeader;}");
+            builder.append("h4{font-size:1.00em;text-align:center;font-weight:normal;font-family:myHeader;}");
+            builder.append("h5{font-size:0.80em;text-align:center;font-weight:normal;font-family:myHeader;}");
+            builder.append("h6{font-size:0.60em;text-align:center;font-weight:normal;font-family:myHeader;}");
+            if (compat) {
+                builder.append("title{font-size:1.2em;font-weight:normal;font-family:myHeader;}");
+                builder.append("subtitle{font-size:1.0em;font-weight:normal;font-family:myHeader;}");
+            } else {
+                builder.append("title,title>p,title>p>strong{font-size:1.2em;font-weight:normal;font-family:myHeader;}");
+                builder.append("subtitle{font-size:1.0em;font-weight:normal;font-family:myHeader;}");
+            }
+        } else {
+            String headerFamily = quoteFontFamily(headersFont);
+            builder.append("h1{font-size:1.50em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("h2{font-size:1.30em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("h3{font-size:1.15em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("h4{font-size:1.00em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("h5{font-size:0.80em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("h6{font-size:0.60em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("title{font-size:1.2em;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("subtitle{font-size:1.0em;font-weight:bold;font-family:").append(headerFamily).append(";}");
+        }
+
+        builder.append("h1,h2,h3,h4,h5,h6,img{text-indent:0px !important;text-align:center;}");
+
+        builder.append("body,p{");
+        if (isFontFileName(normalFont) && cssUrl(getFontPath(normalFont)) != null) {
+            builder.append("font-family:my !important;");
+        } else {
+            builder.append("font-family:").append(quoteFontFamily(normalFont)).append(" !important;font-weight:normal;");
+        }
+        builder.append(String.format("text-indent:%s;", em(textIndent)));
+        builder.append(String.format("text-align:%s !important;", getTextAlignConst(textAlign)));
+        builder.append("}");
+
+        if (!compat) {
+            builder.append(String.format("p+p{text-indent:%s;}", em(textIndent)));
+        }
+
+        if (!isFontFileName(boldFont)) {
+            builder.append("b{font-family:").append(quoteFontFamily(boldFont)).append(";font-weight:bold;}");
+        }
+
+        if (!isFontFileName(italicFont)) {
+            builder.append("i{font-family:").append(quoteFontFamily(italicFont)).append(";font-style:italic;}");
+        }
+
+        builder.append("body,p,b,i,em{font-size:medium !important;}");
+
+        String custom = sanitizeCustomCss(customCSS1, compat);
+        if (!TxtUtils.isEmpty(custom)) {
+            builder.append(custom);
+        }
+    }
+
+    public String toCssStringCompat() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("/* documentStyle").append(documentStyle).append(" cssProfile=compat */\n");
+        builder.append("/* isAutoHypens1").append(isAutoHypens).append(hypenLang).append(" */\n");
+        appendPageAndColors(builder);
+        appendFb2Rules(builder, true);
+        if (documentStyle == STYLES_DOC_AND_USER || documentStyle == STYLES_ONLY_USER) {
+            appendUserFontsAndBody(builder, true);
+        }
+        return builder.toString();
+    }
+
+    public String toCssStringModern() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("/* documentStyle").append(documentStyle).append(" cssProfile=modern */\n");
+        builder.append("/* isAutoHypens1").append(isAutoHypens).append(hypenLang).append(" */\n");
+        appendPageAndColors(builder);
+        appendFb2Rules(builder, false);
+        if (documentStyle == STYLES_DOC_AND_USER || documentStyle == STYLES_ONLY_USER) {
+            appendUserFontsAndBody(builder, false);
+        }
+        return builder.toString();
+    }
+
+    public String toCssString() {
+        boolean legacy = isLegacyCssDevice();
+        String result = legacy ? toCssStringCompat() : toCssStringModern();
+        LOGGER.debug("BookCSS profile={} length={}", legacy ? "compat" : "modern", result.length());
+        return result;
     }
 
     public String getFontWeight(String fontName) {

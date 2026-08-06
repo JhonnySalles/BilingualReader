@@ -68,7 +68,7 @@ object TxtBookExtractor : BookExtractor {
                 writer.println("<html>")
                 
                 if (EbookSettings.isPreText) {
-                    writer.println("<head><style>@page{margin:0px 0.5em} pre{margin:0px} {body:margin:0px;}</style></head>")
+                    writer.println("<head><style>@page{margin:0px 0.5em} pre{margin:0px} body{margin:0px;}</style></head>")
                 } else {
                     writer.println("<head><style>p,p+p{margin:0;}</style></head>")
                 }
