@@ -494,52 +494,49 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 menu.clear()
                 menuInflater.inflate(R.menu.menu_reader_book, menu)
 
-                menu.findItem(R.id.menu_item_reader_book_chapter)?.let { miChapter = it }
-                menu.findItem(R.id.menu_item_reader_book_annotation)?.let { miAnnotation = it }
-                menu.findItem(R.id.menu_item_reader_book_font_style)?.let { miFontStyle = it }
-                menu.findItem(R.id.menu_item_reader_book_mark_page)?.let { miMarkPage = it }
-                menu.findItem(R.id.menu_item_reader_book_search)?.let { miSearch = it }
-                menu.findItem(R.id.menu_item_reader_book_tts)?.let { miReaderTTS = it }
-                menu.findItem(R.id.menu_item_reader_book_scrolling_mode)?.let { miScrollingMode = it }
-                menu.findItem(R.id.menu_item_reader_book_pagination_type)?.let { miPaginationMode = it }
+                miChapter = menu.findItem(R.id.menu_item_reader_book_chapter)
+                miAnnotation = menu.findItem(R.id.menu_item_reader_book_annotation)
+                miFontStyle = menu.findItem(R.id.menu_item_reader_book_font_style)
+                miMarkPage = menu.findItem(R.id.menu_item_reader_book_mark_page)
+                miSearch = menu.findItem(R.id.menu_item_reader_book_search)
+                miReaderTTS = menu.findItem(R.id.menu_item_reader_book_tts)
+                miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
+                miPaginationMode = menu.findItem(R.id.menu_item_reader_book_pagination_type)
 
                 val isLoaded = mParse != null
-                if (::miChapter.isInitialized) miChapter.isVisible = isLoaded
-                if (::miAnnotation.isInitialized) miAnnotation.isVisible = isLoaded
-                if (::miFontStyle.isInitialized) miFontStyle.isVisible = isLoaded
-                if (::miMarkPage.isInitialized) miMarkPage.isVisible = isLoaded
-                if (::miSearch.isInitialized) miSearch.isVisible = isLoaded
-                if (::miReaderTTS.isInitialized) miReaderTTS.isVisible = isLoaded
-                if (::miScrollingMode.isInitialized) miScrollingMode.isVisible = isLoaded
-                if (::miPaginationMode.isInitialized) miPaginationMode.isVisible = isLoaded
+                miChapter.isVisible = isLoaded
+                miAnnotation.isVisible = isLoaded
+                miFontStyle.isVisible = isLoaded
+                miMarkPage.isVisible = isLoaded
+                miSearch.isVisible = isLoaded
+                miReaderTTS.isVisible = isLoaded
+                miScrollingMode.isVisible = isLoaded
+                miPaginationMode.isVisible = isLoaded
                 menu.findItem(R.id.menu_item_reader_book_view_touch_screen)?.isVisible = isLoaded
                 menu.findItem(R.id.menu_item_reader_book_config_touch_screen)?.isVisible = isLoaded
 
                 if (isLoaded) {
                     when (mViewModel.scrollingMode.value) {
-                        ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination)?.isChecked = true
-                        ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left)?.isChecked = true
-                        ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical)?.isChecked = true
-                        ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling)?.isChecked = true
-                        else -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination)?.isChecked = true
+                        ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                        ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+                        ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
+                        ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+                        else -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
                     }
 
                     when (mViewModel.paginationType.value) {
-                        PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default)?.isChecked = true
-                        PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl)?.isChecked = true
-                        PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d)?.isChecked = true
-                        PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack)?.isChecked = true
-                        PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom)?.isChecked = true
-                        PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade)?.isChecked = true
-                        PaginationType.Depth -> menu.findItem(R.id.menu_item_reader_book_pagination_depth)?.isChecked = true
-                        else -> menu.findItem(R.id.menu_item_reader_book_pagination_default)?.isChecked = true
+                        PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
+                        PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
+                        PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
+                        PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
+                        PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
+                        PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
+                        PaginationType.Depth -> menu.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
+                        else -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
                     }
 
                     MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
                         openMenuTTS()
-                    }
-                    MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_chapter) {
-                        (requireActivity() as? BookReaderActivity)?.openChaptersFromMenu()
                     }
                 }
             }
@@ -555,24 +552,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }
 
                     R.id.menu_item_reader_book_chapter -> {
-                        if (::miChapter.isInitialized) {
-                            (miChapter.icon as? AnimatedVectorDrawable)?.let {
-                                it.reset()
-                                it.start()
-                            }
-                        }
-                        false
+                        (miChapter.icon as AnimatedVectorDrawable).reset()
+                        (miChapter.icon as AnimatedVectorDrawable).start()
+                        true
                     }
                     R.id.menu_item_reader_book_font_style -> {
-                        if (::miFontStyle.isInitialized) {
-                            (miFontStyle.icon as? AnimatedVectorDrawable)?.let {
-                                it.reset()
-                                it.start()
-                            }
-                        }
+                        (miFontStyle.icon as AnimatedVectorDrawable).reset()
+                        (miFontStyle.icon as AnimatedVectorDrawable).start()
                         if (mTextToSpeech != null)
                             mTextToSpeech?.stop()
-                        false
+                        true
                     }
 
                     R.id.menu_item_reader_book_mark_page -> {
@@ -1064,29 +1053,27 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mHandler.postDelayed(mRefreshMenuItem, 300)
             else {
                 if (miScrollingMode.subMenu != null) {
-                    val scrollingMenu = miScrollingMode.subMenu!!
                     when (scrolling) {
-                        ScrollingType.Pagination -> scrollingMenu.findItem(R.id.menu_item_reader_book_scrolling_pagination)?.isChecked = true
-                        ScrollingType.PaginationRightToLeft -> scrollingMenu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left)?.isChecked = true
-                        ScrollingType.PaginationVertical -> scrollingMenu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical)?.isChecked = true
+                        ScrollingType.Pagination -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                        ScrollingType.PaginationRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+                        ScrollingType.PaginationVertical -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
                         ScrollingType.Scrolling,
                         ScrollingType.ScrollingDivider,
                         ScrollingType.Vertical,
                         ScrollingType.Horizontal,
-                        ScrollingType.HorizontalRightToLeft -> scrollingMenu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling)?.isChecked = true
+                        ScrollingType.HorizontalRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
                     }
                 }
 
                  if (miPaginationMode.subMenu != null) {
-                    val paginationMenu = miPaginationMode.subMenu!!
                     when (pagination) {
-                        PaginationType.Default -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_default)?.isChecked = true
-                        PaginationType.CurlPage -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_page_curl)?.isChecked = true
-                        PaginationType.Curl3DPage -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d)?.isChecked = true
-                        PaginationType.Stack -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_stack)?.isChecked = true
-                        PaginationType.Zooming -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_zoom)?.isChecked = true
-                        PaginationType.Depth -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_depth)?.isChecked = true
-                        PaginationType.Fade -> paginationMenu.findItem(R.id.menu_item_reader_book_pagination_fade)?.isChecked = true
+                        PaginationType.Default -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
+                        PaginationType.CurlPage -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
+                        PaginationType.Curl3DPage -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
+                        PaginationType.Stack -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
+                        PaginationType.Zooming -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
+                        PaginationType.Depth -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
+                        PaginationType.Fade -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
                     }
                 }
             }

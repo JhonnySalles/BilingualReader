@@ -400,9 +400,6 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
     }
 
     private fun onChangeIconSort(order: Order, isDesc: Boolean, isChange: Boolean) {
-        if (!::miOrder.isInitialized)
-            return
-
         if (!isChange) {
             val icon: Int? = when (order) {
                 Order.Description -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name

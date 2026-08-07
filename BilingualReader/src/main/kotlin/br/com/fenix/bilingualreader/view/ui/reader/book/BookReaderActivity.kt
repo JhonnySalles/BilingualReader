@@ -13,6 +13,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -502,6 +503,16 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             .commit()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val created = super.onCreateOptionsMenu(menu)
+
+        MenuUtil.longClick(this, R.id.menu_item_reader_book_chapter) {
+            openChapters()
+        }
+
+        return created
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -781,8 +792,6 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         }
         mFragment?.setFullscreen(true)
     }
-
-    fun openChaptersFromMenu() = openChapters()
 
     private fun openChapters() {
         if (mFragment == null)

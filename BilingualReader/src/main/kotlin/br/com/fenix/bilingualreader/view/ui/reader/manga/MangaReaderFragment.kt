@@ -549,6 +549,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                                 setupMangaChaptersDots(parse)
                                 prepareMangaReader()
+                                requireActivity().invalidateOptionsMenu()
                             }
                         }
                     } else {
@@ -623,12 +624,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                     menu.findItem(R.id.menu_item_reader_manga_mark_page)?.let { miMarkPage = it }
                 }
-
-                (activity as? MangaReaderActivity)?.prepareFavoriteMenuItem(menu)
             }
 
             override fun onPrepareMenu(menu: Menu) {
-                (activity as? MangaReaderActivity)?.prepareFavoriteMenuItem(menu)
+                menu.findItem(R.id.menu_item_reader_manga_favorite)?.let { item ->
+                    (activity as? MangaReaderActivity)?.applyFavoriteMenuIcon(item)
+                }
             }
 
             override fun onMenuItemSelected(item: MenuItem): Boolean {
@@ -735,9 +736,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     R.id.menu_item_reader_manga_mark_page -> {
                         markCurrentPage()
                         if (::miMarkPage.isInitialized) {
-                            (miMarkPage.icon as? AnimatedVectorDrawable)?.let {
-                                it.reset()
-                                it.start()
+                            (miMarkPage.icon as? AnimatedVectorDrawable)?.let { icon ->
+                                icon.reset()
+                                icon.start()
                             }
                         }
                         true
@@ -752,10 +753,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-    }
-
-    fun syncMangaFavorite(favorite: Boolean) {
-        mManga?.favorite = favorite
     }
 
     private fun setupMangaChaptersDots(parse: Parse) {

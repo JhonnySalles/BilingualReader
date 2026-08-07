@@ -27,7 +27,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.TypedValue
-import android.view.Menu
 import android.view.MenuItem
 import android.view.Surface
 import android.view.View
@@ -267,6 +266,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         setSupportActionBar(mToolBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(true)
+        ensureToolbarTitleEllipsis()
 
         mReaderTitle = findViewById(R.id.reader_manga_bottom_progress_title)
         mReaderProgress = findViewById(R.id.reader_manga_bottom_progress)
@@ -737,7 +737,20 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         mToolBar.subtitle = boldSubtitle
+        ensureToolbarTitleEllipsis()
         SharedData.selectPage(page)
+    }
+
+    private fun ensureToolbarTitleEllipsis() {
+        mToolBar.post {
+            for (i in 0 until mToolBar.childCount) {
+                val child = mToolBar.getChildAt(i)
+                if (child is TextView) {
+                    child.maxLines = 1
+                    child.ellipsize = android.text.TextUtils.TruncateAt.END
+                }
+            }
+        }
     }
 
     private fun setManga(manga: Manga, isRestore: Boolean = false) {
@@ -1022,6 +1035,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             R.id.manga_view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
             R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
             R.id.menu_item_reader_manga_popup_open_floating -> openFloatingSubtitle()
+            R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
             R.id.menu_item_reader_manga_mark_page -> { }
             R.id.menu_item_reader_manga_popup_subtitle -> {
                 val layout = if (mMenuPopupBottomSheet) mMenuPopupTranslateBottom else mMenuPopupTranslateLeft
@@ -1133,14 +1147,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
     }
 
-    fun prepareFavoriteMenuItem(menu: Menu) {
-        val favoriteItem = menu.findItem(R.id.menu_item_reader_manga_favorite) ?: return
+    fun applyFavoriteMenuIcon(item: MenuItem) {
         val icon = if (mManga != null && mManga!!.favorite)
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
         else
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_unmark)
         icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
-        favoriteItem.icon = icon
+        item.icon = icon
     }
 
     fun changeFavorite(item: MenuItem) {
@@ -1148,7 +1161,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             return
 
         mManga?.favorite = !mManga!!.favorite
-        mFragment?.syncMangaFavorite(mManga!!.favorite)
 
         val icon = if (mManga!!.favorite)
             ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
@@ -1156,7 +1168,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
         icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
         item.icon = icon
-        (item.icon as? AnimatedVectorDrawable)?.start()
+        (item.icon as AnimatedVectorDrawable).start()
         mRepository.update(mManga!!)
     }
 
