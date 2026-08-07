@@ -24,17 +24,19 @@ import android.widget.ProgressBar
 import android.widget.TextClock
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.BundleCompat
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -53,6 +55,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
@@ -65,15 +68,14 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.io.File
 
 
-@Suppress("DEPRECATION")
 class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderActivity::class.java)
@@ -98,7 +100,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private var mMenuPopupConfigurationLeft: FrameLayout? = null
     private var mMenuPopupConfigurationBackground: BlurView? = null
     private lateinit var mPopupConfigurationTab: TabLayout
-    private lateinit var mPopupConfigurationView: ViewPager
+    private lateinit var mPopupConfigurationView: ViewPager2
 
     private lateinit var mPopupReaderFont: PopupBookFont
     private lateinit var mPopupReaderLayout: PopupBookLayout
@@ -235,9 +237,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         mPopupReaderLayout = PopupBookLayout()
         mPopupReaderLanguage = PopupBookLanguage()
 
-        mPopupConfigurationTab.setupWithViewPager(mPopupConfigurationView)
-
-        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
+        val viewPagerAdapter = ViewPagerAdapter(this)
         viewPagerAdapter.addFragment(
             mPopupReaderFont,
             resources.getString(R.string.popup_reading_book_tab_item_font)
@@ -253,6 +253,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
         mPopupReaderLayout.setListener(this)
         mPopupConfigurationView.adapter = viewPagerAdapter
+        TabLayoutMediator(mPopupConfigurationTab, mPopupConfigurationView) { tab, position ->
+            tab.text = viewPagerAdapter.getPageTitle(position)
+        }.attach()
 
         mTouchView.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -287,9 +290,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                 val extras = intent.extras
 
                 if (extras != null)
-                    mLibrary = extras.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
+                    mLibrary = BundleCompat.getSerializable(extras, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java) as Library
 
-                val book = if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?) else null
+                val book = if (extras != null) BundleCompat.getSerializable(extras, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java) else null
                 book?.let {
                     it.bookMark = if (extras!!.containsKey(GeneralConsts.KEYS.BOOK.PAGE_NUMBER))
                         extras.getInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER)
@@ -301,6 +304,23 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
         } else
             mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
+                if (layout!!.visibility != View.GONE) {
+                    AnimationUtil.animatePopupClose(this@BookReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    return
+                }
+
+                if (mFragment != null && !mFragment!!.onBackPressed())
+                    return
+
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                finish()
+            }
+        })
     }
 
     private fun setupPopupBackgrounds() {
@@ -454,7 +474,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
 
-        val book = (savedInstanceState.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?)
+        val book = BundleCompat.getSerializable(savedInstanceState, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java)
         if (book != null) {
             setBook(book)
             changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
@@ -520,20 +540,6 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
-        if (layout!!.visibility != View.GONE) {
-            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
-            return
-        }
-
-        if (mFragment != null && !mFragment!!.onBackPressed())
-            return
-
-        super.onBackPressed()
-        finish()
-    }
-
     fun touchPosition(touchScreen: TouchScreen): Boolean {
         return when (touchScreen) {
             TouchScreen.TOUCH_NEXT_FILE -> {
@@ -558,20 +564,6 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             else -> false
         }
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            GeneralConsts.REQUEST.CHAPTERS -> {
-                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
-                    val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
-                    mFragment?.setCurrentPage(page)
-                }
-                mFragment?.setFullscreen(true)
-            }
-        }
-    }
-
 
     override fun configTouchFunctions() {
         val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
@@ -667,13 +659,12 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                 }
             }
 
-            bv.setBlurEnabled(isGlass)
-            if (isGlass) {
+            bv.setBlurEnabled(isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            if (isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val decorView = window.decorView
                 val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
                 val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(this)
-                GlassSetup.setupGlass(bv, rootView, blurAlgorithm)
+                GlassSetup.setupGlass(bv, rootView, RenderEffectBlur())
                     .setFrameClearDrawable(background)
                     .setBlurRadius(15f)
                 bv.setBlurAutoUpdate(true)
@@ -766,8 +757,8 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
     }
 
-    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-        FragmentPagerAdapter(fm, behavior) {
+    inner class ViewPagerAdapter(fa: androidx.fragment.app.FragmentActivity) :
+        FragmentStateAdapter(fa) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -775,17 +766,31 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             fragmentTitle.add(title)
         }
 
-        override fun getItem(position: Int): Fragment {
+        fun getItem(position: Int): Fragment {
             return fragments[position]
         }
 
-        override fun getCount(): Int {
+        override fun createFragment(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getItemCount(): Int {
             return fragments.size
         }
 
-        override fun getPageTitle(position: Int): CharSequence {
+        fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
+    }
+
+
+    private val chaptersLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val data = result.data
+        if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
+            val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
+            mFragment?.setCurrentPage(page)
+        }
+        mFragment?.setFullscreen(true)
     }
 
     private fun openChapters() {
@@ -801,8 +806,8 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         bundle.putString(GeneralConsts.KEYS.CHAPTERS.TITLE, mBook?.title ?: "")
         bundle.putInt(GeneralConsts.KEYS.CHAPTERS.PAGE, page)
         intent.putExtras(bundle)
-        overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.CHAPTERS, null)
+        overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        chaptersLauncher.launch(intent)
     }
 
 }

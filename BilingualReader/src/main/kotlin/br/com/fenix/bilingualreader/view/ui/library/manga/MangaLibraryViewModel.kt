@@ -649,10 +649,12 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Manga>()
-            filterResults?.let {
-                @Suppress("UNCHECKED_CAST")
-                list.addAll(it.values as Collection<Manga>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Manga>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mListMangas.value = list
         }
     }

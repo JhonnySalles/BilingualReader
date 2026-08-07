@@ -222,13 +222,15 @@ class TextViewEllipsizing @JvmOverloads constructor(context: Context, attrs: Att
          * @return [android.text.Layout] with the given text.
          */
         protected fun createWorkingLayout(workingText: CharSequence?): Layout {
-            @Suppress("DEPRECATION")
-            return StaticLayout(
-                workingText, paint,
-                measuredWidth - paddingLeft - paddingRight,
-                Layout.Alignment.ALIGN_NORMAL, mLineSpacingMult,
-                mLineAddVertPad, false /* includepad */
+            val text = workingText ?: ""
+            return StaticLayout.Builder.obtain(
+                text, 0, text.length, paint,
+                measuredWidth - paddingLeft - paddingRight
             )
+                .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                .setLineSpacing(mLineAddVertPad, mLineSpacingMult)
+                .setIncludePad(false)
+                .build()
         }
 
         /**

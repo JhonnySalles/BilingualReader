@@ -24,10 +24,13 @@ import android.widget.ProgressBar
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.os.BundleCompat
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -89,11 +92,10 @@ class BookSearchFragment : Fragment(), BookParseListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         arguments?.let {
-            val book = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
+            val book = BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java) ?: return@let
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
@@ -108,47 +110,9 @@ class BookSearchFragment : Fragment(), BookParseListener {
             mViewModelBookSearch.initialize(requireContext(), book, parse)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
-                mInitialSearch = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
+                mInitialSearch = BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.BOOK_SEARCH, BookSearch::class.java)
                 it.remove(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)
             }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_book_search, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-
-        miSearch = menu.findItem(R.id.menu_book_search)
-        searchView = miSearch.actionView as SearchView
-        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null)
-                    mViewModelBookSearch.search(query)
-                else
-                    mViewModelBookSearch.clearSearch()
-
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
-
-        searchView.setOnCloseListener {
-            mViewModelBookSearch.clearSearch()
-            false
-        }
-
-        if (mInitialSearch != null) {
-            searchView.setQuery(mInitialSearch!!.search, true)
-            mInitialSearch = null
-            searchView.isIconified = false
         }
     }
 
@@ -266,6 +230,47 @@ class BookSearchFragment : Fragment(), BookParseListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_book_search, menu)
+
+                miSearch = menu.findItem(R.id.menu_book_search)
+                searchView = miSearch.actionView as SearchView
+                searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        if (query != null)
+                            mViewModelBookSearch.search(query)
+                        else
+                            mViewModelBookSearch.clearSearch()
+
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        return false
+                    }
+                })
+
+                val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+                searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+
+                searchView.setOnCloseListener {
+                    mViewModelBookSearch.clearSearch()
+                    false
+                }
+
+                if (mInitialSearch != null) {
+                    searchView.setQuery(mInitialSearch!!.search, true)
+                    mInitialSearch = null
+                    searchView.isIconified = false
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         mHistoryListener = object : BookSearchHistoryListener {
             override fun onClick(search: BookSearch) {

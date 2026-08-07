@@ -140,6 +140,7 @@
     <string name="config_system_share_mark_enabled">Share marks to cloud</string>
     <string name="config_system_share_mark_cloud">Sharing type</string>
     <string name="config_system_share_mark_account">Google account: %s</string>
+    <string name="config_system_share_mark_sign_in">Sign in with Google</string>
     <string name="config_system_share_mark_sign_in_error">Sig in error!</string>
     <string name="config_system_share_mark_sign_out_title">Sign out</string>
     <string name="config_system_share_mark_sign_out">Sign out account?</string>

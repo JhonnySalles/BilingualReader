@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Languages
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
 
-@Suppress("DEPRECATION")
 class PopupMangaSubtitleConfiguration : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(PopupMangaSubtitleConfiguration::class.java)
@@ -44,6 +44,24 @@ class PopupMangaSubtitleConfiguration : Fragment() {
 
     private lateinit var mSubTitleController: SubTitleController
     private lateinit var mMapLanguage: HashMap<String, Languages>
+
+    private val openJsonLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.also { uri ->
+                try {
+                    val path = Util.normalizeFilePath(uri.path.toString())
+                    val inputStream: InputStream = File(path).inputStream()
+                    val inputString = inputStream.bufferedReader().use { it.readText() }
+                    mLoadExternalSubtitleAutoComplete.setText(path)
+                    mSubTitleController.getChapterFromJson(listOf(inputString), true)
+                } catch (e: Exception) {
+                    mLOGGER.error("Error when open file: " + e.message, e)
+                    Telemetry.recordException(e, "Error when open file: " + e.message)
+                }
+            }
+        } else
+            mLoadExternalSubtitleAutoComplete.setText("")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -149,7 +167,7 @@ class PopupMangaSubtitleConfiguration : Fragment() {
                     type = "application/json"
                     putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json"))
                 }
-            startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_JSON)
+            openJsonLauncher.launch(intent)
         }
 
         if (mSubTitleController.mManga != null && mSubTitleController.mManga!!.id != null) {
@@ -184,28 +202,6 @@ class PopupMangaSubtitleConfiguration : Fragment() {
     override fun onPause() {
         super.onPause()
         mLoadExternalSubtitle.editText?.removeTextChangedListener(externalTextWatcher)
-    }
-
-    override fun onActivityResult(
-        requestCode: Int, resultCode: Int, resultData: Intent?
-    ) {
-        if (requestCode == GeneralConsts.REQUEST.OPEN_JSON) {
-            if (resultCode == Activity.RESULT_OK) {
-                resultData?.data?.also { uri ->
-                    try {
-                        val path = Util.normalizeFilePath(uri.path.toString())
-                        val inputStream: InputStream = File(path).inputStream()
-                        val inputString = inputStream.bufferedReader().use { it.readText() }
-                        mLoadExternalSubtitleAutoComplete.setText(path)
-                        mSubTitleController.getChapterFromJson(listOf(inputString), true)
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error when open file: " + e.message, e)
-                        Telemetry.recordException(e, "Error when open file: " + e.message)
-                    }
-                }
-            } else
-                mLoadExternalSubtitleAutoComplete.setText("")
-        }
     }
 
     private fun observer() {

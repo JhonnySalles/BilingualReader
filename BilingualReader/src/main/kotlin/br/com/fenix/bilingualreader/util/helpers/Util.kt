@@ -97,6 +97,8 @@ import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
+import android.os.ParcelFileDescriptor
+import org.beyka.tiffbitmapfactory.TiffBitmapFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -931,6 +933,13 @@ class ImageUtil {
             return le || be
         }
 
+        /** Non-deprecated TIFF decode path (decodeFile is deprecated since Android Q). */
+        private fun decodeTiffFile(file: File, options: TiffBitmapFactory.Options): Bitmap? {
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { pfd ->
+                return TiffBitmapFactory.decodeFileDescriptor(pfd.fd, options)
+            }
+        }
+
         private fun isNativeFormat(bytes: ByteArray): Boolean {
             if (bytes.size < 4) return false
             val isJpeg = bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte()
@@ -984,18 +993,16 @@ class ImageUtil {
                     val tempFile = File.createTempFile("tiff_", ".tif")
                     try {
                         tempFile.writeBytes(bytes)
-                        val tiffOptions = org.beyka.tiffbitmapfactory.TiffBitmapFactory.Options()
+                        val tiffOptions = TiffBitmapFactory.Options()
                         if (reqWidth > 0 && reqHeight > 0) {
                             tiffOptions.inJustDecodeBounds = true
-                            @Suppress("DEPRECATION")
-                            org.beyka.tiffbitmapfactory.TiffBitmapFactory.decodeFile(tempFile, tiffOptions)
+                            decodeTiffFile(tempFile, tiffOptions)
                             if (tiffOptions.outWidth > 0 && tiffOptions.outHeight > 0) {
                                 tiffOptions.inSampleSize = calculateInSampleSize(tiffOptions.outWidth, tiffOptions.outHeight, reqWidth, reqHeight)
                             }
                             tiffOptions.inJustDecodeBounds = false
                         }
-                        @Suppress("DEPRECATION")
-                        val tiffBitmap = org.beyka.tiffbitmapfactory.TiffBitmapFactory.decodeFile(tempFile, tiffOptions)
+                        val tiffBitmap = decodeTiffFile(tempFile, tiffOptions)
                         if (tiffBitmap != null) return tiffBitmap
                     } finally {
                         tempFile.delete()
@@ -1628,15 +1635,8 @@ class ThemeUtil {
             return typedValue.data
         }
 
-        @Suppress("DEPRECATION")
         fun statusBarTransparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
-            if (isDarkTheme)
-                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
-            else
-                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
-
-            if (isLightStatus)
-                window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
 
             window.statusBarColor = android.graphics.Color.TRANSPARENT
             window.navigationBarColor = android.graphics.Color.TRANSPARENT
@@ -1652,11 +1652,9 @@ class ThemeUtil {
                 window.isNavigationBarContrastEnforced = false
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.setDecorFitsSystemWindows(false)
-            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.isAppearanceLightStatusBars = isLightStatus
+            controller.isAppearanceLightNavigationBars = !isDarkTheme
         }
 
         fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, initialStatusDark: Boolean, isDarkTheme: Boolean, limit: Int = 1000) {
@@ -1670,6 +1668,22 @@ class ThemeUtil {
                     else
                         wic.isAppearanceLightStatusBars = !isDarkTheme
                 }
+            }
+        }
+    }
+}
+
+class NavigationUtil {
+    companion object NavigationUtils {
+        fun Activity.overrideActivityTransitionCompat(enterAnim: Int, exitAnim: Int, isOpen: Boolean = true) {
+            if (Build.VERSION.SDK_INT >= 34) {
+                overrideActivityTransition(
+                    if (isOpen) Activity.OVERRIDE_TRANSITION_OPEN else Activity.OVERRIDE_TRANSITION_CLOSE,
+                    enterAnim, exitAnim
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                overridePendingTransition(enterAnim, exitAnim)
             }
         }
     }

@@ -9,12 +9,10 @@ import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
@@ -60,7 +58,7 @@ class ShareMarkFirebaseTest {
 
     private val firestore = mockk<FirebaseFirestore>(relaxed = true)
     private val auth = mockk<FirebaseAuth>(relaxed = true)
-    private val googleSignInAccount = mockk<GoogleSignInAccount>(relaxed = true)
+    private val firebaseUser = mockk<FirebaseUser>(relaxed = true)
     private val collection = mockk<CollectionReference>(relaxed = true)
     private val document = mockk<DocumentReference>(relaxed = true)
     private val snapshot = mockk<QuerySnapshot>(relaxed = true)
@@ -81,9 +79,7 @@ class ShareMarkFirebaseTest {
 
         mockkStatic(FirebaseFirestore::class)
         mockkStatic(FirebaseAuth::class)
-        mockkStatic(GoogleSignIn::class)
         mockkStatic(FirebaseApp::class)
-        mockkStatic(GoogleAuthProvider::class)
         mockkStatic(Dispatchers::class)
         mockkObject(Firebase)
         mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
@@ -95,15 +91,12 @@ class ShareMarkFirebaseTest {
 
         every { FirebaseFirestore.getInstance() } returns firestore
         every { FirebaseAuth.getInstance() } returns auth
-        every { GoogleSignIn.getLastSignedInAccount(context) } returns googleSignInAccount
+        every { auth.currentUser } returns firebaseUser
+        every { firebaseUser.email } returns "test@example.com"
         every { FirebaseApp.initializeApp(any()) } returns mockk()
         every { FirebaseApp.getInstance() } returns mockk(relaxed = true)
         every { Firebase.crashlytics } returns mockk(relaxed = true)
-        every { GoogleAuthProvider.getCredential(any(), any()) } returns mockk()
         every { Dispatchers.IO } returns testDispatcher
-
-        every { googleSignInAccount.email } returns "test@example.com"
-        every { googleSignInAccount.idToken } returns "mock_token"
 
         every { firestore.collection(any()) } returns collection
         every { collection.document(any()) } returns document

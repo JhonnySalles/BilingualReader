@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.detail
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -15,7 +16,6 @@ import br.com.fenix.bilingualreader.view.ui.detail.book.BookDetailFragment
 import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 
 
-@Suppress("DEPRECATION")
 class DetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +57,17 @@ class DetailActivity : AppCompatActivity() {
                 .replace(R.id.root_frame_detail, fragment)
                 .commit()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val intent = Intent()
+                setResult(RESULT_OK, intent)
+                revertFragmentTransition()
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                supportFinishAfterTransition()
+            }
+        })
     }
 
     private fun revertFragmentTransition() {
@@ -77,14 +88,6 @@ class DetailActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        val intent = Intent()
-        setResult(RESULT_OK, intent)
-        revertFragmentTransition()
-        super.onBackPressed()
-        supportFinishAfterTransition()
     }
 
 }

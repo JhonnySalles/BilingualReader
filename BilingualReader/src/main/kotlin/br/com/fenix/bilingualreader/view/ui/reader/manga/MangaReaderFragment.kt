@@ -48,23 +48,26 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import androidx.core.util.size
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Slide
@@ -96,6 +99,7 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
@@ -115,8 +119,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
-import androidx.lifecycle.lifecycleScope
 import coil.transform.Transformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -134,7 +136,6 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-@Suppress("DEPRECATION")
 class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderFragment::class.java)
@@ -393,9 +394,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (bundle != null && !bundle.isEmpty) {
             mLastPage.clear()
 
-            mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
+            mLibrary = BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java) as Library
 
-            mManga = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?
+            mManga = BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.MANGA, Manga::class.java)
             val file: File? = if (mManga != null) {
                 mManga?.file
                 if (mManga?.file != null)
@@ -403,7 +404,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 else
                     File(mManga?.path!!)
             } else
-                bundle.getSerializable(GeneralConsts.KEYS.OBJECT.FILE) as File?
+                BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.FILE, File::class.java)
 
             mFileToParse = file
 
@@ -443,8 +444,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mUseMagnifierType = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, false)
             mKeepZoomBetweenPage = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, false)
         }
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -575,6 +574,168 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         setupTitleBackgrounds()
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_reader_manga, menu)
+
+                val isLoaded = mParse != null
+                for (i in 0 until menu.size()) {
+                    menu.getItem(i).isVisible = isLoaded
+                }
+
+                if (isLoaded) {
+                    when (mReaderMode) {
+                        ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
+                        ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
+                        ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
+                    }
+
+                    when (mScrollingMode) {
+                        ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+                        ScrollingType.HorizontalRightToLeft -> menu.findItem(R.id.reading_manga_scrolling_horizontal_right_to_left).isChecked = true
+                        ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical).isChecked = true
+                        ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling).isChecked = true
+                        ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider).isChecked = true
+                        else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+                    }
+
+                    when (mPaginationType) {
+                        PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
+                        PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
+                        PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
+                        PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
+                        PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
+                        PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
+                        PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade).isChecked = true
+                        else -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
+                    }
+
+                    menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
+                    menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
+                    menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
+
+                    miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
+                }
+            }
+
+            override fun onMenuItemSelected(item: MenuItem): Boolean {
+                return when (item.itemId) {
+                    R.id.manga_view_mode_aspect_fill, R.id.manga_view_mode_aspect_fit, R.id.manga_view_mode_fit_width -> {
+                        item.isChecked = true
+                        mReaderMode = mResourceViewMode[item.itemId] ?: ReaderMode.FIT_WIDTH
+                        changeAspect()
+                        true
+                    }
+
+                    R.id.reading_manga_scrolling_horizontal,
+                    R.id.reading_manga_scrolling_horizontal_right_to_left,
+                    R.id.reading_manga_scrolling_vertical,
+                    R.id.reading_manga_scrolling_scrolling,
+                    R.id.reading_manga_scrolling_scrolling_divider,
+                        -> {
+                        item.isChecked = true
+
+                        val scrolling = when (item.itemId) {
+                            R.id.reading_manga_scrolling_horizontal -> ScrollingType.Horizontal
+                            R.id.reading_manga_scrolling_horizontal_right_to_left -> ScrollingType.HorizontalRightToLeft
+                            R.id.reading_manga_scrolling_vertical -> ScrollingType.Vertical
+                            R.id.reading_manga_scrolling_scrolling -> ScrollingType.Scrolling
+                            R.id.reading_manga_scrolling_scrolling_divider -> ScrollingType.ScrollingDivider
+                            else -> ScrollingType.Horizontal
+                        }
+                        with(mPreferences.edit()) {
+                            this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE, scrolling.toString())
+                            this.commit()
+                        }
+                        configureScrolling(scrolling, mPaginationType)
+                        true
+                    }
+
+                    R.id.reading_manga_pagination_default,
+                    R.id.reading_manga_pagination_page_curl,
+                    R.id.reading_manga_pagination_page_curl_3d,
+                    R.id.reading_manga_pagination_stack,
+                    R.id.reading_manga_pagination_zoom,
+                    R.id.reading_manga_pagination_depth,
+                    R.id.reading_manga_pagination_fade,
+                        -> {
+                        item.isChecked = true
+
+                        val pagination = when (item.itemId) {
+                            R.id.reading_manga_pagination_default -> PaginationType.Default
+                            R.id.reading_manga_pagination_page_curl -> PaginationType.CurlPage
+                            R.id.reading_manga_pagination_page_curl_3d -> PaginationType.Curl3DPage
+                            R.id.reading_manga_pagination_stack -> PaginationType.Stack
+                            R.id.reading_manga_pagination_zoom -> PaginationType.Zooming
+                            R.id.reading_manga_pagination_depth -> PaginationType.Depth
+                            R.id.reading_manga_pagination_fade -> PaginationType.Fade
+                            else -> PaginationType.Default
+                        }
+                        with(mPreferences.edit()) {
+                            this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE, pagination.toString())
+                            this.commit()
+                        }
+                        configurePagination(pagination)
+                        true
+                    }
+
+                    R.id.menu_item_reader_manga_use_magnifier_type -> {
+                        item.isChecked = !item.isChecked
+                        mUseMagnifierType = item.isChecked
+
+                        with(mPreferences.edit()) {
+                            this.putBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, mUseMagnifierType)
+                            this.commit()
+                        }
+
+                        if (mScrollingMode == ScrollingType.Scrolling || mScrollingMode == ScrollingType.ScrollingDivider)
+                            mViewRecycler.useMagnifierType = mUseMagnifierType
+                        else {
+                            updatePageViews<BaseImageView>(mViewPager, BaseImageView::class.java) {
+                                (it as ImageViewPage).useMagnifierType = mUseMagnifierType
+                            }
+                        }
+                        true
+                    }
+
+                    R.id.menu_item_reader_manga_keep_zoom_between_pages -> {
+                        item.isChecked = !item.isChecked
+                        mKeepZoomBetweenPage = item.isChecked
+
+                        with(mPreferences.edit()) {
+                            this.putBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, mKeepZoomBetweenPage)
+                            this.commit()
+                        }
+                        true
+                    }
+
+                    R.id.menu_item_reader_manga_save_share_image -> {
+                        openPopupSaveShareImage()
+                        true
+                    }
+
+                    R.id.menu_item_reader_manga_mark_page -> {
+                        markCurrentPage()
+                        (miMarkPage.icon as AnimatedVectorDrawable).reset()
+                        (miMarkPage.icon as AnimatedVectorDrawable).start()
+                        true
+                    }
+
+                    R.id.menu_item_reader_manga_config_touch_screen -> {
+                        openTouchFunctions()
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun setupMangaChaptersDots(parse: Parse) {
@@ -835,50 +996,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_reader_manga, menu)
-
-        val isLoaded = mParse != null
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = isLoaded
-        }
-
-        if (isLoaded) {
-            when (mReaderMode) {
-                ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
-                ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
-                ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
-            }
-
-            when (mScrollingMode) {
-                ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
-                ScrollingType.HorizontalRightToLeft -> menu.findItem(R.id.reading_manga_scrolling_horizontal_right_to_left).isChecked = true
-                ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical).isChecked = true
-                ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling).isChecked = true
-                ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider).isChecked = true
-                else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
-            }
-
-            when (mPaginationType) {
-                PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
-                PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
-                PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
-                PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
-                PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
-                PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
-                PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade).isChecked = true
-                else -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
-            }
-
-            menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
-            menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
-            menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
-
-            miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(ReaderConsts.STATES.STATE_FULLSCREEN, isFullscreen())
         outState.putLong(ReaderConsts.STATES.STATE_NEW_COMIC, (if (mNewManga != null) mNewManga!!.id else -1)!!)
@@ -918,6 +1035,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         return mGestureDetector.onTouchEvent(event)
     }
 
+
+    private val touchConfigurationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        mTouchScreen = TouchUtils.getTouch(requireContext(), Type.MANGA)
+    }
+
     private fun openTouchFunctions() {
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
@@ -925,17 +1047,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, Type.MANGA)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga!!)
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            GeneralConsts.REQUEST.TOUCH_CONFIGURATION -> {
-                mTouchScreen = TouchUtils.getTouch(requireContext(), Type.MANGA)
-            }
-        }
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        touchConfigurationLauncher.launch(intent)
     }
 
     fun getCurrentPage(isInternal: Boolean = false): Int {
@@ -966,107 +1079,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             else -> 1
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.manga_view_mode_aspect_fill, R.id.manga_view_mode_aspect_fit, R.id.manga_view_mode_fit_width -> {
-                item.isChecked = true
-                mReaderMode = mResourceViewMode[item.itemId] ?: ReaderMode.FIT_WIDTH
-                changeAspect()
-            }
-
-            R.id.reading_manga_scrolling_horizontal,
-            R.id.reading_manga_scrolling_horizontal_right_to_left,
-            R.id.reading_manga_scrolling_vertical,
-            R.id.reading_manga_scrolling_scrolling,
-            R.id.reading_manga_scrolling_scrolling_divider,
-                -> {
-                item.isChecked = true
-
-                val scrolling = when (item.itemId) {
-                    R.id.reading_manga_scrolling_horizontal -> ScrollingType.Horizontal
-                    R.id.reading_manga_scrolling_horizontal_right_to_left -> ScrollingType.HorizontalRightToLeft
-                    R.id.reading_manga_scrolling_vertical -> ScrollingType.Vertical
-                    R.id.reading_manga_scrolling_scrolling -> ScrollingType.Scrolling
-                    R.id.reading_manga_scrolling_scrolling_divider -> ScrollingType.ScrollingDivider
-                    else -> ScrollingType.Horizontal
-                }
-                with(mPreferences.edit()) {
-                    this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE, scrolling.toString())
-                    this.commit()
-                }
-                configureScrolling(scrolling, mPaginationType)
-            }
-
-            R.id.reading_manga_pagination_default,
-            R.id.reading_manga_pagination_page_curl,
-            R.id.reading_manga_pagination_page_curl_3d,
-            R.id.reading_manga_pagination_stack,
-            R.id.reading_manga_pagination_zoom,
-            R.id.reading_manga_pagination_depth,
-            R.id.reading_manga_pagination_fade,
-                -> {
-                item.isChecked = true
-
-                val pagination = when (item.itemId) {
-                    R.id.reading_manga_pagination_default -> PaginationType.Default
-                    R.id.reading_manga_pagination_page_curl -> PaginationType.CurlPage
-                    R.id.reading_manga_pagination_page_curl_3d -> PaginationType.Curl3DPage
-                    R.id.reading_manga_pagination_stack -> PaginationType.Stack
-                    R.id.reading_manga_pagination_zoom -> PaginationType.Zooming
-                    R.id.reading_manga_pagination_depth -> PaginationType.Depth
-                    R.id.reading_manga_pagination_fade -> PaginationType.Fade
-                    else -> PaginationType.Default
-                }
-                with(mPreferences.edit()) {
-                    this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE, pagination.toString())
-                    this.commit()
-                }
-                configurePagination(pagination)
-            }
-
-            R.id.menu_item_reader_manga_use_magnifier_type -> {
-                item.isChecked = !item.isChecked
-                mUseMagnifierType = item.isChecked
-
-                with(mPreferences.edit()) {
-                    this.putBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, mUseMagnifierType)
-                    this.commit()
-                }
-
-                if (mScrollingMode == ScrollingType.Scrolling || mScrollingMode == ScrollingType.ScrollingDivider)
-                    mViewRecycler.useMagnifierType = mUseMagnifierType
-                else {
-                    updatePageViews<BaseImageView>(mViewPager, BaseImageView::class.java) {
-                        (it as ImageViewPage).useMagnifierType = mUseMagnifierType
-                    }
-                }
-            }
-
-            R.id.menu_item_reader_manga_keep_zoom_between_pages -> {
-                item.isChecked = !item.isChecked
-                mKeepZoomBetweenPage = item.isChecked
-
-                with(mPreferences.edit()) {
-                    this.putBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, mKeepZoomBetweenPage)
-                    this.commit()
-                }
-            }
-
-            R.id.menu_item_reader_manga_save_share_image -> openPopupSaveShareImage()
-
-            R.id.menu_item_reader_manga_mark_page -> {
-                markCurrentPage()
-                (miMarkPage.icon as AnimatedVectorDrawable).reset()
-                (miMarkPage.icon as AnimatedVectorDrawable).start()
-            }
-
-            R.id.menu_item_reader_manga_config_touch_screen -> {
-                openTouchFunctions()
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     fun changeAspect(toolbar: Toolbar, mode: ReaderMode) {
@@ -1565,8 +1577,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun getActionBar(): ActionBar? = if (activity != null) (requireActivity() as AppCompatActivity).supportActionBar else null
-
     private val windowInsetsController by lazy {
         WindowInsetsControllerCompat(requireActivity().window, mViewPager)
     }
@@ -1583,28 +1593,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mRoot.fitsSystemWindows = false
             changeContentsVisibility(fullscreen)
             mHandler.postDelayed({
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    windowInsetsController.let {
-                        it.hide(WindowInsetsCompat.Type.systemBars())
-                        it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    }
-                    WindowCompat.setDecorFitsSystemWindows(window, false)
-                } else {
-                    getActionBar()?.hide()
-                    @Suppress("DEPRECATION")
-                    mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN // Hide top iu
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // Hide navigator
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE // Force navigator hide
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Force top iu hide
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Force full screen
-                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
-                            )
-
-                    mHandler.postDelayed({
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                        window.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                    }, ANIMATION_DURATION + 100)
-                }
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+                windowInsetsController.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
                 if (mPopupBottomSheet) {
                     if (mPopupSubtitleBottom!!.visibility != View.GONE)
@@ -1622,23 +1614,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }, ANIMATION_DURATION)
         } else {
             mHandler.postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsetsController.let {
-                    it.show(WindowInsetsCompat.Type.systemBars())
-                }
-                WindowCompat.setDecorFitsSystemWindows(window, false)
-            } else {
-                getActionBar()?.show()
-                @Suppress("DEPRECATION")
-                mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
 
-                mHandler.postDelayed({
-                    window.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                }, ANIMATION_DURATION + 100)
-            }
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
 
             val isNight = resources.getBoolean(R.bool.isNight)
             window.statusBarColor = android.graphics.Color.TRANSPARENT
@@ -2213,36 +2191,30 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun setupBlurViews() {
         if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
             return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+            return
 
-        val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-
-        val blurAlgorithmTop = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val blurAlgorithmBottom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val blurAlgorithmProgress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val blurAlgorithmPrev = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val blurAlgorithmNext = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithmTop)
+        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurBottom, rootView, blurAlgorithmBottom)
+        GlassSetup.setupGlass(mBlurBottom, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurProgress, rootView, blurAlgorithmProgress)
+        GlassSetup.setupGlass(mBlurProgress, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurNavPrevious, rootView, blurAlgorithmPrev)
+        GlassSetup.setupGlass(mBlurNavPrevious, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurNavNext, rootView, blurAlgorithmNext)
+        GlassSetup.setupGlass(mBlurNavNext, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

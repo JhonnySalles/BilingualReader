@@ -413,8 +413,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPlayAudio = false
             }
 
-            @Suppress("DEPRECATION")
-            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == ExoPlayer.STATE_READY) {
                     if (mForcePlay != null) {
                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

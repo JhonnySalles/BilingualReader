@@ -34,12 +34,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 
 
-@Suppress("DEPRECATION")
 class ChaptersFragment : Fragment(), ChapterLoadListener {
 
     private val mLOGGER = LoggerFactory.getLogger(ChaptersFragment::class.java)
@@ -61,7 +59,6 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         requireArguments().let {
@@ -294,16 +291,13 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     }
 
     private fun setupBlurViews(_root: View) {
-        if (!::mBlurTop.isInitialized)
+        if (!::mBlurTop.isInitialized || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
             return
 
-        val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

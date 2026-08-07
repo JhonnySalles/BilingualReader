@@ -301,10 +301,12 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<BookAnnotation>()
-            filterResults?.let {
-                @Suppress("UNCHECKED_CAST")
-                list.addAll(it.values as Collection<BookAnnotation>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<BookAnnotation>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mAnnotation.value = list
         }
     }

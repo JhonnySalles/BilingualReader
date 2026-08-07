@@ -19,7 +19,6 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
-import androidx.core.view.GestureDetectorCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.listener.WindowListener
@@ -79,8 +78,8 @@ class FloatingOcr constructor(
             windowView.setWindowListener(this@FloatingOcr as WindowListener)
             resizeView.setWindowListener(this@FloatingOcr as WindowListener)
 
-            val detectorCompat = GestureDetectorCompat(context, this@FloatingOcr as WindowListener)
-            windowView.setDetector(detectorCompat)
+            val detector = GestureDetector(context, this@FloatingOcr as WindowListener)
+            windowView.setDetector(detector)
         }
     }
 

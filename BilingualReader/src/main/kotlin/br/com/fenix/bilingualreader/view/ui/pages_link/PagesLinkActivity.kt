@@ -2,8 +2,10 @@ package br.com.fenix.bilingualreader.view.ui.pages_link
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.IntentCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -20,7 +22,6 @@ import java.io.File
 import java.util.Calendar
 
 
-@Suppress("DEPRECATION")
 class PagesLinkActivity : AppCompatActivity() {
 
     private val mLOGGER = LoggerFactory.getLogger(PagesLinkActivity::class.java)
@@ -44,7 +45,9 @@ class PagesLinkActivity : AppCompatActivity() {
 
         if (extras != null) {
             val bundle = Bundle()
-            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, extras.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga)
+            IntentCompat.getSerializableExtra(intent, GeneralConsts.KEYS.OBJECT.MANGA, Manga::class.java)?.let {
+                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+            }
             bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, extras.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, 0))
             newFragment.arguments = bundle
         }
@@ -53,6 +56,14 @@ class PagesLinkActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.root_frame_pages_link, newFragment)
             .commit()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                supportFinishAfterTransition()
+            }
+        })
 
         clearCache()
     }
@@ -128,11 +139,6 @@ class PagesLinkActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        supportFinishAfterTransition()
     }
 
 }

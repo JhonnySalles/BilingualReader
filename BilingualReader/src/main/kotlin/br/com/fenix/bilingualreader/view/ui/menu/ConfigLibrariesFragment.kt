@@ -1,11 +1,11 @@
 package br.com.fenix.bilingualreader.view.ui.menu
 
-import android.app.Activity.RESULT_OK
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +14,12 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +32,6 @@ import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
-import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.RecyclerViewItemDecoration
 import br.com.fenix.bilingualreader.view.adapter.configuration.LibrariesLineCardAdapter
@@ -40,7 +42,6 @@ import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
 
-@Suppress("DEPRECATION")
 class ConfigLibrariesFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(ConfigLibrariesFragment::class.java)
@@ -52,6 +53,17 @@ class ConfigLibrariesFragment : Fragment() {
     private lateinit var mListener: LibrariesCardListener
     private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
     private var mType : Type? = null
+
+    private val openMangaFolderLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            val folder = Util.normalizeFilePath(uri.path.toString())
+
+            if (!Storage.isPermissionGranted(requireContext()))
+                Storage.takePermission(requireContext(), requireActivity())
+
+            mLibraryPathAutoComplete.setText(folder)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,20 +130,24 @@ class ConfigLibrariesFragment : Fragment() {
         else
             null
         mViewModel.loadLibrary(mType)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    android.R.id.home -> {
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_config_libraries, container, false)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                requireActivity().onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -160,30 +176,6 @@ class ConfigLibrariesFragment : Fragment() {
     private fun observer() {
         mViewModel.libraries.observe(viewLifecycleOwner) {
             (mRecycleView.adapter as LibrariesLineCardAdapter).updateList(it)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            GeneralConsts.REQUEST.OPEN_MANGA_FOLDER -> {
-                if (data != null && resultCode == RESULT_OK) {
-                    val folder = Util.normalizeFilePath(data.data?.path.toString())
-
-                    if (!Storage.isPermissionGranted(requireContext()))
-                        Storage.takePermission(requireContext(), requireActivity())
-
-                    mLibraryPathAutoComplete.setText(folder)
-                }
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS) {
-            MsgUtil.validPermission(requireContext(), grantResults)
         }
     }
 
@@ -236,9 +228,7 @@ class ConfigLibrariesFragment : Fragment() {
         mLibraryPathAutoComplete = root.findViewById(R.id.libraries_menu_autocomplete_library_path)
 
         mLibraryPathAutoComplete.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-            intent.addCategory(Intent.CATEGORY_DEFAULT)
-            startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_MANGA_FOLDER)
+            openMangaFolderLauncher.launch(null)
         }
 
         val languages = resources.getStringArray(R.array.languages)

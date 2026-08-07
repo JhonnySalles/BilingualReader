@@ -25,16 +25,16 @@ import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.FileContent
 import com.google.api.client.http.HttpRequestInitializer
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +57,6 @@ import java.util.Date
 import java.util.Locale
 
 
-@Suppress("DEPRECATION")
 class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(context)  {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkGDriveController::class.java)
@@ -130,16 +129,17 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun getDriveService(): Drive? {
-        GoogleSignIn.getLastSignedInAccount(context)?.let { googleAccount ->
-            val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE_FILE))
-            credential.selectedAccount = googleAccount.account
-            return Drive.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), setHttpTimeout(credential))
-                .setApplicationName(context.getString(R.string.app_name))
-                .build()
-        }
-        return null
+        val email = FirebaseAuth.getInstance().currentUser?.email ?: return null
+        val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE))
+        credential.selectedAccountName = email
+        return Drive.Builder(
+            AndroidHttp.newCompatibleTransport(),
+            GsonFactory.getDefaultInstance(),
+            setHttpTimeout(credential)
+        )
+            .setApplicationName(context.getString(R.string.app_name))
+            .build()
     }
 
     private fun deleteShareFile(drive: Drive, idFile: String) {

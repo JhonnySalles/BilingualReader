@@ -165,7 +165,7 @@
 
                 </com.google.android.material.tabs.TabLayout>
 
-                <androidx.viewpager.widget.ViewPager
+                <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/manga_library_popup_library_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

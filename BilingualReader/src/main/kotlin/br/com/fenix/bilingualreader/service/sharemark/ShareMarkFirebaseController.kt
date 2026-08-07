@@ -18,10 +18,9 @@ import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.FirebaseApp
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -39,7 +38,6 @@ import java.util.Date
 import java.util.Locale
 
 
-@Suppress("DEPRECATION")
 class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase(context) {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkFirebaseController::class.java)
@@ -48,20 +46,32 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
         const val DATABASE_NAME = "bilingualreader_%s_%s"
         const val MANGA = "manga"
         const val BOOK = "book"
+
+        private fun toDateMap(data: Map<String, Any?>): Map<String, Date> {
+            val result = linkedMapOf<String, Date>()
+            for ((key, value) in data) {
+                when (value) {
+                    is Date -> result[key] = value
+                    is Timestamp -> result[key] = value.toDate()
+                }
+            }
+            return result
+        }
     }
 
     private lateinit var mDB: FirebaseFirestore
     private var mUser = ""
 
-    @Suppress("DEPRECATION")
     override fun initialize(ending: (access: ShareMarkType) -> (Unit)) {
         if (!::mDB.isInitialized) {
             try {
                 val auth = FirebaseAuth.getInstance()
-                val credential = GoogleSignIn.getLastSignedInAccount(context)
-                mUser = credential!!.email?.substringBeforeLast("@") ?: ""
-                val firebaseCredential = GoogleAuthProvider.getCredential(credential.idToken, null)
-                auth.signInWithCredential(firebaseCredential)
+                val user = auth.currentUser
+                if (user == null) {
+                    ending(ShareMarkType.ERROR)
+                    return
+                }
+                mUser = user.email?.substringBeforeLast("@") ?: ""
 
                 FirebaseApp.initializeApp(context)
                 mDB = FirebaseFirestore.getInstance()
@@ -115,8 +125,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     if (document.exists()) {
                         val item = document.data ?: mapOf()
-                        @Suppress("UNCHECKED_CAST")
-                        mangas.putAll(item as Map<String, Date>)
+                        mangas.putAll(toDateMap(item))
                     }
 
                     snapshot.documents.forEach {
@@ -286,8 +295,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     if (document.exists()) {
                         val item = document.data ?: mapOf()
-                        @Suppress("UNCHECKED_CAST")
-                        books.putAll(item as Map<String, Date>)
+                        books.putAll(toDateMap(item))
                     }
 
                     snapshot.documents.forEach {

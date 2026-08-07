@@ -141,6 +141,7 @@
     <string name="config_system_share_mark_enabled">Compartilhar marcações com a cloud</string>
     <string name="config_system_share_mark_cloud">Tipo de compartilhamento</string>
     <string name="config_system_share_mark_account">Conta Google: %s</string>
+    <string name="config_system_share_mark_sign_in">Entrar com o Google</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
     <string name="config_system_share_mark_manga">Manga / Comic - %s</string>

@@ -17,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.os.BundleCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
@@ -39,12 +40,12 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ListUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.components.BookCover3DView
-import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
@@ -58,7 +59,6 @@ import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
-@Suppress("DEPRECATION")
 class MangaDetailFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaDetailFragment::class.java)
@@ -354,12 +354,15 @@ class MangaDetailFragment : Fragment() {
 
         arguments?.let {
             mViewModel.library = if (it.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
-                it[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
+                BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java)
+                    ?: LibraryUtil.getDefault(requireContext(), Type.MANGA)
             else
                 LibraryUtil.getDefault(requireContext(), Type.MANGA)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.MANGA))
-                mViewModel.setManga(it[GeneralConsts.KEYS.OBJECT.MANGA] as Manga)
+                BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.MANGA, Manga::class.java)?.let { manga ->
+                    mViewModel.setManga(manga)
+                }
         }
 
         return root
@@ -723,7 +726,7 @@ class MangaDetailFragment : Fragment() {
                     val isDeleted = manga.file.delete()
                     mLOGGER.info("File deleted ${manga.name}: $isDeleted")
                 }
-                (requireActivity() as DetailActivity).onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
             .setNegativeButton(
                 R.string.action_negative
@@ -778,7 +781,7 @@ class MangaDetailFragment : Fragment() {
             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
             bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
             intent.putExtras(bundle)
-            requireActivity().overridePendingTransition(
+            requireActivity().overrideActivityTransitionCompat(
                 R.anim.fade_in_fragment_add_enter,
                 R.anim.fade_out_fragment_remove_exit
             )

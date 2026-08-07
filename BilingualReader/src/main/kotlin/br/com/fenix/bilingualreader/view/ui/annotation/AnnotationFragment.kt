@@ -24,17 +24,18 @@ import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
@@ -48,6 +49,7 @@ import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -62,11 +64,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import eightbitlab.com.blurview.BlurView
 import org.slf4j.LoggerFactory
 
 
-@Suppress("DEPRECATION")
 class AnnotationFragment : Fragment(), AnnotationListener {
 
     private val mLOGGER = LoggerFactory.getLogger(AnnotationFragment::class.java)
@@ -81,7 +83,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     private lateinit var mMenuPopupFilter: FrameLayout
     private lateinit var mMenuPopupLibraryBackground: BlurView
-    private lateinit var mPopupFilterView: ViewPager
+    private lateinit var mPopupFilterView: ViewPager2
     private lateinit var mPopupFilterTab: TabLayout
     private lateinit var mPopupChaptersTab: TabLayout
     private lateinit var mPopupFilterTypeFragment: AnnotationPopupFilterType
@@ -133,76 +135,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mViewModel.findAll()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_annotation, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-
-        miFilterType = menu.findItem(R.id.menu_annotation_type)
-        miFilterType.subMenu?.clear()
-        miFilterType.subMenu?.add(requireContext().getString(R.string.annotation_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
-            filterType(null)
-            true
-        }
-
-        for (type in Type.values()) {
-            val title = when (type) {
-                Type.MANGA -> requireContext().getString(R.string.annotation_manga)
-                Type.BOOK -> requireContext().getString(R.string.annotation_book)
-            }
-            miFilterType.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
-                filterType(type)
-                true
-            }
-        }
-
-        val iconType: Int = if (mFilterType == null)
-            R.drawable.ico_menu_type_all
-        else when (mFilterType) {
-            Type.MANGA -> R.drawable.ico_menu_type_manga
-            Type.BOOK -> R.drawable.ico_menu_type_book
-            else -> R.drawable.ico_menu_type_all
-        }
-        miFilterType.setIcon(iconType)
-
-        miSearch = menu.findItem(R.id.menu_annotation_search)
-        searchView = miSearch.actionView as SearchView
-        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            private var runFilter = Runnable { }
-            override fun onQueryTextChange(newText: String?): Boolean {
-                mHandler.removeCallbacks(runFilter)
-                runFilter = Runnable {
-                    if (newText != null)
-                        mViewModel.search(newText)
-                    else
-                        mViewModel.clearSearch()
-                }
-                mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
-                return false
-            }
-        })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
-    }
-
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.menu_annotation_filters -> {
-                (menuItem.icon as AnimatedVectorDrawable).start()
-                onOpenMenuFilter()
-            }
-        }
-        return super.onOptionsItemSelected(menuItem)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -313,8 +246,6 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         mPopupFilterTab = root.findViewById(R.id.annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.annotation_popup_order_filter_view_pager)
 
-        mPopupFilterTab.setupWithViewPager(mPopupFilterView)
-
         BottomSheetBehavior.from(mMenuPopupFilter).apply {
             peekHeight = 195
             this.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -334,12 +265,15 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         mPopupFilterColorFragment.setListener(this)
         mPopupFilterChapterFragment.setListener(this)
 
-        val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        val viewOrderPagerAdapter = ViewPagerAdapter(this)
         viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.annotation_tab_item_filter))
         viewOrderPagerAdapter.addFragment(mPopupFilterColorFragment, resources.getString(R.string.annotation_tab_item_color))
         viewOrderPagerAdapter.addFragment(mPopupFilterChapterFragment, resources.getString(R.string.annotation_tab_item_chapters))
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
+        TabLayoutMediator(mPopupFilterTab, mPopupFilterView) { tab, position ->
+            tab.text = viewOrderPagerAdapter.getPageTitle(position)
+        }.attach()
 
         return root
     }
@@ -352,6 +286,76 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_annotation, menu)
+
+                miFilterType = menu.findItem(R.id.menu_annotation_type)
+                miFilterType.subMenu?.clear()
+                miFilterType.subMenu?.add(requireContext().getString(R.string.annotation_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+                    filterType(null)
+                    true
+                }
+
+                for (type in Type.values()) {
+                    val title = when (type) {
+                        Type.MANGA -> requireContext().getString(R.string.annotation_manga)
+                        Type.BOOK -> requireContext().getString(R.string.annotation_book)
+                    }
+                    miFilterType.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                        filterType(type)
+                        true
+                    }
+                }
+
+                val iconType: Int = if (mFilterType == null)
+                    R.drawable.ico_menu_type_all
+                else when (mFilterType) {
+                    Type.MANGA -> R.drawable.ico_menu_type_manga
+                    Type.BOOK -> R.drawable.ico_menu_type_book
+                    else -> R.drawable.ico_menu_type_all
+                }
+                miFilterType.setIcon(iconType)
+
+                miSearch = menu.findItem(R.id.menu_annotation_search)
+                searchView = miSearch.actionView as SearchView
+                searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        return false
+                    }
+
+                    private var runFilter = Runnable { }
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        mHandler.removeCallbacks(runFilter)
+                        runFilter = Runnable {
+                            if (newText != null)
+                                mViewModel.search(newText)
+                            else
+                                mViewModel.clearSearch()
+                        }
+                        mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
+                        return false
+                    }
+                })
+
+                val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+                searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.menu_annotation_filters -> {
+                        (menuItem.icon as AnimatedVectorDrawable).start()
+                        onOpenMenuFilter()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         mListener = object : AnnotationsListener {
             override fun onClick(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
@@ -372,7 +376,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
                             intent.putExtras(bundle)
                             context?.startActivity(intent)
-                            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                            requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                         } else {
                             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(getString(R.string.book_excluded))
@@ -400,7 +404,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
                             intent.putExtras(bundle)
                             context?.startActivity(intent)
-                            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                            requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                         } else {
                             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(getString(R.string.manga_excluded))
@@ -720,8 +724,8 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         dialog.show()
     }
 
-    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-        FragmentPagerAdapter(fm, behavior) {
+    inner class ViewPagerAdapter(fragment: Fragment) :
+        FragmentStateAdapter(fragment) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -729,15 +733,19 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             fragmentTitle.add(title)
         }
 
-        override fun getItem(position: Int): Fragment {
+        fun getItem(position: Int): Fragment {
             return fragments[position]
         }
 
-        override fun getCount(): Int {
+        override fun createFragment(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getItemCount(): Int {
             return fragments.size
         }
 
-        override fun getPageTitle(position: Int): CharSequence {
+        fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
     }

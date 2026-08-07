@@ -504,10 +504,12 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Annotation>()
-            filterResults?.let {
-                @Suppress("UNCHECKED_CAST")
-                list.addAll(it.values as Collection<Annotation>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Annotation>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mAnnotation.value = list
         }
     }

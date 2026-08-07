@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
-import androidx.room.RoomWarnings
 import androidx.room.Update
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -106,17 +105,8 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-5 hour')")
     abstract fun listRecentDeleted(library: Long?): List<Manga>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        " SELECT ${DataBaseConsts.MANGA.COLUMNS.ID}, ${DataBaseConsts.MANGA.COLUMNS.TITLE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, ${DataBaseConsts.MANGA.COLUMNS.FILE_SIZE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.PAGES}, ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES}, ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.COMPLETED}, ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, ${DataBaseConsts.MANGA.COLUMNS.AUTHOR}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.SERIES}, ${DataBaseConsts.MANGA.COLUMNS.GENRE}, ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.MANGA.COLUMNS.SORT}  " +
-                " FROM " + DataBaseConsts.MANGA.TABLE_NAME +
+        "SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +
                 " ORDER BY " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " DESC "
     )
@@ -209,20 +199,8 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " >= :date OR " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " > :date ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
     abstract fun listSync(date: LocalDateTime): List<Book>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        " SELECT ${DataBaseConsts.BOOK.COLUMNS.ID}, ${DataBaseConsts.BOOK.COLUMNS.TITLE}, ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.GENRE}, ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, ${DataBaseConsts.BOOK.COLUMNS.SERIES}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.ISBN}, ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.VOLUME}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.COMPLETED}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.BOOK.COLUMNS.TAGS}, ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.BOOK.COLUMNS.SORT}  " +
-                " FROM " + DataBaseConsts.BOOK.TABLE_NAME +
+        "SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
                 " ORDER BY " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " DESC "
     )
@@ -442,14 +420,13 @@ abstract class VocabularyDAO : BaseDAO<Vocabulary, Long>(DataBaseConsts.VOCABULA
     )
     abstract fun listByManga(manga: String, vocabulary: String, basicForm: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        "SELECT V.*, (CASE WHEN LENGTH(:mangaName) <> 0 THEN M." + DataBaseConsts.MANGA.COLUMNS.TITLE + " LIKE :mangaName || '%' ELSE 0 END) AS Ord " +
+        "SELECT V.* " +
                 " FROM " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME + " V " +
                 " INNER JOIN " + DataBaseConsts.MANGA.TABLE_NAME + " M ON M." + DataBaseConsts.MANGA.COLUMNS.ID + " = V." + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA +
                 " WHERE " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY + " = :idVocabulary " +
                 " GROUP BY " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA +
-                " ORDER BY Ord DESC, M." + DataBaseConsts.MANGA.COLUMNS.TITLE + " ASC"
+                " ORDER BY (CASE WHEN LENGTH(:mangaName) <> 0 THEN M." + DataBaseConsts.MANGA.COLUMNS.TITLE + " LIKE :mangaName || '%' ELSE 0 END) DESC, M." + DataBaseConsts.MANGA.COLUMNS.TITLE + " ASC"
     )
     abstract fun findMangaByVocabulary(mangaName: String, idVocabulary: Long): List<VocabularyManga>
 
@@ -509,14 +486,13 @@ abstract class VocabularyDAO : BaseDAO<Vocabulary, Long>(DataBaseConsts.VOCABULA
     )
     abstract fun listByBook(book: String, vocabulary: String, basicForm: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
-        "SELECT V.*, (CASE WHEN LENGTH(:bookName) <> 0 THEN M." + DataBaseConsts.BOOK.COLUMNS.TITLE + " LIKE :bookName || '%' ELSE 0 END) AS Ord " +
+        "SELECT V.* " +
                 " FROM " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME + " V " +
                 " INNER JOIN " + DataBaseConsts.BOOK.TABLE_NAME + " M ON M." + DataBaseConsts.BOOK.COLUMNS.ID + " = V." + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK +
                 " WHERE " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = :idVocabulary " +
                 " GROUP BY " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK +
-                " ORDER BY Ord DESC, M." + DataBaseConsts.BOOK.COLUMNS.TITLE + " ASC"
+                " ORDER BY (CASE WHEN LENGTH(:bookName) <> 0 THEN M." + DataBaseConsts.BOOK.COLUMNS.TITLE + " LIKE :bookName || '%' ELSE 0 END) DESC, M." + DataBaseConsts.BOOK.COLUMNS.TITLE + " ASC"
     )
     abstract fun findBookByVocabulary(bookName: String, idVocabulary: Long): List<VocabularyBook>
 

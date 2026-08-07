@@ -56,10 +56,7 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
 
     var mTypeFilter: Type = Type.MANGA
     private val mYearsFilter = MutableLiveData<Set<Int>>(emptySet())
-    val selectedYears: LiveData<Set<Int>> = mYearsFilter.let {
-        @Suppress("UNCHECKED_CAST")
-        it as LiveData<Set<Int>>
-    }
+    val selectedYears: LiveData<Set<Int>> = mYearsFilter
 
     private var mLoading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean> = mLoading
@@ -454,12 +451,14 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             return results
         }
 
-        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = arrayListOf<History>()
-            filterResults?.let {
-                list.addAll(it.values as Collection<History>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<History>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mList.value = list
         }
     }

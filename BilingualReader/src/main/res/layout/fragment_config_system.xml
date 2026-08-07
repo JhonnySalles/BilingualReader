@@ -177,11 +177,16 @@
             android:visibility="gone"
             app:icon="@drawable/ico_google_account" />
 
-        <com.google.android.gms.common.SignInButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_share_mark_sign_in_button"
+            style="@style/Button.LabelStart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_small" />
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_system_share_mark_sign_in"
+            app:icon="@drawable/ico_google_account" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_share_mark_manga_last_sync"

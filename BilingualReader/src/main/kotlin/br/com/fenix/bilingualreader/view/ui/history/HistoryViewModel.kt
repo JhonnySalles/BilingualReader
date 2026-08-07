@@ -508,12 +508,14 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
             return results
         }
 
-        @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = arrayListOf<Any>()
-            filterResults?.let {
-                list.addAll(it.values as Collection<Any>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Any>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mList.value = list
         }
     }

@@ -1,7 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.configuration
 
-import android.app.Activity.RESULT_OK
+import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -12,6 +13,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,6 +41,7 @@ import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
+import br.com.fenix.bilingualreader.service.sharemark.GoogleAuthHelper
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.service.update.Releases
 import br.com.fenix.bilingualreader.service.update.UpdateApp
@@ -49,6 +53,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.secrets.Secrets
@@ -58,14 +63,9 @@ import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.SignInButton
-import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.auth.api.identity.AuthorizationRequest
+import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.Scope
-import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
@@ -73,8 +73,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
@@ -86,12 +88,160 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-@Suppress("DEPRECATION")
 class ConfigFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(ConfigFragment::class.java)
 
     private val mViewModel: ConfigLibrariesViewModel by viewModels()
+
+    private val openMangaFolderLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        var folder = ""
+        if (uri != null) {
+            folder = Util.normalizeFilePath(uri.path.toString())
+
+            if (!Storage.isPermissionGranted(requireContext()))
+                Storage.takePermission(requireContext(), requireActivity())
+        }
+
+        mViewModel.saveDefault(Type.MANGA, folder)
+
+        if (!folder.equals(mMangaLibraryPathAutoComplete.text.toString(), true)) {
+            mViewModel.deleteAllByPathDefault(Type.MANGA, mMangaLibraryPathAutoComplete.text.toString())
+            ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java].emptyList(LibraryUtil.getDefault(requireContext(), Type.MANGA).id!!)
+        }
+
+        mMangaLibraryPathAutoComplete.setText(folder)
+    }
+
+    private val openBookFolderLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        var folder = ""
+        if (uri != null) {
+            folder = Util.normalizeFilePath(uri.path.toString())
+
+            if (!Storage.isPermissionGranted(requireContext()))
+                Storage.takePermission(requireContext(), requireActivity())
+        }
+
+        mViewModel.saveDefault(Type.BOOK, folder)
+
+        if (!folder.equals(mBookLibraryPathAutoComplete.text.toString(), true)) {
+            mViewModel.deleteAllByPathDefault(Type.BOOK, mBookLibraryPathAutoComplete.text.toString())
+            ViewModelProvider(requireActivity())[BookLibraryViewModel::class.java].emptyList(LibraryUtil.getDefault(requireContext(), Type.BOOK).id!!)
+        }
+
+        mBookLibraryPathAutoComplete.setText(folder)
+    }
+
+    private val configLibrariesLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val data = result.data
+        val clear = data?.extras?.getBoolean(GeneralConsts.KEYS.LIBRARY.CLEAR_LIBRARY_LIST) ?: false
+        mViewModel.loadLibrary(null)
+        (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
+
+        if (clear) {
+            val extra = data?.extras
+            if (extra != null && extra.containsKey(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)) {
+                val type = Type.valueOf(extra.getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)!!)
+                val libraries = extra.getLongArray(GeneralConsts.KEYS.LIBRARY.LIBRARY_ARRAY_ID)!!
+                for (library in libraries)
+                    when (type) {
+                        Type.BOOK -> ViewModelProvider(requireActivity())[BookLibraryViewModel::class.java].emptyList(library)
+                        Type.MANGA -> ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java].emptyList(library)
+                    }
+            }
+        }
+    }
+
+    private val generateBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val fileUri: Uri? = result.data?.data
+        try {
+            fileUri?.let {
+                DataBase.backupDatabase(
+                    requireContext(),
+                    File(Util.normalizeFilePath(it.path.toString()))
+                )
+            }
+        } catch (e: BackupError) {
+            MsgUtil.error(
+                requireContext(),
+                getString(R.string.config_database_restore),
+                getString(R.string.config_database_error_backup)
+            ) { _, _ -> }
+        } catch (e: Exception) {
+            mLOGGER.warn("Backup Generate Failed.", e)
+            MsgUtil.error(
+                requireContext(),
+                getString(R.string.config_database_restore),
+                getString(R.string.config_database_error_backup)
+            ) { _, _ -> }
+        }
+    }
+
+    private val restoreBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val fileUri: Uri? = result.data?.data
+        try {
+            fileUri?.let {
+                val file = File(Util.normalizeFilePath(it.path.toString()))
+                if (DataBase.validDatabaseFile(requireContext(), it))
+                    DataBase.restoreDatabase(requireContext(), file)
+                else
+                    MsgUtil.alert(requireContext(), getString(R.string.config_database_restore), getString(R.string.config_database_invalid_file)) { _, _ -> }
+            }
+        } catch (e: InvalidDatabase) {
+            MsgUtil.error(
+                requireContext(),
+                getString(R.string.config_database_restore),
+                getString(R.string.config_database_invalid_file)
+            ) { _, _ -> }
+        } catch (e: RestoredNewDatabase) {
+            MsgUtil.error(
+                requireContext(),
+                getString(R.string.config_database_restore),
+                getString(R.string.config_database_error_new_database)
+            ) { _, _ -> }
+        } catch (e: ErrorRestoreDatabase) {
+            MsgUtil.error(
+                requireContext(),
+                getString(R.string.config_database_restore),
+                getString(R.string.config_database_error_restore)
+            ) { _, _ -> }
+        } catch (e: IOException) {
+            mLOGGER.warn("Backup Restore Failed.", e)
+            MsgUtil.error(
+                requireContext(),
+                getString(R.string.config_database_restore),
+                getString(R.string.config_database_error_read_file)
+            ) { _, _ -> }
+        }
+    }
+
+    private val driveAuthorizeLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            try {
+                Identity.getAuthorizationClient(requireContext())
+                    .getAuthorizationResultFromIntent(result.data)
+                googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
+            } catch (e: Exception) {
+                mLOGGER.warn("Drive authorization result failed", e)
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.config_system_share_mark_sign_in_error),
+                    Toast.LENGTH_LONG
+                ).show()
+                googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
+            }
+        } else {
+            mLOGGER.warn("Drive authorization cancelled or failed")
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.config_system_share_mark_sign_in_error),
+                Toast.LENGTH_LONG
+            ).show()
+            googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
+        }
+    }
+
+    private val touchConfigurationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
 
     // -------------------------------------------------------- System --------------------------------------------------------
     private lateinit var mConfigSystemThemeMode: TextInputLayout
@@ -107,7 +257,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemShareMarkType: TextInputLayout
     private lateinit var mConfigSystemShareMarkTypeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemShareMarkAccount: MaterialButton
-    private lateinit var mConfigSystemShareMarkSignIn: SignInButton
+    private lateinit var mConfigSystemShareMarkSignIn: MaterialButton
     private lateinit var mConfigSystemShareMarkMangaLastSync: MaterialButton
     private lateinit var mConfigSystemShareMarkBookLastSync: MaterialButton
 
@@ -304,15 +454,11 @@ class ConfigFragment : Fragment() {
         }
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-            intent.addCategory(Intent.CATEGORY_DEFAULT)
-            startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_MANGA_FOLDER)
+            openMangaFolderLauncher.launch(null)
         }
 
         mBookLibraryPathAutoComplete.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-            intent.addCategory(Intent.CATEGORY_DEFAULT)
-            startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_BOOK_FOLDER)
+            openBookFolderLauncher.launch(null)
         }
 
         mMangaLibrariesButton.setOnClickListener { openLibraries(Type.MANGA) }
@@ -594,7 +740,7 @@ class ConfigFragment : Fragment() {
                 ) + ".sqlite3"
                 putExtra(Intent.EXTRA_TITLE, fileName)
             }
-            startActivityForResult(intent, GeneralConsts.REQUEST.GENERATE_BACKUP)
+            generateBackupLauncher.launch(intent)
         }
 
         mConfigSystemRestore.setOnClickListener { choiceBackup() }
@@ -700,10 +846,10 @@ class ConfigFragment : Fragment() {
                 .setTitle(getString(R.string.config_system_share_mark_sign_out_title))
                 .setMessage(getString(R.string.config_system_share_mark_sign_out))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    GoogleSignIn.getLastSignedInAccount(requireContext())?.let {
-                        getSignClient().signOut()
+                    lifecycleScope.launch {
+                        GoogleAuthHelper.signOut(requireContext())
+                        googleSigInUi(null)
                     }
-                    googleSigIn(null)
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .create().show()
@@ -737,14 +883,42 @@ class ConfigFragment : Fragment() {
         }
 
         mConfigSystemShareMarkSignIn.setOnClickListener {
-            val googleSignInClient = getSignClient()
-            startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
+            lifecycleScope.launch {
+                try {
+                    val serverClientId = Secrets.getSecrets(requireContext()).getGoogleIdToken()
+                    val googleCredential = GoogleAuthHelper.signIn(
+                        requireContext(),
+                        requireActivity(),
+                        serverClientId
+                    )
+                    if (googleCredential == null) {
+                        googleSigInUi(null)
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.config_system_share_mark_sign_in_error),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@launch
+                    }
+
+                    GoogleAuthHelper.ensureFirebaseAuth(googleCredential.idToken)
+                    authorizeDriveAccess()
+                } catch (e: Exception) {
+                    mLOGGER.warn("SignIn failed", e)
+                    googleSigInUi(null)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.config_system_share_mark_sign_in_error),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
 
         mMangaTouchScreenButton.setOnClickListener { openTouchFunction(Type.MANGA) }
         mBookTouchScreenButton.setOnClickListener { openTouchFunction(Type.BOOK) }
 
-        googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
+        googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
 
         val configScrollView = view.findViewById<android.widget.ScrollView>(R.id.config_scroll_view)
         var scrollRunnable: Runnable? = null
@@ -791,158 +965,6 @@ class ConfigFragment : Fragment() {
         }
 
         super.onDestroyView()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            GeneralConsts.REQUEST.OPEN_MANGA_FOLDER -> {
-                var folder = ""
-                if (data != null && resultCode == RESULT_OK) {
-                    folder = Util.normalizeFilePath(data.data?.path.toString())
-
-                    if (!Storage.isPermissionGranted(requireContext()))
-                        Storage.takePermission(requireContext(), requireActivity())
-                }
-
-                mViewModel.saveDefault(Type.MANGA, folder)
-
-                if (!folder.equals(mMangaLibraryPathAutoComplete.text.toString(), true)) {
-                    mViewModel.deleteAllByPathDefault(Type.MANGA, mMangaLibraryPathAutoComplete.text.toString())
-                    ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java].emptyList(LibraryUtil.getDefault(requireContext(), Type.MANGA).id!!)
-                }
-
-                mMangaLibraryPathAutoComplete.setText(folder)
-            }
-
-            GeneralConsts.REQUEST.OPEN_BOOK_FOLDER -> {
-                var folder = ""
-                if (data != null && resultCode == RESULT_OK) {
-                    folder = Util.normalizeFilePath(data.data?.path.toString())
-
-                    if (!Storage.isPermissionGranted(requireContext()))
-                        Storage.takePermission(requireContext(), requireActivity())
-                }
-
-                mViewModel.saveDefault(Type.BOOK, folder)
-
-                if (!folder.equals(mBookLibraryPathAutoComplete.text.toString(), true)) {
-                    mViewModel.deleteAllByPathDefault(Type.BOOK, mBookLibraryPathAutoComplete.text.toString())
-                    ViewModelProvider(requireActivity())[BookLibraryViewModel::class.java].emptyList(LibraryUtil.getDefault(requireContext(), Type.BOOK).id!!)
-                }
-
-                mBookLibraryPathAutoComplete.setText(folder)
-            }
-
-            GeneralConsts.REQUEST.CONFIG_LIBRARIES -> {
-                val clear = data?.extras?.getBoolean(GeneralConsts.KEYS.LIBRARY.CLEAR_LIBRARY_LIST) ?: false
-                mViewModel.loadLibrary(null)
-                (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
-
-                if (clear) {
-                    val extra = data?.extras
-                    if (extra != null && extra.containsKey(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)) {
-                        val type = Type.valueOf(extra.getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)!!)
-                        val libraries = extra.getLongArray(GeneralConsts.KEYS.LIBRARY.LIBRARY_ARRAY_ID)!!
-                        for (library in libraries)
-                            when(type) {
-                                Type.BOOK -> ViewModelProvider(requireActivity())[BookLibraryViewModel::class.java].emptyList(library)
-                                Type.MANGA -> ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java].emptyList(library)
-                            }
-                    }
-                }
-            }
-
-            GeneralConsts.REQUEST.GENERATE_BACKUP -> {
-                val fileUri: Uri? = data?.data
-                try {
-                    fileUri?.let {
-                        DataBase.backupDatabase(
-                            requireContext(),
-                            File(Util.normalizeFilePath(it.path.toString()))
-                        )
-                    }
-                } catch (e: BackupError) {
-                    MsgUtil.error(
-                        requireContext(),
-                        getString(R.string.config_database_restore),
-                        getString(R.string.config_database_error_backup)
-                    ) { _, _ -> }
-                } catch (e: Exception) {
-                    mLOGGER.warn("Backup Generate Failed.", e)
-                    MsgUtil.error(
-                        requireContext(),
-                        getString(R.string.config_database_restore),
-                        getString(R.string.config_database_error_backup)
-                    ) { _, _ -> }
-                }
-            }
-
-            GeneralConsts.REQUEST.RESTORE_BACKUP -> {
-                val fileUri: Uri? = data?.data
-                try {
-                    fileUri?.let {
-                        val file = File(Util.normalizeFilePath(it.path.toString()))
-                        if (DataBase.validDatabaseFile(requireContext(), it))
-                            DataBase.restoreDatabase(requireContext(), file)
-                        else
-                            MsgUtil.alert(requireContext(), getString(R.string.config_database_restore), getString(R.string.config_database_invalid_file)) { _, _ -> }
-                    }
-                } catch (e: InvalidDatabase) {
-                    MsgUtil.error(
-                        requireContext(),
-                        getString(R.string.config_database_restore),
-                        getString(R.string.config_database_invalid_file)
-                    ) { _, _ -> }
-                } catch (e: RestoredNewDatabase) {
-                    MsgUtil.error(
-                        requireContext(),
-                        getString(R.string.config_database_restore),
-                        getString(R.string.config_database_error_new_database)
-                    ) { _, _ -> }
-                } catch (e: ErrorRestoreDatabase) {
-                    MsgUtil.error(
-                        requireContext(),
-                        getString(R.string.config_database_restore),
-                        getString(R.string.config_database_error_restore)
-                    ) { _, _ -> }
-                } catch (e: IOException) {
-                    mLOGGER.warn("Backup Restore Failed.", e)
-                    MsgUtil.error(
-                        requireContext(),
-                        getString(R.string.config_database_restore),
-                        getString(R.string.config_database_error_read_file)
-                    ) { _, _ -> }
-                }
-            }
-
-            GeneralConsts.REQUEST.GOOGLE_SIGN_IN -> {
-                val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-                try {
-                    val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
-                    googleSigIn(account)
-                } catch (e: ApiException) {
-                    mLOGGER.warn("SignIn failed code=" + e.statusCode, e)
-                    googleSigIn(null)
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.config_system_share_mark_sign_in_error),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(requireContext().getString(R.string.alert_permission_files_access_denied_title))
-                .setMessage(requireContext().getString(R.string.alert_permission_files_access_denied))
-                .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -1431,11 +1453,11 @@ class ConfigFragment : Fragment() {
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_config_libraries)
         bundle.putString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, type.toString())
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(
+        requireActivity().overrideActivityTransitionCompat(
             R.anim.fade_in_fragment_add_enter,
             R.anim.fade_out_fragment_remove_exit
         )
-        startActivityForResult(intent, GeneralConsts.REQUEST.CONFIG_LIBRARIES)
+        configLibrariesLauncher.launch(intent)
     }
 
     private fun prepareThemes() {
@@ -1560,22 +1582,46 @@ class ConfigFragment : Fragment() {
         }
     }
 
-    private fun getSignClient() : GoogleSignInClient {
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(Secrets.getSecrets(requireContext()).getGoogleIdToken())
-            .requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE))
+    private suspend fun authorizeDriveAccess() {
+        val requestedScopes = listOf(Scope(DriveScopes.DRIVE))
+        val authorizationRequest = AuthorizationRequest.builder()
+            .setRequestedScopes(requestedScopes)
             .build()
 
-        return GoogleSignIn.getClient(requireActivity(), signInOptions)
+        val authorizationResult = Identity.getAuthorizationClient(requireActivity())
+            .authorize(authorizationRequest)
+            .await()
+
+        if (authorizationResult.hasResolution()) {
+            val pendingIntent = authorizationResult.pendingIntent
+            if (pendingIntent != null) {
+                try {
+                    driveAuthorizeLauncher.launch(
+                        IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+                    )
+                } catch (e: IntentSender.SendIntentException) {
+                    mLOGGER.warn("Could not start Drive authorization UI", e)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.config_system_share_mark_sign_in_error),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
+                }
+            } else {
+                googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
+            }
+        } else {
+            googleSigInUi(FirebaseAuth.getInstance().currentUser?.email)
+        }
     }
 
-    private fun googleSigIn(account: GoogleSignInAccount?) {
-        if (account != null) {
+    private fun googleSigInUi(email: String?) {
+        if (!email.isNullOrBlank()) {
             mConfigSystemShareMarkAccount.visibility = View.VISIBLE
             mConfigSystemShareMarkSignIn.visibility = View.GONE
-            val display  = if (account.email != null) account.email else account.displayName
-            mConfigSystemShareMarkAccount.text = requireContext().getString(R.string.config_system_share_mark_account, display)
+            mConfigSystemShareMarkAccount.text =
+                requireContext().getString(R.string.config_system_share_mark_account, email)
         } else {
             mConfigSystemShareMarkAccount.visibility = View.GONE
             mConfigSystemShareMarkSignIn.visibility = View.VISIBLE
@@ -1609,9 +1655,8 @@ class ConfigFragment : Fragment() {
                 if (origin == selectDatabase) {
                     val i = Intent(Intent.ACTION_GET_CONTENT)
                     i.type = "*/*"
-                    startActivityForResult(
-                        Intent.createChooser(i, getString(R.string.config_database_select_file)),
-                        GeneralConsts.REQUEST.RESTORE_BACKUP
+                    restoreBackupLauncher.launch(
+                        Intent.createChooser(i, getString(R.string.config_database_select_file))
                     )
                 } else
                     DataBase.restoreDatabase(requireContext(), File(autoBackups, backups[origin]!!))
@@ -1625,8 +1670,8 @@ class ConfigFragment : Fragment() {
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_touch_screen_config)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, type)
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION)
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        touchConfigurationLauncher.launch(intent)
     }
 
 }

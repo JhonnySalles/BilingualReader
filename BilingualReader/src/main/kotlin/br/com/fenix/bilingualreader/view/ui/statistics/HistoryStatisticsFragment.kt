@@ -33,11 +33,12 @@ import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -45,7 +46,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
@@ -70,6 +70,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
@@ -81,7 +82,6 @@ import kotlin.math.ceil
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-@Suppress("DEPRECATION")
 class HistoryStatisticsFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(HistoryStatisticsFragment::class.java)
@@ -106,7 +106,7 @@ class HistoryStatisticsFragment : Fragment() {
 
     private var mMenuPopupHistoryStatistics: FrameLayout by autoCleared()
     private var mMenuPopupHistoryStatisticsBackground: BlurView by autoCleared()
-    private var mPopupHistoryStatisticsView: ViewPager by autoCleared()
+    private var mPopupHistoryStatisticsView: ViewPager2 by autoCleared()
     private var mPopupHistoryStatisticsTab: TabLayout by autoCleared()
     private var mPopupLibrariesFragment: HistoryStatisticsPopupLibraries by autoCleared()
     private var mPopupYearsFragment: HistoryStatisticsPopupYears by autoCleared()
@@ -149,15 +149,13 @@ class HistoryStatisticsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    private fun createHistoryStatisticsMenu(menu: Menu, menuInflater: MenuInflater) {
         menu.clear()
-        inflater.inflate(R.menu.menu_history_statistics, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+        menuInflater.inflate(R.menu.menu_history_statistics, menu)
 
         val miLibrary = menu.findItem(R.id.menu_history_library)
         miLibrary.subMenu?.clear()
@@ -306,18 +304,6 @@ class HistoryStatisticsFragment : Fragment() {
         })
     }
 
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.menu_history_list_order -> onChangeSort()
-        }
-        return super.onOptionsItemSelected(menuItem)
-    }
-
-    override fun onDestroyOptionsMenu() {
-        mViewModel.clearFilter()
-        super.onDestroyOptionsMenu()
-    }
-
     private fun filter(text: String?) {
         mViewModel.filter.filter(text)
     }
@@ -386,8 +372,6 @@ class HistoryStatisticsFragment : Fragment() {
         mRecyclerView.itemAnimator = BlurAwareItemAnimator()
         mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
         mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
-
-        mPopupHistoryStatisticsTab.setupWithViewPager(mPopupHistoryStatisticsView)
         mPopupLibrariesFragment = HistoryStatisticsPopupLibraries()
         mPopupYearsFragment = HistoryStatisticsPopupYears()
         mPopupOrderFragment = HistoryStatisticsPopupOrder()
@@ -402,7 +386,7 @@ class HistoryStatisticsFragment : Fragment() {
 
         PopupUtil.onPopupTouch(requireActivity(), mMenuPopupHistoryStatistics, mBottomSheet, root.findViewById<View>(R.id.history_statistics_popup_menu_order_filter_touch))
 
-        val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        val viewFilterOrderPagerAdapter = ViewPagerAdapter(this)
         viewFilterOrderPagerAdapter.addFragment(
             mPopupLibrariesFragment,
             resources.getString(R.string.config_title_libraries)
@@ -416,6 +400,9 @@ class HistoryStatisticsFragment : Fragment() {
             resources.getString(R.string.popup_library_manga_tab_item_ordering)
         )
         mPopupHistoryStatisticsView.adapter = viewFilterOrderPagerAdapter
+        TabLayoutMediator(mPopupHistoryStatisticsTab, mPopupHistoryStatisticsView) { tab, position ->
+            tab.text = viewFilterOrderPagerAdapter.getPageTitle(position)
+        }.attach()
 
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         observer()
@@ -463,8 +450,8 @@ class HistoryStatisticsFragment : Fragment() {
         }
     }
 
-    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-        FragmentPagerAdapter(fm, behavior) {
+    inner class ViewPagerAdapter(fragment: Fragment) :
+        FragmentStateAdapter(fragment) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -472,15 +459,19 @@ class HistoryStatisticsFragment : Fragment() {
             fragmentTitle.add(title)
         }
 
-        override fun getItem(position: Int): Fragment {
+        fun getItem(position: Int): Fragment {
             return fragments[position]
         }
 
-        override fun getCount(): Int {
+        override fun createFragment(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getItemCount(): Int {
             return fragments.size
         }
 
-        override fun getPageTitle(position: Int): CharSequence {
+        fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
     }
@@ -527,6 +518,23 @@ class HistoryStatisticsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                createHistoryStatisticsMenu(menu, menuInflater)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.menu_history_list_order -> {
+                        onChangeSort()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         val historyAdapter = HistoryStatisticsAdapter()
         mRecyclerView.adapter = historyAdapter
         mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
@@ -974,6 +982,7 @@ class HistoryStatisticsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        mViewModel.clearFilter()
         mHandler.removeCallbacksAndMessages(null)
         _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
         _mBottomSheet = null

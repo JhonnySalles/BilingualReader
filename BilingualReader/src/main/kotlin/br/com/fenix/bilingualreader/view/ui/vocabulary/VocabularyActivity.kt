@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.BundleCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -22,7 +25,6 @@ import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookFragme
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFragment
 
 
-@Suppress("DEPRECATION")
 class VocabularyActivity : AppCompatActivity() {
 
     companion object VocabularyData {
@@ -57,19 +59,19 @@ class VocabularyActivity : AppCompatActivity() {
         val bundle: Bundle? = intent.extras
 
         val type = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.VOCABULARY.TYPE))
-            bundle[GeneralConsts.KEYS.VOCABULARY.TYPE] as Type
+            BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.VOCABULARY.TYPE, Type::class.java)
         else
             null
 
         mVocabularySelect = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.VOCABULARY.TEXT))
-            bundle[GeneralConsts.KEYS.VOCABULARY.TEXT] as String
+            bundle.getString(GeneralConsts.KEYS.VOCABULARY.TEXT) ?: ""
         else
             ""
 
         val obj = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.OBJECT.MANGA))
-            bundle[GeneralConsts.KEYS.OBJECT.MANGA] as Manga
+            BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.MANGA, Manga::class.java)
         else if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.OBJECT.BOOK))
-            bundle[GeneralConsts.KEYS.OBJECT.BOOK] as Book
+            BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java)
         else
             null
 
@@ -96,7 +98,7 @@ class VocabularyActivity : AppCompatActivity() {
 
                             shadow.visibility = mBackgroundImage.visibility
                             backgroundSupper.visibility = shadow.visibility
-                            window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
                         }
                     }
                     frag
@@ -111,7 +113,7 @@ class VocabularyActivity : AppCompatActivity() {
 
                             shadow.visibility = mBackgroundImage.visibility
                             backgroundSupper.visibility = shadow.visibility
-                            window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
                         }
                     }
                     frag
@@ -122,6 +124,16 @@ class VocabularyActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.root_frame_vocabulary, fragment)
             .commit()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                val intent = Intent()
+                setResult(RESULT_OK, intent)
+                supportFinishAfterTransition()
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -132,13 +144,6 @@ class VocabularyActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val intent = Intent()
-        setResult(RESULT_OK, intent)
-        supportFinishAfterTransition()
     }
 
 }

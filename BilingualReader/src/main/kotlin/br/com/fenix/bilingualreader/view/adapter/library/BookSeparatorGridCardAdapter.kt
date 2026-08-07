@@ -17,7 +17,7 @@ import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookType) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
     private lateinit var mListener: BookCardListener
-    private var mBookList: MutableList<*> = mutableListOf<Book>()
+    private var mBookList: MutableList<Any> = mutableListOf()
     override var isAnimation: Boolean = true
 
     companion object {
@@ -109,8 +109,7 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
     override fun removeList(item: Book) {
         val index = mBookList.indexOf(item)
         if (index != -1) {
-            @Suppress("UNCHECKED_CAST")
-            (mBookList as MutableList<Any>).removeAt(index)
+            mBookList.removeAt(index)
             notifyItemRemoved(index)
         }
     }
@@ -122,7 +121,7 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
 
     override fun updateList(order: Order, list: MutableList<Book>) {
         if (order == Order.None || list.isEmpty())
-            mBookList = list
+            mBookList = list.toMutableList()
         else {
             val newList = mutableListOf<Any>()
             var last = AdapterUtils.getBookSeparator(context, order, list[0])

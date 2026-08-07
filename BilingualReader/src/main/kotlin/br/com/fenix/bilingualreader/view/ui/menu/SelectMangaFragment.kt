@@ -20,8 +20,10 @@ import android.widget.AutoCompleteTextView
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -45,7 +47,6 @@ import org.slf4j.LoggerFactory
 import kotlin.math.max
 
 
-@Suppress("DEPRECATION", "UNCHECKED_CAST")
 class SelectMangaFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(SelectMangaFragment::class.java)
@@ -56,6 +57,7 @@ class SelectMangaFragment : Fragment() {
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var mRecycler: RecyclerView
+    private var mMangaAdapter: BaseAdapter<Manga, MangaCardListener>? = null
 
     private lateinit var mTitle: TextView
     private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
@@ -75,7 +77,6 @@ class SelectMangaFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         if (savedInstanceState == null) {
             mViewModel.clearMangaSelected()
@@ -88,29 +89,6 @@ class SelectMangaFragment : Fragment() {
 
             mViewModel.setDefaultLibrary(Libraries.PORTUGUESE)
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_select_manga, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-
-        miSearch = menu.findItem(R.id.menu_select_manga_search)
-        searchView = miSearch.actionView as SearchView
-        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                mViewModel.filter.filter(newText)
-                return false
-            }
-        })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
     override fun onCreateView(
@@ -224,6 +202,32 @@ class SelectMangaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerLayout()
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_select_manga, menu)
+
+                miSearch = menu.findItem(R.id.menu_select_manga_search)
+                searchView = miSearch.actionView as SearchView
+                searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        mViewModel.filter.filter(newText)
+                        return false
+                    }
+                })
+
+                val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+                searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun recyclerLayout() {
@@ -247,12 +251,14 @@ class SelectMangaFragment : Fragment() {
                 LibraryMangaType.SEPARATOR_MEDIUM -> MangaSeparatorGridCardAdapter(requireContext(), type)
                 else -> MangaGridCardAdapter(type)
             }
+            mMangaAdapter = gridAdapter
             mRecycler.adapter = gridAdapter
             mRecycler.layoutManager = getGridLayout(type)
             gridAdapter.attachListener(mListener)
             mRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
         } else {
             val lineAdapter = MangaLineCardAdapter()
+            mMangaAdapter = lineAdapter
             mRecycler.adapter = lineAdapter
             mRecycler.layoutManager = GridLayoutManager(requireContext(), 1)
             lineAdapter.attachListener(mListener)
@@ -284,7 +290,7 @@ class SelectMangaFragment : Fragment() {
 
     private fun observer() {
         mViewModel.listMangas.observe(viewLifecycleOwner) {
-            (mRecycler.adapter as BaseAdapter<Manga, *>).updateList(Order.None, it)
+            mMangaAdapter?.updateList(Order.None, it)
         }
     }
 
