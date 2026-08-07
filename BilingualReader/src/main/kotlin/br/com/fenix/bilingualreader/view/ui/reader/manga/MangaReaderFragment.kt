@@ -755,6 +755,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
+    fun syncMangaFavorite(favorite: Boolean) {
+        mManga?.favorite = favorite
+    }
+
     private fun setupMangaChaptersDots(parse: Parse) {
         val dots = mutableListOf<Int>()
         val inverse = mutableListOf<Int>()

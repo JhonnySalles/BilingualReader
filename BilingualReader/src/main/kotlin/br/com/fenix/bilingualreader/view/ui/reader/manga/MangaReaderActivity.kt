@@ -1035,7 +1035,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             R.id.manga_view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
             R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
             R.id.menu_item_reader_manga_popup_open_floating -> openFloatingSubtitle()
-            R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
             R.id.menu_item_reader_manga_mark_page -> { }
             R.id.menu_item_reader_manga_popup_subtitle -> {
                 val layout = if (mMenuPopupBottomSheet) mMenuPopupTranslateBottom else mMenuPopupTranslateLeft
@@ -1161,14 +1160,16 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             return
 
         mManga?.favorite = !mManga!!.favorite
+        mFragment?.syncMangaFavorite(mManga!!.favorite)
 
-        val icon = if (mManga!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
-        else
-            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
-        icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
-        item.icon = icon
-        (item.icon as AnimatedVectorDrawable).start()
+        item.setIcon(
+            if (mManga!!.favorite) R.drawable.ico_animated_favorited_marked
+            else R.drawable.ico_animated_favorited_unmarked
+        )
+        (item.icon as? AnimatedVectorDrawable)?.let { icon ->
+            icon.reset()
+            icon.start()
+        }
         mRepository.update(mManga!!)
     }
 
