@@ -121,16 +121,17 @@ class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
                     ?: cover.setImageBitmap(defaultCover)
             } else {
                 cover.setImageBitmap(null)
-                when (history) {
+                val coverSource = if (history is br.com.fenix.bilingualreader.model.entity.HistoryStatistics) history.base else history
+                when (coverSource) {
                     is Manga -> MangaImageCoverController.instance.setImageCoverAsync(
-                        itemView.context, history, cover, null, true
+                        itemView.context, coverSource, cover, null, true
                     ) { bitmap ->
                         cacheBitmap(cacheKey, bitmap)
                         if (bitmap == null)
                             cover.setImageBitmap(defaultCover)
                     }
                     is Book -> BookImageCoverController.instance.setImageCoverAsync(
-                        itemView.context, history, cover, null, true
+                        itemView.context, coverSource, cover, null, true
                     ) { bitmap ->
                         cacheBitmap(cacheKey, bitmap)
                         if (bitmap == null)

@@ -104,7 +104,9 @@ import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.components.PageCurlFrame
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
@@ -806,6 +808,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 mIsSeekBarChange = true
+                setReaderBlurContinuous(true)
 
                 try {
                     val view = getCurrencyImageView() ?: return
@@ -829,6 +832,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 mIsSeekBarChange = false
+                setReaderBlurContinuous(false)
             }
         })
 
@@ -921,6 +925,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                             generatePageAverage()
                         }
+
+                        override fun onPageScrollStateChanged(state: Int) {
+                            when (state) {
+                                ViewPager.SCROLL_STATE_DRAGGING, ViewPager.SCROLL_STATE_SETTLING ->
+                                    setReaderBlurContinuous(true)
+                                ViewPager.SCROLL_STATE_IDLE ->
+                                    setReaderBlurContinuous(false)
+                            }
+                        }
                     })
                     mViewPager.setOnSwipeOutListener(object : ImageViewPager.OnSwipeOutListener {
                         override fun onSwipeOutAtStart() {
@@ -934,6 +947,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                     mViewRecycler.setOnTouchListener(null)
                     mViewRecycler.clearOnScrollListeners()
+                    mViewRecycler.onZoomInteractionChanged = null
                     mViewRecycler.setOnSwipeOutListener(null)
 
                     mViewRecycler.adapter = null
@@ -957,6 +971,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                     mViewRecycler.setOnTouchListener(this@MangaReaderFragment)
                     mViewRecycler.addOnScrollListener(ComicRecyclerListener())
+                    mViewRecycler.onZoomInteractionChanged = { active -> setReaderBlurContinuous(active) }
                     mViewRecycler.setOnSwipeOutListener(object : ZoomRecyclerView.OnSwipeOutListener {
                         override fun onSwipeOutAtStart() = hitBeginning()
                         override fun onSwipeOutAtEnd() = hitEnding()
@@ -1273,6 +1288,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 imageViewPage.setTranslateToRightEdge(mScrollingMode == ScrollingType.HorizontalRightToLeft)
             imageViewPage.setViewMode(mReaderMode)
             imageViewPage.useMagnifierType = mUseMagnifierType
+            imageViewPage.onZoomInteractionChanged = { active -> setReaderBlurContinuous(active) }
             imageViewPage.setOnTouchListener(this@MangaReaderFragment)
             container.addView(layout)
             val t = MyTarget(layout, position) { }
@@ -1365,17 +1381,22 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     inner class ComicRecyclerListener() : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
-                var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
-                if (first < 0)
-                    first = adapter.findFirstVisibleItemPosition()
-                var last: Int = adapter.findLastCompletelyVisibleItemPosition()
-                if (last < 0)
-                    last = adapter.findLastVisibleItemPosition()
-                val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
-                setChangeProgress(center + 1, center)
-                generatePageAverage()
+            when (newState) {
+                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->
+                    setReaderBlurContinuous(true)
+                RecyclerView.SCROLL_STATE_IDLE -> {
+                    setReaderBlurContinuous(false)
+                    val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
+                    var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
+                    if (first < 0)
+                        first = adapter.findFirstVisibleItemPosition()
+                    var last: Int = adapter.findLastCompletelyVisibleItemPosition()
+                    if (last < 0)
+                        last = adapter.findLastVisibleItemPosition()
+                    val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
+                    setChangeProgress(center + 1, center)
+                    generatePageAverage()
+                }
             }
         }
     }
@@ -1678,6 +1699,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val targetBottomVisibility = if (isFullScreen || isErrorState) View.GONE else View.VISIBLE
 
         if (!isFullScreen) {
+            setReaderBlurContinuous(true)
             targetTop.visibility = View.VISIBLE
             targetTop.translationY = initialTranslation
             targetTop.alpha = initialAlpha
@@ -1708,6 +1730,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     targetTop.visibility = visibility
+                    if (!isFullScreen)
+                        setReaderBlurContinuous(false)
                 }
             })
 
@@ -2066,29 +2090,66 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     override fun onResume() {
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
-        setupTitleBackgrounds()
-        setBlurAutoUpdate(true)
+        refreshReaderBlur()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        setBlurAutoUpdate(!hidden)
+        if (hidden)
+            setBlurAutoUpdate(false)
+        else
+            refreshReaderBlur()
+    }
+
+    private fun setReaderBlurContinuous(active: Boolean) {
+        if (!isAdded || !::mBlurTop.isInitialized)
+            return
+        if (mIsFullscreen)
+            return
+        setBlurAutoUpdate(active)
+    }
+
+    private fun refreshReaderBlur() {
+        if (!isAdded || !::mBlurTop.isInitialized)
+            return
+        setupTitleBackgrounds()
+        // Idle: on-demand mode + one-shot refresh (do not keep continuous forever)
+        setBlurAutoUpdate(false)
+        if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false) && !mIsFullscreen) {
+            mBlurTop.blurOnceDeferred(mHandler, 50)
+            mBlurBottom.blurOnceDeferred(mHandler, 50)
+            mBlurProgress.blurOnceDeferred(mHandler, 50)
+            mBlurNavPrevious.blurOnceDeferred(mHandler, 50)
+            mBlurNavNext.blurOnceDeferred(mHandler, 50)
+        }
     }
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
+            return
+
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val autoUpdate = isGlass && enabled
-        mBlurTop.setBlurAutoUpdate(autoUpdate)
-        mBlurBottom.setBlurAutoUpdate(autoUpdate)
-        mBlurProgress?.setBlurAutoUpdate(autoUpdate)
-        mBlurNavPrevious.setBlurAutoUpdate(autoUpdate)
-        mBlurNavNext.setBlurAutoUpdate(autoUpdate)
 
         mBlurTop.setBlurEnabled(isGlass)
         mBlurBottom.setBlurEnabled(isGlass)
         mBlurProgress.setBlurEnabled(isGlass)
         mBlurNavPrevious.setBlurEnabled(isGlass)
         mBlurNavNext.setBlurEnabled(isGlass)
+
+        mBlurTop.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom.setBlurAutoUpdate(autoUpdate)
+        mBlurProgress.setBlurAutoUpdate(autoUpdate)
+        mBlurNavPrevious.setBlurAutoUpdate(autoUpdate)
+        mBlurNavNext.setBlurAutoUpdate(autoUpdate)
+
+        if (isGlass && !enabled) {
+            GlassRenderScheduler.requestUpdate(mBlurTop)
+            GlassRenderScheduler.requestUpdate(mBlurBottom)
+            GlassRenderScheduler.requestUpdate(mBlurProgress)
+            GlassRenderScheduler.requestUpdate(mBlurNavPrevious)
+            GlassRenderScheduler.requestUpdate(mBlurNavNext)
+        }
     }
 
     private fun setupWindowInsets() {

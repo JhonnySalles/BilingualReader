@@ -9,10 +9,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.HistoryGroup
 import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
@@ -29,10 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import java.util.Objects
 import java.util.stream.Collectors
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
@@ -58,19 +59,61 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private val mYearsFilter = MutableLiveData<Set<Int>>(emptySet())
     val selectedYears: LiveData<Set<Int>> = mYearsFilter
 
-    private var mLoading = MutableLiveData<Boolean>(false)
+    private var mLoading = MutableLiveData(false)
     val loading: LiveData<Boolean> = mLoading
 
     private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
-    private var mList = MutableLiveData<ArrayList<History>>(arrayListOf())
-    val history: LiveData<ArrayList<History>> = mList
+    private var mList = MutableLiveData<ArrayList<Any>>(arrayListOf())
+    val history: LiveData<ArrayList<Any>> = mList
 
-    private val mOrder = MutableLiveData<Pair<Order, Boolean>>(Pair(Order.LastAccess, true))
+    private val mOrder = MutableLiveData(Pair(Order.LastAccess, false))
     val order: LiveData<Pair<Order, Boolean>> = mOrder
+
+    private val mHistoryType = MutableLiveData(loadHistoryType())
+    val historyType: LiveData<HistoryType> = mHistoryType
+
+    private val mSeriesEmptyLabel: String = app.applicationContext.getString(R.string.history_series_empty)
+    private val mFavoriteLabel: String = app.applicationContext.getString(R.string.manga_library_separator_favorite)
+    private val mNotFavoriteLabel: String = app.applicationContext.getString(R.string.manga_library_separator_non_favorite)
 
     fun sorted(order: Order, isDesc: Boolean = false) {
         mOrder.value = Pair(order, isDesc)
-        list()
+        mList.value = filterList()
+    }
+
+    fun changeHistoryType() {
+        val next = when (mHistoryType.value) {
+            HistoryType.LINE -> HistoryType.SEPARATOR_BIG
+            HistoryType.SEPARATOR_BIG -> HistoryType.SEPARATOR_MEDIUM
+            HistoryType.SEPARATOR_MEDIUM -> HistoryType.SEPARATOR_CAROUSEL
+            HistoryType.SEPARATOR_CAROUSEL -> HistoryType.SEPARATOR_LINE
+            HistoryType.SEPARATOR_LINE -> HistoryType.LINE
+            else -> HistoryType.SEPARATOR_LINE
+        }
+        setHistoryType(next)
+    }
+
+    fun setHistoryType(type: HistoryType) {
+        if (mHistoryType.value == type)
+            return
+
+        mHistoryType.value = type
+        GeneralConsts.getSharedPreferences(app.applicationContext).edit()
+            .putString(GeneralConsts.KEYS.LIBRARY.HISTORY_STATISTICS_TYPE, type.toString())
+            .apply()
+        mList.value = filterList()
+    }
+
+    private fun loadHistoryType(): HistoryType {
+        val raw = GeneralConsts.getSharedPreferences(app.applicationContext).getString(
+            GeneralConsts.KEYS.LIBRARY.HISTORY_STATISTICS_TYPE,
+            HistoryType.SEPARATOR_LINE.toString()
+        ).toString()
+        return try {
+            HistoryType.valueOf(raw)
+        } catch (_: Exception) {
+            HistoryType.SEPARATOR_LINE
+        }
     }
 
     private var mSuggestionAuthor = setOf<String>()
@@ -108,7 +151,7 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                 mLoading.value = false
 
                 mListFull.value = ArrayList(list)
-                mList.value = ArrayList(list)
+                mList.value = filterList()
                 setSuggestions(mListFull.value)
             }
         }
@@ -123,12 +166,12 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             withContext(Dispatchers.Main) {
                 mLoading.value = false
 
-                if (mList.value == null || mList.value!!.isEmpty()) {
-                    mList.value = ArrayList(list)
+                if (mListFull.value == null || mListFull.value!!.isEmpty()) {
                     mListFull.value = ArrayList(list)
                 } else
                     update(list)
 
+                mList.value = filterList()
                 setSuggestions(mListFull.value)
 
                 refreshComplete(mList.value!!.size - 1)
@@ -183,94 +226,51 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             }
         }
 
-        val currentOrder = mOrder.value ?: Pair(Order.LastAccess, true)
-        val isDesc = currentOrder.second
-        val order = currentOrder.first
-
-        val sortedList = if (isDesc) {
-            when (order) {
-                Order.Name -> statsItems.sortedByDescending { it.name }
-                Order.Favorite -> statsItems.sortedWith(compareBy<HistoryStatistics> { it.favorite }.thenByDescending { it.name })
-                Order.LastAccess -> statsItems.sortedWith(compareBy<HistoryStatistics> { it.lastAccess }.thenByDescending { it.name })
-                else -> statsItems.sortedByDescending { it.lastAccess }
-            }
-        } else {
-            when (order) {
-                Order.Name -> statsItems.sortedBy { it.name }
-                Order.Favorite -> statsItems.sortedWith(compareByDescending<HistoryStatistics> { it.favorite }.thenBy { it.name })
-                Order.LastAccess -> statsItems.sortedWith(compareByDescending<HistoryStatistics> { it.lastAccess }.thenBy { it.name })
-                else -> statsItems.sortedBy { it.lastAccess }
-            }
-        }
-
-        val listWithHeaders = mutableListOf<History>()
-        var lastDateStr = ""
-        val headerDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-        for (item in sortedList) {
-            val dateStr = item.lastAccess?.format(headerDateFormatter) ?: ""
-            if (dateStr != lastDateStr) {
-                lastDateStr = dateStr
-                val header = if (mTypeFilter == Type.MANGA) {
-                    Manga(null, null, File("")).apply { lastAccess = item.lastAccess }
-                } else {
-                    Book(null, null, File("")).apply { lastAccess = item.lastAccess }
-                }
-                listWithHeaders.add(header)
-            }
-            listWithHeaders.add(item)
-        }
-
-        return listWithHeaders
+        return statsItems
     }
 
     fun update(list: List<History>) {
         if (list.isNotEmpty()) {
             for (history in list) {
-                if (!mList.value!!.contains(history))
-                    mList.value!!.add(history)
-
                 if (!mListFull.value!!.contains(history))
                     mListFull.value!!.add(history)
             }
+            mList.value = filterList()
         }
     }
 
     fun updateDelete(history: History) {
-        val base = if (history is HistoryStatistics) history.base else history
+        val base = unwrap(history)
         viewModelScope.launch(Dispatchers.IO) {
             when (base) {
-                is Manga ->  mMangaRepository.delete(base)
-                is Book ->  mBookRepository.delete(base)
+                is Manga -> mMangaRepository.delete(base)
+                is Book -> mBookRepository.delete(base)
             }
         }
     }
 
     fun updateLastAccess(history: History) {
-        val base = if (history is HistoryStatistics) history.base else history
+        val base = unwrap(history)
         viewModelScope.launch(Dispatchers.IO) {
             when (base) {
-                is Manga ->  mMangaRepository.update(base)
-                is Book ->  mBookRepository.update(base)
+                is Manga -> mMangaRepository.update(base)
+                is Book -> mBookRepository.update(base)
             }
         }
     }
 
     fun clear(history: History?) {
         if (history != null) {
-            val base = if (history is HistoryStatistics) history.base else history
+            val base = unwrap(history)
             save(base)
-            if (mList.value!!.contains(history))
-                mList.value!!.remove(history)
-
-            if (mListFull.value!!.contains(history))
-                mListFull.value!!.remove(history)
+            removeMatching(history)
+            mList.value = filterList()
         }
     }
 
     fun deletePermanent(history: History?) {
         history ?: return
-        val base = if (history is HistoryStatistics) history.base else history
+        val base = unwrap(history)
         viewModelScope.launch(Dispatchers.IO) {
             when (base) {
                 is Manga -> mMangaRepository.deletePermanent(base)
@@ -281,7 +281,7 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
 
     fun save(history: History?) {
         history ?: return
-        val base = if (history is HistoryStatistics) history.base else history
+        val base = unwrap(history)
         viewModelScope.launch(Dispatchers.IO) {
             when (base) {
                 is Manga -> {
@@ -301,35 +301,53 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     }
 
     fun remove(history: History) {
-        if (mList.value != null && mList.value!!.contains(history))
-            mList.value!!.remove(history)
-
-        if (mListFull.value != null && mListFull.value!!.contains(history))
-            mListFull.value!!.remove(history)
+        removeMatching(history)
+        mList.value = filterList()
     }
 
-    fun add(history: History, index: Int) {
-        if (mList.value != null)
-            mList.value!!.add(index, history)
+    private fun removeMatching(history: History) {
+        val target = unwrap(history)
+        val access = history.lastAccess
+        mListFull.value?.removeAll {
+            val item = unwrap(it)
+            item.id == target.id && it.lastAccess == access
+        }
+    }
 
-        if (mListFull.value != null)
-            mListFull.value!!.add(index, history)
+    fun add(history: History, index: Int = -1) {
+        if (mListFull.value != null) {
+            if (index in 0..mListFull.value!!.size)
+                mListFull.value!!.add(index, history)
+            else
+                mListFull.value!!.add(history)
+        }
+        mList.value = filterList()
     }
 
     fun getAndRemove(position: Int): History? {
-        val manga = if (mList.value != null) mList.value!!.removeAt(position) else null
-
-        if (mList.value != null && mList.value!!.contains(manga))
-            mList.value!!.remove(manga)
-
-        return manga
+        val item = mList.value?.getOrNull(position) as? History ?: return null
+        remove(item)
+        return item
     }
 
-    private fun filterList(): ArrayList<History> {
-        val list = arrayListOf<History>()
+    private fun unwrap(history: History): History =
+        if (history is HistoryStatistics) history.base else history
 
-        val isTitleId = null
-        var title: History? = null
+    private fun getSeparatorTitle(order: Order, history: History): String {
+        return when (order) {
+            Order.Name -> history.title.take(1).uppercase(Locale.getDefault()).ifEmpty { "#" }
+            Order.LastAccess -> GeneralConsts.formatCountDays(app.applicationContext, history.lastAccess)
+            Order.Favorite -> if (history.favorite) mFavoriteLabel else mNotFavoriteLabel
+            Order.Author -> history.author.trim().lowercase(Locale.getDefault())
+            Order.Genre -> history.genre.trim().lowercase(Locale.getDefault())
+            Order.Series -> history.series.trim().ifEmpty { mSeriesEmptyLabel }
+            else -> GeneralConsts.formatCountDays(app.applicationContext, history.lastAccess)
+        }
+    }
+
+    private fun filterList(): ArrayList<Any> {
+        val sortedList = arrayListOf<Any>()
+        val contentItems = mutableListOf<History>()
 
         if (mListFull.value != null && mListFull.value!!.isNotEmpty()) {
             val filter = mWordFilter
@@ -351,18 +369,12 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             }
 
             for (history in mListFull.value!!) {
-                if (history == null)
-                    continue
-
-                if (history.id == isTitleId) {
-                    title = history
-                    continue
-                }
+                val base = unwrap(history)
 
                 val currentLib = mLibrary.value
                 if (currentLib != null) {
                     val key = if (currentLib.id == mDefaultKey) {
-                        when (history) {
+                        when (base) {
                             is Manga -> GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
                             is Book -> GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
                             else -> currentLib.id
@@ -383,9 +395,13 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                 if (matches && tags.isNotEmpty()) {
                     for ((key, value) in tags) {
                         val historyValue = when (key) {
-                            FilterType.Author -> if (history is Manga) history.author else if (history is Book) history.author else ""
-                            FilterType.Publisher -> if (history is Manga) history.publisher else if (history is Book) history.publisher else ""
-                            FilterType.Series -> if (history is Manga) history.series else if (history is Book) history.series else ""
+                            FilterType.Author -> history.author
+                            FilterType.Publisher -> when (base) {
+                                is Manga -> base.publisher
+                                is Book -> base.publisher
+                                else -> ""
+                            }
+                            FilterType.Series -> history.series
                             FilterType.Volume -> history.volume
                             FilterType.Type -> history.fileType.toString()
                             else -> ""
@@ -397,17 +413,70 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                     }
                 }
 
-                if (matches) {
-                    if (title != null) {
-                        list.add(title)
-                        title = null
-                    }
-                    list.add(history)
-                }
+                if (matches)
+                    contentItems.add(history)
             }
         }
 
-        return list
+        val currentOrder = mOrder.value ?: Pair(Order.LastAccess, false)
+        val isDesc = currentOrder.second
+        val order = currentOrder.first
+
+        if (isDesc) {
+            when (order) {
+                Order.Name -> contentItems.sortByDescending { it.name }
+                Order.Favorite -> contentItems.sortWith(compareBy<History> { it.favorite }.thenByDescending { it.name })
+                Order.LastAccess -> contentItems.sortWith(compareBy<History> { it.lastAccess }.thenByDescending { it.name })
+                Order.Series -> contentItems.sortWith(compareByDescending<History> { it.series }.thenByDescending { it.name })
+                Order.Author -> contentItems.sortWith(compareByDescending<History> { it.author }.thenByDescending { it.name })
+                Order.Genre -> contentItems.sortWith(compareByDescending<History> { it.genre }.thenByDescending { it.name })
+                else -> contentItems.sortByDescending { it.lastAccess }
+            }
+        } else {
+            when (order) {
+                Order.Name -> contentItems.sortBy { it.name }
+                Order.Favorite -> contentItems.sortWith(compareByDescending<History> { it.favorite }.thenBy { it.name })
+                Order.LastAccess -> contentItems.sortWith(compareByDescending<History> { it.lastAccess }.thenBy { it.name })
+                Order.Series -> contentItems.sortWith(compareBy<History> { it.series }.thenBy { it.name })
+                Order.Author -> contentItems.sortWith(compareBy<History> { it.author }.thenBy { it.name })
+                Order.Genre -> contentItems.sortWith(compareBy<History> { it.genre }.thenBy { it.name })
+                else -> contentItems.sortByDescending { it.lastAccess }
+            }
+        }
+
+        when (mHistoryType.value ?: HistoryType.SEPARATOR_LINE) {
+            HistoryType.LINE -> sortedList.addAll(contentItems)
+            HistoryType.SEPARATOR_LINE,
+            HistoryType.SEPARATOR_BIG,
+            HistoryType.SEPARATOR_MEDIUM -> buildGroupedList(sortedList, contentItems, order, carousel = false)
+            HistoryType.SEPARATOR_CAROUSEL -> buildGroupedList(sortedList, contentItems, order, carousel = true)
+        }
+
+        return sortedList
+    }
+
+    private fun buildGroupedList(
+        sortedList: ArrayList<Any>,
+        contentItems: List<History>,
+        order: Order,
+        carousel: Boolean
+    ) {
+        if (contentItems.isEmpty())
+            return
+
+        val grouped = linkedMapOf<String, MutableList<History>>()
+        for (item in contentItems) {
+            val key = getSeparatorTitle(order, item)
+            grouped.getOrPut(key) { mutableListOf() }.add(item)
+        }
+
+        for ((title, items) in grouped) {
+            sortedList.add(Separator(title, items.size))
+            if (carousel)
+                sortedList.add(HistoryGroup(title, items))
+            else
+                sortedList.addAll(items)
+        }
     }
 
     fun filterLibrary(library: Library?) {
@@ -452,10 +521,10 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
-            val list = arrayListOf<History>()
+            val list = arrayListOf<Any>()
             val values = filterResults?.values
             val items = when (values) {
-                is Collection<*> -> values.filterIsInstance<History>()
+                is Collection<*> -> values.filterIsInstance<Any>()
                 else -> emptyList()
             }
             list.addAll(items)
@@ -463,16 +532,12 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
-
-
     fun clearFilter() {
         mWordFilter = ""
-        val newList: MutableList<History> = mutableListOf()
-        newList.addAll(mListFull.value!!.filter(Objects::nonNull))
-        mList.value = ArrayList(newList)
+        mList.value = filterList()
     }
 
-    private fun setSuggestions(list : List<History>?) {
+    private fun setSuggestions(list: List<History>?) {
         mSuggestionAuthor = setOf()
         mSuggestionPublisher = setOf()
         mSuggestionSeries = setOf()
@@ -491,12 +556,12 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                 val volumes = mutableSetOf<String>()
 
                 process.forEach { historyItem ->
-                    val it = if (historyItem is HistoryStatistics) historyItem.base else historyItem
+                    val it = unwrap(historyItem)
                     when (it.type) {
                         Type.BOOK -> {
                             val book = it as Book
                             if (book.author.contains(","))
-                                authors.addAll(book.author.split(",").map { it.trim() })
+                                authors.addAll(book.author.split(",").map { a -> a.trim() })
                             else
                                 authors.add(book.author)
 
@@ -535,14 +600,14 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
-    fun getSuggestions(filter : String): List<String> {
+    fun getSuggestions(filter: String): List<String> {
         val type = filter.substringBeforeLast(':')
         val condition = filter.substringAfterLast(':')
-        return when(Util.historyStringToFilter(app, type, true)) {
+        return when (Util.historyStringToFilter(app, type, true)) {
             FilterType.Author -> mSuggestionAuthor.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
             FilterType.Publisher -> mSuggestionPublisher.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
             FilterType.Series -> mSuggestionSeries.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
-            FilterType.Volume ->  mSuggestionVolume.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
+            FilterType.Volume -> mSuggestionVolume.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
             FilterType.Type -> FileType.getManga().parallelStream().map { "$it" }.collect(Collectors.toList())
             FilterType.Tag -> mSuggestionTags.parallelStream().map { "$it" }.collect(Collectors.toList())
             else -> listOf()

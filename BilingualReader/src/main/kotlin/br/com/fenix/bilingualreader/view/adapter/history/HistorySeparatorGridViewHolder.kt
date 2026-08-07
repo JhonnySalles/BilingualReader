@@ -83,9 +83,10 @@ class HistorySeparatorGridViewHolder(
         }
 
         historyImage.setImageBitmap(null)
-        when (history) {
-            is Manga -> MangaImageCoverController.instance.setImageCoverAsync(itemView.context, history, historyImage, image)
-            is Book -> BookImageCoverController.instance.setImageCoverAsync(itemView.context, history, historyImage, image)
+        val coverSource = if (history is br.com.fenix.bilingualreader.model.entity.HistoryStatistics) history.base else history
+        when (coverSource) {
+            is Manga -> MangaImageCoverController.instance.setImageCoverAsync(itemView.context, coverSource, historyImage, image)
+            is Book -> BookImageCoverController.instance.setImageCoverAsync(itemView.context, coverSource, historyImage, image)
             else -> historyImage.setImageBitmap(image)
         }
 
