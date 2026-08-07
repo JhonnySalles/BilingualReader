@@ -58,8 +58,11 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.page_link.PageLinkCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.page_link.PageNotLinkCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.components.ImageShadowBuilder
 import br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.components.manga.TextViewEllipsizing
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
@@ -70,8 +73,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import br.com.fenix.bilingualreader.view.managers.PagesLinkHandler
+import android.graphics.drawable.ColorDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 
 class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
@@ -108,7 +118,9 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
     private lateinit var mPagesIndex: MaterialButton
     private lateinit var mForceImageReload: MaterialButton
     private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var mBlurTop: BlurView
     private lateinit var mMangaName: TextView
+    private lateinit var mPreferences: android.content.SharedPreferences
 
     private lateinit var mMapLanguage: HashMap<String, Languages>
     private val mImageLoadHandler: Handler = PagesLinkHandler(this)
@@ -227,8 +239,13 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         mDelete = root.findViewById(R.id.file_link_delete_button)
         mForceImageReload = root.findViewById(R.id.pages_link_force_image_reload)
         mToolbar = root.findViewById(R.id.toolbar_manga_pages_link)
+        mBlurTop = root.findViewById(R.id.pages_link_blur_top)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         (requireActivity() as PagesLinkActivity).setActionBar(mToolbar)
+        setupBlurViews()
+        setupTitleBackgrounds()
+        setupWindowInsets()
 
         if (mHelp.tag.toString().compareTo("not_used", true) != 0) {
             mExpandedButtonsGroupSize = mButtonsGroup.layoutParams as ConstraintLayout.LayoutParams
@@ -303,6 +320,20 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
                 mScrollDown.hide()
             }
         }
+
+        mRecyclerPageLink.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (!isGlass || !::mBlurTop.isInitialized) return
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    mBlurTop.setBlurAutoUpdate(false)
+                    GlassRenderScheduler.requestUpdate(mBlurTop)
+                    mBlurTop.blurOnceDeferred(mHandler, 50)
+                } else {
+                    mBlurTop.setBlurAutoUpdate(true)
+                }
+            }
+        })
 
         mFileLinkAutoComplete.setOnClickListener {
             choiceSelectManga()
@@ -750,9 +781,24 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         mViewModel.addImageLoadHandler(mImageLoadHandler)
         processImageLoading(isVerify = true)
         mRecyclerPageLink.scrollToPosition(mPageSelected)
+        setupTitleBackgrounds()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (::mBlurTop.isInitialized) {
+            mBlurTop.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({ mBlurTop.setBlurAutoUpdate(false) }, 100)
+            } else {
+                mBlurTop.setBlurAutoUpdate(false)
+            }
+        }
     }
 
     override fun onPause() {
+        if (::mBlurTop.isInitialized) {
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
+        }
         mPageSelected = (mRecyclerPageLink.layoutManager as LinearLayoutManager).findFirstCompletelyVisibleItemPosition()
         mViewModel.removeImageLoadHandler(mImageLoadHandler)
         super.onPause()
@@ -1110,5 +1156,36 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         processImages(isEnding = true, message = getString(R.string.page_link_process_undo_last_change_done))
         notifyItemChanged(PageLinkType.LINKED, null)
         notifyItemChanged(PageLinkType.NOT_LINKED, null)
+    }
+
+    private fun setupWindowInsets() {
+        if (!::mBlurTop.isInitialized)
+            return
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+    }
+
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+    }
+
+    private fun setupTitleBackgrounds() {
+        if (!::mBlurTop.isInitialized)
+            return
+        val barLayout = view?.findViewById<View>(R.id.pages_link_content)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 }

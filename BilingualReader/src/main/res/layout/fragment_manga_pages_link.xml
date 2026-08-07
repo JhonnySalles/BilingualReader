@@ -108,39 +108,46 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_manga_pages_link"
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/pages_link_blur_top"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="top"
-                android:background="@color/transparent"
-                app:popupTheme="@style/MainToolbarStyle"
-                style="@style/MainToolbarTheme">
+                android:layout_height="wrap_content">
 
-                <LinearLayout
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar_manga_pages_link"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="vertical">
+                    android:gravity="top"
+                    android:background="@color/transparent"
+                    app:popupTheme="@style/MainToolbarStyle"
+                    style="@style/MainToolbarTheme">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/pages_link_file_link_text"
-                        style="@style/TextInputWithoutDropMenu"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="@string/page_link_file"
-                        app:startIconDrawable="@drawable/ico_file">
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical">
 
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/pages_link_file_link_autocomplete"
-                            style="@style/AutoCompleteDropMenu"
-                            android:focusable="false"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/pages_link_file_link_text"
+                            style="@style/TextInputWithoutDropMenu"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="match_parent"
+                            android:hint="@string/page_link_file"
+                            app:startIconDrawable="@drawable/ico_file">
 
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-            </com.google.android.material.appbar.MaterialToolbar>
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/pages_link_file_link_autocomplete"
+                                style="@style/AutoCompleteDropMenu"
+                                android:focusable="false"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </com.google.android.material.appbar.MaterialToolbar>
+
+            </eightbitlab.com.blurview.BlurView>
 
             <LinearLayout
                 android:id="@+id/pages_link_top_content"

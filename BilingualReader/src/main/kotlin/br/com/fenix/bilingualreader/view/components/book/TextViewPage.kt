@@ -38,6 +38,9 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     private var mIsChangeSize: Boolean = true
     private var mOriginalSize: Float
     private var mIsZoom = false
+    /** Notifies the reader when pinch-zoom needs continuous blur updates. */
+    var onZoomInteractionChanged: ((Boolean) -> Unit)? = null
+    private var mZoomInteractionActive = false
 
     init {
         mOriginalSize = textSize
@@ -53,11 +56,15 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
             if (event.pointerCount > 1) {
                 setTextIsSelectable(false)
+                notifyZoomInteraction(true)
                 zoom(view, event)
                 parent.requestDisallowInterceptTouchEvent(true)
                 return@setOnTouchListener true
-            } else
+            } else {
                 setTextIsSelectable(true)
+                if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL)
+                    notifyZoomInteraction(false)
+            }
 
             if (mGestureDetector.onTouchEvent(event))
                 return@setOnTouchListener true
@@ -117,6 +124,12 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             } finally {
                 mIsChangeSize = true
             }
+    }
+
+    private fun notifyZoomInteraction(active: Boolean) {
+        if (mZoomInteractionActive == active) return
+        mZoomInteractionActive = active
+        onZoomInteractionChanged?.invoke(active)
     }
 
     private fun zoom(@Suppress("UNUSED_PARAMETER") v: View?, event: MotionEvent): Boolean {

@@ -68,7 +68,10 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     private var mMatrix: Matrix = Matrix()
 
     var useMagnifierType = false
+    /** Notifies the reader when zoom/drag needs continuous blur updates. */
+    var onZoomInteractionChanged: ((Boolean) -> Unit)? = null
     private var mPinch = false
+    private var mZoomInteractionActive = false
     private var mMagnifierMatrix: Matrix = Matrix()
     private var mZoomPos: PointF
     private var mZooming = false
@@ -151,6 +154,11 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
             if (!mZooming && !mPinch)
                 validScrollingTouchEventInViewPager(event)
+
+            if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) {
+                if (!mPinch)
+                    notifyZoomInteraction(false)
+            }
 
             mOuterTouchListener?.onTouch(v, event)
             onTouchEvent(event)
@@ -323,7 +331,18 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         mSkipScaling = true
     }
 
+    private fun notifyZoomInteraction(active: Boolean) {
+        if (mZoomInteractionActive == active) return
+        mZoomInteractionActive = active
+        onZoomInteractionChanged?.invoke(active)
+    }
+
     inner class PrivateScaleDetector : SimpleOnScaleGestureListener() {
+        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            notifyZoomInteraction(true)
+            return true
+        }
+
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             mMatrix.getValues(mValues)
             val scale = mValues[Matrix.MSCALE_X]
@@ -341,6 +360,10 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             imageMatrix = mMatrix
             return scalable
         }
+
+        override fun onScaleEnd(detector: ScaleGestureDetector) {
+            notifyZoomInteraction(false)
+        }
     }
 
     inner class PrivateDragListener : SimpleOnGestureListener() {
@@ -350,6 +373,8 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         }
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            if (getCurrentScale() != mOriginalScale)
+                notifyZoomInteraction(true)
             val orientation = mParentViewPager?.orientation
             if (orientation != null && !mPinch) {
                 val isHorizontal = orientation == ORIENTATION_HORIZONTAL
@@ -409,10 +434,12 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     }
 
     open fun zoomAnimated(e: MotionEvent, scale: Float) {
+        notifyZoomInteraction(true)
         post(ZoomAnimation(e.x, e.y, scale))
     }
 
     open fun zoomAnimated(scale: Float, isLeftToRight: Boolean) {
+        notifyZoomInteraction(true)
         if (!isLeftToRight)
             post(ZoomAnimation(mRightZoomScale.x, mRightZoomScale.y, scale))
         else
@@ -686,6 +713,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 mMatrix.setScale(mScale, mScale)
                 mMatrix.postTranslate(mValues[Matrix.MTRANS_X], mValues[Matrix.MTRANS_Y])
                 setImageMatrix(mMatrix)
+                notifyZoomInteraction(false)
             }
         }
 

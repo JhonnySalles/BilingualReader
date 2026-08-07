@@ -105,7 +105,9 @@ import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.components.book.Curl3DPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.CurlPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DefaultPageTransformer
@@ -383,6 +385,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 try {
                     mIsSeekBarChange = true
+                    setReaderBlurContinuous(true)
 
                     val currentPosition = when (mScrollingMode) {
                         ScrollingType.Pagination,
@@ -438,6 +441,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
                 mIsSeekBarChange = false
+                setReaderBlurContinuous(false)
             }
         })
 
@@ -784,7 +788,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             WebViewAdapter(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment)
         else
-            TextViewAdapter(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment)
+            TextViewAdapter(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment).also {
+                it.onZoomInteractionChanged = { active -> setReaderBlurContinuous(active) }
+            }
 
         configureScrolling(scrolling, pagination, true)
         observer()
@@ -810,6 +816,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     -> {
                     mViewRecycler.setOnTouchListener(null)
                     mViewRecycler.clearOnScrollListeners()
+                    mViewRecycler.onZoomInteractionChanged = null
                     mViewRecycler.setOnSwipeOutListener(null)
 
                     mViewRecycler.adapter = null
@@ -835,6 +842,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                             generatePageAverage()
                         }
+
+                        override fun onPageScrollStateChanged(state: Int) {
+                            when (state) {
+                                ViewPager2.SCROLL_STATE_DRAGGING, ViewPager2.SCROLL_STATE_SETTLING ->
+                                    setReaderBlurContinuous(true)
+                                ViewPager2.SCROLL_STATE_IDLE ->
+                                    setReaderBlurContinuous(false)
+                            }
+                        }
                     })
 
                     mViewPager.visibility = View.VISIBLE
@@ -855,6 +871,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     mViewRecycler.setOnTouchListener(this@BookReaderFragment)
                     mViewRecycler.addOnScrollListener(InfinityScrollingListener())
+                    mViewRecycler.onZoomInteractionChanged = { active -> setReaderBlurContinuous(active) }
                     mViewRecycler.setOnSwipeOutListener(object : ZoomRecyclerView.OnSwipeOutListener {
                         override fun onSwipeOutAtStart() = hitBeginning()
                         override fun onSwipeOutAtEnd() = hitEnding()
@@ -1223,6 +1240,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val targetBottomVisibility = if (isFullScreen || isErrorState) View.GONE else View.VISIBLE
 
         if (!isFullScreen) {
+            setReaderBlurContinuous(true)
             targetTop.visibility = View.VISIBLE
             targetTop.translationY = initialTranslation
             targetTop.alpha = initialAlpha
@@ -1240,6 +1258,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     targetTop.visibility = visibility
+                    if (!isFullScreen)
+                        setReaderBlurContinuous(false)
                 }
             })
 
@@ -1369,6 +1389,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
 
     private val bookAnnotationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        refreshReaderBlur()
         mViewModel.refreshAnnotations(mBook)
         mPagerAdapter.notifyDataSetChanged()
 
@@ -1396,6 +1417,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private val bookSearchLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        refreshReaderBlur()
         val data = result.data
         if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
             val search = BundleCompat.getSerializable(
@@ -1421,6 +1443,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     private val touchConfigurationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         mTouchScreen = TouchUtils.getTouch(requireContext(), Type.BOOK)
+        refreshReaderBlur()
     }
 
     private fun openBookAnnotation() {
@@ -1850,17 +1873,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     inner class InfinityScrollingListener() : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
-                var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
-                if (first < 0)
-                    first = adapter.findFirstVisibleItemPosition()
-                var last: Int = adapter.findLastCompletelyVisibleItemPosition()
-                if (last < 0)
-                    last = adapter.findLastVisibleItemPosition()
-                val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
-                setChangeProgress(center + 1, center)
-                generatePageAverage()
+            when (newState) {
+                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->
+                    setReaderBlurContinuous(true)
+                RecyclerView.SCROLL_STATE_IDLE -> {
+                    setReaderBlurContinuous(false)
+                    val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
+                    var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
+                    if (first < 0)
+                        first = adapter.findFirstVisibleItemPosition()
+                    var last: Int = adapter.findLastCompletelyVisibleItemPosition()
+                    if (last < 0)
+                        last = adapter.findLastVisibleItemPosition()
+                    val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
+                    setChangeProgress(center + 1, center)
+                    generatePageAverage()
+                }
             }
         }
     }
@@ -2013,23 +2041,53 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onResume() {
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
-        setupTitleBackgrounds()
-        setBlurAutoUpdate(true)
+        refreshReaderBlur()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        setBlurAutoUpdate(!hidden)
+        if (hidden)
+            setBlurAutoUpdate(false)
+        else
+            refreshReaderBlur()
+    }
+
+    private fun setReaderBlurContinuous(active: Boolean) {
+        if (!isAdded || !::mBlurTop.isInitialized)
+            return
+        if (mIsFullscreen)
+            return
+        setBlurAutoUpdate(active)
+    }
+
+    private fun refreshReaderBlur() {
+        if (!isAdded || !::mBlurTop.isInitialized)
+            return
+        setupTitleBackgrounds()
+        setBlurAutoUpdate(false)
+        if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false) && !mIsFullscreen) {
+            mBlurTop.blurOnceDeferred(mHandler, 50)
+            mBlurBottom.blurOnceDeferred(mHandler, 50)
+        }
     }
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized)
+            return
+
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val autoUpdate = isGlass && enabled
-        mBlurTop.setBlurAutoUpdate(autoUpdate)
-        mBlurBottom.setBlurAutoUpdate(autoUpdate)
 
         mBlurTop.setBlurEnabled(isGlass)
         mBlurBottom.setBlurEnabled(isGlass)
+
+        mBlurTop.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom.setBlurAutoUpdate(autoUpdate)
+
+        if (isGlass && !enabled) {
+            GlassRenderScheduler.requestUpdate(mBlurTop)
+            GlassRenderScheduler.requestUpdate(mBlurBottom)
+        }
     }
 
     private fun setupTitleBackgrounds() {

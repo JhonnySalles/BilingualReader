@@ -112,6 +112,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/pages_link_blur_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar_manga_pages_link"
                 android:layout_width="match_parent"
@@ -167,6 +172,8 @@
                 </LinearLayout>
 
             </com.google.android.material.appbar.MaterialToolbar>
+
+            </eightbitlab.com.blurview.BlurView>
 
             <TextView
                 android:id="@+id/pages_link_name_manga"

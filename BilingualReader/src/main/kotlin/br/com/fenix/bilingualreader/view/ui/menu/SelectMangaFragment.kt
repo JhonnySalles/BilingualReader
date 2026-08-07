@@ -38,11 +38,18 @@ import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
+import android.graphics.drawable.ColorDrawable
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 
@@ -61,6 +68,8 @@ class SelectMangaFragment : Fragment() {
 
     private lateinit var mTitle: TextView
     private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var mBlurTop: BlurView
+    private lateinit var mPreferences: android.content.SharedPreferences
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
 
@@ -109,11 +118,15 @@ class SelectMangaFragment : Fragment() {
         mScrollUp = root.findViewById(R.id.select_manga_scroll_up)
         mScrollDown = root.findViewById(R.id.select_manga_scroll_down)
         mToolbar = root.findViewById(R.id.toolbar_select_manga)
+        mBlurTop = root.findViewById(R.id.select_manga_blur_top)
         mTitle = root.findViewById(R.id.toolbar_select_manga_title)
-        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(requireContext()).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         MenuUtil.tintToolbar(mToolbar, theme)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
+        setupBlurViews()
+        setupTitleBackgrounds()
 
         registerForContextMenu(mTitle)
 
@@ -178,6 +191,20 @@ class SelectMangaFragment : Fragment() {
                 mScrollDown.show()
             }
         }
+
+        mRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (!isGlass || !::mBlurTop.isInitialized) return
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    mBlurTop.setBlurAutoUpdate(false)
+                    GlassRenderScheduler.requestUpdate(mBlurTop)
+                    mBlurTop.blurOnceDeferred(mHandler, 50)
+                } else {
+                    mBlurTop.setBlurAutoUpdate(true)
+                }
+            }
+        })
 
         mListener = object : MangaCardListener {
             override fun onClick(manga: Manga, root: View) {
@@ -277,6 +304,25 @@ class SelectMangaFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         titleLibrary()
+        setupTitleBackgrounds()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (::mBlurTop.isInitialized) {
+            mBlurTop.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({ mBlurTop.setBlurAutoUpdate(false) }, 100)
+            } else {
+                mBlurTop.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    override fun onPause() {
+        if (::mBlurTop.isInitialized) {
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
+        }
+        super.onPause()
     }
 
     private fun changeLibrary(library: Library) {
@@ -317,6 +363,27 @@ class SelectMangaFragment : Fragment() {
             LibraryMangaType.SEPARATOR_MEDIUM -> StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
             else -> GridLayoutManager(requireContext(), spaceCount)
         }
+    }
+
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+    }
+
+    private fun setupTitleBackgrounds() {
+        if (!::mBlurTop.isInitialized)
+            return
+        val barLayout = view?.findViewById<View>(R.id.content_toolbar_select_manga)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 
 }

@@ -214,9 +214,9 @@ public final class GlassBlurController implements BlurController {
     public BlurViewFacade setBlurEnabled(boolean enabled) {
         this.blurEnabled = enabled;
         if (enabled) {
-            // Keep listener so on-demand / continuous updates can run; mode is controlled by scheduler.
+            // Keep listener so on-demand / continuous updates can run.
+            // Continuous vs on-demand is controlled exclusively by setBlurAutoUpdate.
             startListening();
-            GlassRenderScheduler.INSTANCE.setContinuous(this, false);
         } else {
             stopListening();
             GlassRenderScheduler.INSTANCE.setContinuous(this, false);
