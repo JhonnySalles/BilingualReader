@@ -591,41 +591,53 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 if (isLoaded) {
                     when (mReaderMode) {
-                        ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
-                        ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
-                        ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
+                        ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill)?.isChecked = true
+                        ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit)?.isChecked = true
+                        ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width)?.isChecked = true
                     }
 
                     when (mScrollingMode) {
-                        ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
-                        ScrollingType.HorizontalRightToLeft -> menu.findItem(R.id.reading_manga_scrolling_horizontal_right_to_left).isChecked = true
-                        ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical).isChecked = true
-                        ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling).isChecked = true
-                        ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider).isChecked = true
-                        else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+                        ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal)?.isChecked = true
+                        ScrollingType.HorizontalRightToLeft -> menu.findItem(R.id.reading_manga_scrolling_horizontal_right_to_left)?.isChecked = true
+                        ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical)?.isChecked = true
+                        ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling)?.isChecked = true
+                        ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider)?.isChecked = true
+                        else -> menu.findItem(R.id.reading_manga_scrolling_horizontal)?.isChecked = true
                     }
 
                     when (mPaginationType) {
-                        PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
-                        PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
-                        PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
-                        PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
-                        PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
-                        PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
-                        PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade).isChecked = true
-                        else -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
+                        PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default)?.isChecked = true
+                        PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl)?.isChecked = true
+                        PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d)?.isChecked = true
+                        PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack)?.isChecked = true
+                        PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom)?.isChecked = true
+                        PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth)?.isChecked = true
+                        PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade)?.isChecked = true
+                        else -> menu.findItem(R.id.reading_manga_pagination_default)?.isChecked = true
                     }
 
-                    menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
-                    menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
-                    menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
+                    menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type)?.isChecked = mUseMagnifierType
+                    menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages)?.isChecked = mKeepZoomBetweenPage
+                    menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery)?.isChecked =
+                        mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
 
-                    miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
+                    menu.findItem(R.id.menu_item_reader_manga_mark_page)?.let { miMarkPage = it }
                 }
+
+                (activity as? MangaReaderActivity)?.prepareFavoriteMenuItem(menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                (activity as? MangaReaderActivity)?.prepareFavoriteMenuItem(menu)
             }
 
             override fun onMenuItemSelected(item: MenuItem): Boolean {
                 return when (item.itemId) {
+                    R.id.menu_item_reader_manga_favorite -> {
+                        (activity as? MangaReaderActivity)?.changeFavorite(item)
+                        true
+                    }
+
                     R.id.manga_view_mode_aspect_fill, R.id.manga_view_mode_aspect_fit, R.id.manga_view_mode_fit_width -> {
                         item.isChecked = true
                         mReaderMode = mResourceViewMode[item.itemId] ?: ReaderMode.FIT_WIDTH
@@ -722,8 +734,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                     R.id.menu_item_reader_manga_mark_page -> {
                         markCurrentPage()
-                        (miMarkPage.icon as AnimatedVectorDrawable).reset()
-                        (miMarkPage.icon as AnimatedVectorDrawable).start()
+                        if (::miMarkPage.isInitialized) {
+                            (miMarkPage.icon as? AnimatedVectorDrawable)?.let {
+                                it.reset()
+                                it.start()
+                            }
+                        }
                         true
                     }
 
@@ -736,6 +752,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    fun syncMangaFavorite(favorite: Boolean) {
+        mManga?.favorite = favorite
     }
 
     private fun setupMangaChaptersDots(parse: Parse) {

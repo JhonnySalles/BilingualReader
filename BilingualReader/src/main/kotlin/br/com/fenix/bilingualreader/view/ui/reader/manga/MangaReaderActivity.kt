@@ -1022,7 +1022,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             R.id.manga_view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
             R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
             R.id.menu_item_reader_manga_popup_open_floating -> openFloatingSubtitle()
-            R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
             R.id.menu_item_reader_manga_mark_page -> { }
             R.id.menu_item_reader_manga_popup_subtitle -> {
                 val layout = if (mMenuPopupBottomSheet) mMenuPopupTranslateBottom else mMenuPopupTranslateLeft
@@ -1134,22 +1133,22 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val favoriteItem = menu.findItem(R.id.menu_item_reader_manga_favorite)
+    fun prepareFavoriteMenuItem(menu: Menu) {
+        val favoriteItem = menu.findItem(R.id.menu_item_reader_manga_favorite) ?: return
         val icon = if (mManga != null && mManga!!.favorite)
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
         else
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_unmark)
         icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
         favoriteItem.icon = icon
-        return super.onPrepareOptionsMenu(menu)
     }
 
-    private fun changeFavorite(item: MenuItem) {
+    fun changeFavorite(item: MenuItem) {
         if (mManga == null)
             return
 
         mManga?.favorite = !mManga!!.favorite
+        mFragment?.syncMangaFavorite(mManga!!.favorite)
 
         val icon = if (mManga!!.favorite)
             ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
@@ -1157,7 +1156,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
         icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
         item.icon = icon
-        (item.icon as AnimatedVectorDrawable).start()
+        (item.icon as? AnimatedVectorDrawable)?.start()
         mRepository.update(mManga!!)
     }
 

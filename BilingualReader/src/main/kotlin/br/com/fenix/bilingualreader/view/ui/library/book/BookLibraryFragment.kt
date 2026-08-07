@@ -558,6 +558,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun onChangeIconSort(order: Order, isDesc: Boolean?) {
+        if (!::miGridOrder.isInitialized)
+            return
+
         if (isDesc != null) {
             val icon: Int? = when (order) {
                 Order.Name -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
