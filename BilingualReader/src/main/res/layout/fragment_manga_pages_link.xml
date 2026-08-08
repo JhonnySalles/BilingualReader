@@ -374,7 +374,7 @@
             app:borderWidth="@dimen/page_link_up_border"
             app:fabCustomSize="@dimen/page_link_up_width"
             app:maxImageSize="@dimen/page_link_up_image_width"
-            app:layout_constraintTop_toBottomOf="@+id/pages_link_content"
+            app:layout_constraintTop_toBottomOf="@+id/pages_link_blur_top"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"/>
 
