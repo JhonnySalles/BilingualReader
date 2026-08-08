@@ -8,6 +8,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 
 class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), HistoryBaseAdapter {
@@ -30,13 +31,17 @@ class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), 
                 (holder as HistoryHeaderViewHolder).bind(mHistoryList[position] as Separator)
 
                 if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.SEPARATOR_TITLE_RIGHT)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as HistoryViewHolder).bind(mHistoryList[position] as History)
 
                 if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
         }
     }

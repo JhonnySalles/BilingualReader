@@ -19,6 +19,7 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import com.google.android.material.card.MaterialCardView
 
 class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
@@ -63,6 +64,7 @@ class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
 
     override fun onBindViewHolder(holder: HistoryCoverViewHolder, position: Int) {
         holder.bind(mList[position], mOrder)
+        LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
     }
 
     override fun getItemCount(): Int = mList.size

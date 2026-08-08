@@ -60,14 +60,14 @@ class BookSeriesCardAdapter(private val context: Context) :
             HEADER -> {
                 (holder as BookSeparatorHeaderViewHolder).bind(mBookList[position] as Separator)
                 if (isAnimation)
-                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
                 else
                     LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as BookSeriesViewHolder).bind(mBookList[position] as BookGroup, mOrder)
                 if (isAnimation)
-                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
                 else
                     LibraryCardAnimator.clear(holder)
             }

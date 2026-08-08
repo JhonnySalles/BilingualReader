@@ -60,14 +60,14 @@ class MangaSeriesCardAdapter(private val context: Context) :
             HEADER -> {
                 (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
                 if (isAnimation)
-                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
                 else
                     LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as MangaSeriesViewHolder).bind(mMangaList[position] as MangaGroup, mOrder)
                 if (isAnimation)
-                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.LINE)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
                 else
                     LibraryCardAnimator.clear(holder)
             }

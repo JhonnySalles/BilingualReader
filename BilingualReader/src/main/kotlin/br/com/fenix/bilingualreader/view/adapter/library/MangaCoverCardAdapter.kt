@@ -16,6 +16,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import com.google.android.material.card.MaterialCardView
 
 class MangaCoverCardAdapter(private val listener: MangaCardListener) :
@@ -60,6 +61,7 @@ class MangaCoverCardAdapter(private val listener: MangaCardListener) :
 
     override fun onBindViewHolder(holder: MangaCoverViewHolder, position: Int) {
         holder.bind(mList[position], mOrder)
+        LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
     }
 
     override fun getItemCount(): Int = mList.size

@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), HistoryBaseAdapter {
 
@@ -47,14 +48,16 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
             HEADER -> {
                 (holder as HistoryHeaderViewHolder).bind(mHistoryList[position] as Separator)
                 if (isAnimation)
-                    holder.itemView.animation =
-                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as HistorySeriesViewHolder).bind(mHistoryList[position] as HistoryGroup, mOrder)
                 if (isAnimation)
-                    holder.itemView.animation =
-                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
         }
     }

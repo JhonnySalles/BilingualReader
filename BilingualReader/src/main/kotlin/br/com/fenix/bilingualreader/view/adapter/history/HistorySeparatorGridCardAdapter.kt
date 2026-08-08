@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), HistoryBaseAdapter {
@@ -56,12 +57,19 @@ class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            HEADER -> (holder as HistorySeparatorHeaderViewHolder).bind(mHistoryList[position] as Separator)
+            HEADER -> {
+                (holder as HistorySeparatorHeaderViewHolder).bind(mHistoryList[position] as Separator)
+                if (isAnimation)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.SEPARATOR_TITLE_CENTER)
+                else
+                    LibraryCardAnimator.clear(holder)
+            }
             else -> {
                 (holder as HistorySeparatorGridViewHolder).bind(mHistoryList[position] as History)
                 if (isAnimation)
-                    holder.itemView.animation =
-                        AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.GRID)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
         }
     }

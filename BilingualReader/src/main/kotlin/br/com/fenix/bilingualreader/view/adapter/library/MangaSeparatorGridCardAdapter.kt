@@ -71,6 +71,10 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
         when (getItemViewType(position)) {
             HEADER -> {
                 (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
+                if (isAnimation)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.SEPARATOR_TITLE_CENTER)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as MangaSeparatorGridViewHolder).bind(mMangaList[position] as Manga)

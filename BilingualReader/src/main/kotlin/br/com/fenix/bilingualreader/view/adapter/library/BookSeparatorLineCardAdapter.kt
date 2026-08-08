@@ -57,6 +57,10 @@ class BookSeparatorLineCardAdapter(private val context: Context) :
         when (getItemViewType(position)) {
             HEADER -> {
                 (holder as BookSeparatorHeaderViewHolder).bind(mBookList[position] as Separator)
+                if (isAnimation)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.SEPARATOR_TITLE_RIGHT)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as BookLineViewHolder).bind(mBookList[position] as Book)

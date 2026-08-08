@@ -71,6 +71,10 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
         when (getItemViewType(position)) {
             HEADER -> {
                 (holder as BookSeparatorHeaderViewHolder).bind(mBookList[position] as Separator)
+                if (isAnimation)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.SEPARATOR_TITLE_CENTER)
+                else
+                    LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as BookSeparatorGridViewHolder).bind(mBookList[position] as Book)
