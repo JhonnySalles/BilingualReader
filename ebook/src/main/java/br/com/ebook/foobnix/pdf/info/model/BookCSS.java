@@ -666,6 +666,7 @@ public class BookCSS {
         boolean legacy = isLegacyCssDevice();
         String result = legacy ? toCssStringCompat() : toCssStringModern();
         LOGGER.debug("BookCSS profile={} length={}", legacy ? "compat" : "modern", result.length());
+        LOGGER.debug("Injected CSS Content:\n{}", result);
         return result;
     }
 

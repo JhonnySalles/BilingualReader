@@ -217,17 +217,46 @@ object EpubBookExtractor : BookExtractor {
                                 Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(coverHtml.toByteArray(StandardCharsets.UTF_8)))
                             }
                         } else if (!name.endsWith("container.xml") && (nameLow.endsWith("html") || nameLow.endsWith("htm") || nameLow.endsWith("xml"))) {
-                            if (BookCSS.get().isAutoHypens) {
-                                zipFile.getInputStream(entry).use { inputStream ->
-                                    InputStreamReader(inputStream, StandardCharsets.UTF_8).use { reader ->
+                            zipFile.getInputStream(entry).use { inputStream ->
+                                var htmlContent = String(inputStream.readBytes(), StandardCharsets.UTF_8)
+                                try {
+                                    val doc = Jsoup.parse(htmlContent, "", Parser.xmlParser())
+                                    val styles = doc.select("style")
+                                    var modified = false
+                                    for ((index, style) in styles.withIndex()) {
+                                        val rawCss = style.html()
+                                        if (!isValidCss(rawCss)) {
+                                            LOGGER.warn("Replacing invalid inline CSS in {} <style index {}>", name, index)
+                                            style.html(SAFE_FALLBACK_CSS)
+                                            modified = true
+                                        }
+                                    }
+                                    if (modified) {
+                                        htmlContent = doc.toString()
+                                    }
+                                } catch (e: Exception) {
+                                    LOGGER.error("Error sanitizing inline style for {}", name, e)
+                                }
+                                
+                                if (BookCSS.get().isAutoHypens) {
+                                    InputStreamReader(ByteArrayInputStream(htmlContent.toByteArray(StandardCharsets.UTF_8)), StandardCharsets.UTF_8).use { reader ->
                                         val hStream = Fb2BookExtractor.generateHyphenFile(reader)
                                         Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(hStream.toByteArray()))
                                     }
+                                } else {
+                                    Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(htmlContent.toByteArray(StandardCharsets.UTF_8)))
                                 }
-                            } else {
-                                zipFile.getInputStream(entry).use { inputStream ->
-                                    Fb2BookExtractor.writeToZipNoClose(zos, name, inputStream)
+                            }
+                        } else if (nameLow.endsWith(".css")) {
+                            zipFile.getInputStream(entry).use { inputStream ->
+                                val cssContent = String(inputStream.readBytes(), StandardCharsets.UTF_8)
+                                val safeCss = if (!isValidCss(cssContent)) {
+                                    LOGGER.warn("Replacing invalid external CSS file {}", name)
+                                    SAFE_FALLBACK_CSS
+                                } else {
+                                    cssContent
                                 }
+                                Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(safeCss.toByteArray(StandardCharsets.UTF_8)))
                             }
                         } else {
                             zipFile.getInputStream(entry).use { inputStream ->
@@ -735,5 +764,71 @@ object EpubBookExtractor : BookExtractor {
             LOGGER.error("Error extracting TOC outline from {}: {}", path, e.message, e)
         }
         return list
+    }
+
+    private const val SAFE_FALLBACK_CSS = "body { margin: 0; padding: 0; } img { max-width: 100%; max-height: 100%; height: auto; width: auto; display: block; margin: 0 auto; }"
+
+    private val TRANSLATED_CSS_KEYWORDS = setOf(
+        "preenchimento", "margem", "corpo", "largura", "altura", "fundo",
+        "alinhamento", "alinhamento-de-texto", "oeb-column-number",
+        "max-luda", "max-heuth"
+    )
+
+    fun isValidCss(css: String?): Boolean {
+        if (css.isNullOrBlank()) return true
+
+        val lowerCss = css.lowercase(Locale.getDefault())
+
+        // Camada 1: Validação de palavras-chave traduzidas em Português
+        for (keyword in TRANSLATED_CSS_KEYWORDS) {
+            if (lowerCss.contains(keyword)) {
+                LOGGER.warn("CSS Validation (Layer 1): Found translated keyword '$keyword'")
+                return false
+            }
+        }
+
+        // Camada 2: Parse estrito de sintaxe CSS
+        // 2a. Balanceamento de chaves
+        var braceCount = 0
+        for (ch in css) {
+            if (ch == '{') braceCount++
+            else if (ch == '}') {
+                braceCount--
+                if (braceCount < 0) {
+                    LOGGER.warn("CSS Validation (Layer 2): Unbalanced closing brace '}'")
+                    return false
+                }
+            }
+        }
+        if (braceCount != 0) {
+            LOGGER.warn("CSS Validation (Layer 2): Unclosed brace '{'")
+            return false
+        }
+
+        // 2b. Comentários não fechados
+        if (css.contains("/*") && !css.contains("*/")) {
+            LOGGER.warn("CSS Validation (Layer 2): Unclosed comment block")
+            return false
+        }
+
+        // 2c. Verificar nomes de propriedades inválidos antes dos dois pontos
+        val declarations = css.split("{", "}")
+        for (i in 1 until declarations.size step 2) {
+            val body = declarations[i]
+            val lines = body.split(";")
+            for (line in lines) {
+                val trimmed = line.trim()
+                if (trimmed.isEmpty()) continue
+                if (trimmed.contains(":")) {
+                    val prop = trimmed.substringBefore(":").trim()
+                    if (prop.isNotEmpty() && !prop.matches(Regex("^[a-zA-Z0-9\\-_]+$"))) {
+                        LOGGER.warn("CSS Validation (Layer 2): Invalid property name '$prop'")
+                        return false
+                    }
+                }
+            }
+        }
+
+        return true
     }
 }
