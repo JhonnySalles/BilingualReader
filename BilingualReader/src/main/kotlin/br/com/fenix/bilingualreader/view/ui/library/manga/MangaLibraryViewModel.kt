@@ -65,6 +65,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     val loading: LiveData<Boolean> = mLoading
 
     private var mWordFilter = ""
+    val wordFilter: String get() = mWordFilter
 
     private var mOrder = MutableLiveData(Pair(Order.Name, false))
     val order: LiveData<Pair<Order, Boolean>> = mOrder
@@ -235,6 +236,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun setLibrary(library: Library) {
         if (mLibrary.id != library.id) {
+            mTypeFilter.value = FilterType.None
+            mWordFilter = ""
             mFullMap.clear()
             mListMangas.value = mutableListOf()
             setSuggestionsFromFull()

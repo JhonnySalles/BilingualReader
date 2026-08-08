@@ -342,6 +342,16 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
 
+        val currentFilter = mViewModel.wordFilter
+        if (currentFilter.isNotEmpty()) {
+            searchView.post {
+                searchView.isIconified = false
+                miSearch.expandActionView()
+                searchView.setQuery(currentFilter, false)
+                searchView.clearFocus()
+            }
+        }
+
         val iconGrid: Int = when (mViewModel.libraryType.value) {
             LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridsmall_exit
             LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_gridbig_exit
