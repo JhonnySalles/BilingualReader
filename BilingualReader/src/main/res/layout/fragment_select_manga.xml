@@ -8,7 +8,6 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:fitsSystemWindows="true"
     style="@style/AppBackground"
     tools:context=".view.ui.menu.SelectMangaFragment">
 
@@ -38,29 +37,15 @@
             app:layout_constraintTop_toBottomOf="@+id/content_toolbar_select_manga"
             app:layout_constraintVertical_bias="0"/>
 
-        <View
-            android:background="?attr/statusBarColor"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_gravity="top"
-            android:layout_marginStart="@dimen/reader_title_margin_negative"
-            android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="parent"/>
-
         <com.google.android.material.appbar.AppBarLayout
             style="@style/AppBarLayout"
             android:id="@+id/content_toolbar_select_manga"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             android:theme="@style/MainToolbarContentTheme"
             android:background="@android:color/transparent"
             android:layout_marginStart="@dimen/reader_title_margin_negative"
             android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            android:paddingStart="@dimen/reader_title_margin_positive"
-            android:paddingEnd="@dimen/reader_title_margin_positive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -68,23 +53,18 @@
             <eightbitlab.com.blurview.BlurView
                 android:id="@+id/select_manga_blur_top"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/default_navigator_header_margin_top">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar_select_manga"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_navigator_header_size"
+                    android:paddingStart="@dimen/reader_title_margin_positive"
+                    android:paddingEnd="@dimen/reader_title_margin_positive"
                     android:background="@android:color/transparent"
                     app:popupTheme="@style/MainToolbarStyle"
-                    style="@style/MainToolbarThemeWithShadow">
-
-                    <TextView
-                        android:id="@+id/toolbar_select_manga_title"
-                        style="@style/SelectMangaToolbarTheme"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                </com.google.android.material.appbar.MaterialToolbar>
+                    style="@style/MainToolbarThemeWithShadow" />
 
             </eightbitlab.com.blurview.BlurView>
 

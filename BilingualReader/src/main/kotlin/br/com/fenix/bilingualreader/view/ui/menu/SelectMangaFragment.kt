@@ -18,9 +18,11 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.AutoCompleteTextView
 import android.widget.SearchView
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -66,7 +68,7 @@ class SelectMangaFragment : Fragment() {
     private lateinit var mRecycler: RecyclerView
     private var mMangaAdapter: BaseAdapter<Manga, MangaCardListener>? = null
 
-    private lateinit var mTitle: TextView
+
     private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
     private lateinit var mBlurTop: BlurView
     private lateinit var mPreferences: android.content.SharedPreferences
@@ -119,7 +121,6 @@ class SelectMangaFragment : Fragment() {
         mScrollDown = root.findViewById(R.id.select_manga_scroll_down)
         mToolbar = root.findViewById(R.id.toolbar_select_manga)
         mBlurTop = root.findViewById(R.id.select_manga_blur_top)
-        mTitle = root.findViewById(R.id.toolbar_select_manga_title)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
         val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         MenuUtil.tintToolbar(mToolbar, theme)
@@ -127,8 +128,9 @@ class SelectMangaFragment : Fragment() {
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
         setupBlurViews()
         setupTitleBackgrounds()
+        setupWindowInsets()
 
-        registerForContextMenu(mTitle)
+        registerForContextMenu(mToolbar)
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
@@ -331,7 +333,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun titleLibrary() {
-        mTitle.text = mViewModel.getLibrary().title
+        mToolbar.title = mViewModel.getLibrary().title
     }
 
     private fun observer() {
@@ -384,6 +386,23 @@ class SelectMangaFragment : Fragment() {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_select_manga)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
+    }
+
+    private fun setupWindowInsets() {
+        if (!::mBlurTop.isInitialized)
+            return
+        val rootView = view ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            mBlurTop.setPadding(mBlurTop.paddingLeft, systemBars.top, mBlurTop.paddingRight, mBlurTop.paddingBottom)
+            
+            mBlurTop.post {
+                val recycler = rootView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.select_manga_recycler)
+                recycler?.setPadding(recycler.paddingLeft, mBlurTop.height, recycler.paddingRight, systemBars.bottom)
+            }
+            
+            insets
+        }
     }
 
 }

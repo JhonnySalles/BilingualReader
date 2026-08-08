@@ -80,6 +80,7 @@ import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import br.com.fenix.bilingualreader.view.managers.PagesLinkHandler
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -1161,9 +1162,15 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
     private fun setupWindowInsets() {
         if (!::mBlurTop.isInitialized)
             return
-        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
-            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+        val rootView = view ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            mBlurTop.setPadding(mBlurTop.paddingLeft, systemBars.top, mBlurTop.paddingRight, mBlurTop.paddingBottom)
+            mBlurTop.post {
+                val topPadding = mBlurTop.height
+                mRecyclerPageLink?.setPadding(mRecyclerPageLink!!.paddingLeft, topPadding, mRecyclerPageLink!!.paddingRight, systemBars.bottom)
+                mRecyclerPageNotLink?.setPadding(mRecyclerPageNotLink!!.paddingLeft, topPadding, mRecyclerPageNotLink!!.paddingRight, systemBars.bottom)
+            }
             insets
         }
     }
@@ -1187,5 +1194,16 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         val barLayout = view?.findViewById<View>(R.id.pages_link_content)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
+
+        val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val alpha = if (isNight) 0xD9 else 0x73
+        val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
+
+        val topBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+        }
+        mBlurTop.background = topBg
     }
 }

@@ -9,7 +9,6 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:fitsSystemWindows="true"
     tools:context=".view.ui.pages_link.PagesLinkFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,15 +38,6 @@
             app:layout_constraintTop_toBottomOf="@+id/pages_link_content_pages_not_linked"
             app:layout_constraintVertical_bias="0"/>
 
-        <View
-            style="@style/AppBackground.Accent"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:translationY="-99dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/pages_link_content_pages_not_linked"
             android:layout_width="match_parent"
@@ -59,7 +49,7 @@
             android:layout_marginStart="@dimen/margin_small"
             android:layout_marginEnd="@dimen/margin_small"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pages_link_content"
+            app:layout_constraintTop_toBottomOf="@+id/pages_link_blur_top"
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
@@ -96,22 +86,24 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        <LinearLayout
-            android:id="@+id/pages_link_content"
-            style="@style/AppBackground.Accent"
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/pages_link_blur_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="@dimen/margin_small"
-            android:paddingEnd="@dimen/margin_small"
+            android:paddingTop="@dimen/default_navigator_header_margin_top"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <eightbitlab.com.blurview.BlurView
-                android:id="@+id/pages_link_blur_top"
+            <LinearLayout
+                android:id="@+id/pages_link_content"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/reader_title_margin_positive"
+                android:paddingEnd="@dimen/reader_title_margin_positive">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar_manga_pages_link"
@@ -119,6 +111,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="top"
                     android:background="@color/transparent"
+                    android:paddingStart="@dimen/margin_small"
+                    android:paddingEnd="@dimen/margin_small"
                     app:popupTheme="@style/MainToolbarStyle"
                     style="@style/MainToolbarTheme">
 
@@ -147,14 +141,14 @@
                     </LinearLayout>
                 </com.google.android.material.appbar.MaterialToolbar>
 
-            </eightbitlab.com.blurview.BlurView>
-
             <LinearLayout
                 android:id="@+id/pages_link_top_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="@dimen/page_link_language_margin"
+                android:paddingStart="@dimen/margin_small"
+                android:paddingEnd="@dimen/margin_small"
                 android:gravity="center">
 
                 <com.google.android.material.button.MaterialButton
@@ -196,9 +190,10 @@
                 android:maxLines="1"
                 android:textSize="@dimen/page_link_manga_name_size"
                 android:layout_marginTop="@dimen/page_link_card_page_name_margin"
-                android:paddingStart="2dp"
-                android:paddingEnd="2dp"/>
-        </LinearLayout>
+                android:paddingStart="@dimen/margin_small"
+                android:paddingEnd="@dimen/margin_small"/>
+            </LinearLayout>
+        </eightbitlab.com.blurview.BlurView>
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/page_link_buttons_group"
