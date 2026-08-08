@@ -8,114 +8,196 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:fitsSystemWindows="true"
     style="@style/AppBackground"
     tools:context=".view.ui.menu.SelectMangaFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/select_manga_root"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:clipChildren="false">
-        
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/select_manga_recycler"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/select_manga_root"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:scrollbars="vertical"
-            android:layout_margin="@dimen/margin_small"
-            android:paddingTop="@dimen/manga_select_list_padding_top"
-            android:paddingBottom="@dimen/manga_list_padding"
+            android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:scrollbarStyle="outsideOverlay"
-            android:columnCount="3"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_select_manga"
-            app:layout_constraintVertical_bias="0"/>
+            android:clipChildren="false">
 
-        <View
-            android:background="?attr/statusBarColor"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_gravity="top"
-            android:layout_marginStart="@dimen/reader_title_margin_negative"
-            android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="parent"/>
-
-        <com.google.android.material.appbar.AppBarLayout
-            style="@style/AppBarLayout"
-            android:id="@+id/content_toolbar_select_manga"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
-            android:theme="@style/MainToolbarContentTheme"
-            android:layout_marginStart="@dimen/reader_title_margin_negative"
-            android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            android:paddingStart="@dimen/reader_title_margin_positive"
-            android:paddingEnd="@dimen/reader_title_margin_positive"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_select_manga"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/default_navigator_header_size"
-                app:popupTheme="@style/MainToolbarStyle"
-                style="@style/MainToolbarThemeWithShadow">
+                android:layout_height="0dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/toolbar_select_manga_title"
-                    style="@style/SelectMangaToolbarTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <include layout="@layout/skeleton_shimmer_layout" />
 
-            </com.google.android.material.appbar.MaterialToolbar>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/select_manga_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:scrollbars="vertical"
+                    android:layout_margin="@dimen/margin_small"
+                    android:paddingTop="@dimen/manga_select_list_padding_top"
+                    android:paddingBottom="@dimen/manga_list_padding"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    android:scrollbarStyle="outsideOverlay"
+                    android:columnCount="3" />
 
-        </com.google.android.material.appbar.AppBarLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--                                Ended                                -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/select_manga_scroll_up"
-            style="@style/FloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center"
-            android:layout_margin="@dimen/manga_select_scrolling_button_margin"
-            android:contentDescription="@string/action_scroll_up"
+            <com.google.android.material.appbar.AppBarLayout
+                style="@style/AppBarLayout"
+                android:id="@+id/content_toolbar_select_manga"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/MainToolbarContentTheme"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="@dimen/reader_title_margin_negative"
+                android:layout_marginEnd="@dimen/reader_title_margin_negative"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <eightbitlab.com.blurview.BlurView
+                    android:id="@+id/select_manga_blur_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/default_navigator_header_margin_top">
+
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/toolbar_select_manga"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/default_navigator_header_size"
+                        android:paddingStart="@dimen/reader_title_margin_positive"
+                        android:paddingEnd="@dimen/reader_title_margin_positive"
+                        android:background="@android:color/transparent"
+                        app:popupTheme="@style/MainToolbarStyle"
+                        style="@style/MainToolbarThemeWithShadow" />
+
+                </eightbitlab.com.blurview.BlurView>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <!--                                Ended                                -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/select_manga_scroll_up"
+                style="@style/FloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center"
+                android:layout_margin="@dimen/manga_select_scrolling_button_margin"
+                android:contentDescription="@string/action_scroll_up"
+                android:visibility="gone"
+                android:src="@drawable/ico_animated_scroll_up"
+                app:borderWidth="@dimen/manga_select_up_border"
+                app:fabCustomSize="@dimen/manga_select_up_width"
+                app:maxImageSize="@dimen/manga_select_up_image_width"
+                app:layout_constraintTop_toBottomOf="@+id/content_toolbar_select_manga"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/select_manga_scroll_down"
+                style="@style/FloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_margin="@dimen/manga_select_scrolling_button_margin"
+                android:contentDescription="@string/action_scroll_down"
+                android:visibility="gone"
+                android:src="@drawable/ico_animated_scroll_down"
+                app:borderWidth="@dimen/manga_select_down_border"
+                app:fabCustomSize="@dimen/manga_select_down_width"
+                app:maxImageSize="@dimen/manga_select_down_image_width"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <FrameLayout
+            android:id="@+id/select_manga_popup_menu_library"
+            style="@style/AppBackground.PopupBottom"
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="1dp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center_horizontal"
+            android:maxWidth="600dp"
             android:visibility="gone"
-            android:src="@drawable/ico_animated_scroll_up"
-            app:borderWidth="@dimen/manga_select_up_border"
-            app:fabCustomSize="@dimen/manga_select_up_width"
-            app:maxImageSize="@dimen/manga_select_up_image_width"
-            app:layout_constraintTop_toTopOf="@+id/select_manga_recycler"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/select_manga_scroll_down"
-            style="@style/FloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:layout_margin="@dimen/manga_select_scrolling_button_margin"
-            android:contentDescription="@string/action_scroll_down"
-            android:visibility="gone"
-            android:src="@drawable/ico_animated_scroll_down"
-            app:borderWidth="@dimen/manga_select_down_border"
-            app:fabCustomSize="@dimen/manga_select_down_width"
-            app:maxImageSize="@dimen/manga_select_down_image_width"
-            app:layout_constraintBottom_toBottomOf="@+id/select_manga_recycler"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/select_manga_popup_header_background"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/popup_background_size"
+                android:layout_gravity="top" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/select_manga_popup_menu_order_filter_touch"
+                style="@style/TextTitle.Popup"
+                android:layout_width="@dimen/popup_button_center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:paddingTop="@dimen/popup_button_padding_vertical"
+                android:paddingBottom="@dimen/popup_button_padding_vertical"
+                android:paddingStart="@dimen/popup_button_padding_horizontal"
+                android:paddingEnd="@dimen/popup_button_padding_horizontal"
+                android:layout_marginTop="@dimen/popup_button_margin"
+                android:contentDescription="@string/popup_reading_manga_open"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ico_line_popup"/>
+
+            <LinearLayout
+                android:id="@+id/select_manga_popup_content_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/popup_background_size"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/select_manga_popup_library_tab"
+                    style="@style/PopupTab"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed"
+                    app:tabPaddingBottom="0dp"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingTop="0dp">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/select_manga_tab_item_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_library_manga_tab_item_type" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/select_manga_tab_item_ordering"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_library_manga_tab_item_ordering" />
+
+                </com.google.android.material.tabs.TabLayout>
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/select_manga_popup_library_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+            </LinearLayout>
+        </FrameLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </FrameLayout>

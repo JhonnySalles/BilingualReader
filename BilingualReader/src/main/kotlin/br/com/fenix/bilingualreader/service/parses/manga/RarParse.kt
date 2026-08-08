@@ -59,6 +59,7 @@ class RarParse : Parse {
     private var mSolidFileExtracted = false
     private var mSubtitles = ArrayList<FileHeader>()
     private var mComicInfo: FileHeader? = null
+    private var mCover: Array<FileHeader?> = arrayOfNulls<FileHeader?>(3)
 
     override fun parse(file: File?) {
         mFile = file
@@ -68,9 +69,19 @@ class RarParse : Parse {
         while (header != null) {
             if (!header.isDirectory) {
                 val name = getName(header)
-                if (FileUtil.isImage(name))
+                if (FileUtil.isImage(name)) {
                     mHeaders.add(header)
-                else if (FileUtil.isJson(name))
+                    val fileName = Util.getNameFromPath(name)
+                    if (fileName.contains("volume", true)) {
+                        val cover = fileName.lowercase().substringAfterLast("volume")
+                        if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
+                            mCover[0] = header
+                        else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
+                            mCover[1] = header
+                        else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
+                            mCover[2] = header
+                    }
+                } else if (FileUtil.isJson(name))
                     mSubtitles.add(header)
                 else if (FileUtil.isXml(name) && name.contains("comicinfo", true))
                     mComicInfo = header
@@ -82,6 +93,9 @@ class RarParse : Parse {
             Util.getNormalizedNameOrdering(a.fileName)
                 .compareTo(Util.getNormalizedNameOrdering(b.fileName))
         })
+
+        if (mCover[0] == null)
+            mCover[0] = mHeaders[0]
     }
 
     private fun getName(header: FileHeader): String {
@@ -170,9 +184,8 @@ class RarParse : Parse {
     }
 
     override fun getPage(num: Int): InputStream {
-        var isSolid = false
         synchronized(this) {
-            isSolid = mArchive?.mainHeader?.isSolid ?: false
+            val isSolid = mArchive?.mainHeader?.isSolid ?: false
             if (isSolid && !mSolidFileExtracted) {
                 val files = mArchive?.fileHeaders ?: emptyList()
                 for (h in files) {
@@ -185,6 +198,12 @@ class RarParse : Parse {
         }
         return getPageStream(mHeaders[num])
     }
+
+    override fun hasFullCover(): Boolean = mCover[2] != null
+
+    override fun getFullCover(): InputStream? = if (hasFullCover()) getPageStream(mCover[2]!!) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) getPageStream(mCover[0]!!) else getPage(0), if (mCover[1] != null) getPageStream(mCover[1]!!) else null)
 
     private fun recreateArchive() {
         try {

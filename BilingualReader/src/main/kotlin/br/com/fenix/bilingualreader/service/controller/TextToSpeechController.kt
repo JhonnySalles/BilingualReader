@@ -413,14 +413,14 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPlayAudio = false
             }
 
-            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == ExoPlayer.STATE_READY) {
                     if (mForcePlay != null) {
                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                           if (mMainHandler.hasCallbacks(mForcePlay!!))
-                               mMainHandler.removeCallbacks(mForcePlay!!)
+                           if (mThreadHandler.hasCallbacks(mForcePlay!!))
+                               mThreadHandler.removeCallbacks(mForcePlay!!)
                        } else
-                           mMainHandler.removeCallbacks(mForcePlay!!)
+                           mThreadHandler.removeCallbacks(mForcePlay!!)
                    }
 
                     mForcePlay = Runnable {
@@ -502,7 +502,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
                     try {
                         mLine++
-                        val isPageChange = if (mLine >= mLines.size || mLines.isEmpty()) {
+                        if (mLine >= mLines.size || mLines.isEmpty()) {
                             val old = mPage
                             mPage++
                             if (mPage >= mParse!!.getPageCount(fontSize)) {
@@ -520,9 +520,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             mLine = 0
                             mLines.clear()
                             mLines.addAll(formatHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
-                            true
-                        } else
-                            false
+                        }
 
                         if (mLines.isEmpty()) {
                             if (SHOW_LOG)
@@ -534,7 +532,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                         if (mReading.audio != null)
                             play(mReading)
                         else {
-                            generateTTS(mReading) { uri ->
+                            generateTTS(mReading) { _ ->
                                 play(mReading)
                             }
                         }
@@ -580,7 +578,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {
         var sequence = 0
         val lines = TextUtil.replaceImages(TextUtil.formatHtml(html)).split(".", "。")
-            .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("<br/>", " ").replace(" -", "-"), Html.fromHtml(it).toString().trim()) }
+            .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("<br/>", " ").replace(" -", "-"), androidx.core.text.HtmlCompat.fromHtml(it, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY).toString().trim()) }
         return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }
 

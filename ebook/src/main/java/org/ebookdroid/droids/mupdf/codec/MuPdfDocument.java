@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
@@ -64,22 +63,31 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
     @Override
     public CodecPage getPageInner(final int pageNumber) {
-        MuPdfPage createPage = MuPdfPage.createPage(documentHandle, pageNumber + 1);
-        return createPage;
+        try {
+            TempHolder.lock.lock();
+            if (isRecycled()) return null;
+            MuPdfPage createPage = MuPdfPage.createPage(documentHandle, pageNumber + 1);
+            return createPage;
+        } finally {
+            TempHolder.lock.unlock();
+        }
     }
 
     @Override
     public int getPageCount() {
-        if (Config.SHOW_LOG)
-            LOGGER.info("MuPdfDocument, getPageCount");
-        return getPageCountWithException(documentHandle, getW(), getH(), AppState.get().fontSizeSp);
+        try {
+            TempHolder.lock.lock();
+            if (isRecycled()) return 0;
+            return getPageCountWithException(documentHandle, getW(), getH(), AppState.get().fontSizeSp);
+        } finally {
+            TempHolder.lock.unlock();
+        }
     }
 
     @Override
     public CodecPageInfo getUnifiedPageInfo() {
         if (isEpub) {
-            if (Config.SHOW_LOG)
-                LOGGER.info("MuPdfDocument, getUnifiedPageInfo");
+            
             return new CodecPageInfo(getW(), getH());
         } else {
             return null;
@@ -90,10 +98,14 @@ public class MuPdfDocument extends AbstractCodecDocument {
     public int getPageCount(int w, int h, int size) {
         this.w = w;
         this.h = h;
-        int pageCountWithException = getPageCountWithException(documentHandle, w, h, size);
-        if (Config.SHOW_LOG)
-            LOGGER.info("MuPdfDocument, getPageCount: {}x{} - {} -- count {}", w, h, size, pageCountWithException);
-        return pageCountWithException;
+        try {
+            TempHolder.lock.lock();
+            if (isRecycled()) return 0;
+            int pageCountWithException = getPageCountWithException(documentHandle, w, h, size);
+            return pageCountWithException;
+        } finally {
+            TempHolder.lock.unlock();
+        }
     }
 
     public int getW() {
@@ -110,6 +122,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
         try {
             TempHolder.lock.lock();
+            if (isRecycled()) return null;
             final int res = getPageInfo(documentHandle, pageNumber + 1, info);
             if (res == -1) {
                 return null;
@@ -127,8 +140,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     protected void freeDocument() {
         free(documentHandle);
         cacheHandle = -1;
-        if (Config.SHOW_LOG)
-            LOGGER.info("MUPDF! <<< recycle [document]: {} - {}", documentHandle, ExtUtils.getFileName(fname));
+        
     }
 
     static void normalizeLinkTargetRect(final long docHandle, final int targetPage, final RectF targetRect, final int flags) {
@@ -175,6 +187,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     public String getMeta(String option) {
         try {
             TempHolder.lock.lock();
+            if (isRecycled()) return null;
             return getMeta(documentHandle, option);
         } finally {
             TempHolder.lock.unlock();
@@ -195,20 +208,12 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
         try {
             TempHolder.lock.lock();
-            int allocatedMemory = AppState.get().allocatedMemorySize * 1024 * 1024;
-
-            if (Config.SHOW_LOG)
-                LOGGER.info("allocatedMemory: {} MB {}", AppState.get().allocatedMemorySize, allocatedMemory);
+            long maxAlloc = Runtime.getRuntime().maxMemory() / 4;
+            int allocatedMemory = (int) Math.min((long) AppState.get().allocatedMemorySize * 1024 * 1024, Math.max(16 * 1024 * 1024, maxAlloc));
 
             final long open = open(allocatedMemory, format, fname, pwd, css, BookCSS.get().documentStyle == BookCSS.STYLES_ONLY_USER ? 0 : 1);
 
-            if (Config.SHOW_LOG) {
-                LOGGER.info("Open document " + fname + " " + open);
-                LOGGER.info("Open document css: {}", css);
-                LOGGER.info("MUPDF! >>> open [document]: {} - {}", open, ExtUtils.getFileName(fname));
-            }
-
-            if (open == -1)
+            if (open == 0)
                 throw new RuntimeException("Document is corrupted");
 
             // final int pages = getPageCountWithException(open);
@@ -222,7 +227,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
     private static native void free(long handle);
 
-    private static synchronized int getPageCountWithException(final long handle) {
+    private synchronized int getPageCountWithException(final long handle) {
+        if (handle == 0 || isRecycled()) return 0;
         final int count = getPageCountSafe(handle, Dips.screenWidth(), Dips.screenHeight(), Dips.spToPx(AppState.get().fontSizeSp));
         if (count == 0)
             throw new RuntimeException("Document is corrupted");
@@ -230,7 +236,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
         return count;
     }
 
-    private static synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
+    private synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
+        if (handle == 0 || isRecycled()) return 0;
         final int count = getPageCountSafe(handle, w, h, Dips.spToPx(size));
         if (count == 0)
             throw new RuntimeException("Document is corrupted");
@@ -243,24 +250,22 @@ public class MuPdfDocument extends AbstractCodecDocument {
     private static long cacheSize;
     private static int cacheCount;
 
-    private static int getPageCountSafe(long handle, int w, int h, int size) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("getPageCountSafe w h size: {}x{} - {}", w, h, size);
+    private int getPageCountSafe(long handle, int w, int h, int size) {
+        if (handle == 0 || isRecycled()) return 0;
 
         if (handle == cacheHandle && size == cacheSize && w + h == cacheWH) {
-            if (Config.SHOW_LOG)
-                LOGGER.info("getPageCount from cache: {}", cacheCount);
+            
             return cacheCount;
         }
 
         try {
             TempHolder.lock.lock();
+            if (handle == 0 || isRecycled()) return 0;
             cacheHandle = handle;
             cacheSize = size;
             cacheWH = w + h;
             cacheCount = getPageCount(handle, w, h, size);
-            if (Config.SHOW_LOG)
-                LOGGER.info("getPageCount put to  cache: {}", cacheCount);
+            
             return cacheCount;
         } finally {
             TempHolder.lock.unlock();
@@ -285,13 +290,11 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
     @Override
     public synchronized void saveAnnotations(String path) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("Save Annotations saveInternal 1");
+        
         TempHolder.lock.lock();
         try {
             saveInternal(documentHandle, path);
-            if (Config.SHOW_LOG)
-                LOGGER.info("Save Annotations saveInternal 2");
+            
         } finally {
             TempHolder.lock.unlock();
         }

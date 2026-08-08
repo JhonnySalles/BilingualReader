@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class DjvuDocument extends AbstractCodecDocument {
@@ -24,8 +23,7 @@ public class DjvuDocument extends AbstractCodecDocument {
     DjvuDocument(final DjvuContext djvuContext, final String fileName) {
         super(djvuContext, open(djvuContext.getContextHandle(), fileName));
         this.fileName = fileName;
-        if (Config.SHOW_LOG)
-            LOGGER.info("MUPDF! open document djvu: {} - {}", documentHandle, fileName);
+        
     }
 
     @Override
@@ -48,8 +46,7 @@ public class DjvuDocument extends AbstractCodecDocument {
     public DjvuPage getPageInner(final int pageNumber) {
         TempHolder.lock.lock();
         try {
-            if (Config.SHOW_LOG)
-                LOGGER.info("DjvuPage_getPage: {}", pageNumber);
+            
             return new DjvuPage(context.getContextHandle(), documentHandle, getPage(documentHandle, pageNumber), pageNumber);
         } finally {
             TempHolder.lock.unlock();
@@ -89,8 +86,7 @@ public class DjvuDocument extends AbstractCodecDocument {
     @Override
     protected void freeDocument() {
         free(documentHandle);
-        if (Config.SHOW_LOG)
-            LOGGER.info("MUPDF! recycle document djvu: {} - {}", documentHandle, fileName);
+        
     }
 
     private native static int getPageInfo(long docHandle, int pageNumber, long contextHandle, CodecPageInfo cpi);

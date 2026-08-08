@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
@@ -22,6 +23,7 @@ class ZipParse : Parse {
     private var mEntries = ArrayList<ZipEntry>()
     private var mSubtitles = ArrayList<ZipEntry>()
     private var mComicInfo: ZipEntry? = null
+    private var mCover: Array<ZipEntry?> = arrayOfNulls<ZipEntry?>(3)
 
     override fun parse(file: File?) {
         mZipFile = ZipFile(file?.absolutePath, StandardCharsets.UTF_8)
@@ -34,9 +36,19 @@ class ZipParse : Parse {
             if (ze.isDirectory)
                 continue
 
-            if (FileUtil.isImage(ze.name))
+            if (FileUtil.isImage(ze.name)) {
                 mEntries.add(ze)
-            else if (FileUtil.isJson(ze.name))
+                val fileName = Util.getNameFromPath(ze.name)
+                if (fileName.contains("volume", true)) {
+                    val cover = fileName.lowercase().substringAfterLast("volume")
+                    if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
+                        mCover[0] = ze
+                    else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
+                        mCover[1] = ze
+                    else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
+                        mCover[2] = ze
+                }
+            } else if (FileUtil.isJson(ze.name))
                 mSubtitles.add(ze)
             else if (FileUtil.isXml(ze.name) && ze.name.contains("comicinfo", true))
                 mComicInfo = ze
@@ -45,6 +57,9 @@ class ZipParse : Parse {
         mEntries.sortWith(compareBy<ZipEntry> { Util.getFolderFromPath(it.name) }.thenComparing { a, b ->
             Util.getNormalizedNameOrdering(a.name).compareTo(Util.getNormalizedNameOrdering(b.name))
         })
+
+        if (mCover[0] == null)
+            mCover[0] = mEntries[0]
     }
 
     override fun numPages(): Int {
@@ -132,6 +147,12 @@ class ZipParse : Parse {
     override fun getPage(num: Int): InputStream {
         return mZipFile!!.getInputStream(mEntries[num])
     }
+
+    override fun hasFullCover(): Boolean = mCover[2] != null
+
+    override fun getFullCover(): InputStream? = if (hasFullCover()) mZipFile!!.getInputStream(mCover[2]!!) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) mZipFile!!.getInputStream(mCover[0]!!) else getPage(0), if (mCover[1] != null) mZipFile!!.getInputStream(mCover[1]!!) else null)
 
     override fun destroy(isClearCache: Boolean) {
         mZipFile?.close()

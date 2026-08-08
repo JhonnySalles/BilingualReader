@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
@@ -52,16 +51,14 @@ public class TintUtil {
 
     public static int randomColor(int hash) {
         try {
-            if (Config.SHOW_LOG)
-                LOGGER.info("randomColor: {}", hash);
+            
             hash = Math.abs(hash);
             String num = "" + hash;
             float hue = 360f * Float.parseFloat(num.substring(0, 2)) / 100f;
             float sat = Float.parseFloat(num.substring(1, 3)) / 100f;
             float value = Float.parseFloat(num.substring(2, 4)) / 100f;
 
-            if (Config.SHOW_LOG)
-                LOGGER.info("randomColor: {}", hash, hue, sat, value);
+            
             return Color.HSVToColor(new float[] { hue, sat, Math.max(Math.min(0.1f, value), 0.5f) });
         } catch (Exception e) {
             LOGGER.error("Error get random color: {}", e.getMessage(), e);

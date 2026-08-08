@@ -255,10 +255,10 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
                     if (parent.parent != null && parent.parent!!.isRoot) {
                         val root = parent.parent!!
                         if (mAnnotation.value!!.none { it.isTitle && it.type == root.type && it.parent != null && it.parent!!.id_parent == root.id_parent }) {
-                            val index = mAnnotation.value!!.indexOf(parent)
+                            val rootIndex = mAnnotation.value!!.indexOf(parent)
                             mAnnotation.value!!.remove(root)
                             mAnnotationFull.value!!.remove(root)
-                            refresh(index, true)
+                            refresh(rootIndex, true)
                         }
                     }
                 } else
@@ -372,7 +372,6 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         if (mType.value != null && annotation.type != mType.value)
             return false
 
-        val annotation = annotation
         if (mTypeFilter.value!!.isNotEmpty()) {
             var condition = false
             mTypeFilter.value!!.forEach {
@@ -505,9 +504,12 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Annotation>()
-            filterResults?.let {
-                list.addAll(it.values as Collection<Annotation>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Annotation>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mAnnotation.value = list
         }
     }

@@ -65,6 +65,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     val loading: LiveData<Boolean> = mLoading
 
     private var mWordFilter = ""
+    val wordFilter: String get() = mWordFilter
 
     private var mOrder = MutableLiveData(Pair(Order.Name, false))
     val order: LiveData<Pair<Order, Boolean>> = mOrder
@@ -144,6 +145,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 Order.Date -> list.sortByDescending { it.dateCreate }
                 Order.LastAccess -> list.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
                 Order.Favorite -> list.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
+                Order.Author -> list.sortWith(compareByDescending<Manga> { it.author }.thenByDescending { it.name })
+                Order.Series -> list.sortWith(compareByDescending<Manga> { it.series }.thenByDescending { it.name })
                 else -> list.sortByDescending { it.name }
             }
         } else {
@@ -151,6 +154,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 Order.Date -> list.sortBy { it.dateCreate }
                 Order.LastAccess -> list.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
                 Order.Favorite -> list.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
+                Order.Author -> list.sortWith(compareByDescending<Manga> { it.author }.thenBy { it.name })
+                Order.Series -> list.sortWith(compareByDescending<Manga> { it.series }.thenBy { it.name })
                 else -> list.sortBy { it.name }
             }
         }
@@ -231,6 +236,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun setLibrary(library: Library) {
         if (mLibrary.id != library.id) {
+            mTypeFilter.value = FilterType.None
+            mWordFilter = ""
             mFullMap.clear()
             mListMangas.value = mutableListOf()
             setSuggestionsFromFull()
@@ -448,7 +455,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             LibraryMangaType.GRID_MEDIUM -> if (isLandscape) LibraryMangaType.GRID_SMALL else LibraryMangaType.SEPARATOR_BIG
             LibraryMangaType.GRID_SMALL -> LibraryMangaType.SEPARATOR_BIG
             LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.SEPARATOR_MEDIUM
-            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.LINE
+            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.SEPARATOR_CAROUSEL
+            LibraryMangaType.SEPARATOR_CAROUSEL -> LibraryMangaType.SEPARATOR_LINE
+            LibraryMangaType.SEPARATOR_LINE -> LibraryMangaType.LINE
             else -> LibraryMangaType.LINE
         }
         setLibraryType(type)
@@ -643,9 +652,12 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Manga>()
-            filterResults?.let {
-                list.addAll(it.values as Collection<Manga>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Manga>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mListMangas.value = list
         }
     }

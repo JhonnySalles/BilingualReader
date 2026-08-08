@@ -24,9 +24,9 @@ android {
         applicationId 'br.com.fenix'
         minSdk 26
         targetSdk 34
-        versionCode 9
+        versionCode 10
         versionName '1.0.'
-        versionNameSuffix '9'
+        versionNameSuffix '10'
 
         testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
@@ -44,8 +44,8 @@ android {
             manifestPlaceholders["sentryAutoInit"] = "true"
         }
         debug {
-            minifyEnabled true
-            testCoverageEnabled true
+            minifyEnabled false
+            testCoverageEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders["crashlyticsEnabled"] = "true"
             manifestPlaceholders["sentryAutoInit"] = "true"
@@ -74,7 +74,8 @@ android {
                 'META-INF/LICENSE.md',
                 'META-INF/LICENSE-notice.md',
                 'META-INF/AL2.0',
-                'META-INF/LGPL2.1'
+                'META-INF/LGPL2.1',
+                'META-INF/DEPENDENCIES'
             ]
         }
     }
@@ -133,7 +134,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     implementation 'androidx.activity:activity-ktx:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
@@ -163,8 +164,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.12.2'
     implementation 'net.sf.kxml:kxml2:2.3.0'
 
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'jp.wasabeef:picasso-transformations:2.4.0'
     implementation 'org.apache.commons:commons-compress:1.22'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'commons-codec:commons-codec:1.15'
@@ -214,6 +213,12 @@ dependencies {
     implementation('com.google.firebase:firebase-firestore-ktx:25.0.0')
     implementation('com.google.firebase:firebase-auth-ktx:23.0.0')
 
+    // Credential Manager (Google Sign-In)
+    implementation 'androidx.credentials:credentials:1.3.0'
+    implementation 'androidx.credentials:credentials-play-services-auth:1.3.0'
+    implementation 'com.google.android.libraries.identity.googleid:googleid:1.1.1'
+    implementation 'com.google.http-client:google-http-client-gson:1.43.3'
+
     // Crash analytics
     implementation("com.google.firebase:firebase-crashlytics-ktx:18.3.7")
     implementation("com.google.firebase:firebase-analytics-ktx:21.3.0")
@@ -227,11 +232,22 @@ dependencies {
     //Loading Skeleton
     implementation 'io.supercharge:shimmerlayout:2.1.0'
 
-    // COIL
+    // COIL & IMAGE CODERS
     implementation 'io.coil-kt:coil:2.6.0'
+    implementation 'io.coil-kt:coil-gif:2.6.0'
+    implementation 'io.coil-kt:coil-svg:2.6.0'
+    implementation 'com.github.awxkee:jxl-coder:1.8.0'
+    implementation 'com.github.awxkee:avif-coder:1.8.0'
+    implementation 'io.github.beyka:Android-TiffBitmapFactory:0.9.9.1'
+    implementation 'dev.keiji.jp2:jp2-android:1.0.5'
 
     // SENTRY
     implementation 'io.sentry:sentry-android:7.14.0'
+
+    // ** Filament 3D **
+    implementation 'com.google.android.filament:filament-android:1.72.0'
+    implementation 'com.google.android.filament:gltfio-android:1.72.0'
+    implementation 'com.google.android.filament:filament-utils-android:1.72.0'
 
     // ** BOOK **
     implementation project(':ebook')

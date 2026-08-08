@@ -8,6 +8,6 @@ import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 
 class AnnotationViewHolder(itemView: View, private val listener: AnnotationsListener) : RecyclerView.ViewHolder(itemView) {
 
-    fun bind(mark: BookAnnotation, position: Int) { }
+    fun bind(@Suppress("UNUSED_PARAMETER") mark: BookAnnotation, @Suppress("UNUSED_PARAMETER") position: Int) { }
 
 }

@@ -42,7 +42,7 @@ class TextViewClickMovement(private val mSelectionListener: SelectionChangeListe
             return false
         }
 
-        if (mSelectionListener != null && mSelectionListener!!.isShowingPopup())
+        if (mSelectionListener != null && mSelectionListener.isShowingPopup())
             return false
 
         var consume = false

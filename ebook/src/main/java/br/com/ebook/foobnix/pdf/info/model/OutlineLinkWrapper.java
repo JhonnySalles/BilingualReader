@@ -5,7 +5,7 @@ import android.graphics.RectF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.ebook.foobnix.ext.Fb2Extractor;
+import br.com.ebook.extractor.Fb2BookExtractor;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 
 public class OutlineLinkWrapper implements CharSequence {
@@ -60,7 +60,7 @@ public class OutlineLinkWrapper implements CharSequence {
     }
 
     public String getTitleAsString() {
-        return title.replace(Fb2Extractor.FOOTER_AFTRER_BOODY, "");
+        return title.replace(Fb2BookExtractor.FOOTER_AFTRER_BOODY, "");
     }
 
     /**

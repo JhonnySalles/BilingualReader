@@ -62,7 +62,7 @@ class BaseImageDownloader @JvmOverloads constructor(
     }
 
     @Throws(IOException::class)
-    override fun getStream(imageUri: String?, extra: Any?): InputStream? {
+    override fun getStream(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream? {
         return when (ofUri(imageUri)) {
             ImageDownloader.Scheme.HTTP, ImageDownloader.Scheme.HTTPS -> getStreamFromNetwork(
                 imageUri,
@@ -74,7 +74,6 @@ class BaseImageDownloader @JvmOverloads constructor(
             ImageDownloader.Scheme.ASSETS -> getStreamFromAssets(imageUri, extra)
             ImageDownloader.Scheme.DRAWABLE -> getStreamFromDrawable(imageUri, extra)
             ImageDownloader.Scheme.UNKNOWN -> getStreamFromOtherSource(imageUri, extra)
-            else -> getStreamFromOtherSource(imageUri, extra)
         }
     }
 
@@ -88,7 +87,7 @@ class BaseImageDownloader @JvmOverloads constructor(
      * URL.
      */
     @Throws(IOException::class)
-    protected fun getStreamFromNetwork(imageUri: String?, extra: Any?): InputStream {
+    protected fun getStreamFromNetwork(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream {
         var conn = createConnection(imageUri, extra)
         var redirectCount = 0
         while (conn.responseCode / 100 == 3 && redirectCount < MAX_REDIRECT_COUNT) {
@@ -131,7 +130,7 @@ class BaseImageDownloader @JvmOverloads constructor(
      * URL.
      */
     @Throws(IOException::class)
-    protected fun createConnection(url: String?, extra: Any?): HttpURLConnection {
+    protected fun createConnection(url: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): HttpURLConnection {
         val encodedUrl = Uri.encode(url, ALLOWED_URI_CHARS)
         val conn = URL(encodedUrl).openConnection() as HttpURLConnection
         conn.connectTimeout = connectTimeout
@@ -148,7 +147,7 @@ class BaseImageDownloader @JvmOverloads constructor(
      * @throws IOException if some I/O error occurs reading from file system
      */
     @Throws(IOException::class)
-    protected fun getStreamFromFile(imageUri: String?, extra: Any?): InputStream? {
+    protected fun getStreamFromFile(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream? {
         val filePath = ImageDownloader.Scheme.FILE.crop(imageUri!!)
         return if (isVideoFileUri(imageUri)) {
             getVideoThumbnailStream(filePath)
@@ -159,6 +158,7 @@ class BaseImageDownloader @JvmOverloads constructor(
     }
 
     @TargetApi(Build.VERSION_CODES.FROYO)
+    @Suppress("DEPRECATION")
     private fun getVideoThumbnailStream(filePath: String): InputStream? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             val bitmap = ThumbnailUtils
@@ -181,11 +181,13 @@ class BaseImageDownloader @JvmOverloads constructor(
      * @throws FileNotFoundException if the provided URI could not be opened
      */
     @Throws(FileNotFoundException::class)
-    protected fun getStreamFromContent(imageUri: String?, extra: Any?): InputStream? {
+    @Suppress("DEPRECATION")
+    protected fun getStreamFromContent(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream? {
         val res = context.contentResolver
         val uri = Uri.parse(imageUri)
         if (isVideoContentUri(uri)) { // video thumbnail
-            val origId = java.lang.Long.valueOf(uri.lastPathSegment)
+            val lastSegment = uri.lastPathSegment ?: "0"
+            val origId = java.lang.Long.valueOf(lastSegment)
             val bitmap = MediaStore.Video.Thumbnails
                 .getThumbnail(res, origId, MediaStore.Images.Thumbnails.MINI_KIND, null)
             if (bitmap != null) {
@@ -218,7 +220,7 @@ class BaseImageDownloader @JvmOverloads constructor(
      * @throws IOException if some I/O error occurs file reading
      */
     @Throws(IOException::class)
-    protected fun getStreamFromAssets(imageUri: String?, extra: Any?): InputStream {
+    protected fun getStreamFromAssets(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream {
         val filePath = ImageDownloader.Scheme.ASSETS.crop(imageUri!!)
         return context.assets.open(filePath)
     }
@@ -230,7 +232,7 @@ class BaseImageDownloader @JvmOverloads constructor(
      * @param extra    Auxiliary object which was passed to [                 DisplayImageOptions.extraForDownloader(Object)][DisplayImageOptions.Builder.extraForDownloader]; can be null
      * @return [InputStream] of image
      */
-    protected fun getStreamFromDrawable(imageUri: String?, extra: Any?): InputStream {
+    protected fun getStreamFromDrawable(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream {
         val drawableIdString = ImageDownloader.Scheme.DRAWABLE.crop(imageUri!!)
         val drawableId = drawableIdString.toInt()
         return context.resources.openRawResource(drawableId)
@@ -249,7 +251,7 @@ class BaseImageDownloader @JvmOverloads constructor(
      * @throws UnsupportedOperationException if image URI has unsupported scheme(protocol)
      */
     @Throws(IOException::class)
-    protected fun getStreamFromOtherSource(imageUri: String?, extra: Any?): InputStream {
+    protected fun getStreamFromOtherSource(imageUri: String?, @Suppress("UNUSED_PARAMETER") extra: Any?): InputStream {
         throw UnsupportedOperationException(String.format(ERROR_UNSUPPORTED_SCHEME, imageUri))
     }
 

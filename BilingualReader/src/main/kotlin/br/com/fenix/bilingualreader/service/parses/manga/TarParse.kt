@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.github.junrar.rarfile.FileHeader
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.simpleframework.xml.Serializer
@@ -23,7 +24,7 @@ class TarParse : Parse {
     private var mEntries = ArrayList<TarEntry>()
     private var mSubtitles = ArrayList<TarEntry>()
     private var mComicInfo: TarEntry? = null
-
+    private var mCover: Array<TarEntry?> = arrayOfNulls<TarEntry?>(3)
     private class TarEntry(val entry: TarArchiveEntry, val bytes: ByteArray)
 
     override fun parse(file: File?) {
@@ -37,9 +38,20 @@ class TarParse : Parse {
                         continue
                     }
 
-                    if (FileUtil.isImage(entry.name))
-                        mEntries.add(TarEntry(entry, Util.toByteArray(tar)!!))
-                    else if (FileUtil.isJson(entry.name))
+                    if (FileUtil.isImage(entry.name)) {
+                        val tarEntry = TarEntry(entry, Util.toByteArray(tar)!!)
+                        mEntries.add(tarEntry)
+                        val fileName = Util.getNameFromPath(entry.name)
+                        if (fileName.contains("volume", true)) {
+                            val cover = fileName.lowercase().substringAfterLast("volume")
+                            if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
+                                mCover[0] = tarEntry
+                            else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
+                                mCover[1] = tarEntry
+                            else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
+                                mCover[2] = tarEntry
+                        }
+                    } else if (FileUtil.isJson(entry.name))
                         mSubtitles.add(TarEntry(entry, Util.toByteArray(tar)!!))
                     else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true))
                         mComicInfo = TarEntry(entry, Util.toByteArray(tar)!!)
@@ -53,6 +65,9 @@ class TarParse : Parse {
             Util.getNormalizedNameOrdering(a.entry.name)
                 .compareTo(Util.getNormalizedNameOrdering(b.entry.name))
         })
+
+        if (mCover[0] == null)
+            mCover[0] = mEntries[0]
     }
 
     override fun numPages(): Int {
@@ -140,6 +155,12 @@ class TarParse : Parse {
     override fun getPage(num: Int): InputStream {
         return ByteArrayInputStream(mEntries[num].bytes)
     }
+
+    override fun hasFullCover(): Boolean = mCover[2] != null
+
+    override fun getFullCover(): InputStream? = if (hasFullCover()) ByteArrayInputStream(mCover[2]!!.bytes) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) ByteArrayInputStream(mCover[0]!!.bytes) else getPage(0), if (mCover[1] != null) ByteArrayInputStream(mCover[1]!!.bytes) else null)
 
     override fun destroy(isClearCache: Boolean) {
     }

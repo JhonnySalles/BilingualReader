@@ -62,7 +62,7 @@ class MangaImageCoverController private constructor() {
             val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS + '/' + key)
 
             if (file.exists()) {
-                return BitmapFactory.decodeFile(file.absolutePath) ?: return null
+                return ImageUtil.decodeFile(file) ?: return null
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
@@ -82,39 +82,24 @@ class MangaImageCoverController private constructor() {
     private fun generateHash(file: File): String = Util.MD5(file.path + file.name)
 
     private fun getCoverFromFile(context: Context, hash: String, parse: Parse, isCoverSize: Boolean = true): Bitmap? {
-        var index = 0
-        for (i in 0 until parse.numPages()) {
-            if (FileUtil.isImage(parse.getPagePath(i)!!)) {
-                index = i
-                break
-            }
-        }
-        var stream: InputStream? = parse.getPage(index)
+        val stream: InputStream? = parse.getCover().first
 
         val cover: Bitmap?
 
         if (isCoverSize) {
-            val option = BitmapFactory.Options()
-            option.inJustDecodeBounds = true
-            BitmapFactory.decodeStream(stream, null, option)
-            option.inSampleSize = ImageUtil.calculateInSampleSize(
-                option,
-                ReaderConsts.COVER.MANGA_COVER_THUMBNAIL_WIDTH,
-                ReaderConsts.COVER.MANGA_COVER_THUMBNAIL_HEIGHT
-            )
-            option.inJustDecodeBounds = false
-
-            Util.closeInputStream(stream)
-            stream = parse.getPage(index)
-            cover = BitmapFactory.decodeStream(stream, null, option)
+            cover = stream?.use {
+                ImageUtil.decodeInputStream(
+                    it,
+                    ReaderConsts.COVER.MANGA_COVER_THUMBNAIL_WIDTH,
+                    ReaderConsts.COVER.MANGA_COVER_THUMBNAIL_HEIGHT
+                )
+            }
             if (cover != null)
                 saveBitmapToCache(context, hash, cover)
-
-            Util.closeInputStream(stream)
         } else {
-            stream = parse.getPage(index)
-            cover = BitmapFactory.decodeStream(stream)
-            Util.closeInputStream(stream)
+            cover = stream?.use {
+                ImageUtil.decodeInputStream(it)
+            }
         }
 
         return cover
@@ -204,7 +189,7 @@ class MangaImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
+    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true) {
         imageView.load(manga) {
             allowHardware(false)
             crossfade(true)
@@ -230,7 +215,7 @@ class MangaImageCoverController private constructor() {
         manga: Manga,
         imageView: ImageView,
         notLocate: Bitmap?,
-        isCoverSize: Boolean = true,
+        @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true,
         onFinish: (Bitmap?) -> (Unit)
     ) {
         imageView.load(manga) {

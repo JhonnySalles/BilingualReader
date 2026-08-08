@@ -44,6 +44,7 @@ import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
@@ -221,12 +222,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             mBookLibraryModel.setLibrary(library)
                             mMangaLibraryModel.isLoading = false
                             BookLibraryFragment()
-                        }
-
-                        else -> {
-                            mMangaLibraryModel.setLibrary(defaultManga)
-                            mBookLibraryModel.isLoading = false
-                            MangaLibraryFragment()
                         }
                     }
 
@@ -494,6 +489,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (isGlass) {
             mBlurTop.setBlurAutoUpdate(enabled)
+            if (!enabled) {
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+            }
         } else {
             mBlurTop.setBlurAutoUpdate(false)
         }
@@ -516,6 +514,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigatorBlur?.setBlurEnabled(isGlass)
         if (isGlass) {
             navigatorBlur?.setBlurAutoUpdate(enabled)
+            if (!enabled && navigatorBlur != null) {
+                GlassRenderScheduler.requestUpdate(navigatorBlur)
+            }
         } else {
             navigatorBlur?.setBlurAutoUpdate(false)
         }
@@ -550,23 +551,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupBlurViews() {
-        if (!::mBlurTop.isInitialized)
+        if (!::mBlurTop.isInitialized || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
             return
 
         val decorView = window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        // Prefer the fragment container so the blur pass skips the app bar / drawer chrome
+        val rootView = (findViewById<ViewGroup>(R.id.main_content_root)
+            ?: decorView.findViewById(android.R.id.content)) as ViewGroup
 
-        mBlurTop.setupWith(rootView, blurAlgorithm)
+        eightbitlab.com.blurview.GlassSetup.setupGlass(mBlurTop, rootView, eightbitlab.com.blurview.RenderEffectBlur())
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
 
         val headerView = mNavigationView.getHeaderView(0)
         val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
-            val blurAlgorithmNav = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
-            navigatorBlur.setupWith(rootView, blurAlgorithmNav)
+            // Drawer header still needs the broader content root (includes main chrome behind the drawer)
+            val navRoot = decorView.findViewById<ViewGroup>(android.R.id.content)
+            eightbitlab.com.blurview.GlassSetup.setupGlass(navigatorBlur, navRoot, eightbitlab.com.blurview.RenderEffectBlur())
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
         }

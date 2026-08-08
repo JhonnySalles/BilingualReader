@@ -50,7 +50,6 @@
                         android:scrollbars="vertical"
                         android:layout_centerHorizontal="true"
                         android:columnCount="3"
-                        android:layoutAnimation="@anim/layout_animation_library_line"
                         android:clipToPadding="false"
                         android:paddingBottom="@dimen/book_list_padding"
                         android:visibility="gone"/>
@@ -168,7 +167,7 @@
 
                 </com.google.android.material.tabs.TabLayout>
 
-                <androidx.viewpager.widget.ViewPager
+                <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/book_library_popup_library_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

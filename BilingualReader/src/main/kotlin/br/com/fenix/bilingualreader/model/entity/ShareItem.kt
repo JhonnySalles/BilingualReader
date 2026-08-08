@@ -105,21 +105,31 @@ data class ShareItem(
     ) {
         this.lastAccess = (firebase[FIELD_LASTACCESS] as Timestamp).toDate()
         this.sync = (firebase[FIELD_SYNC] as Timestamp).toDate()
-        if (firebase.containsKey(FIELD_HISTORY))
-            getHistory(firebase[FIELD_HISTORY] as Map<String, *>)
-
-        if (firebase.containsKey(FIELD_ANNOTATION))
-            getAnnotation(firebase[FIELD_ANNOTATION] as Map<String, *>)
+        asStringKeyedMap(firebase[FIELD_HISTORY])?.let { getHistory(it) }
+        asStringKeyedMap(firebase[FIELD_ANNOTATION])?.let { getAnnotation(it) }
     }
 
     private fun getHistory(histories: Map<String, *>) {
-        for (history in histories)
-            this.history?.set(history.key, ShareHistory(history.value as Map<String, *>))
+        for ((key, value) in histories) {
+            asStringKeyedMap(value)?.let { this.history?.set(key, ShareHistory(it)) }
+        }
     }
 
     private fun getAnnotation(annotations: Map<String, *>) {
-        for (annotation in annotations)
-            this.annotation?.set(annotation.key, ShareAnnotation(annotation.value as Map<String, *>))
+        for ((key, value) in annotations) {
+            asStringKeyedMap(value)?.let { this.annotation?.set(key, ShareAnnotation(it)) }
+        }
+    }
+
+    private fun asStringKeyedMap(value: Any?): Map<String, *>? {
+        val raw = value as? Map<*, *> ?: return null
+        val result = linkedMapOf<String, Any>()
+        for ((key, entry) in raw) {
+            val stringKey = key as? String ?: key?.toString() ?: continue
+            if (entry != null)
+                result[stringKey] = entry
+        }
+        return result
     }
 
     constructor(manga: Manga, list: List<History>, annotations: List<MangaAnnotation>) : this(manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {

@@ -50,6 +50,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     val loading: LiveData<Boolean> = mLoading
 
     private var mWordFilter = ""
+    val wordFilter: String get() = mWordFilter
 
     private var mOrder = MutableLiveData(Pair(Order.Name, false))
     val order: LiveData<Pair<Order, Boolean>> = mOrder
@@ -129,6 +130,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 Order.LastAccess -> list.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
                 Order.Favorite -> list.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
                 Order.Author -> list.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
+                Order.Series -> list.sortWith(compareByDescending<Book> { it.series }.thenByDescending { it.name })
                 else -> list.sortByDescending { it.name }
             }
         } else {
@@ -137,6 +139,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 Order.LastAccess -> list.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
                 Order.Favorite -> list.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
                 Order.Author -> list.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
+                Order.Series -> list.sortWith(compareByDescending<Book> { it.series }.thenBy { it.name })
                 else -> list.sortBy { it.name }
             }
         }
@@ -217,6 +220,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun setLibrary(library: Library) {
         if (mLibrary.id != library.id) {
+            mTypeFilter.value = FilterType.None
+            mWordFilter = ""
             mFullMap.clear()
             mListBook.value = mutableListOf()
         }
@@ -381,16 +386,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             } else {
                 val list = withContext(Dispatchers.IO) { mBookRepository.list(mLibrary) }
                 val indexes = mutableListOf<Pair<ListMode, Int>>()
-                if (list != null) {
-                    indexes.add(Pair(ListMode.FULL, list.size))
-                    mListBook.value = list.toMutableList()
-                    setFullFromList(list)
-                    sorted()
-                } else {
-                    mListBook.value = mutableListOf()
-                    mFullMap.clear()
-                    indexes.add(Pair(ListMode.FULL, 0))
-                }
+                indexes.add(Pair(ListMode.FULL, list.size))
+                mListBook.value = list.toMutableList()
+                setFullFromList(list)
+                sorted()
                 setSuggestionsFromFull()
                 refreshComplete(false, indexes)
             }
@@ -431,7 +430,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             LibraryBookType.GRID_BIG -> LibraryBookType.GRID_MEDIUM
             LibraryBookType.GRID_MEDIUM -> LibraryBookType.SEPARATOR_BIG
             LibraryBookType.SEPARATOR_BIG -> LibraryBookType.SEPARATOR_MEDIUM
-            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.LINE
+            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.SEPARATOR_CAROUSEL
+            LibraryBookType.SEPARATOR_CAROUSEL -> LibraryBookType.SEPARATOR_LINE
+            LibraryBookType.SEPARATOR_LINE -> LibraryBookType.LINE
             else -> LibraryBookType.LINE
         }
         setLibraryType(type)
@@ -615,9 +616,12 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Book>()
-            filterResults?.let {
-                list.addAll(it.values as Collection<Book>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Book>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mListBook.value = list
         }
     }

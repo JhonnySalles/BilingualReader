@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import com.github.junrar.rarfile.FileHeader
 import org.jsoup.Jsoup
 import org.kxml2.io.KXmlParser
 import org.kxml2.kdom.Document
@@ -28,6 +29,7 @@ class EpubParse : Parse {
     private var mPages =  ArrayList<ZipEntry>()
     private var mOpf: ZipEntry? = null
     private val mChapters = mutableMapOf<String, Int>()
+    private var mCover: ZipEntry? = null
 
     override fun parse(file: File?) {
         try {
@@ -56,8 +58,8 @@ class EpubParse : Parse {
         val input = mZipFile!!.getInputStream(mOpf)
 
         try {
-            var parser: KXmlParser? = null
-            var doc: Document? = null
+            val parser: KXmlParser
+            val doc: Document
             val root: Element?
             var kid: Element
 
@@ -73,7 +75,6 @@ class EpubParse : Parse {
 
                 doc = Document()
                 doc.parse(parser)
-                parser = null
 
                 root = doc.getRootElement()
 
@@ -88,7 +89,7 @@ class EpubParse : Parse {
                         throw Exception("No manifest tag in OPF")
 
                     for (i in 0 until manifestEl.childCount) {
-                        if (manifestEl.getType(i) !== Node.ELEMENT)
+                        if (manifestEl.getType(i) != Node.ELEMENT)
                             continue
 
                         kid = manifestEl.getElement(i)
@@ -131,13 +132,17 @@ class EpubParse : Parse {
                                 if (images.isNotEmpty()) {
                                     val name = getImageRef(images[0])
                                     if (name.isNotEmpty()) {
-                                        val page = mEntries.find { it.name.endsWith(name, ignoreCase = true) }
-                                        if (page != null)
-                                            mPages.add(page)
+                                         val imagePage = mEntries.find { it.name.endsWith(name, ignoreCase = true) }
+                                         if (imagePage != null) {
+                                             mPages.add(imagePage)
+                                             mCover = imagePage
+                                         }
                                     }
                                 }
-                            } else if (FileUtil.isImage(page.name))
+                            } else if (FileUtil.isImage(page.name)){
                                 mPages.add(page)
+                                mCover = page
+                            }
                         }
                     } catch (e: Exception) {
                         cover = null
@@ -164,7 +169,7 @@ class EpubParse : Parse {
 
                     var isCover = cover != null
                     for (i in 0 until spine.childCount) {
-                        if (spine.getType(i) !== Node.ELEMENT)
+                        if (spine.getType(i) != Node.ELEMENT)
                             continue
 
                         kid = spine.getElement(i)
@@ -198,6 +203,9 @@ class EpubParse : Parse {
                         }
                     }
 
+                    if (mCover == null)
+                        mCover = mPages[0]
+
                     if (mPages.isEmpty())
                         throw Exception("No pages found in opf")
 
@@ -211,7 +219,7 @@ class EpubParse : Parse {
                                         for (item in element.getElementsByTag("li")) {
                                             val href = item.getElementsByTag("a").attr("href")
                                             if (href.isNotEmpty() && pages.containsKey(href))
-                                                mChapters.put(item.text(), pages[href]!!)
+                                                mChapters[item.text()] = pages[href]!!
                                         }
                                         break
                                     }
@@ -224,8 +232,6 @@ class EpubParse : Parse {
                     throw Exception("Couldn't load chapters", e)
                 }
             } catch (e: XmlPullParserException) {
-                parser = null
-                doc = null
                 throw Exception("The opf file is invalid", e)
             }
         } finally {
@@ -235,7 +241,7 @@ class EpubParse : Parse {
 
     private fun getElement(node: Node, name: String): Element? {
         for (i in 0 until node.childCount) {
-            if (node.getType(i) !== Node.ELEMENT)
+            if (node.getType(i) != Node.ELEMENT)
                 continue
 
             val element: Element = node.getElement(i)
@@ -283,7 +289,7 @@ class EpubParse : Parse {
     }
 
     override fun getSubtitles(): List<String> {
-        return arrayListOf<String>()
+        return arrayListOf()
     }
 
     override fun hasSubtitles(): Boolean {
@@ -291,7 +297,7 @@ class EpubParse : Parse {
     }
 
     override fun getSubtitlesNames(): Map<String, Int> {
-        return mutableMapOf<String, Int>()
+        return mutableMapOf()
     }
 
     private fun getName(entry: ZipEntry): String {
@@ -315,8 +321,8 @@ class EpubParse : Parse {
             var comic : ComicInfo? = null
             val input = mZipFile!!.getInputStream(mOpf)
             try {
-                var parser: KXmlParser? = null
-                var doc: Document? = null
+                val parser: KXmlParser
+                val doc: Document
                 val root: Element?
                 var kid: Element
 
@@ -332,7 +338,6 @@ class EpubParse : Parse {
 
                     doc = Document()
                     doc.parse(parser)
-                    parser = null
 
                     root = doc.getRootElement()
 
@@ -345,7 +350,7 @@ class EpubParse : Parse {
                     if (metadata != null) {
                         comic = ComicInfo()
                         for (i in 0 until metadata.childCount) {
-                            if (metadata.getType(i) !== Node.ELEMENT)
+                            if (metadata.getType(i) != Node.ELEMENT)
                                 continue
 
                             kid = metadata.getElement(i)
@@ -395,9 +400,11 @@ class EpubParse : Parse {
                                     }
 
                                     if (date != null) {
-                                        comic.year = date.year + 1900
-                                        comic.month = date.month + 1
-                                        comic.day = date.date
+                                        val cal = java.util.Calendar.getInstance()
+                                        cal.time = date
+                                        comic.year = cal.get(java.util.Calendar.YEAR)
+                                        comic.month = cal.get(java.util.Calendar.MONTH) + 1
+                                        comic.day = cal.get(java.util.Calendar.DAY_OF_MONTH)
                                     }
                                 } catch (_: java.lang.Exception) {
                                 }
@@ -461,8 +468,6 @@ class EpubParse : Parse {
                     }
 
                 } catch (xppe: XmlPullParserException) {
-                    parser = null
-                    doc = null
                     comic = null
                 }
             } finally {
@@ -476,6 +481,12 @@ class EpubParse : Parse {
     override fun getPage(num: Int): InputStream {
         return mZipFile!!.getInputStream(mPages[num])
     }
+
+    override fun hasFullCover(): Boolean = false
+
+    override fun getFullCover(): InputStream? = null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover != null) mZipFile!!.getInputStream(mCover!!) else getPage(0), null)
 
     override fun destroy(isClearCache: Boolean) {
         mZipFile?.close()

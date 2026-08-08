@@ -77,7 +77,7 @@ class ConfigFragmentTest {
         navigateToConfig()
 
         // Localiza o switch de relógio/bateria dos mangás
-        val switchId = R.id.config_manga_switch_show_clock_and_battery
+        val switchId = R.id.config_manga_reader_switch_show_clock_and_battery
         onView(withId(switchId)).perform(scrollTo(), click())
         
         // Verifica se visualmente mudou (opcional, foco é persistência)

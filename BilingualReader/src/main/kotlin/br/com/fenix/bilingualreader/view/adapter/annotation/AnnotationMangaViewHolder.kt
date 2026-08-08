@@ -12,7 +12,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 
 class AnnotationMangaViewHolder(itemView: View, private val listener: AnnotationsListener) : RecyclerView.ViewHolder(itemView) {
 
-    fun bind(mark: MangaAnnotation, position: Int) {
+    fun bind(mark: MangaAnnotation, @Suppress("UNUSED_PARAMETER") position: Int) {
         val root = itemView.findViewById<LinearLayout>(R.id.manga_annotation_root)
 
         val title = itemView.findViewById<TextView>(R.id.manga_annotation_title)

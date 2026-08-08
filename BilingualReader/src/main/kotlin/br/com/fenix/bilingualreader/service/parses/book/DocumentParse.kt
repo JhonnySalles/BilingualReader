@@ -11,6 +11,7 @@ import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.IMG
 import br.com.ebook.foobnix.pdf.info.TintUtil
+import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.sys.NativeLibLoader
@@ -129,7 +130,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     fun isLoaded(): Boolean = isLoaded
 
     fun isLoading(): Boolean = isLoading
-    fun isSearching(): Boolean = TempHolder.isSeaching
+    fun isSearching(): Boolean = TempHolder.isSearching
     fun isConverting(): Boolean = TempHolder.isConverting
 
     fun cancelOpen() {
@@ -145,27 +146,40 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
     fun getChapter(page: Int): Pair<Int, String>? {
         var chapter: Pair<Int, String>? = null
-        if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
-            for (link in mCodecDocument!!.outline!!) {
-                val number = link.link.replace(Regex("[^\\d+]"), "")
-                if (number.isNotEmpty() && page <= number.toInt()) {
-                    chapter = Pair(number.toInt(), link.title)
-                    break
+        val outlineList = mCodecDocument?.outline
+        if (!outlineList.isNullOrEmpty()) {
+            val oneBasedPage = page + 1
+            for (link in outlineList) {
+                val pageNum = OutlineLinkWrapper.getPageNumber(link.link)
+                if (pageNum > 0) {
+                    if (pageNum <= oneBasedPage) {
+                        chapter = Pair(pageNum, link.title)
+                    } else {
+                        break
+                    }
                 }
             }
-
+            if (chapter == null) {
+                val firstLink = outlineList.firstOrNull { OutlineLinkWrapper.getPageNumber(it.link) > 0 }
+                if (firstLink != null) {
+                    chapter = Pair(OutlineLinkWrapper.getPageNumber(firstLink.link), firstLink.title)
+                }
+            }
+        }
         return chapter
     }
 
     fun getChapters(): Map<String, Int> {
         val chapter: MutableMap<String, Int> = mutableMapOf()
-        if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
-            for (link in mCodecDocument!!.outline!!) {
-                val number = link.link.replace(Regex("[^\\d+]"), "")
-                if (number.isNotEmpty())
-                    chapter[link.title] = number.toInt()
+        val outlineList = mCodecDocument?.outline
+        if (!outlineList.isNullOrEmpty()) {
+            for (link in outlineList) {
+                val pageNum = OutlineLinkWrapper.getPageNumber(link.link)
+                if (pageNum > 0) {
+                    chapter[link.title] = pageNum
+                }
             }
-
+        }
         return chapter
     }
 

@@ -32,6 +32,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
@@ -44,6 +45,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +61,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
+@Suppress("DEPRECATION")
 class StatisticsFragment : Fragment() {
 
     companion object {
@@ -187,7 +190,7 @@ class StatisticsFragment : Fragment() {
             RenderScriptBlur(requireContext())
         }
         val contentScroll = mRoot.findViewById<ViewGroup>(R.id.statistics_scroll_view) ?: mRoot
-        mProgress.setupWith(contentScroll, blurAlgorithm)
+        GlassSetup.setupGlass(mProgress, contentScroll, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true
@@ -558,7 +561,7 @@ class StatisticsFragment : Fragment() {
             bundle.putInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, year)
 
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivity(intent)
     }
 

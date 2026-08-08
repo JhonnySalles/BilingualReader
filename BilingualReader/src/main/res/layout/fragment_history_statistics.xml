@@ -22,7 +22,16 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <include layout="@layout/skeleton_shimmer_layout"/>
+            <include
+                android:id="@+id/shimmer_skeleton"
+                layout="@layout/skeleton_shimmer_layout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/margin_small"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/content_toolbar_history_statistics"/>
         
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/history_statistics_list"
@@ -178,7 +187,7 @@
 
                 </com.google.android.material.tabs.TabLayout>
 
-                <androidx.viewpager.widget.ViewPager
+                <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/history_statistics_popup_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

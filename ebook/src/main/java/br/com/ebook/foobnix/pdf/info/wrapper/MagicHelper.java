@@ -81,11 +81,9 @@ public class MagicHelper {
         int sourceWidth = source.getWidth();
         int sourceHeight = source.getHeight();
 
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("scaleCenterCrop: {} - {} || {} - {}", sourceWidth, sourceHeight, newHeight, newWidth);
+        
 
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("RATIO: {}", (float) sourceHeight / sourceWidth);
+        
 
         // Compute the scaling factors to fit the new height and width,
         // respectively.
@@ -472,8 +470,7 @@ public class MagicHelper {
         if (!isNeedMagic())
             return;
 
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("MAGIC ON");
+        
 
         int textColor = MagicHelper.getTextColor();
         int bgColor = MagicHelper.getBgColor();
@@ -691,8 +688,7 @@ public class MagicHelper {
         src.getPixels(arr, 0, src.getWidth(), 0, 0, src.getWidth(), src.getHeight());
         quickContrast3(arr, contrast, brigtness);
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Config.RGB_565);
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("Bitmap config RGB_565: {}\nARGB_8888: {}", src.getConfig() == Config.RGB_565, src.getConfig() == Config.ARGB_8888);
+        
         bmOut.setPixels(arr, 0, src.getWidth(), 0, 0, src.getWidth(), src.getHeight());
         return bmOut;
 

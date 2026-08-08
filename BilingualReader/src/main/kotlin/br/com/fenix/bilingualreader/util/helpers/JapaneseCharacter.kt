@@ -82,7 +82,7 @@ class JapaneseCharacter {
          */
         fun toKatakana(c: Char): Char {
             return if (isHiragana(c)) {
-                (c.toInt() + 0x60).toChar()
+                (c.code + 0x60).toChar()
             } else c
         }
 
@@ -94,9 +94,9 @@ class JapaneseCharacter {
          */
         fun toHiragana(c: Char): Char {
             if (isFullWidthKatakana(c)) {
-                return (c.toInt() - 0x60).toChar()
+                return (c.code - 0x60).toChar()
             } else if (isHalfWidthKatakana(c)) {
-                return (c.toInt() - 0xcf25).toChar()
+                return (c.code - 0xcf25).toChar()
             }
             return c
         }
@@ -112,15 +112,15 @@ class JapaneseCharacter {
          * UPPERCASE if the input was Katakana.
          */
         fun toRomaji(c: Char): String? {
-            var c = c
-            if (isHiragana(c)) {
-                return lookupRomaji(c)
-            } else if (isKatakana(c)) {
-                c = toHiragana(c)
-                val str = lookupRomaji(c)
-                return str.toUpperCase()
+            var ch = c
+            if (isHiragana(ch)) {
+                return lookupRomaji(ch)
+            } else if (isKatakana(ch)) {
+                ch = toHiragana(ch)
+                val str = lookupRomaji(ch)
+                return str.uppercase()
             }
-            return c.toString()
+            return ch.toString()
         }
 
         /**
@@ -183,7 +183,7 @@ class JapaneseCharacter {
          * Access the array to return the correct romaji string.
          */
         private fun lookupRomaji(c: Char): String {
-            return romaji[c.toInt() - 0x3041]
+            return romaji[c.code - 0x3041]
         }
     }
 }

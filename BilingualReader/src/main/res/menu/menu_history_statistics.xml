@@ -12,15 +12,23 @@
 
     <item android:id="@+id/menu_history_list_order"
         android:title="@string/menu_manga_reading_order"
-        android:icon="@drawable/ico_animated_sort_to_desc_name"
+        android:icon="@drawable/ico_animated_sort_to_desc_last_access"
         android:orderInCategory="101"
         app:showAsAction="always">
     </item>
 
+    <item
+        android:id="@+id/menu_history_type_layout"
+        android:icon="@drawable/ico_animated_type_grid_list_exit"
+        android:orderInCategory="102"
+        android:title="@string/menu_history_type_layout"
+        android:visible="true"
+        app:showAsAction="always" />
+
     <item android:id="@+id/menu_history_library"
         android:title="@string/menu_history_library"
         android:icon="@drawable/ico_animated_menu_type_library"
-        android:orderInCategory="102"
+        android:orderInCategory="103"
         app:showAsAction="always">
         <menu/>
     </item>
@@ -28,7 +36,7 @@
     <item android:id="@+id/menu_history_year"
         android:title="@string/statistics_chart_year"
         android:icon="@drawable/ico_statistics_chart_year"
-        android:orderInCategory="103"
+        android:orderInCategory="104"
         app:showAsAction="always">
         <menu/>
     </item>

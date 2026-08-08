@@ -14,8 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
-import br.com.ebook.Config;
-
 public class Urls {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Urls.class);
@@ -24,8 +22,7 @@ public class Urls {
         try {
             return URLEncoder.encode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            if (Config.SHOW_LOG)
-                LOGGER.error("Error encode url: {}", e.getMessage(), e);
+            
             return URLEncoder.encode(string);
         }
     }
@@ -34,8 +31,7 @@ public class Urls {
         if (a == null || url == null) {
             return;
         }
-        if (Config.SHOW_LOG)
-            LOGGER.info(">>> open: {}", url);
+        
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         a.startActivity(browserIntent);

@@ -32,8 +32,8 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 
@@ -59,7 +59,6 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         requireArguments().let {
@@ -184,8 +183,10 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         adapter.attachListener(listener)
         mRecyclerView.adapter = adapter
 
-        val columnWidth: Int = resources.getDimension(R.dimen.chapters_grid_card_layout_width).toInt() + 1
-        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
+        val cardWidth: Int = resources.getDimensionPixelSize(R.dimen.chapters_grid_card_layout_width)
+        val cardMargin: Int = resources.getDimensionPixelSize(R.dimen.chapters_grid_card_margin)
+        val totalItemWidth: Int = cardWidth + (cardMargin * 2)
+        val spaceCount: Int = max(1, Resources.getSystem().displayMetrics.widthPixels / totalItemWidth)
         mRecyclerView.layoutManager = StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
 
         observer()
@@ -289,17 +290,14 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         }
     }
 
-    private fun setupBlurViews(root: View) {
-        if (!::mBlurTop.isInitialized)
+    private fun setupBlurViews(_root: View) {
+        if (!::mBlurTop.isInitialized || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
             return
 
-        val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mBlurTop.setupWith(rootView, blurAlgorithm)
+        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

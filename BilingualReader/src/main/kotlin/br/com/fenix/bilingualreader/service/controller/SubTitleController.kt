@@ -50,8 +50,6 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -209,7 +207,7 @@ class SubTitleController private constructor(private val context: Context) {
                 }
 
                 val listSubTitleChapter = getChapterFromJson(listJson)
-                mVocabularyRepository.processVocabulary(mManga?.id, listSubTitleChapter)
+                mVocabularyRepository.processMangaVocabulary(context, mManga?.id, listSubTitleChapter)
 
                 withContext(Dispatchers.Main) {
                     setListChapter(listSubTitleChapter)
@@ -380,7 +378,7 @@ class SubTitleController private constructor(private val context: Context) {
         val hash = String(DigestUtils.md5(image))
         Util.closeInputStream(image)
         val path: String = mParse.getPagePath(pageNumber) ?: ""
-        val (chapterKey, _, pageNumber) = findKeys(path, hash)
+        val (chapterKey, _, foundPageNumber) = findKeys(path, hash)
 
         return if (chapterKey.isNotEmpty()) {
             SubTitle(
@@ -388,7 +386,7 @@ class SubTitleController private constructor(private val context: Context) {
                 mSubtitleLang,
                 chapterKey,
                 "",
-                pageNumber,
+                foundPageNumber,
                 pathSubtitle,
                 subTitleChapterSelected.value
             )
@@ -685,7 +683,7 @@ class SubTitleController private constructor(private val context: Context) {
         val view: ImageView = mReaderFragment!!.getCurrencyImageView() ?: return
         if (!clearDrawing()) {
             target = MyTarget(view, ImageLoadType.TEXT)
-            mReaderFragment!!.loadImage(target!!, MangaReaderFragment.mCurrentPage, false)
+            loadSubTitleImage(target!!)
         }
     }
 
@@ -693,8 +691,38 @@ class SubTitleController private constructor(private val context: Context) {
         val view: ImageView = mReaderFragment?.getCurrencyImageView() ?: return
 
         if (!clearDrawing()) {
-            target = MyTarget(view)
-            mReaderFragment!!.loadImage(target!!, path, false)
+            var linkedBitmap = try {
+                context.contentResolver.openInputStream(path)?.use { stream ->
+                    ImageUtil.decodeInputStream(stream)
+                } ?: BitmapFactory.decodeFile(path.path)
+            } catch (e: Exception) {
+                mLOGGER.error("Error loading page link image: ${e.message}", e)
+                null
+            }
+
+            if (linkedBitmap != null) {
+                val filters = mReaderFragment?.getActiveFilters() ?: emptyList()
+                if (filters.isNotEmpty()) {
+                    runBlocking(Dispatchers.IO) {
+                        for (filter in filters) {
+                            linkedBitmap = filter.transform(linkedBitmap!!, coil.size.Size.ORIGINAL)
+                        }
+                    }
+                }
+
+                target = MyTarget(view)
+                target?.onBitmapLoaded(linkedBitmap!!)
+            } else {
+                Toast.makeText(context, R.string.reading_manga_open_exception, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun loadSubTitleImage(t: MyTarget) {
+        val fragment = mReaderFragment ?: return
+        val drawable = fragment.getCurrencyImageView()?.drawable
+        if (drawable is android.graphics.drawable.BitmapDrawable) {
+            t.onBitmapLoaded(drawable.bitmap)
         }
     }
 
@@ -705,10 +733,10 @@ class SubTitleController private constructor(private val context: Context) {
 
     fun removeImageBackup(pageNumber: Int) = mImageBackup.remove(pageNumber)
 
-    inner class MyTarget(layout: View, private val type: ImageLoadType = ImageLoadType.RELOAD, private val isKeepScroll: Boolean = true) : Target {
+    inner class MyTarget(layout: View, private val type: ImageLoadType = ImageLoadType.RELOAD, private val isKeepScroll: Boolean = true) {
         private val mLayout: WeakReference<View> = WeakReference(layout)
 
-        override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+        fun onBitmapLoaded(bitmap: Bitmap) {
             val layout = mLayout.get() ?: return
             val imageView = layout.findViewById<View>(R.id.page_image_view) as BaseImageView
             when (type) {
@@ -809,15 +837,6 @@ class SubTitleController private constructor(private val context: Context) {
                 }
             }
         }
-
-        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
-            mLOGGER.error("Bitmap load fail: " + e.message, e)
-            Telemetry.recordException(e, "Bitmap load fail: " + e.message)
-        }
-
-        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-        }
-
     }
 
     ///////////////////////// LANGUAGE ///////////////
@@ -1023,6 +1042,13 @@ class SubTitleController private constructor(private val context: Context) {
 
     fun isDrawing() = mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)
 
+    fun hasLinkedPage(page: Int): Boolean {
+        if (mLinkedFile == null || mLinkedFile!!.pagesLink == null)
+            return false
+        val link = mLinkedFile!!.pagesLink!!.firstOrNull { it.mangaPage.compareTo(page) == 0 }
+        return link != null && link.fileLinkLeftPage > -1
+    }
+
     private fun clearDrawing() : Boolean {
         return if (isDrawing()) {
             val view: ImageView = mReaderFragment!!.getCurrencyImageView() ?: return false
@@ -1046,7 +1072,7 @@ class SubTitleController private constructor(private val context: Context) {
         val view: ImageView = mReaderFragment?.getCurrencyImageView() ?: return
         mOcrLang = ocr.getLanguage() ?: return
         if (!clearDrawing())
-            mReaderFragment!!.loadImage(MyTarget(view, type), MangaReaderFragment.mCurrentPage, false)
+            loadSubTitleImage(MyTarget(view, type))
     }
 
     fun setUseFileLink(useInSearchTranslate: Boolean) {
@@ -1061,7 +1087,7 @@ class SubTitleController private constructor(private val context: Context) {
         mLinkedFile
 
     fun locateFileLink(pageName: String) {
-        if (mLinkedFile == null || mLinkedFile!!.parseFileLink == null)
+        if (mLinkedFile == null || mLinkedFile!!.pagesLink == null)
             return
 
         mLinkedFile!!.pagesLink!!.first { it.mangaPageName.compareTo(pageName, true) == 0 }.let {

@@ -9,15 +9,15 @@ import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.AbstractInputStreamContent
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.FileList
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.mockk.every
 import io.mockk.mockk
@@ -60,7 +60,8 @@ class ShareMarkGDriveTest {
     private val drive = mockk<Drive>(relaxed = true)
     private val driveFiles = mockk<Drive.Files>(relaxed = true)
     private val driveList = mockk<Drive.Files.List>(relaxed = true)
-    private val googleSignInAccount = mockk<GoogleSignInAccount>(relaxed = true)
+    private val auth = mockk<FirebaseAuth>(relaxed = true)
+    private val firebaseUser = mockk<FirebaseUser>(relaxed = true)
     
     @Before
     fun setup() {
@@ -78,15 +79,17 @@ class ShareMarkGDriveTest {
 
         context = ApplicationProvider.getApplicationContext()
         
-        mockkStatic(GoogleSignIn::class)
+        mockkStatic(FirebaseAuth::class)
         mockkStatic(AndroidHttp::class)
-        mockkStatic(JacksonFactory::class)
+        mockkStatic(GsonFactory::class)
         mockkStatic(GoogleAccountCredential::class)
         mockkStatic(Dispatchers::class)
 
-        every { GoogleSignIn.getLastSignedInAccount(any<Context>()) } returns googleSignInAccount
+        every { FirebaseAuth.getInstance() } returns auth
+        every { auth.currentUser } returns firebaseUser
+        every { firebaseUser.email } returns "test@example.com"
         every { AndroidHttp.newCompatibleTransport() } returns mockk()
-        every { JacksonFactory.getDefaultInstance() } returns mockk()
+        every { GsonFactory.getDefaultInstance() } returns mockk()
         every { GoogleAccountCredential.usingOAuth2(any<Context>(), any()) } returns mockk(relaxed = true)
         every { Dispatchers.IO } returns testDispatcher
 

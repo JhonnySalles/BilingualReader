@@ -22,4 +22,7 @@ interface History {
     val fileType: FileType
     val type: Type
     var sort: LocalDateTime?
+    var series: String
+    var author: String
+    var genre: String
 }

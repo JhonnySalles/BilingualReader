@@ -8,9 +8,7 @@ import android.graphics.RectF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 
 public class PageCropper {
     private static final Logger LOGGER = LoggerFactory.getLogger(PageCropper.class);
@@ -39,8 +37,7 @@ public class PageCropper {
         int bottomY = 0;
         int bottomX = 0;
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("firstColor {}", MagicHelper.colorToString(f));
+        
         int dx = Dips.dpToPx(4);
 
         for (int y = 0; y < height; y += dx) {
@@ -69,8 +66,7 @@ public class PageCropper {
             }
         }
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("getCropBounds {}-{}-{}-{} -- {}: {}-{}", topX, topY, bottomX, bottomY, "WxH", width, height);
+        
 
         if (topY == height)
             topY = 0;
@@ -91,8 +87,7 @@ public class PageCropper {
         float right = Math.min(1, (float) bottomX / width + k);
         float bottom = Math.min(1, (float) bottomY / height + k);
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("getCropBounds {}-{}-{}-{}", left, top, right, bottom);
+        
         return new RectF(left * pageSliceBounds.width() + pageSliceBounds.left, top * pageSliceBounds.height() + pageSliceBounds.top, right * pageSliceBounds.width() + pageSliceBounds.left,
                 bottom * pageSliceBounds.height() + pageSliceBounds.top);
     }

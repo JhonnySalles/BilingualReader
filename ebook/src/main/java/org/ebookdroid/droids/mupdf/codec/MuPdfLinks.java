@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.ebook.Config;
-
 public class MuPdfLinks {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MuPdfLinks.class);
@@ -30,8 +28,7 @@ public class MuPdfLinks {
         for (long linkHandle = getFirstPageLink(docHandle, pageHandle); linkHandle != 0; linkHandle = getNextPageLink(linkHandle)) {
 
             final PageLink link = new PageLink();
-            if (Config.SHOW_LOG)
-                LOGGER.info("LINK GET: {} - {}", docHandle, linkHandle);
+            
             final int type = getPageLinkType(docHandle, linkHandle);
             if (type == 1) {// external
                 link.url = getPageLinkUrl(linkHandle);
@@ -62,8 +59,7 @@ public class MuPdfLinks {
                 links.add(link);
             }
 
-            if (Config.SHOW_LOG)
-                LOGGER.info("LINK DROP: {} - {}", docHandle, linkHandle);
+            
             // dropLink(docHandle, linkHandle);
         }
         return links;

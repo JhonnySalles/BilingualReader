@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/book_carousel_skeleton_height"
+    android:layout_marginBottom="@dimen/book_line_skeleton_item_margin"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/book_carousel_skeleton_item_margin"
+    android:paddingEnd="@dimen/book_carousel_skeleton_item_margin">
+
+    <LinearLayout
+        android:id="@+id/carousel_skeleton_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <include layout="@layout/line_card_book_carousel_skeleton_item"/>
+    </LinearLayout>
+</LinearLayout>

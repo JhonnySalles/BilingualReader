@@ -21,18 +21,19 @@ import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -51,6 +52,7 @@ import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import eightbitlab.com.blurview.BlurView
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -77,7 +79,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
     private lateinit var mMenuPopupFilterOrder: FrameLayout
     private lateinit var mMenuPopupLibraryBackground: BlurView
-    private lateinit var mPopupFilterOrderView: ViewPager
+    private lateinit var mPopupFilterOrderView: ViewPager2
     private lateinit var mPopupFilterOrderTab: TabLayout
     private lateinit var mPopupOrderFragment: VocabularyPopupOrder
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
@@ -119,82 +121,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_vocabulary, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-
-        mFavorite = menu.findItem(R.id.menu_vocabulary_favorite)
-
-        setFavorite(mViewModel.getFavorite())
-        mFavorite.setOnMenuItemClickListener {
-            val favorite = !mViewModel.getFavorite()
-            mFavorite.setIcon(if (favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
-            (mFavorite.icon as AnimatedVectorDrawable).start()
-            mViewModel.setQueryFavorite(favorite)
-            true
-        }
-
-        miOrder = menu.findItem(R.id.menu_vocabulary_list_order)
-        miOrder.setOnMenuItemClickListener {
-            mViewModel.setQueryOrder(!mViewModel.getOrder().second)
-            true
-        }
-
-        miSearch = menu.findItem(R.id.menu_vocabulary_search)
-        searchView = miSearch.actionView as SearchView
-        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                mViewModel.setQuery(
-                    query ?: ""
-                )
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
-
-        MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
-            if (!mRefreshLayout.isRefreshing)
-                onOpenMenuSort()
-        }
-
-        miOrder.setOnMenuItemClickListener {
-            onChangeSort()
-            true
-        }
-
-        mViewModel.order.observe(viewLifecycleOwner) {
-            if (it.first == VocabularyActivity.mSortType && it.second == VocabularyActivity.mSortDesc)
-                return@observe
-
-            val isChange = VocabularyActivity.mSortType != it.first
-            onChangeIconSort(it.first, it.second, isChange)
-        }
-
-        if (VocabularyActivity.mVocabularySelect.isNotEmpty()) {
-            searchView.setQuery(VocabularyActivity.mVocabularySelect, true)
-            searchView.isIconified = false
-        }
-    }
-
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.menu_history_library -> {}
-        }
-        return super.onOptionsItemSelected(menuItem)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -322,8 +248,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
                 mScrollDown.show()
             }
         }
-
-        mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
         mPopupOrderFragment = VocabularyPopupOrder()
         mPopupOrderFragment.setListener(this)
 
@@ -332,26 +256,93 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
         }
-        mBottomSheet.isDraggable = true
-
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_touch))
 
-        val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        val viewOrderPagerAdapter = ViewPagerAdapter(this)
         viewOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_vocabulary_tab_item_ordering)
         )
 
         mPopupFilterOrderView.adapter = viewOrderPagerAdapter
+        TabLayoutMediator(mPopupFilterOrderTab, mPopupFilterOrderView) { tab, position ->
+            tab.text = viewOrderPagerAdapter.getPageTitle(position)
+        }.attach()
 
         return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_vocabulary, menu)
+
+                mFavorite = menu.findItem(R.id.menu_vocabulary_favorite)
+
+                setFavorite(mViewModel.getFavorite())
+                mFavorite.setOnMenuItemClickListener {
+                    val favorite = !mViewModel.getFavorite()
+                    mFavorite.setIcon(if (favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
+                    (mFavorite.icon as AnimatedVectorDrawable).start()
+                    mViewModel.setQueryFavorite(favorite)
+                    true
+                }
+
+                miOrder = menu.findItem(R.id.menu_vocabulary_list_order)
+                miOrder.setOnMenuItemClickListener {
+                    mViewModel.setQueryOrder(!mViewModel.getOrder().second)
+                    true
+                }
+
+                miSearch = menu.findItem(R.id.menu_vocabulary_search)
+                searchView = miSearch.actionView as SearchView
+                searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        mViewModel.setQuery(
+                            query ?: ""
+                        )
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        return false
+                    }
+                })
+
+                val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+                searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+
+                MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
+                    if (!mRefreshLayout.isRefreshing)
+                        onOpenMenuSort()
+                }
+
+                miOrder.setOnMenuItemClickListener {
+                    onChangeSort()
+                    true
+                }
+
+                mViewModel.order.observe(viewLifecycleOwner) {
+                    if (it.first == VocabularyActivity.mSortType && it.second == VocabularyActivity.mSortDesc)
+                        return@observe
+
+                    val isChange = VocabularyActivity.mSortType != it.first
+                    onChangeIconSort(it.first, it.second, isChange)
+                }
+
+                if (VocabularyActivity.mVocabularySelect.isNotEmpty()) {
+                    searchView.setQuery(VocabularyActivity.mVocabularySelect, true)
+                    searchView.isIconified = false
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         mListener = object : VocabularyCardListener {
             override fun onClick(vocabulary: Vocabulary) {
@@ -586,8 +577,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground, contentContainer)
     }
 
-    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-        FragmentPagerAdapter(fm, behavior) {
+    inner class ViewPagerAdapter(fragment: Fragment) :
+        FragmentStateAdapter(fragment) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -595,15 +586,19 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             fragmentTitle.add(title)
         }
 
-        override fun getItem(position: Int): Fragment {
+        fun getItem(position: Int): Fragment {
             return fragments[position]
         }
 
-        override fun getCount(): Int {
+        override fun createFragment(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getItemCount(): Int {
             return fragments.size
         }
 
-        override fun getPageTitle(position: Int): CharSequence {
+        fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
     }

@@ -132,6 +132,7 @@
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
     <string name="config_manga_reading_keep_zoom_between_pages">Manter o zoom entre as páginas?</string>
+    <string name="config_manga_process_vocabulary">Processar vocabulário do manga</string>
 
     <string name="config_system_language">Linguagem do sistema</string>
     <string name="config_system_format_date">Formato de data</string>
@@ -140,6 +141,7 @@
     <string name="config_system_share_mark_enabled">Compartilhar marcações com a cloud</string>
     <string name="config_system_share_mark_cloud">Tipo de compartilhamento</string>
     <string name="config_system_share_mark_account">Conta Google: %s</string>
+    <string name="config_system_share_mark_sign_in">Entrar com o Google</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
     <string name="config_system_share_mark_manga">Manga / Comic - %s</string>
@@ -184,6 +186,7 @@
     <string name="config_update_app_error_update">Erro na atualização do aplicativo, necessário executar manualmente o apk na pasta de download.</string>
 
     <string name="config_theme_glassmorphism">Usar desfoque translúcido?</string>
+    <string name="config_system_use_3d_cover">Utilizar capa 3D no detalhe?</string>
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
         <item>Sistema</item>
@@ -303,7 +306,7 @@
     <string name="menu_book_reading_config_touch">Configura funções touch</string>
 
     <string name="reading_book_title_position">Posição %1$d de %2$d • %3$s%%</string>
-    <string name="reading_book_title_chapter">Capítulo %1$d: %2$s</string>
+    <string name="reading_book_title_chapter">%2$s • Página %1$d</string>
 
     <string name="reading_book_page_mark">Marcador de página</string>
     <string name="reading_book_page_index">Índice</string>
@@ -725,6 +728,8 @@
     <string name="popup_library_manga_type_grid_small">Grid pequeno</string>
     <string name="popup_library_manga_type_separator_big">Grid grande com separador</string>
     <string name="popup_library_manga_type_separator_medium">Grid médio com separador</string>
+    <string name="popup_library_manga_type_separator_carousel">Carrossel com separador</string>
+    <string name="popup_library_manga_type_separator_line">Linha com separador</string>
     <string name="popup_library_manga_type_line">Linha</string>
 
     <!-- POPUP LIBRARY - Book -->
@@ -748,6 +753,8 @@
     <string name="popup_library_book_type_grid_small">Grid pequeno</string>
     <string name="popup_library_book_type_separator_big">Grid grande com separador</string>
     <string name="popup_library_book_type_separator_medium">Grid médio com separador</string>
+    <string name="popup_library_book_type_separator_carousel">Carrossel com separador</string>
+    <string name="popup_library_book_type_separator_line">Linha com separador</string>
     <string name="popup_library_book_type_line">Linha</string>
 
     <!-- MANGA DETAIL -->
@@ -838,12 +845,20 @@
     <!-- HISTORY - Manga / Comic / Book -->
     <string name="menu_history_library">Biblioteca</string>
     <string name="menu_history_type">Tipo</string>
+    <string name="menu_history_type_layout">Tipo de layout</string>
     <string name="history_last_access">Último acesso</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
     <string name="history_menu_choice_all">Todos</string>
     <string name="history_library_default">Padrão</string>
     <string name="history_manga">Manga / Comic</string>
     <string name="history_book">Livro</string>
+    <string name="history_series_empty">Sem série</string>
+    <string name="popup_history_tab_type">Grid</string>
+    <string name="popup_history_tab_content">Tipo</string>
+    <string name="popup_history_tab_year">Ano</string>
+    <string name="popup_history_type_line">Linha</string>
+    <string name="popup_history_type_separator_line">Linha com separador</string>
+    <string name="popup_history_type_separator_carousel">Carrossel com separador</string>
 
     <!-- PAGE LINK -->
     <string name="page_link_manga_empty">Manga não encontrado</string>

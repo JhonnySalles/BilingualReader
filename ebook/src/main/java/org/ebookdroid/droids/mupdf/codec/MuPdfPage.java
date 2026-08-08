@@ -86,8 +86,7 @@ public class MuPdfPage extends AbstractCodecPage {
     public Bitmap renderThumbnail(final int width, final int originW, final int originH) {
         final RectF rectF = new RectF(0, 0, 1f, 1f);
         final float k = (float) originH / originW;
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("TEST Render  w{} H {} {} {}", getWidth(), getHeight(), k, width * k);
+        
         final BitmapRef renderBitmap = renderBitmap(width, (int) (width * k), rectF);
         return renderBitmap.getBitmap();
     }
@@ -116,8 +115,7 @@ public class MuPdfPage extends AbstractCodecPage {
     static MuPdfPage createPage(final long dochandle, final int pageno) {
         TempHolder.lock.lock();
         try {
-            if (br.com.ebook.Config.SHOW_LOG)
-                LOGGER.info("MUPDF! +create page: {} - {}", dochandle, pageno);
+            
             final long open = open(dochandle, pageno);
             return new MuPdfPage(open, dochandle, pageno);
         } finally {
@@ -141,8 +139,7 @@ public class MuPdfPage extends AbstractCodecPage {
             if (pageHandle != 0 && docHandle != 0) {
                 long p = pageHandle;
                 pageHandle = 0;
-                if (br.com.ebook.Config.SHOW_LOG)
-                    LOGGER.info("MUPDF! -recycle page: {} - {}", docHandle, pageNumber);
+                
                 free(docHandle, p);
             }
         } catch (final Exception e) {
@@ -267,8 +264,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
     @Override
     public String getPageHTML() {
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("getPageAsHtml");
+        
 
         try {
             TempHolder.lock.lock();
@@ -285,8 +281,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
     @Override
     public String getPageHTMLWithImages() {
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("getPageAsHtml");
+        
 
         try {
             TempHolder.lock.lock();
@@ -306,8 +301,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
     @Override
     public synchronized void addMarkupAnnotation(PointF[] quadPoints, AnnotationType type, float color[]) {
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("addMarkupAnnotation1 {}: {} - {} - {}", type, color[0], color[1], color[2]);
+        
 
         try {
             TempHolder.lock.lock();
@@ -332,8 +326,7 @@ public class MuPdfPage extends AbstractCodecPage {
                     a.setPage(pageNumber);
                     a.setPageHandler(pageHandle);
                     result.add(a);
-                    if (br.com.ebook.Config.SHOW_LOG)
-                        LOGGER.info("getAnnotation1s: {} - {} - h {}", pageNumber, i,pageHandle);
+                    
                 }
             }
         } finally {
@@ -344,8 +337,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
     @Override
     public synchronized void addAnnotation(float[] color, PointF[][] points, float width, float alpha) {
-        if (br.com.ebook.Config.SHOW_LOG)
-            LOGGER.info("addInkAnnotationInternal: {} - {} - {}", color[0], color[1], color[2]);
+        
 
         TempHolder.lock.lock();
         try {
@@ -427,8 +419,7 @@ public class MuPdfPage extends AbstractCodecPage {
     }
 
     public synchronized TextWord[][] getText_112() {
-        // if (Config.SHOW_LOG)
-        //    LOGGER.info("getText(): {} - {} - {}", docHandle, pageHandle, pageNumber);
+        // 
         TextBlock[] blocks = null;
         try {
             TempHolder.lock.lock();
@@ -458,8 +449,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
                     if (chChar == ' ') {
                         words.add(word);
-                        // if (Config.SHOW_LOG)
-                        //    LOGGER.info("getText(): {}", word.w);
+                        // 
                         word = new TextWord();
                         continue;
                     }
@@ -467,8 +457,7 @@ public class MuPdfPage extends AbstractCodecPage {
                 }
                 if (word.w.length() > 0) {
                     words.add(word);
-                    // if (Config.SHOW_LOG)
-                    //    LOGGER.info("getText(): {}", word.w);
+                    // 
                     word = new TextWord();
                 }
             }

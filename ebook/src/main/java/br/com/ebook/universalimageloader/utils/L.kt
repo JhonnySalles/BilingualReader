@@ -94,16 +94,16 @@ object L {
     }
 
     private fun log(priority: Int, ex: Throwable?, message: String?, vararg args: Any?) {
-        var message = message
         if (!writeLogs) return
+        var formattedMessage = message
         if (args.size > 0) {
-            message = String.format(message!!, *args)
+            formattedMessage = String.format(formattedMessage!!, *args)
         }
         val log: String?
         log = if (ex == null) {
-            message
+            formattedMessage
         } else {
-            val logMessage = message ?: ex.message
+            val logMessage = formattedMessage ?: ex.message
             val logBody = Log.getStackTraceString(ex)
             String.format(LOG_FORMAT, logMessage, logBody)
         }

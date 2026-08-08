@@ -7,7 +7,6 @@ import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.view.GestureDetector
@@ -318,15 +317,11 @@ class FloatingSubtitleReader constructor(
         }
         mFloatingView.setOnTouchListener(onTouchListener)
 
-        val layoutType = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O)
-            WindowManager.LayoutParams.TYPE_PHONE
-        else
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-
+        // minSdk 26 (O): TYPE_APPLICATION_OVERLAY is always available; TYPE_PHONE is deprecated
         layoutParams = WindowManager.LayoutParams().apply {
             format = PixelFormat.TRANSLUCENT
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-            type = layoutType
+            type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             gravity = Gravity.TOP or Gravity.LEFT
             width =
                 context.resources.getDimension(R.dimen.floating_manga_subtitle_reader_width).toInt()

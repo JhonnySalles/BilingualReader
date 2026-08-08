@@ -49,6 +49,20 @@
             android:text="@string/popup_library_manga_type_separator_medium"/>
 
         <CheckBox
+            android:id="@+id/popup_library_manga_type_separator_carousel"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_type_separator_carousel"/>
+
+        <CheckBox
+            android:id="@+id/popup_library_manga_type_separator_line"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_type_separator_line"/>
+
+        <CheckBox
             android:id="@+id/popup_library_manga_type_line"
             style="@style/CheckBox"
             android:layout_width="match_parent"
@@ -57,4 +71,3 @@
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
-

@@ -19,7 +19,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
@@ -50,8 +49,6 @@ public class CacheManager {
                 }
             }
         } catch (Exception e) {
-            if (Config.SHOW_LOG)
-                LOGGER.error("Error get file path from attacment if need: {}", e.getMessage(), e);
         }
         return "";
     }
@@ -69,21 +66,18 @@ public class CacheManager {
     public static PageCacheFile getPageFile(final String path, int pages) {
         long lastModified = new File(path).lastModified();
         final String md5 = StringUtils.md5(path + lastModified + pages + AppState.get().isFullScreen);
-        if (Config.SHOW_LOG)
-            LOGGER.info("LAST{}", md5);
+        
         final File cacheDir = s_context.getFilesDir();
         return new PageCacheFile(cacheDir, md5 + ".cache");
     }
 
     public static File createTempFile(final Uri uri, String ext) throws IOException {
-        if (Config.SHOW_LOG)
-            LOGGER.info("createTempFile: {}", uri);
+        
 
         final File cacheDir = s_context.getFilesDir();
         // final File tempfile = File.createTempFile("temp", ext, cacheDir);
         final File tempfile = new File(cacheDir, ExtUtils.getFileName(ext));
-        if (Config.SHOW_LOG)
-            LOGGER.info("FILE: {}", tempfile);
+        
         tempfile.deleteOnExit();
 
         final InputStream source = s_context.getContentResolver().openInputStream(uri);

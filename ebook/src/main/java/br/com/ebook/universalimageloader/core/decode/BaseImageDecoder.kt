@@ -19,7 +19,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
-import br.com.ebook.Config
 import br.com.ebook.foobnix.sys.InputStreamBitmap
 import br.com.ebook.universalimageloader.core.assist.ImageScaleType
 import br.com.ebook.universalimageloader.core.assist.ImageSize
@@ -68,7 +67,8 @@ class BaseImageDecoder
      * if image URI has unsupported scheme(protocol)
      */
     @Throws(IOException::class)
-    override fun decode(decodingInfo: ImageDecodingInfo?): Bitmap? {
+    override fun decode(imageDecodingInfo: ImageDecodingInfo?): Bitmap? {
+        val decodingInfo = imageDecodingInfo
         var decodedBitmap: Bitmap?
         val imageInfo: ImageFileInfo
         var imageStream = getImageStream(decodingInfo)
@@ -183,8 +183,7 @@ class BaseImageDecoder
 
     @Throws(IOException::class)
     protected fun resetStream(imageStream: InputStream, decodingInfo: ImageDecodingInfo?): InputStream? {
-        if (Config.SHOW_LOG)
-            mLOGGER.info("UIL resetStream")
+        
         if (imageStream.markSupported()) {
             try {
                 imageStream.reset()

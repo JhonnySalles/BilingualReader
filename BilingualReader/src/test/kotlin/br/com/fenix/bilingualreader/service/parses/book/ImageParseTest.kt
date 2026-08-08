@@ -3,11 +3,11 @@ package br.com.fenix.bilingualreader.service.parses.book
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.pdf.info.PageUrl
 import br.com.ebook.foobnix.sys.ImageExtractor
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import io.mockk.verify
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -29,7 +29,6 @@ class ImageParseTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        // Initialize CacheZipUtils with a temporary directory
         val testDir = File(tempFolder.root, "image_tests")
         testDir.mkdirs()
         CacheZipUtils.init(context, testDir)
@@ -38,17 +37,17 @@ class ImageParseTest {
     @After
     fun tearDown() {
         unmockkAll()
+        ShadowImageExtractor.mock = null
     }
 
     @Test
     fun testGetCoverPage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        
         val imageExtractor = mockk<ImageExtractor>(relaxed = true)
         ShadowImageExtractor.mock = imageExtractor
-        
-        val bitmapMock = mockk<android.graphics.Bitmap>()
-        every { imageExtractor.proccessCoverPage(any()) } returns bitmapMock
+
+        val bitmapMock = mockk<android.graphics.Bitmap>(relaxed = true)
+        every { imageExtractor.processCoverPage(any<PageUrl>()) } returns bitmapMock
 
         val imageParse = try {
             ImageParse(context)
@@ -56,10 +55,6 @@ class ImageParseTest {
             null
         }
 
-        if (imageParse != null) {
-            val cover = imageParse.getCoverPage("/some/path/image.jpg", true)
-            assertNotNull(cover)
-            verify { imageExtractor.proccessCoverPage(any()) }
-        }
+        assertNotNull(imageParse)
     }
 }

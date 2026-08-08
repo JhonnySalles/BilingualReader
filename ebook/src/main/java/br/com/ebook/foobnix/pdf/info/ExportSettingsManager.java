@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
@@ -69,8 +68,7 @@ public class ExportSettingsManager {
         if (toFile == null)
             return false;
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("Export all to {}", toFile.getPath());
+        
 
         try {
             AppState.get().save(c);
@@ -92,12 +90,10 @@ public class ExportSettingsManager {
             if (toFile.isDirectory()) {
                 fileConfig = new File(toFile, name);
             }
-            if (Config.SHOW_LOG)
-                LOGGER.info("TEXT export to {}", name);
+            
 
             FileWriter file = new FileWriter(fileConfig);
-            if (Config.SHOW_LOG)
-                LOGGER.info("TEXT export to {}", fileConfig.getPath());
+            
             String string = root.toString(5);
             file.write(string);
             file.flush();
@@ -130,13 +126,11 @@ public class ExportSettingsManager {
         if (file == null)
             return false;
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("Import all from {}", file.getPath());
+        
 
         try {
             String json = new Scanner(file).useDelimiter("\\A").next();
-            if (Config.SHOW_LOG)
-                LOGGER.info("[IMPORT]: {}", json);
+            
             JSONObject jsonObject = new JSONObject(json);
 
             importFromJSon(jsonObject.optJSONObject(PREFIX_PDF), pdfSP);
@@ -215,28 +209,24 @@ public class ExportSettingsManager {
 
             Object value = all.get(key);
             jsonObject.put(key, value);
-            if (Config.SHOW_LOG)
-                LOGGER.info("export: {} - {}", key, value);
+            
         }
         return jsonObject;
     }
 
     public static void importFromJSon(JSONObject jsonObject, SharedPreferences sp) throws JSONException {
         if (jsonObject == null) {
-            if (Config.SHOW_LOG)
-                LOGGER.info("import null");
+            
             return;
         }
-        if (Config.SHOW_LOG)
-            LOGGER.info("importFromJSon", jsonObject);
+        
 
         Iterator<String> keys = jsonObject.keys();
         Editor edit = sp.edit();
         while (keys.hasNext()) {
             String name = keys.next();
             Object res = jsonObject.get(name);
-            if (Config.SHOW_LOG)
-                LOGGER.info("import name{}type", name);
+            
 
             if (res instanceof String)
                 edit.putString(name, (String) res);

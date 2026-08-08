@@ -25,17 +25,19 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.BundleCompat
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
@@ -63,7 +65,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
@@ -85,7 +89,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     private lateinit var mMenuPopupFilter: FrameLayout
     private lateinit var mMenuPopupLibraryBackground: BlurView
-    private lateinit var mPopupFilterView: ViewPager
+    private lateinit var mPopupFilterView: ViewPager2
     private lateinit var mPopupFilterTab: TabLayout
     private lateinit var mPopupChaptersTab: TabLayout
     private lateinit var mPopupFilterTypeFragment: AnnotationPopupFilterType
@@ -134,49 +138,12 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         arguments?.let {
-            mBook = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
+            mBook = BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java) ?: return@let
             mViewModel.search(mBook.id!!)
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_book_annotation, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-
-        miSearch = menu.findItem(R.id.menu_book_annotation_search)
-        searchView = miSearch.actionView as SearchView
-        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText != null)
-                    mViewModel.search(newText)
-                else
-                    mViewModel.clearSearch()
-                return false
-            }
-        })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
-    }
-
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.menu_book_annotation_filters -> {
-                (menuItem.icon as AnimatedVectorDrawable).start()
-                onOpenMenuFilter()
-            }
-        }
-        return super.onOptionsItemSelected(menuItem)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -279,8 +246,6 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
 
-        mPopupFilterTab.setupWithViewPager(mPopupFilterView)
-
         BottomSheetBehavior.from(mMenuPopupFilter).apply {
             peekHeight = 195
             this.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -300,13 +265,15 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mPopupFilterColorFragment.setListener(this)
         mPopupFilterChapterFragment.setListener(this)
 
-        val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        val viewOrderPagerAdapter = ViewPagerAdapter(this)
         viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.annotation_tab_item_filter))
         viewOrderPagerAdapter.addFragment(mPopupFilterColorFragment, resources.getString(R.string.annotation_tab_item_color))
         viewOrderPagerAdapter.addFragment(mPopupFilterChapterFragment, resources.getString(R.string.annotation_tab_item_chapters))
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
-
+        TabLayoutMediator(mPopupFilterTab, mPopupFilterView) { tab, position ->
+            tab.text = viewOrderPagerAdapter.getPageTitle(position)
+        }.attach()
 
         setupBlurViews(root)
         setupWindowInsets(root)
@@ -323,6 +290,44 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_book_annotation, menu)
+
+                miSearch = menu.findItem(R.id.menu_book_annotation_search)
+                searchView = miSearch.actionView as SearchView
+                searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        if (newText != null)
+                            mViewModel.search(newText)
+                        else
+                            mViewModel.clearSearch()
+                        return false
+                    }
+                })
+
+                val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+                searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.menu_book_annotation_filters -> {
+                        (menuItem.icon as AnimatedVectorDrawable).start()
+                        onOpenMenuFilter()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         mListener = object : AnnotationsListener {
             override fun onClick(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
@@ -528,8 +533,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         dialog.show()
     }
 
-    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-        FragmentPagerAdapter(fm, behavior) {
+    inner class ViewPagerAdapter(fragment: Fragment) :
+        FragmentStateAdapter(fragment) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -537,15 +542,19 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
             fragmentTitle.add(title)
         }
 
-        override fun getItem(position: Int): Fragment {
+        fun getItem(position: Int): Fragment {
             return fragments[position]
         }
 
-        override fun getCount(): Int {
+        override fun createFragment(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getItemCount(): Int {
             return fragments.size
         }
 
-        override fun getPageTitle(position: Int): CharSequence {
+        fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
     }
@@ -669,8 +678,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        val rootView = fragmentRoot.findViewById(R.id.book_annotation_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-        mBlurTop.setupWith(rootView, blurAlgorithm)
+        val rootView: ViewGroup = fragmentRoot.findViewById(R.id.book_annotation_content)
+            ?: decorView.findViewById(android.R.id.content)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

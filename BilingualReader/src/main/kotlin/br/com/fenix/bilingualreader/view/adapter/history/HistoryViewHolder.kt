@@ -76,18 +76,15 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         val percent: Float = if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100) else 0f
         pagesRead.text = "${history.bookMark} / ${history.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
 
-        var authorText = ""
-        var seriesText = ""
+        var authorText = history.author
+        var seriesText = history.series
         var publisherText = ""
 
         when (history) {
             is Manga -> {
-                authorText = history.author
-                seriesText = history.series
                 publisherText = history.publisher
             }
             is Book -> {
-                authorText = history.author
                 publisherText = history.publisher
             }
         }
@@ -121,7 +118,6 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         type.text = when(history.type) {
             Type.BOOK -> itemView.context.getString(R.string.history_book)
             Type.MANGA -> itemView.context.getString(R.string.history_manga)
-            else -> ""
         }
 
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE

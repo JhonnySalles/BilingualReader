@@ -78,6 +78,11 @@
     <dimen name="manga_line_skeleton_item_margin">5dp</dimen>
     <dimen name="manga_line_skeleton_item_margin_top">3dp</dimen>
 
+    <dimen name="manga_carousel_skeleton_height">160dp</dimen>
+    <dimen name="manga_carousel_skeleton_item_width">100dp</dimen>
+    <dimen name="manga_carousel_skeleton_item_height">150dp</dimen>
+    <dimen name="manga_carousel_skeleton_item_margin">3dp</dimen>
+
     <dimen name="manga_list_padding">80dp</dimen>
 
     <dimen name="manga_library_padding">80dp</dimen>
@@ -149,6 +154,11 @@
     <dimen name="book_line_skeleton_item_progress_height">7dp</dimen>
     <dimen name="book_line_skeleton_item_margin">5dp</dimen>
     <dimen name="book_line_skeleton_item_margin_top">3dp</dimen>
+
+    <dimen name="book_carousel_skeleton_height">160dp</dimen>
+    <dimen name="book_carousel_skeleton_item_width">100dp</dimen>
+    <dimen name="book_carousel_skeleton_item_height">150dp</dimen>
+    <dimen name="book_carousel_skeleton_item_margin">3dp</dimen>
 
     <dimen name="book_library_padding">80dp</dimen>
     <dimen name="book_library_scrolling_button_margin">10dp</dimen>
@@ -309,6 +319,7 @@
 
     <dimen name="chapters_grid_card_layout_width">100dp</dimen>
     <dimen name="chapters_grid_card_layout_height">150dp</dimen>
+    <dimen name="chapters_grid_card_margin">2dp</dimen>
 
     <dimen name="grid_separator_header_title">16sp</dimen>
     <dimen name="grid_separator_header_items">12sp</dimen>
@@ -418,6 +429,25 @@
     <dimen name="history_skeleton_card_image_height">100dp</dimen>
     <dimen name="history_skeleton_item_height">25dp</dimen>
     <dimen name="history_skeleton_item_margin">5dp</dimen>
+    <dimen name="history_carousel_skeleton_height">160dp</dimen>
+    <dimen name="history_carousel_skeleton_item_margin">3dp</dimen>
+    <dimen name="history_grid_skeleton_height_separator_big">220dp</dimen>
+    <dimen name="history_grid_skeleton_height_separator_medium">220dp</dimen>
+    <dimen name="history_grid_skeleton_divider">6dp</dimen>
+    <dimen name="history_cover_width">100dp</dimen>
+    <dimen name="history_cover_height">150dp</dimen>
+    <dimen name="history_cover_progress_height">4dp</dimen>
+    <dimen name="history_cover_title_size">10sp</dimen>
+    <dimen name="history_separator_grid_card_layout_width_big">160dp</dimen>
+    <dimen name="history_separator_grid_card_layout_height_big">210dp</dimen>
+    <dimen name="history_separator_grid_card_layout_width_medium">130dp</dimen>
+    <dimen name="history_separator_grid_card_layout_height_medium">210dp</dimen>
+    <dimen name="history_separator_grid_card_layout_width_landscape_medium">140dp</dimen>
+    <dimen name="history_separator_grid_card_layout_height_landscape_medium">210dp</dimen>
+    <dimen name="history_grid_title_size">12sp</dimen>
+    <dimen name="history_grid_sub_title">10sp</dimen>
+    <dimen name="history_grid_favorite_big">25dp</dimen>
+    <dimen name="history_grid_favorite_content_big">35dp</dimen>
 
     <dimen name="book_padding_divider_title">20sp</dimen>
     <dimen name="book_padding_divider_sub_title">14sp</dimen>

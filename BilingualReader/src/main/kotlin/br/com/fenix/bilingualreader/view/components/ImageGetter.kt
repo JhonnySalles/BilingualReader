@@ -12,7 +12,7 @@ import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import org.slf4j.LoggerFactory
 
-class ImageGetter(val context: Context, val textView: TextView) : Html.ImageGetter {
+class ImageGetter(val context: Context, val textView: TextView, val maxWidth: Int = -1) : Html.ImageGetter {
 
     private val mLOGGER = LoggerFactory.getLogger(ImageGetter::class.java)
 
@@ -20,14 +20,27 @@ class ImageGetter(val context: Context, val textView: TextView) : Html.ImageGett
         var drawable =  BitmapDrawable(context.resources, "")
         try {
             val image = TextUtil.getImageFromTag(text)
-            var bmp = ImageUtil.decodeImageBase64(image.substringAfter(",").trim())
+            val base64 = image.substringAfter(",").trim()
+            val screenWidth = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                context.resources.displayMetrics.heightPixels
+            else
+                context.resources.displayMetrics.widthPixels
+            val textViewWidth = textView.width - textView.paddingLeft - textView.paddingRight
+            val targetWidth = when {
+                maxWidth > 0 -> maxWidth
+                textViewWidth > 0 -> textViewWidth
+                else -> screenWidth
+            }
+
+            var bmp = if (maxWidth > 0 || textViewWidth > 0)
+                ImageUtil.decodeImageBase64(base64, targetWidth, targetWidth)
+            else
+                ImageUtil.decodeImageBase64(base64)
 
             if (bmp != null) {
-                val screenWith = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) context.resources.displayMetrics.heightPixels else context.resources.displayMetrics.widthPixels
-
-                if (bmp.width > screenWith) {
-                    val height = bmp.height * (screenWith.toFloat() / bmp.width)
-                    bmp = Bitmap.createScaledBitmap(bmp, screenWith, height.toInt(), false)
+                if (bmp.width > targetWidth) {
+                    val height = bmp.height * (targetWidth.toFloat() / bmp.width)
+                    bmp = Bitmap.createScaledBitmap(bmp, targetWidth, height.toInt(), false)
                 }
 
                 drawable = BitmapDrawable(context.resources, bmp)

@@ -275,7 +275,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         try {
             val parse = mLinkedFile.value?.parseManga!!
             val stream: InputStream = parse.getPage(page)
-            image.setImageBitmap(BitmapFactory.decodeStream(stream))
+            image.setImageBitmap(br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(stream))
             Util.closeInputStream(stream)
         } catch (i: InterruptedIOException) {
             mLOGGER.info("Interrupted error when generate bitmap: " + i.message)
@@ -291,7 +291,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         try {
             val parse = mLinkedFile.value?.parseFileLink!!
             val stream: InputStream = parse.getPage(page)
-            image.setImageBitmap(BitmapFactory.decodeStream(stream))
+            image.setImageBitmap(br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(stream))
             Util.closeInputStream(stream)
         } catch (i: InterruptedIOException) {
             mLOGGER.info("Interrupted error when generate bitmap: " + i.message)
@@ -439,12 +439,12 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                 endThread(true)
                 mLinkedFile.value = LinkedFile(
                     mManga!!, mLinkedFile.value!!.parseManga, parse.numPages(), path,
-                    file.name, file.extension, file.parent
+                    file.name, file.extension, file.parent ?: ""
                 )
                 mLinkedFile.value!!.parseFileLink = parse
                 mPagesLink.value?.forEach { it.clearPageLink() }
 
-                var folder = ""
+                var folder: String
                 var lastFolder = ""
                 var padding = 0
                 val mangaParse = mLinkedFile.value!!.parseManga!!
@@ -1679,16 +1679,21 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         return if (index == -1) Pair(false, null) else
             try {
                 val stream: InputStream = parse.getPage(index)
-                val image = BitmapFactory.decodeStream(stream)
-                val isDualPage = (image.width / image.height) > 0.9
-                val bitmap = Bitmap.createScaledBitmap(
-                    image,
-                    ReaderConsts.PAGESLINK.IMAGES_WIDTH,
-                    ReaderConsts.PAGESLINK.IMAGES_HEIGHT,
-                    false
-                )
-                Util.closeInputStream(stream)
-                Pair(isDualPage, bitmap)
+                val image = br.com.fenix.bilingualreader.util.helpers.ImageUtil.decodeInputStream(stream)
+                if (image != null) {
+                    val isDualPage = (image.width / image.height) > 0.9
+                    val bitmap = Bitmap.createScaledBitmap(
+                        image,
+                        ReaderConsts.PAGESLINK.IMAGES_WIDTH,
+                        ReaderConsts.PAGESLINK.IMAGES_HEIGHT,
+                        false
+                    )
+                    Util.closeInputStream(stream)
+                    Pair(isDualPage, bitmap)
+                } else {
+                    Util.closeInputStream(stream)
+                    Pair(false, null)
+                }
             } catch (i: InterruptedIOException) {
                 mLOGGER.info("Interrupted error when generate bitmap: " + i.message)
                 Pair(false, null)
@@ -1759,18 +1764,18 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                                     page.isFileLeftDualPage = isDualPage
 
                                     if (page.isDualImage) {
-                                        val number = page.fileLinkRightPage
+                                        val rightNumber = page.fileLinkRightPage
                                         generateBitmap(
                                             parsePageLink!!,
                                             page.fileLinkRightPage
                                         ) { IsDualPage, Image ->
                                             run {
-                                                mFileLinkImageList.find { it.first == number }?.let {
+                                                mFileLinkImageList.find { it.first == rightNumber }?.let {
                                                     mFileLinkImageList.remove(it)
-                                                    mFileLinkImageList.add(Triple(number, isDualPage, image))
+                                                    mFileLinkImageList.add(Triple(rightNumber, isDualPage, image))
                                                 }
 
-                                                if (page.fileLinkRightPage == number) {
+                                                if (page.fileLinkRightPage == rightNumber) {
                                                     page.imageRightFileLinkPage = Image
                                                     page.isFileRightDualPage = IsDualPage
                                                 }
@@ -1810,18 +1815,18 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                                 page.isFileLeftDualPage = isDualPage
 
                                 if (page.isDualImage) {
-                                    val number = page.fileLinkRightPage
+                                    val rightNumber = page.fileLinkRightPage
                                     generateBitmap(
                                         parsePageLink!!,
                                         page.fileLinkRightPage
                                     ) { IsDualPage, Image ->
                                         run {
-                                            mFileLinkImageList.find { it.first == number }?.let {
+                                            mFileLinkImageList.find { it.first == rightNumber }?.let {
                                                 mFileLinkImageList.remove(it)
-                                                mFileLinkImageList.add(Triple(number, isDualPage, image))
+                                                mFileLinkImageList.add(Triple(rightNumber, isDualPage, image))
                                             }
 
-                                            if (page.fileLinkRightPage == number) {
+                                            if (page.fileLinkRightPage == rightNumber) {
                                                 page.imageRightFileLinkPage = Image
                                                 page.isFileRightDualPage = IsDualPage
                                             }

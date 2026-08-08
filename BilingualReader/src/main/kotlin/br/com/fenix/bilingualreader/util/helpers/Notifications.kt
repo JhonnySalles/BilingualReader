@@ -73,9 +73,7 @@ class Notifications {
             val btnStop = R.drawable.tts_button_stop
 
             val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
-            val pendingIntent = PendingIntent.getBroadcast(context, 0, mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE)
 
-            val mediaSession = MediaSessionCompat(context, "TtsReading", null, pendingIntent)
             val notification = NotificationCompat.Builder(context, NOTIFICATIONS_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ico_tts_audio)
                 .setContentTitle(title)

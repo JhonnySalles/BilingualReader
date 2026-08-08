@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
@@ -172,8 +171,7 @@ public class TxtUtils {
         if (pageHTML == null) {
             return "";
         }
-        if (Config.SHOW_LOG)
-            LOGGER.info("pageHTML [before]: {}", pageHTML);
+        
         pageHTML = pageHTML.replace("<b>", "").replace("</b>", "").replace("<i>", "").replace("</i>", "").replace("<tt>", "").replace("</tt>", "");
         pageHTML = pageHTML.replace("<br/>", " ");
         pageHTML = replaceEndLine(pageHTML);
@@ -184,8 +182,7 @@ public class TxtUtils {
         pageHTML = pageHTML.replace("  ", " ").replace("  ", " ");
         pageHTML = pageHTML.replace(".", ". ").replace(" .", ".").replace(" .", ".");
         pageHTML = pageHTML.replaceAll("(?u)(\\w+)(-\\s)", "$1");
-        if (Config.SHOW_LOG)
-            LOGGER.info("pageHTML [after]: {}", pageHTML);
+        
         return pageHTML;
     }
 
@@ -342,8 +339,7 @@ public class TxtUtils {
     static List<String> dividers = Arrays.asList(" - ", " _ ", "_-_", "+-+");
 
     public static Pair<String, String> getTitleAuthorByPath(String name) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("getTitleAuthorByPath: {}", name);
+        
         String author = "";
         String title = "";
         try {
@@ -516,8 +512,7 @@ public class TxtUtils {
             boolean n2 = Character.isUpperCase(line.charAt(line.length() - 3));
             return a1 && a2 && n1 && n2;
         } catch (Exception e) {
-            if (Config.SHOW_LOG)
-                LOGGER.error("Error valid is line start and end uppercase: {}", e.getMessage(), e);
+            
         }
         return false;
     }
@@ -535,8 +530,7 @@ public class TxtUtils {
 
             if (TxtUtils.isNotEmpty(id)) {
                 String string = footNotes.get(id);
-                if (Config.SHOW_LOG)
-                    LOGGER.info("Find note for id: {}", string);
+                
                 string = string.trim().replaceAll("^[0-9]+ ", "");
                 return string;
             }

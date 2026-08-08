@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -225,8 +224,7 @@ public abstract class DocumentController {
         if (!getLinkHistory().isEmpty()) {
             final int last = getLinkHistory().removeLast();
             onScrollY(last);
-            if (Config.SHOW_LOG)
-                LOGGER.info("onLinkHistory: {}", last);
+            
 
         }
     }

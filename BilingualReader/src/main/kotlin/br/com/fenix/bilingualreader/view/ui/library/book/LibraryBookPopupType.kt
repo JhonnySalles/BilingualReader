@@ -22,6 +22,8 @@ class LibraryBookPopupType : Fragment() {
     private lateinit var mTypeGridMedium: CheckBox
     private lateinit var mTypeSeparatorBig: CheckBox
     private lateinit var mTypeSeparatorMedium: CheckBox
+    private lateinit var mTypeSeparatorCarousel: CheckBox
+    private lateinit var mTypeSeparatorLine: CheckBox
     private lateinit var mTypeLine: CheckBox
 
     private lateinit var mCheckMap : Map<LibraryBookType, CheckBox>
@@ -38,7 +40,8 @@ class LibraryBookPopupType : Fragment() {
         mTypeGridMedium = root.findViewById(R.id.popup_library_book_type_grid_medium)
         mTypeSeparatorBig = root.findViewById(R.id.popup_library_book_type_separator_big)
         mTypeSeparatorMedium = root.findViewById(R.id.popup_library_book_type_separator_medium)
-
+        mTypeSeparatorCarousel = root.findViewById(R.id.popup_library_book_type_separator_carousel)
+        mTypeSeparatorLine = root.findViewById(R.id.popup_library_book_type_separator_line)
         mTypeLine = root.findViewById(R.id.popup_library_book_type_line)
 
         mCheckMap = mapOf(
@@ -46,6 +49,8 @@ class LibraryBookPopupType : Fragment() {
             Pair(LibraryBookType.GRID_MEDIUM, mTypeGridMedium),
             Pair(LibraryBookType.SEPARATOR_BIG, mTypeSeparatorBig),
             Pair(LibraryBookType.SEPARATOR_MEDIUM, mTypeSeparatorMedium),
+            Pair(LibraryBookType.SEPARATOR_CAROUSEL, mTypeSeparatorCarousel),
+            Pair(LibraryBookType.SEPARATOR_LINE, mTypeSeparatorLine),
             Pair(LibraryBookType.LINE, mTypeLine)
         )
 

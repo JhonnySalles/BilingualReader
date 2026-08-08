@@ -47,17 +47,19 @@ import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBar
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.BundleCompat
+import androidx.core.view.MenuProvider
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -98,11 +100,14 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.components.book.Curl3DPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.CurlPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DefaultPageTransformer
@@ -123,8 +128,8 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -160,7 +165,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var miPaginationMode: MenuItem
     private lateinit var mViewPager: ViewPager2
     private lateinit var mViewRecycler: ZoomRecyclerView
-    private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
+    private lateinit var mPagerAdapter: Adapter<*>
     private lateinit var mReaderTTSContainer: LinearLayout
     private lateinit var mReaderTTSPlay: MaterialButton
     private lateinit var mReaderTTSProgress: CircularProgressIndicator
@@ -197,7 +202,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private var mDialog: AlertDialog? = null
 
     private var mIsSeekBarChange = false
+    private var mCoverStartTime = System.currentTimeMillis()
     private var mPageStartReading = LocalDateTime.now()
+    private var mReadingPageInternal = 0
     private var mPagesAverage = mutableListOf<Long>()
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
@@ -254,13 +261,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
             mLastPage.clear()
-            mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
+            mLibrary = BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java)
+                ?: LibraryUtil.getDefault(requireContext(), Type.BOOK)
 
-            mBook = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?
+            mBook = BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java)
             val file: File? = if (mBook != null)
                 mBook?.file
             else
-                bundle.getSerializable(GeneralConsts.KEYS.OBJECT.FILE) as File?
+                BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.FILE, File::class.java)
 
             if (file != null && file.exists()) {
                 if (mBook == null)
@@ -291,7 +299,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
         }
 
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -355,7 +362,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             activity?.supportStartPostponedEnterTransition()
         }
 
+        mCoverStartTime = System.currentTimeMillis()
         mPageStartReading = LocalDateTime.now()
+        mReadingPageInternal = 0
         mPagesAverage = mutableListOf()
 
         onLoading(isFinished = false, isLoaded = false)
@@ -376,6 +385,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 try {
                     mIsSeekBarChange = true
+                    setReaderBlurContinuous(true)
 
                     val currentPosition = when (mScrollingMode) {
                         ScrollingType.Pagination,
@@ -431,6 +441,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
                 mIsSeekBarChange = false
+                setReaderBlurContinuous(false)
             }
         })
 
@@ -479,42 +490,158 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         return view
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_reader_book, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        miChapter = menu.findItem(R.id.menu_item_reader_book_chapter)
-        miAnnotation = menu.findItem(R.id.menu_item_reader_book_annotation)
-        miFontStyle = menu.findItem(R.id.menu_item_reader_book_font_style)
-        miMarkPage = menu.findItem(R.id.menu_item_reader_book_mark_page)
-        miSearch = menu.findItem(R.id.menu_item_reader_book_search)
-        miReaderTTS = menu.findItem(R.id.menu_item_reader_book_tts)
-        miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
-        miPaginationMode = menu.findItem(R.id.menu_item_reader_book_pagination_type)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.clear()
+                menuInflater.inflate(R.menu.menu_reader_book, menu)
 
-        when (mViewModel.scrollingMode.value) {
-            ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
-            ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
-            ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
-            ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
-            else -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
-        }
+                miChapter = menu.findItem(R.id.menu_item_reader_book_chapter)
+                miAnnotation = menu.findItem(R.id.menu_item_reader_book_annotation)
+                miFontStyle = menu.findItem(R.id.menu_item_reader_book_font_style)
+                miMarkPage = menu.findItem(R.id.menu_item_reader_book_mark_page)
+                miSearch = menu.findItem(R.id.menu_item_reader_book_search)
+                miReaderTTS = menu.findItem(R.id.menu_item_reader_book_tts)
+                miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
+                miPaginationMode = menu.findItem(R.id.menu_item_reader_book_pagination_type)
 
-        when (mViewModel.paginationType.value) {
-            PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
-            PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
-            PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
-            PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
-            PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
-            PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
-            PaginationType.Depth -> menu.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
-            else -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
-        }
+                val isLoaded = mParse != null
+                miChapter.isVisible = isLoaded
+                miAnnotation.isVisible = isLoaded
+                miFontStyle.isVisible = isLoaded
+                miMarkPage.isVisible = isLoaded
+                miSearch.isVisible = isLoaded
+                miReaderTTS.isVisible = isLoaded
+                miScrollingMode.isVisible = isLoaded
+                miPaginationMode.isVisible = isLoaded
+                menu.findItem(R.id.menu_item_reader_book_view_touch_screen)?.isVisible = isLoaded
+                menu.findItem(R.id.menu_item_reader_book_config_touch_screen)?.isVisible = isLoaded
 
-        MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
-            openMenuTTS()
-        }
+                if (isLoaded) {
+                    when (mViewModel.scrollingMode.value) {
+                        ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                        ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+                        ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
+                        ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+                        else -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                    }
+
+                    when (mViewModel.paginationType.value) {
+                        PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
+                        PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
+                        PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
+                        PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
+                        PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
+                        PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
+                        PaginationType.Depth -> menu.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
+                        else -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
+                    }
+
+                    MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
+                        openMenuTTS()
+                    }
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.menu_item_reader_book_tts -> {
+                        if (mTextToSpeech == null)
+                            executeTTS(getCurrentPage(isInternal = true))
+                        else
+                            mTextToSpeech?.stop()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_chapter -> {
+                        (miChapter.icon as AnimatedVectorDrawable).reset()
+                        (miChapter.icon as AnimatedVectorDrawable).start()
+                        true
+                    }
+                    R.id.menu_item_reader_book_font_style -> {
+                        (miFontStyle.icon as AnimatedVectorDrawable).reset()
+                        (miFontStyle.icon as AnimatedVectorDrawable).start()
+                        if (mTextToSpeech != null)
+                            mTextToSpeech?.stop()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_mark_page -> {
+                        markCurrentPage()
+                        (miMarkPage.icon as AnimatedVectorDrawable).reset()
+                        (miMarkPage.icon as AnimatedVectorDrawable).start()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_annotation -> {
+                        (miAnnotation.icon as AnimatedVectorDrawable).reset()
+                        (miAnnotation.icon as AnimatedVectorDrawable).start()
+                        openBookAnnotation()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_search -> {
+                        (miSearch.icon as AnimatedVectorDrawable).reset()
+                        (miSearch.icon as AnimatedVectorDrawable).start()
+                        openBookSearch()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_config_touch_screen -> {
+                        configTouchFunctions()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_scrolling_pagination,
+                    R.id.menu_item_reader_book_scrolling_pagination_right_to_left,
+                    R.id.menu_item_reader_book_scrolling_pagination_vertical,
+                    R.id.menu_item_reader_book_scrolling_infinity_scrolling,
+                        -> {
+                        menuItem.isChecked = true
+
+                        val scrolling = when (menuItem.itemId) {
+                            R.id.menu_item_reader_book_scrolling_pagination -> ScrollingType.Pagination
+                            R.id.menu_item_reader_book_scrolling_pagination_right_to_left -> ScrollingType.PaginationRightToLeft
+                            R.id.menu_item_reader_book_scrolling_pagination_vertical -> ScrollingType.PaginationVertical
+                            R.id.menu_item_reader_book_scrolling_infinity_scrolling -> ScrollingType.Scrolling
+                            else -> ScrollingType.Pagination
+                        }
+
+                        mViewModel.changeScrolling(scrolling)
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_pagination_default,
+                    R.id.menu_item_reader_book_pagination_page_curl,
+                    R.id.menu_item_reader_book_pagination_page_curl_3d,
+                    R.id.menu_item_reader_book_pagination_stack,
+                    R.id.menu_item_reader_book_pagination_zoom,
+                    R.id.menu_item_reader_book_pagination_fade,
+                    R.id.menu_item_reader_book_pagination_depth,
+                        -> {
+                        menuItem.isChecked = true
+
+                        val pagination = when (menuItem.itemId) {
+                            R.id.menu_item_reader_book_pagination_default -> PaginationType.Default
+                            R.id.menu_item_reader_book_pagination_page_curl -> PaginationType.CurlPage
+                            R.id.menu_item_reader_book_pagination_page_curl_3d -> PaginationType.Curl3DPage
+                            R.id.menu_item_reader_book_pagination_stack -> PaginationType.Stack
+                            R.id.menu_item_reader_book_pagination_zoom -> PaginationType.Zooming
+                            R.id.menu_item_reader_book_pagination_fade -> PaginationType.Fade
+                            R.id.menu_item_reader_book_pagination_depth -> PaginationType.Depth
+                            else -> PaginationType.Default
+                        }
+
+                        mViewModel.changePagination(pagination)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -564,30 +691,36 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             if (isLoaded && mParse != null) {
                 val pages = mParse!!.getPageCount(mViewModel.getFontSize(isBook = true).toInt())
                 mPageSeekBar.max = pages -1
-                mCoverContent.animate().alpha(0.0f)
-                    .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            mCoverContent.visibility = View.GONE
 
-                            mViewPager.post {
-                                mViewPager.requestLayout()
-                                (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
-                            }
-                            mViewRecycler.post {
-                                mViewRecycler.requestLayout()
-                            }
+                val elapsedTime = System.currentTimeMillis() - mCoverStartTime
+                val delay = if (elapsedTime < GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY) GeneralConsts.DEFAULTS.DEFAULT_COVER_DELAY - elapsedTime else 0L
 
-                            val preferences = GeneralConsts.getSharedPreferences(requireContext())
-                            if (preferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
-                                with(preferences.edit()) {
-                                    this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
-                                    this.commit()
+                mHandler.postDelayed({
+                    mCoverContent.animate().alpha(0.0f)
+                        .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                super.onAnimationEnd(animation)
+                                mCoverContent.visibility = View.GONE
+
+                                mViewPager.post {
+                                    mViewPager.requestLayout()
+                                    (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
                                 }
-                                (requireActivity() as BookReaderActivity).openTouchFunctions()
+                                mViewRecycler.post {
+                                    mViewRecycler.requestLayout()
+                                }
+
+                                val preferences = GeneralConsts.getSharedPreferences(requireContext())
+                                if (preferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
+                                    with(preferences.edit()) {
+                                        this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
+                                        this.commit()
+                                    }
+                                    (requireActivity() as BookReaderActivity).openTouchFunctions()
+                                }
                             }
-                        }
-                    })
+                        })
+                }, delay)
                 setBookDots(pages)
                 if (mBook != null && mBook!!.pages != pages) {
                     if (mBook!!.completed) {
@@ -609,6 +742,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
                 mCoverMessage.text = getString(R.string.reading_book_open_exception)
+                setFullscreen(false)
+                requireActivity().invalidateOptionsMenu()
             }
         } else {
             if (::mCoverContent.isInitialized) {
@@ -636,7 +771,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         TODO("Not yet implemented")
     }
 
-    @SuppressLint("ClickableViewAccessibility", "UncheckCast")
+    @SuppressLint("ClickableViewAccessibility")
     private fun preparePager() {
         mPageSeekBar.isEnabled = true
 
@@ -651,9 +786,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             pagination = PaginationType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE, PaginationType.Default.toString())!!)
 
         mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
-            WebViewAdapter(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+            WebViewAdapter(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment)
         else
-            TextViewAdapter(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+            TextViewAdapter(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment).also {
+                it.onZoomInteractionChanged = { active -> setReaderBlurContinuous(active) }
+            }
 
         configureScrolling(scrolling, pagination, true)
         observer()
@@ -679,6 +816,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     -> {
                     mViewRecycler.setOnTouchListener(null)
                     mViewRecycler.clearOnScrollListeners()
+                    mViewRecycler.onZoomInteractionChanged = null
                     mViewRecycler.setOnSwipeOutListener(null)
 
                     mViewRecycler.adapter = null
@@ -704,6 +842,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                             generatePageAverage()
                         }
+
+                        override fun onPageScrollStateChanged(state: Int) {
+                            when (state) {
+                                ViewPager2.SCROLL_STATE_DRAGGING, ViewPager2.SCROLL_STATE_SETTLING ->
+                                    setReaderBlurContinuous(true)
+                                ViewPager2.SCROLL_STATE_IDLE ->
+                                    setReaderBlurContinuous(false)
+                            }
+                        }
                     })
 
                     mViewPager.visibility = View.VISIBLE
@@ -724,6 +871,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     mViewRecycler.setOnTouchListener(this@BookReaderFragment)
                     mViewRecycler.addOnScrollListener(InfinityScrollingListener())
+                    mViewRecycler.onZoomInteractionChanged = { active -> setReaderBlurContinuous(active) }
                     mViewRecycler.setOnSwipeOutListener(object : ZoomRecyclerView.OnSwipeOutListener {
                         override fun onSwipeOutAtStart() = hitBeginning()
                         override fun onSwipeOutAtEnd() = hitEnding()
@@ -833,94 +981,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
     }
 
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.menu_item_reader_book_tts -> {
-                if (mTextToSpeech == null)
-                    executeTTS(getCurrentPage(isInternal = true))
-                else
-                    mTextToSpeech?.stop()
-            }
-
-            R.id.menu_item_reader_book_chapter -> {
-                (miChapter.icon as AnimatedVectorDrawable).reset()
-                (miChapter.icon as AnimatedVectorDrawable).start()
-            }
-            R.id.menu_item_reader_book_font_style -> {
-                (miFontStyle.icon as AnimatedVectorDrawable).reset()
-                (miFontStyle.icon as AnimatedVectorDrawable).start()
-                if (mTextToSpeech != null)
-                    mTextToSpeech?.stop()
-            }
-
-            R.id.menu_item_reader_book_mark_page -> {
-                markCurrentPage()
-                (miMarkPage.icon as AnimatedVectorDrawable).reset()
-                (miMarkPage.icon as AnimatedVectorDrawable).start()
-            }
-
-            R.id.menu_item_reader_book_annotation -> {
-                (miAnnotation.icon as AnimatedVectorDrawable).reset()
-                (miAnnotation.icon as AnimatedVectorDrawable).start()
-                openBookAnnotation()
-            }
-
-            R.id.menu_item_reader_book_search -> {
-                (miSearch.icon as AnimatedVectorDrawable).reset()
-                (miSearch.icon as AnimatedVectorDrawable).start()
-                openBookSearch()
-            }
-
-            R.id.menu_item_reader_book_config_touch_screen -> {
-                configTouchFunctions()
-            }
-
-            R.id.menu_item_reader_book_scrolling_pagination,
-            R.id.menu_item_reader_book_scrolling_pagination_right_to_left,
-            R.id.menu_item_reader_book_scrolling_pagination_vertical,
-            R.id.menu_item_reader_book_scrolling_infinity_scrolling,
-                -> {
-                menuItem.isChecked = true
-
-                val scrolling = when (menuItem.itemId) {
-                    R.id.menu_item_reader_book_scrolling_pagination -> ScrollingType.Pagination
-                    R.id.menu_item_reader_book_scrolling_pagination_right_to_left -> ScrollingType.PaginationRightToLeft
-                    R.id.menu_item_reader_book_scrolling_pagination_vertical -> ScrollingType.PaginationVertical
-                    R.id.menu_item_reader_book_scrolling_infinity_scrolling -> ScrollingType.Scrolling
-                    else -> ScrollingType.Pagination
-                }
-
-                mViewModel.changeScrolling(scrolling)
-            }
-
-            R.id.menu_item_reader_book_pagination_default,
-            R.id.menu_item_reader_book_pagination_page_curl,
-            R.id.menu_item_reader_book_pagination_page_curl_3d,
-            R.id.menu_item_reader_book_pagination_stack,
-            R.id.menu_item_reader_book_pagination_zoom,
-            R.id.menu_item_reader_book_pagination_fade,
-            R.id.menu_item_reader_book_pagination_depth,
-                -> {
-                menuItem.isChecked = true
-
-                val pagination = when (menuItem.itemId) {
-                    R.id.menu_item_reader_book_pagination_default -> PaginationType.Default
-                    R.id.menu_item_reader_book_pagination_page_curl -> PaginationType.CurlPage
-                    R.id.menu_item_reader_book_pagination_page_curl_3d -> PaginationType.Curl3DPage
-                    R.id.menu_item_reader_book_pagination_stack -> PaginationType.Stack
-                    R.id.menu_item_reader_book_pagination_zoom -> PaginationType.Zooming
-                    R.id.menu_item_reader_book_pagination_fade -> PaginationType.Fade
-                    R.id.menu_item_reader_book_pagination_depth -> PaginationType.Depth
-                    else -> PaginationType.Default
-                }
-
-                mViewModel.changePagination(pagination)
-            }
-        }
-
-        return super.onOptionsItemSelected(menuItem)
-    }
-
 
     private fun getPosition(e: MotionEvent): Position {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -1014,8 +1074,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         ScrollingType.Pagination -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
                         ScrollingType.PaginationRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
                         ScrollingType.PaginationVertical -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
-                        ScrollingType.Scrolling -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
-                        else -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                        ScrollingType.Scrolling,
+                        ScrollingType.ScrollingDivider,
+                        ScrollingType.Vertical,
+                        ScrollingType.Horizontal,
+                        ScrollingType.HorizontalRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
                     }
                 }
 
@@ -1028,7 +1091,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         PaginationType.Zooming -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
                         PaginationType.Depth -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
                         PaginationType.Fade -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
-                        else -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
                     }
                 }
             }
@@ -1108,11 +1170,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
             mPagesAverage.clear()
+            mReadingPageInternal = getCurrentPage(isInternal = true)
             generatePageAverage(isOnlyCalculate = true)
         }
     }
-
-    private fun getActionBar(): ActionBar? = if (activity != null) (requireActivity() as AppCompatActivity).supportActionBar else null
 
     private val windowInsetsController by lazy {
         WindowInsetsControllerCompat(requireActivity().window, mViewPager)
@@ -1128,28 +1189,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         if (fullscreen) {
             mRoot.fitsSystemWindows = false
             changeContentsVisibility(fullscreen)
-            mHandler.postDelayed({ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    windowInsetsController.let {
-                        it.hide(WindowInsetsCompat.Type.systemBars())
-                        it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    }
-                    WindowCompat.setDecorFitsSystemWindows(window, false)
-                } else {
-                    getActionBar()?.hide()
-                    @Suppress("DEPRECATION")
-                    mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN // Hide top iu
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // Hide navigator
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE // Force navigator hide
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Force top iu hide
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Force full screen
-                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
-                            )
-
-                    mHandler.postDelayed({
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                        window.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                    }, ANIMATION_DURATION + 100)
-                }
+            mHandler.postDelayed({
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+                windowInsetsController.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
                 val layout = if (mPopupBottomSheet) mPopupConfigurationBottom else mPopupConfigurationLeft
                 if (layout!!.visibility != View.GONE)
@@ -1158,21 +1202,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         } else {
             mHandler.postDelayed({ changeContentsVisibility(fullscreen)  }, ANIMATION_DURATION)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
-                WindowCompat.setDecorFitsSystemWindows(window, false)
-            } else {
-                getActionBar()?.show()
-                @Suppress("DEPRECATION")
-                mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-
-                mHandler.postDelayed({
-                    window.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                }, ANIMATION_DURATION + 100)
-            }
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
 
             val isNight = resources.getBoolean(R.bool.isNight)
             window.statusBarColor = android.graphics.Color.TRANSPARENT
@@ -1205,12 +1236,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         setupTitleBackgrounds()
 
+        val isErrorState = mParse == null
+        val targetBottomVisibility = if (isFullScreen || isErrorState) View.GONE else View.VISIBLE
+
         if (!isFullScreen) {
+            setReaderBlurContinuous(true)
             targetTop.visibility = View.VISIBLE
             targetTop.translationY = initialTranslation
             targetTop.alpha = initialAlpha
 
-            targetBottom.visibility = View.VISIBLE
+            targetBottom.visibility = if (isErrorState) View.GONE else View.VISIBLE
             targetBottom.translationY = initialTranslation * -1
             targetBottom.alpha = initialAlpha
         }
@@ -1223,17 +1258,23 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     targetTop.visibility = visibility
+                    if (!isFullScreen)
+                        setReaderBlurContinuous(false)
                 }
             })
 
-        targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    targetBottom.visibility = visibility
-                }
-            })
+        if (isErrorState) {
+            targetBottom.visibility = View.GONE
+        } else {
+            targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+                .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        targetBottom.visibility = targetBottomVisibility
+                    }
+                })
+        }
     }
 
     fun setCurrentPage(page: Int, isChangePage: Boolean = true, isAnimated: Boolean = true) {
@@ -1346,6 +1387,65 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mDialog?.show()
     }
 
+
+    private val bookAnnotationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        refreshReaderBlur()
+        mViewModel.refreshAnnotations(mBook)
+        mPagerAdapter.notifyDataSetChanged()
+
+        val data = result.data
+        if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION)) {
+            val annotation = BundleCompat.getSerializable(
+                data.extras!!,
+                GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION,
+                BookAnnotation::class.java
+            )
+
+            if (annotation != null) {
+                if (annotation.fontSize != mViewModel.fontSize.value!!) {
+                    mViewModel.changeFontSize(annotation.fontSize)
+                    mHandler.postDelayed({
+                        setCurrentPage(annotation.page + 1, isAnimated = false)
+                        mPagerAdapter.notifyItemChanged(annotation.page)
+                    }, 1000)
+                } else if (annotation.page > 0)
+                    setCurrentPage(annotation.page + 1, isAnimated = false)
+            }
+        }
+
+        setFullscreen(true)
+    }
+
+    private val bookSearchLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        refreshReaderBlur()
+        val data = result.data
+        if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
+            val search = BundleCompat.getSerializable(
+                data.extras!!,
+                GeneralConsts.KEYS.OBJECT.BOOK_SEARCH,
+                BookSearch::class.java
+            ) ?: return@registerForActivityResult
+            setCurrentPage(search.page, isAnimated = false)
+            mHandler.postDelayed({
+                setFullscreen(true)
+                if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
+                    val textView = (mPagerAdapter as TextViewAdapter).getHolder(search.page-1)?.textView ?: return@postDelayed
+                    val text = TextUtil.clearHighlightWordInText(search.search)
+                    val position = textView.text.indexOf(text)
+                    if (position > 0) {
+                        textView.requestFocus()
+                        Selection.setSelection(textView.text as Spannable, position, position + text.length)
+                    }
+                }
+            }, 1200)
+        }
+    }
+
+    private val touchConfigurationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        mTouchScreen = TouchUtils.getTouch(requireContext(), Type.BOOK)
+        refreshReaderBlur()
+    }
+
     private fun openBookAnnotation() {
         if (mTextToSpeech != null)
             mTextToSpeech?.stop()
@@ -1355,8 +1455,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_annotation)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION)
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        bookAnnotationLauncher.launch(intent)
     }
 
     fun configTouchFunctions() {
@@ -1369,54 +1469,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, Type.BOOK)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            GeneralConsts.REQUEST.BOOK_ANNOTATION -> {
-                mViewModel.refreshAnnotations(mBook)
-                mPagerAdapter.notifyDataSetChanged()
-
-                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION)) {
-                    val annotation = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION) as BookAnnotation
-
-                    if (annotation.fontSize != mViewModel.fontSize.value!!) {
-                        mViewModel.changeFontSize(annotation.fontSize)
-                        mHandler.postDelayed({
-                            setCurrentPage(annotation.page + 1, isAnimated = false)
-                            mPagerAdapter.notifyItemChanged(annotation.page)
-                        }, 1000)
-                    } else if (annotation.page > 0)
-                        setCurrentPage(annotation.page + 1, isAnimated = false)
-                }
-
-                setFullscreen(true)
-            }
-            GeneralConsts.REQUEST.BOOK_SEARCH -> {
-                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
-                    val search = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
-                    setCurrentPage(search.page, isAnimated = false)
-                    mHandler.postDelayed({
-                        setFullscreen(true)
-                        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
-                            val textView = (mPagerAdapter as TextViewAdapter).getHolder(search.page-1)?.textView ?: return@postDelayed
-                            val text = TextUtil.clearHighlightWordInText(search.search)
-                            val position = textView.text.indexOf(text)
-                            if (position > 0) {
-                                textView.requestFocus()
-                                Selection.setSelection(textView.text as Spannable, position, position + text.length)
-                            }
-                        }
-                    }, 1200)
-                }
-            }
-            GeneralConsts.REQUEST.TOUCH_CONFIGURATION -> {
-                mTouchScreen = TouchUtils.getTouch(requireContext(), Type.BOOK)
-            }
-        }
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        touchConfigurationLauncher.launch(intent)
     }
 
     private fun openBookSearch(search: BookSearch? = null) {
@@ -1443,8 +1497,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH, search)
 
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH)
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        bookSearchLauncher.launch(intent)
     }
 
     private var mWakeLock : PowerManager.WakeLock? = null
@@ -1453,7 +1507,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             setFullscreen(fullscreen = true)
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
             mTextToSpeech!!.addListener(this)
-            mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
+            when (val adapter = mPagerAdapter) {
+                is TTSListener -> mTextToSpeech!!.addListener(adapter)
+            }
             mTextToSpeech!!.setVoice(mViewModel.ttsVoice.value!!, mViewModel.ttsSpeed.value!!)
             mTextToSpeech!!.start(page, initial)
         } else
@@ -1640,12 +1696,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun generatePageAverage(isOnlyCalculate: Boolean = false) {
         if (mIsSeekBarChange) {
             mPageStartReading = LocalDateTime.now()
+            mReadingPageInternal = getCurrentPage(isInternal = true)
             return
         }
 
         if (!isOnlyCalculate) {
-            val pageSeconds = ChronoUnit.SECONDS.between(mPageStartReading, LocalDateTime.now())
+            val measuredSeconds = ChronoUnit.SECONDS.between(mPageStartReading, LocalDateTime.now())
             mPageStartReading = LocalDateTime.now()
+
+            val charCount = try {
+                val documentPage = mParse?.getPage(mReadingPageInternal)
+                val html = documentPage?.pageHTMLWithImages.orEmpty()
+                documentPage?.recycle()
+                TextUtil.replaceHtmlTags(TextUtil.formatHtml(html)).trim().length
+            } catch (e: Exception) {
+                0
+            }
+            val minSeconds = charCount * ReaderConsts.READER.BOOK_MIN_MS_PER_CHAR / 1000L
+            val pageSeconds = maxOf(measuredSeconds, minSeconds)
 
             if (mPagesAverage.size > 5) {
                 val first = mPagesAverage.first()
@@ -1670,6 +1738,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mPagesAverage.add(pageSeconds)
 
             mPagesAverage.sort()
+            mReadingPageInternal = getCurrentPage(isInternal = true)
         }
 
         if (mPagesAverage.isEmpty())
@@ -1690,7 +1759,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             it.id = mHistoryRepository.save(it)
         }
 
-        if (mPagesAverage.size < 2) {
+        if (mPagesAverage.size < 3) {
             mTimeToEnding.text = ""
             return
         }
@@ -1804,17 +1873,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     inner class InfinityScrollingListener() : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
-                var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
-                if (first < 0)
-                    first = adapter.findFirstVisibleItemPosition()
-                var last: Int = adapter.findLastCompletelyVisibleItemPosition()
-                if (last < 0)
-                    last = adapter.findLastVisibleItemPosition()
-                val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
-                setChangeProgress(center + 1, center)
-                generatePageAverage()
+            when (newState) {
+                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING ->
+                    setReaderBlurContinuous(true)
+                RecyclerView.SCROLL_STATE_IDLE -> {
+                    setReaderBlurContinuous(false)
+                    val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
+                    var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
+                    if (first < 0)
+                        first = adapter.findFirstVisibleItemPosition()
+                    var last: Int = adapter.findLastCompletelyVisibleItemPosition()
+                    if (last < 0)
+                        last = adapter.findLastVisibleItemPosition()
+                    val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
+                    setChangeProgress(center + 1, center)
+                    generatePageAverage()
+                }
             }
         }
     }
@@ -1967,23 +2041,53 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onResume() {
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
-        setupTitleBackgrounds()
-        setBlurAutoUpdate(true)
+        refreshReaderBlur()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        setBlurAutoUpdate(!hidden)
+        if (hidden)
+            setBlurAutoUpdate(false)
+        else
+            refreshReaderBlur()
+    }
+
+    private fun setReaderBlurContinuous(active: Boolean) {
+        if (!isAdded || !::mBlurTop.isInitialized)
+            return
+        if (mIsFullscreen)
+            return
+        setBlurAutoUpdate(active)
+    }
+
+    private fun refreshReaderBlur() {
+        if (!isAdded || !::mBlurTop.isInitialized)
+            return
+        setupTitleBackgrounds()
+        setBlurAutoUpdate(false)
+        if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false) && !mIsFullscreen) {
+            mBlurTop.blurOnceDeferred(mHandler, 50)
+            mBlurBottom.blurOnceDeferred(mHandler, 50)
+        }
     }
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized)
+            return
+
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val autoUpdate = isGlass && enabled
-        mBlurTop.setBlurAutoUpdate(autoUpdate)
-        mBlurBottom.setBlurAutoUpdate(autoUpdate)
 
         mBlurTop.setBlurEnabled(isGlass)
         mBlurBottom.setBlurEnabled(isGlass)
+
+        mBlurTop.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom.setBlurAutoUpdate(autoUpdate)
+
+        if (isGlass && !enabled) {
+            GlassRenderScheduler.requestUpdate(mBlurTop)
+            GlassRenderScheduler.requestUpdate(mBlurBottom)
+        }
     }
 
     private fun setupTitleBackgrounds() {
@@ -2037,21 +2141,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun setupBlurViews() {
         if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized)
             return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+            return
 
-        val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-
-        val blurAlgorithmTop = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val blurAlgorithmBottom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
-        mBlurTop.setupWith(rootView, blurAlgorithmTop)
+        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        mBlurBottom.setupWith(rootView, blurAlgorithmBottom)
+        GlassSetup.setupGlass(mBlurBottom, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

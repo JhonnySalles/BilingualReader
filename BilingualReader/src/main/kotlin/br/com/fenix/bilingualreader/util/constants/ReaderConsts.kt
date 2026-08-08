@@ -7,6 +7,8 @@ class ReaderConsts {
         const val MAX_PAGE_WIDTH = 3000
         const val MANGA_OFF_SCREEN_PAGE_LIMIT = 6
         const val BOOK_OFF_SCREEN_PAGE_LIMIT = 6
+        /** Minimum reading time floor per character (ms) used when estimating remaining time. */
+        const val BOOK_MIN_MS_PER_CHAR = 40L
 
         // DEFAULT FUNCTIONS IMPLEMENTED
         const val BOOK_WEB_VIEW_MODE = false
@@ -23,6 +25,7 @@ class ReaderConsts {
     object PAGE {
         const val PAGE_CHAPTER_LIST_HEIGHT = 150
         const val PAGE_CHAPTER_LIST_WIDTH = 100
+        const val PAGE_CHAPTER_THUMBNAIL_SCALE = 3f
     }
 
     object PAGESLINK {

@@ -25,16 +25,16 @@ import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.FileContent
 import com.google.api.client.http.HttpRequestInitializer
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.CoroutineScope
@@ -119,8 +119,6 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
 
         if (share.marks == null)
             share.marks = mutableSetOf()
-        else if (share.marks!!.any { it == null })
-            share.marks = share.marks!!.filter { it != null }.toMutableSet()
     }
 
     private fun setHttpTimeout(requestInitializer : HttpRequestInitializer) : HttpRequestInitializer {
@@ -132,14 +130,16 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     }
 
     private fun getDriveService(): Drive? {
-        GoogleSignIn.getLastSignedInAccount(context)?.let { googleAccount ->
-            val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE_FILE))
-            credential.selectedAccount = googleAccount.account
-            return Drive.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), setHttpTimeout(credential))
-                .setApplicationName(context.getString(R.string.app_name))
-                .build()
-        }
-        return null
+        val email = FirebaseAuth.getInstance().currentUser?.email ?: return null
+        val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE))
+        credential.selectedAccountName = email
+        return Drive.Builder(
+            AndroidHttp.newCompatibleTransport(),
+            GsonFactory.getDefaultInstance(),
+            setHttpTimeout(credential)
+        )
+            .setApplicationName(context.getString(R.string.app_name))
+            .build()
     }
 
     private fun deleteShareFile(drive: Drive, idFile: String) {
@@ -166,10 +166,10 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
         }
     }
 
-    private fun uploadShareFile(drive: Drive, idFolder: String, name: String, file: File): String {
+    private fun uploadShareFile(drive: Drive, idFolder: String, name: String, targetFile: File): String {
         return try {
             val gfile = com.google.api.services.drive.model.File()
-            val fileContent = FileContent("application/json", file)
+            val fileContent = FileContent("application/json", targetFile)
             gfile.name = name
 
             val parents: MutableList<String> = ArrayList(1)
@@ -437,10 +437,10 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 list.parallelStream().forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
-                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
-                            if (list.isNotEmpty())
-                                for (shared in list)
+                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
+                            val historyList = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
+                            if (historyList.isNotEmpty())
+                                for (shared in historyList)
                                     repositoryHistory.save(
                                         History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
@@ -549,10 +549,10 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 list.parallelStream().forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
-                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
-                            if (list.isNotEmpty())
-                                for (shared in list)
+                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
+                            val historyList = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
+                            if (historyList.isNotEmpty())
+                                for (shared in historyList)
                                     repositoryHistory.save(
                                         History(null, book.fkLibrary!!, book.id!!, book.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),

@@ -86,10 +86,10 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
                 mListMangas.value = list.toMutableList()
                 mListMangasFull.value = list.toMutableList()
             } else {
-                for (manga in list) {
-                    if (!mListMangasFull.value!!.contains(manga)) {
-                        mListMangas.value!!.add(manga)
-                        mListMangasFull.value!!.add(manga)
+                for (itemManga in list) {
+                    if (!mListMangasFull.value!!.contains(itemManga)) {
+                        mListMangas.value!!.add(itemManga)
+                        mListMangasFull.value!!.add(itemManga)
                     }
                 }
             }
@@ -148,9 +148,12 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
             val list = mutableListOf<Manga>()
-            filterResults?.let {
-                list.addAll(it.values as Collection<Manga>)
+            val values = filterResults?.values
+            val items = when (values) {
+                is Collection<*> -> values.filterIsInstance<Manga>()
+                else -> emptyList()
             }
+            list.addAll(items)
             mListMangas.value = list
         }
     }

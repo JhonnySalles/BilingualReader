@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
-import br.com.ebook.Config;
-
 public class Dips {
     private static final Logger LOGGER = LoggerFactory.getLogger(Dips.class);
 
@@ -64,8 +62,7 @@ public class Dips {
         final WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         final Display display = wm.getDefaultDisplay();
         float refreshRate = display.getRefreshRate();
-        if (Config.SHOW_LOG)
-            LOGGER.info("RefreshRate: {}", refreshRate);
+        
         return refreshRate;
     }
 

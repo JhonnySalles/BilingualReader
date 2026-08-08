@@ -68,26 +68,38 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/manga_detail_card"
-                        style="@style/AppBackground.Card"
+                    <FrameLayout
                         android:layout_width="@dimen/manga_detail_card_layout_width"
                         android:layout_height="@dimen/manga_detail_card_layout_height"
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
-                        android:layout_gravity="bottom"
-                        app:strokeWidth="0.0dp">
+                        android:layout_gravity="bottom">
 
-                        <ImageView
-                            android:id="@+id/manga_detail_manga_image"
-                            style="@style/AppBackground.Item"
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/manga_detail_card"
+                            style="@style/AppBackground.Card"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:adjustViewBounds="true"
-                            android:scaleType="centerCrop"
-                            android:transitionName="transition_manga_cover"/>
+                            app:strokeWidth="0.0dp">
 
-                    </com.google.android.material.card.MaterialCardView>
+                            <ImageView
+                                android:id="@+id/manga_detail_manga_image"
+                                style="@style/AppBackground.Item"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:adjustViewBounds="true"
+                                android:scaleType="centerCrop"
+                                android:transitionName="transition_manga_cover"/>
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <br.com.fenix.bilingualreader.view.components.SafeSurfaceView
+                            android:id="@+id/manga_detail_3d_cover"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"

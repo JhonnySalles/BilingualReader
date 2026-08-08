@@ -4,6 +4,7 @@ package br.com.fenix.bilingualreader.view.ui.menu
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -35,6 +36,16 @@ class MenuActivity : AppCompatActivity() {
         ThemeUtil.statusBarTransparentTheme(window, resources.getBoolean(R.bool.isNight), isLightStatus = !resources.getBoolean(R.bool.isNight))
         MenuUtil.tintBackground(this, findViewById(R.id.menu_background))
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                val intent = Intent()
+                setResult(RESULT_OK, intent)
+                supportFinishAfterTransition()
+            }
+        })
+
         val rootFrameMenu = findViewById<android.view.View>(R.id.root_frame_menu)
         if (rootFrameMenu != null) {
             ViewCompat.setOnApplyWindowInsetsListener(rootFrameMenu) { view, insets ->
@@ -64,7 +75,7 @@ class MenuActivity : AppCompatActivity() {
             newFragment.arguments = intent.extras
             setFragment(newFragment)
         } else
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
     }
 
     private fun setFragment(fragment: Fragment) {
@@ -97,13 +108,6 @@ class MenuActivity : AppCompatActivity() {
         setResult(RESULT_OK, intent)
         supportFinishAfterTransition()
         this.finish()
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val intent = Intent()
-        setResult(RESULT_OK, intent)
-        supportFinishAfterTransition()
     }
 
 }

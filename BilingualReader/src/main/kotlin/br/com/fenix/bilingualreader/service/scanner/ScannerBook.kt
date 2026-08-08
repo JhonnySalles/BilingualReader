@@ -8,9 +8,6 @@ import android.os.Message
 import android.os.Process
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import br.com.ebook.foobnix.entity.FileMeta
-import br.com.ebook.foobnix.entity.FileMetaCore
-import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -23,9 +20,10 @@ import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
-import java.lang.ref.WeakReference
 import java.time.LocalDate
 import java.util.UUID
+
+import br.com.fenix.bilingualreader.view.managers.BookScannerHandler
 
 class ScannerBook(private val context: Context) {
 
@@ -34,14 +32,6 @@ class ScannerBook(private val context: Context) {
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mThreads = mutableMapOf<UUID, LibraryUpdateRunnable>()
     private var mRunning = mutableMapOf<Library, LibraryUpdateRunnable>()
-
-    private inner class RestartHandler(scanner: ScannerBook, var library: Library) :
-        Handler() {
-        private val mScannerRef: WeakReference<ScannerBook> = WeakReference<ScannerBook>(scanner)
-        override fun handleMessage(msg: Message) {
-            mScannerRef.get()?.scanLibrary(library)
-        }
-    }
 
     // Singleton - One thread initialize only
     companion object {
@@ -170,7 +160,7 @@ class ScannerBook(private val context: Context) {
             mIsStopped = false
             if (mIsRestarted) {
                 mIsRestarted = false
-                val mRestartHandler: Handler = RestartHandler(this@ScannerBook, mLibrary)
+                val mRestartHandler: Handler = BookScannerHandler(this@ScannerBook, mLibrary)
                 mRestartHandler.sendEmptyMessageDelayed(1, 200)
             } else if (!isSilent)
                 notifyLibraryUpdateFinished(isProcessed)
@@ -237,13 +227,14 @@ class ScannerBook(private val context: Context) {
                                         Book(mLibrary.id, null, it)
 
                                     book.path = it.path
-                                    book.folder = it.parent
+                                    book.folder = it.parent ?: ""
                                     book.excluded = false
                                     book.lastVerify = LocalDate.now()
                                     book.id = storage.save(book, null)
 
-                                    val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
-                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+                                    val ebookMeta = kotlinx.coroutines.runBlocking {
+                                        br.com.ebook.core.BookExtractorFactory.getMetadata(it.path)
+                                    }
 
                                     book.update(ebookMeta, mLibrary.language)
                                     storage.save(book, null)

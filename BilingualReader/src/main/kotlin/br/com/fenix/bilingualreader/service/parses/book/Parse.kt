@@ -19,7 +19,7 @@ interface Parse {
     fun getGenre(): String
     fun getAnnotation(): String
     fun getUnzipPath(): String
-    fun getSIndex(): Integer
+    fun getSIndex(): Int
     fun getLang(): String
     fun getKeywords(): String
     fun getYear(): String

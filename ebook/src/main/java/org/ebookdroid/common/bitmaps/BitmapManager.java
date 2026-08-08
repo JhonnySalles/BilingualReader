@@ -16,8 +16,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import br.com.ebook.Config;
-
 public class BitmapManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BitmapManager.class);
@@ -71,8 +69,7 @@ public class BitmapManager {
         try {
             createBitmap = Bitmap.createBitmap(width, height, config);
         } catch (Throwable e) {
-            if (Config.SHOW_LOG)
-                LOGGER.error("Error get bitmap: {}", e.getMessage(), e);
+            
             createBitmap = Bitmap.createBitmap(1, 1, config);
         }
         BitmapRef ref = new BitmapRef(createBitmap, generation.get());

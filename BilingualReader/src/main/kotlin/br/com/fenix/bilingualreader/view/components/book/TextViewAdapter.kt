@@ -50,6 +50,7 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
     private val mHolders = mutableMapOf<Int, TextViewPagerHolder>()
     private var mSpeech: Speech? = null
     private var mItems : Int = 0
+    var onZoomInteractionChanged: ((Boolean) -> Unit)? = null
 
     init {
         refreshSize()
@@ -70,6 +71,8 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             if (font != holder.value.style) {
                 holder.value.style = font
                 mViewModel.changeTextStyle(holder.value.textView)
+                if (holder.value.isOnlyImage)
+                    mViewModel.prepareHtml(context, mParse, holder.key, holder.value, mTextSelectCallback)
             }
         }
     }
@@ -99,6 +102,9 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             holder.scrollView.setScrollChangeListener(holder)
             holder.textView.setSelectionChangeListener(holder)
         }
+
+        holder.textView.onZoomInteractionChanged = onZoomInteractionChanged
+        holder.imageView.onZoomInteractionChanged = onZoomInteractionChanged
 
         return holder
     }

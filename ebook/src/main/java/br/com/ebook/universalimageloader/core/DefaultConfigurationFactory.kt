@@ -123,16 +123,16 @@ object DefaultConfigurationFactory {
      */
 	@JvmStatic
 	fun createMemoryCache(context: Context, memoryCacheSize: Int): MemoryCache {
-        var memoryCacheSize = memoryCacheSize
-        if (memoryCacheSize == 0) {
+        var cacheSize = memoryCacheSize
+        if (cacheSize == 0) {
             val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             var memoryClass = am.memoryClass
             if (hasHoneycomb() && isLargeHeap(context)) {
                 memoryClass = getLargeMemoryClass(am)
             }
-            memoryCacheSize = 1024 * 1024 * memoryClass / 8
+            cacheSize = 1024 * 1024 * memoryClass / 8
         }
-        return LruMemoryCache(memoryCacheSize)
+        return LruMemoryCache(cacheSize)
     }
 
     private fun hasHoneycomb(): Boolean {
@@ -173,7 +173,7 @@ object DefaultConfigurationFactory {
     }
 
     private class DefaultThreadFactory internal constructor(private val threadPriority: Int, threadNamePrefix: String) : ThreadFactory {
-        private val group: ThreadGroup
+        private val group: ThreadGroup?
         private val threadNumber = AtomicInteger(1)
         private val namePrefix: String
 

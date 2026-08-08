@@ -2,13 +2,13 @@ package br.com.fenix.bilingualreader.view.adapter.library
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
@@ -21,15 +21,31 @@ class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<Book
         return BookGridViewHolder(type, item, mListener)
     }
 
+    override fun onBindViewHolder(holder: BookGridViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            holder.bind(mMangaList[position])
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: BookGridViewHolder, position: Int) {
         holder.bind(mMangaList[position])
         if (isAnimation)
-            holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
+            LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.GRID)
+        else
+            LibraryCardAnimator.clear(holder)
     }
 
     override fun onViewDetachedFromWindow(holder: BookGridViewHolder) {
-        holder.itemView.clearAnimation()
+        LibraryCardAnimator.clear(holder)
         super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: BookGridViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int {
@@ -40,8 +56,8 @@ class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<Book
         mListener = listener
     }
 
-    override fun removeList(book: Book) {
-        val index = mMangaList.indexOf(book)
+    override fun removeList(item: Book) {
+        val index = mMangaList.indexOf(item)
         if (index != -1) {
             mMangaList.removeAt(index)
             notifyItemRemoved(index)
@@ -53,10 +69,8 @@ class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<Book
     }
 
     override fun updateList(order: Order, list: MutableList<Book>) {
-        val currentSize = mMangaList.size
         mMangaList = list
-        notifyItemRangeRemoved(0, currentSize)
-        notifyItemRangeInserted(0, mMangaList.size)
+        notifyDataSetChanged()
     }
 
 }

@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.update
 
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Environment
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
@@ -18,6 +17,11 @@ import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory
@@ -85,7 +89,7 @@ class UpdateApp(var mContext: Context) {
 
     fun download(link : String) {
         try {
-            DownloadApp(link).execute()
+            DownloadApp(link).start()
         } catch (e: Exception) {
             mLOGGER.error("Error update app: " + e.message, e)
             Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
@@ -94,16 +98,16 @@ class UpdateApp(var mContext: Context) {
     }
 
 
-    private inner class DownloadApp(var url: String) : AsyncTask<String?, Long, File?>() {
+    private inner class DownloadApp(var url: String) {
+
+        private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
         private lateinit var mPopup : AlertDialog
         private lateinit var mProgress : ProgressBar
         private lateinit var mPercent : TextView
         private lateinit var mSize : TextView
 
-        override fun onPreExecute() {
-            super.onPreExecute()
-
+        fun start() {
             val layout = LayoutInflater.from(mContext).inflate(R.layout.popup_update_app, null, false)
             mProgress = layout.findViewById(R.id.popup_update_progress_bar)
             mPercent = layout.findViewById(R.id.popup_update_percent)
@@ -114,12 +118,18 @@ class UpdateApp(var mContext: Context) {
                 .create()
 
             mPopup.show()
+
+            scope.launch {
+                val apk = withContext(Dispatchers.IO) { downloadFile() }
+                onDownloadFinished(apk)
+            }
         }
 
-        override fun doInBackground(vararg params: String?): File? {
-            var count = 0
+        private suspend fun downloadFile(): File? {
+            var count: Int
             return try {
-                val download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val download = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                    ?: mContext.cacheDir
                 val file = File(download, "BilingualReader.apk")
                 if (file.exists())
                     file.delete()
@@ -141,7 +151,9 @@ class UpdateApp(var mContext: Context) {
                 while ((input.read(data).also { count = it }) != -1) {
                     total += count.toLong()
 
-                    publishProgress(total, length)
+                    withContext(Dispatchers.Main) {
+                        updateProgress(total, length)
+                    }
                     output.write(data, 0, count)
                 }
 
@@ -157,11 +169,7 @@ class UpdateApp(var mContext: Context) {
             }
         }
 
-        override fun onProgressUpdate(vararg values: Long?) {
-            super.onProgressUpdate(*values)
-            val progress = values[0]!!
-            val length = values[1]!!
-
+        private fun updateProgress(progress: Long, length: Long) {
             val percent = (progress.toDouble() / length) * 100
             val perc = percent.toInt()
             mProgress.progress = perc
@@ -170,13 +178,12 @@ class UpdateApp(var mContext: Context) {
             mSize.text = mContext.getString(R.string.file_size_percent, bytesCaption(progress), bytesCaption(length))
         }
 
-        override fun onPostExecute(apk: File?) {
-            super.onPostExecute(apk)
+        private fun onDownloadFinished(apk: File?) {
             mPopup.dismiss()
 
             if (apk != null) {
                 try {
-                    val uri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider",apk)
+                    val uri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", apk)
 
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         setDataAndType(uri, "application/vnd.android.package-archive")

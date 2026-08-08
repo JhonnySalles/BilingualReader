@@ -18,6 +18,7 @@ class AnnotationPopupFilterChapter : Fragment() {
     private val mLOGGER = LoggerFactory.getLogger(AnnotationPopupFilterChapter::class.java)
 
     private lateinit var mChapters: ListView
+    private lateinit var mAdapter: ArrayAdapter<String>
     private lateinit var mOnItemClickListener: AdapterView.OnItemClickListener
     private var mIsManual = false
     private var mListener: AnnotationListener? = null
@@ -26,7 +27,8 @@ class AnnotationPopupFilterChapter : Fragment() {
         val root = inflater.inflate(R.layout.popup_annotation_filter_chapter, container, false)
 
         mChapters = root.findViewById(R.id.popup_annotation_filter_chapter_list)
-        mChapters.adapter = ArrayAdapter(requireContext(), R.layout.list_item_multiple_choice, mListener?.getChapters()?.keys?.toList() ?: listOf())
+        mAdapter = ArrayAdapter(requireContext(), R.layout.list_item_multiple_choice, mListener?.getChapters()?.keys?.toList() ?: listOf())
+        mChapters.adapter = mAdapter
         mOnItemClickListener = AdapterView.OnItemClickListener { _, _, index, _ ->
             try {
                 mIsManual = true
@@ -48,9 +50,9 @@ class AnnotationPopupFilterChapter : Fragment() {
         if (!::mChapters.isInitialized)
             return
         
-        (mChapters.adapter as ArrayAdapter<*>).clear()
-        (mChapters.adapter as ArrayAdapter<String>).addAll(chapters.keys)
-        (mChapters.adapter as ArrayAdapter<*>).notifyDataSetChanged()
+        mAdapter.clear()
+        mAdapter.addAll(chapters.keys)
+        mAdapter.notifyDataSetChanged()
     }
 
     fun setChaptersFilter(chapters: Map<String, Float>) {

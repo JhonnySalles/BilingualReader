@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.text.LineBreaker.JUSTIFICATION_MODE_INTER_WORD
@@ -17,7 +16,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
-import android.util.Base64
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -46,6 +44,7 @@ import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -254,9 +253,20 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> 10
         }
 
-        val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
+        val horizontalGravity = when {
+            isJapaneseStyle() -> Gravity.START
+            alignment == AlignmentLayoutType.Right -> Gravity.END
+            alignment == AlignmentLayoutType.Center -> Gravity.CENTER_HORIZONTAL
+            else -> Gravity.START // Left and Justify
+        }
+
+        val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
         params.setMargins(margin, margin, margin, margin + 10)
-        params.gravity = Gravity.CENTER_HORIZONTAL
+        params.gravity = horizontalGravity
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -267,23 +277,23 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
         textView.setLineSpacing(spacing, 1f)
 
-        textView.textAlignment =  if (isJapaneseStyle())
-                View.TEXT_ALIGNMENT_TEXT_START
-            else {
-                    when (alignmentType.value) {
-                    AlignmentLayoutType.Justify -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            textView.justificationMode = if (!isJapaneseStyle() && alignment == AlignmentLayoutType.Justify)
+                JUSTIFICATION_MODE_INTER_WORD
+            else
+                0
+        }
 
-                        View.TEXT_ALIGNMENT_INHERIT
-                    }
-
-                    AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
-                    AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
-                    AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
-                    else -> View.TEXT_ALIGNMENT_TEXT_START
-                }
+        textView.gravity = horizontalGravity or Gravity.TOP
+        textView.textAlignment = if (isJapaneseStyle())
+            View.TEXT_ALIGNMENT_TEXT_START
+        else {
+            when (alignment) {
+                AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
+                AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
+                else -> View.TEXT_ALIGNMENT_TEXT_START // Left and Justify
             }
+        }
 
         textView.requestLayout()
     }
@@ -592,10 +602,31 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         if (holder.isOnlyImage) {
             try {
-                val base64 = TextUtil.getImageFromTag(text)
-                val img = base64.substringAfter(",").trim()
-                val bmp = ImageUtil.decodeImageBase64(img)
-                holder.imageView.setImageBitmap(bmp)
+                val images = TextUtil.getImagesFromTag(text)
+                var bitmaps = emptyList<Bitmap>()
+                if (images.isNotEmpty()) {
+                    bitmaps = images.mapNotNull {
+                        val img = it.substringAfter(",").trim()
+                        ImageUtil.decodeImageBase64(img)
+                    }
+                }
+                if (bitmaps.isEmpty() && parse != null) {
+                    val nativeBitmap = ImageParse(context).getPage(parse.path, page)
+                    if (nativeBitmap != null) {
+                        bitmaps = listOf(nativeBitmap)
+                    }
+                }
+                if (bitmaps.isNotEmpty()) {
+                    val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
+                    val combined = if (TextUtil.hasBrBetweenImages(text)) {
+                        ImageUtil.combineImagesVertically(bitmaps, alignment)
+                    } else {
+                        ImageUtil.combineImagesHorizontally(bitmaps)
+                    }
+                    holder.imageView.setImageBitmap(combined)
+                } else {
+                    holder.imageView.setImageBitmap(null)
+                }
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate image: " + e.message, e)
                 holder.imageView.setImageBitmap(null)
@@ -624,7 +655,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 if (isProcessJapaneseText && isJapanese)
                     Formatter.generateTextView(context, processed, isFurigana)
 
-                val createSpanSelect = { annotation: BookAnnotation, start: Int, end: Int ->
+                val createSpanSelect = { annotation: BookAnnotation, _: Int, _: Int ->
                     val span = SpannableString(holder.textView.text)
                     createSpan(context, span, annotation, listener)
                     holder.textView.text = span
@@ -664,13 +695,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun createSpan(context: Context, span: SpannableString, annotation: BookAnnotation, listener: TextSelectCallbackListener?) {
-        var click: ClickableSpan? = null
         val delete = { delete: BookAnnotation ->
             mAnnotation.remove(delete)
             listener?.textSelectRemoveMark(annotation)
             true
         }
-        click = PopupAnnotations.generateClick(context, annotation, app.getColor(annotation.color.getColor()), delete) { alter ->
+        val click = PopupAnnotations.generateClick(context, annotation, app.getColor(annotation.color.getColor()), delete) { alter ->
             if (alter)
                 listener?.textSelectChangeMark(annotation)
         }
@@ -724,21 +754,52 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     // --------------------------------------------------------- Book - Chapters ---------------------------------------------------------
     var isLoadChapters = false
     var stopLoadChapters = false
-    private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView : TextView) : Bitmap? {
+
+    private fun createChapterThumbnailTextView(context: Context, renderWidth: Int, renderHeight: Int, fontScale: Float): TextView {
+        val textView = TextView(context)
+        changeTextStyle(textView)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (getFontSize() * fontScale).coerceAtLeast(4f))
+        textView.layoutParams.width = renderWidth
+        textView.layoutParams.height = renderHeight
+        return textView
+    }
+
+    private fun getChapterThumbnailRenderSize(): Triple<Int, Int, Float> {
+        val metrics = Resources.getSystem().displayMetrics
+        val renderWidth = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH * ReaderConsts.PAGE.PAGE_CHAPTER_THUMBNAIL_SCALE,
+            metrics
+        ).toInt()
+        val renderHeight = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT * ReaderConsts.PAGE.PAGE_CHAPTER_THUMBNAIL_SCALE,
+            metrics
+        ).toInt()
+        val fontScale = (renderWidth.toFloat() / metrics.widthPixels).coerceIn(0.15f, 0.6f)
+        return Triple(renderWidth, renderHeight, fontScale)
+    }
+
+    private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView: TextView, imageMaxWidth: Int): Bitmap? {
         try {
-            var text = parse.getPage(page).pageHTMLWithImages.orEmpty()
+            val documentPage = parse.getPage(page)
+            var text = documentPage.pageHTMLWithImages.orEmpty()
 
             if (text.contains("<image-begin>image"))
                 text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
-            val html = "<body>${TextUtil.formatHtml(text)}</body>"
-
-            val isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
-
-            val bitmap :Bitmap
+            val content = TextUtil.formatHtml(text).trim()
+            val isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
+            val bitmap: Bitmap
 
             if (!isOnlyImage) {
-                val processed = SpannableString(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY))
+                val html = "<body>$content</body>"
+                val processed = SpannableString(
+                    if (html.contains("<img"))
+                        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY, ImageGetter(context, textView, imageMaxWidth), null)
+                    else
+                        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+                )
 
                 val marks = mAnnotation.filter { it.page == page }
                 if (marks.isNotEmpty()) {
@@ -749,20 +810,37 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     }
                 }
                 textView.text = processed
-                parse.getPage(page).recycle()
+                documentPage.recycle()
 
-                bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.ARGB_8888)
+                bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.RGB_565)
                 val canvas = Canvas(bitmap)
+                canvas.drawColor(if (isDark) Color.BLACK else Color.WHITE)
                 val measuredWidth = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.width, View.MeasureSpec.EXACTLY)
                 val measuredHeight = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.height, View.MeasureSpec.EXACTLY)
                 textView.measure(measuredWidth, measuredHeight)
                 textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
-
                 textView.draw(canvas)
             } else {
-                val image = text.substringAfter("<img").substringBefore("/>")
-                val bytes: ByteArray = Base64.decode(image.substringAfter(",").trim(), Base64.DEFAULT)
-                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                documentPage.recycle()
+                val images = TextUtil.getImagesFromTag(text)
+                var bitmaps = images.mapNotNull {
+                    ImageUtil.decodeImageBase64(it.substringAfter(",").trim(), imageMaxWidth, imageMaxWidth)
+                }
+                if (bitmaps.isEmpty()) {
+                    val nativeBitmap = ImageParse(context).getPage(parse.path, page, imageMaxWidth)
+                    if (nativeBitmap != null) {
+                        bitmaps = listOf(nativeBitmap)
+                    }
+                }
+                bitmap = when {
+                    bitmaps.isEmpty() -> return null
+                    bitmaps.size == 1 -> bitmaps[0]
+                    TextUtil.hasBrBetweenImages(text) -> ImageUtil.combineImagesVertically(
+                        bitmaps,
+                        alignmentType.value ?: AlignmentLayoutType.Justify
+                    ) ?: bitmaps[0]
+                    else -> ImageUtil.combineImagesHorizontally(bitmaps) ?: bitmaps[0]
+                }
             }
             return bitmap
         } catch (e: Exception) {
@@ -785,49 +863,49 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             val list = arrayListOf<Chapters>()
             val chapters = parse.getChapters().map { Pair(it.value, it.key) }.sortedBy { it.first }
             val pages = parse.pageCount
-            var c = 0
-            var p = parse.pageCount
-            var title: Chapters = if (chapters.isNotEmpty()) {
-                p = chapters[c].first
-                Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
-            } else
-                Chapters(parse.bookTitle, 0, 0, 0f, true)
-
-            list.add(title)
+            var title = Chapters("", 0, 0, 0f, true)
 
             for (i in 0 until pages) {
                 if (stopLoadChapters)
                     break
 
-                if (i >= p && c < chapters.size - 1) {
-                    c++
-                    p = chapters[c].first
-                    title = Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+                val activeChapter = chapters.filter { it.first <= i + 1 }.maxByOrNull { it.first }
+                val activeTitle = activeChapter?.second ?: parse.bookTitle
+                val activeChapterPage = activeChapter?.first ?: 0
+
+                if (title.title != activeTitle) {
+                    title = Chapters(activeTitle, i, activeChapterPage, list.size.toFloat(), true)
                     list.add(title)
                 }
 
                 list.add(Chapters(title.title, i, i + 1, 0f, false, isSelected = number == i + 1))
             }
 
-            val textView = TextView(context)
-            changeTextStyle(textView)
-            textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
-            textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+            val (renderWidth, renderHeight, fontScale) = getChapterThumbnailRenderSize()
+            val textView = createChapterThumbnailTextView(context, renderWidth, renderHeight, fontScale)
+
+            val startIndex = list.indexOfFirst { !it.isTitle && it.page - 1 >= number }
+                .let { if (it >= 0) it else list.indexOfLast { c -> !c.isTitle } }
+            val orderedIndices = mutableListOf<Int>()
+            if (startIndex >= 0) {
+                for (i in startIndex until list.size)
+                    if (!list[i].isTitle) orderedIndices.add(i)
+                for (i in startIndex - 1 downTo 0)
+                    if (!list[i].isTitle) orderedIndices.add(i)
+            }
 
             SharedData.setChapters(parse, list)
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
-                    for (chapter in list) {
+                    for (index in orderedIndices) {
                         if (stopLoadChapters)
                             break
 
-                        if (chapter.isTitle)
-                            continue
-
-                        chapter.image = loadImage(context, parse, chapter.number, textView)
+                        val chapter = list[index]
+                        chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
                         withContext(Dispatchers.Main) {
                             if (!stopLoadChapters)
-                                SharedData.callListeners(chapter.number)
+                                SharedData.callListeners(index)
                         }
                     }
                 }
@@ -846,24 +924,23 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun refreshImageChapter(context: Context, parse: DocumentParse) {
-        val textView = TextView(context)
-        changeTextStyle(textView)
-        textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
-        textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+        val (renderWidth, renderHeight, fontScale) = getChapterThumbnailRenderSize()
+        val textView = createChapterThumbnailTextView(context, renderWidth, renderHeight, fontScale)
+        val chapters = SharedData.chapters.value ?: return
 
         CoroutineScope(Dispatchers.IO).launch {
             val deferred = async {
-                for (chapter in SharedData.chapters.value!!) {
+                for ((index, chapter) in chapters.withIndex()) {
                     if (stopLoadChapters)
                         break
 
                     if (chapter.isTitle || chapter.image != null)
                         continue
 
-                    chapter.image = loadImage(context, parse, chapter.number, textView)
+                    chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
                     withContext(Dispatchers.Main) {
                         if (!stopLoadChapters)
-                            SharedData.callListeners(chapter.number)
+                            SharedData.callListeners(index)
                     }
                 }
             }

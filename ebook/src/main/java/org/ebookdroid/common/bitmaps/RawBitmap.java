@@ -9,7 +9,6 @@ import org.ebookdroid.BookType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;
@@ -100,8 +99,7 @@ public final class RawBitmap {
             TempHolder.get().path = jopa;
         }
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("nativeInvert: {} - {}", TempHolder.get().path, BookType.DJVU.is(TempHolder.get().path));
+        
 
         if (!MagicHelper.isNeedMagic() && BookType.DJVU.is(TempHolder.get().path)) {
             nativeInvert(pixels, width, height);

@@ -3,6 +3,9 @@ package br.com.fenix.bilingualreader.service.tokenizers
 import android.annotation.TargetApi
 import android.content.Context
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import com.worksap.nlp.sudachi.Config
+import com.worksap.nlp.sudachi.DictionaryFactory
+import com.worksap.nlp.sudachi.PathAnchor
 
 @TargetApi(26)
 class SudachiTokenizer(
@@ -49,7 +52,12 @@ class SudachiTokenizer(
             // Load language files from asset packs
             mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "system_small.dic")
             //mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "char.def")
-            val dict = com.worksap.nlp.sudachi.DictionaryFactory().create(settings)
+            // Sudachi 0.7.0+: create(String) is deprecated; use Config.fromJsonString + create(Config)
+            val config = Config.fromJsonString(
+                settings,
+                PathAnchor.classpath().andThen(PathAnchor.none())
+            ).withFallback(Config.defaultConfig())
+            val dict = DictionaryFactory().create(config)
             tokenizer = dict.create()
         }
     }

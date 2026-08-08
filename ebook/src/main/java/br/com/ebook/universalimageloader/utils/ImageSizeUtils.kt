@@ -121,17 +121,17 @@ object ImageSizeUtils {
     }
 
     private fun considerMaxTextureSize(srcWidth: Int, srcHeight: Int, scale: Int, powerOf2: Boolean): Int {
-        var scale = scale
+        var s = scale
         val maxWidth = maxBitmapSize!!.width
         val maxHeight = maxBitmapSize!!.height
-        while (srcWidth / scale > maxWidth || srcHeight / scale > maxHeight) {
+        while (srcWidth / s > maxWidth || srcHeight / s > maxHeight) {
             if (powerOf2) {
-                scale *= 2
+                s *= 2
             } else {
-                scale++
+                s++
             }
         }
-        return scale
+        return s
     }
 
     /**

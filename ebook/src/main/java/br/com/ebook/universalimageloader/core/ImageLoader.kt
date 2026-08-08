@@ -254,66 +254,58 @@ class ImageLoader protected constructor() {
         listener: ImageLoadingListener?,
         progressListener: ImageLoadingProgressListener?
     ) {
-        var options = options
-        var targetSize = targetSize
-        var listener = listener
         checkConfiguration()
         requireNotNull(imageAware) { ERROR_WRONG_ARGUMENTS }
-        if (listener == null) {
-            listener = defaultListener
-        }
-        if (options == null) {
-            options = configuration!!.defaultDisplayImageOptions
-        }
+        val displayOptions: DisplayImageOptions = options ?: configuration!!.defaultDisplayImageOptions!!
+        val displayTargetSize: ImageSize = targetSize ?: defineTargetSizeForView(imageAware, configuration!!.maxImageSize)
+        val displayListener: ImageLoadingListener = listener ?: defaultListener
+
         if (TextUtils.isEmpty(uri)) {
             engine!!.cancelDisplayTaskFor(imageAware)
-            listener.onLoadingStarted(uri, imageAware.wrappedView)
-            if (options!!.shouldShowImageForEmptyUri()) {
-                imageAware.setImageDrawable(options.getImageForEmptyUri(configuration!!.resources))
+            displayListener.onLoadingStarted(uri, imageAware.wrappedView)
+            if (displayOptions.shouldShowImageForEmptyUri()) {
+                imageAware.setImageDrawable(displayOptions.getImageForEmptyUri(configuration!!.resources))
             } else {
                 imageAware.setImageDrawable(null)
             }
-            listener.onLoadingComplete(uri, imageAware.wrappedView, null)
+            displayListener.onLoadingComplete(uri, imageAware.wrappedView, null)
             return
         }
-        if (targetSize == null) {
-            targetSize = defineTargetSizeForView(imageAware, configuration!!.maxImageSize)
-        }
-        val memoryCacheKey = generateKey(uri, targetSize)
+        val memoryCacheKey = generateKey(uri, displayTargetSize)
         engine!!.prepareDisplayTaskFor(imageAware, memoryCacheKey)
-        listener.onLoadingStarted(uri, imageAware.wrappedView)
+        displayListener.onLoadingStarted(uri, imageAware.wrappedView)
         val bmp = configuration!!.memoryCache!![memoryCacheKey]
         if (bmp != null && !bmp.isRecycled) {
             d(LOG_LOAD_IMAGE_FROM_MEMORY_CACHE, memoryCacheKey)
-            if (options!!.shouldPostProcess()) {
+            if (displayOptions.shouldPostProcess()) {
                 val imageLoadingInfo = ImageLoadingInfo(
-                    uri!!, imageAware, targetSize, memoryCacheKey, options, listener, progressListener!!, engine!!.getLockForUri(
+                    uri!!, imageAware, displayTargetSize, memoryCacheKey, displayOptions, displayListener, progressListener, engine!!.getLockForUri(
                         uri
                     )
                 )
-                val displayTask = ProcessAndDisplayImageTask(engine!!, bmp, imageLoadingInfo, defineHandler(options)!!)
-                if (options.isSyncLoading) {
+                val displayTask = ProcessAndDisplayImageTask(engine!!, bmp, imageLoadingInfo, defineHandler(displayOptions)!!)
+                if (displayOptions.isSyncLoading) {
                     displayTask.run()
                 } else {
                     engine!!.submit(displayTask)
                 }
             } else {
-                options.displayer.display(bmp, imageAware, LoadedFrom.MEMORY_CACHE)
-                listener.onLoadingComplete(uri, imageAware.wrappedView, bmp)
+                displayOptions.displayer.display(bmp, imageAware, LoadedFrom.MEMORY_CACHE)
+                displayListener.onLoadingComplete(uri, imageAware.wrappedView, bmp)
             }
         } else {
-            if (options!!.shouldShowImageOnLoading()) {
-                imageAware.setImageDrawable(options.getImageOnLoading(configuration!!.resources))
-            } else if (options.isResetViewBeforeLoading) {
+            if (displayOptions.shouldShowImageOnLoading()) {
+                imageAware.setImageDrawable(displayOptions.getImageOnLoading(configuration!!.resources))
+            } else if (displayOptions.isResetViewBeforeLoading) {
                 imageAware.setImageDrawable(null)
             }
             val imageLoadingInfo = ImageLoadingInfo(
-                uri!!, imageAware, targetSize, memoryCacheKey, options, listener, progressListener!!, engine!!.getLockForUri(
+                uri!!, imageAware, displayTargetSize, memoryCacheKey, displayOptions, displayListener, progressListener, engine!!.getLockForUri(
                     uri
                 )
             )
-            val displayTask = LoadAndDisplayImageTask(engine!!, imageLoadingInfo, defineHandler(options)!!)
-            if (options.isSyncLoading) {
+            val displayTask = LoadAndDisplayImageTask(engine!!, imageLoadingInfo, defineHandler(displayOptions)!!)
+            if (displayOptions.isSyncLoading) {
                 displayTask.run()
             } else {
                 engine!!.submit(displayTask)
@@ -632,17 +624,11 @@ class ImageLoader protected constructor() {
         listener: ImageLoadingListener?,
         progressListener: ImageLoadingProgressListener?
     ): Int {
-        var targetImageSize = targetImageSize
-        var options = options
+        val loadTargetSize = targetImageSize ?: configuration!!.maxImageSize
+        val loadOptions = options ?: configuration!!.defaultDisplayImageOptions
         checkConfiguration()
-        if (targetImageSize == null) {
-            targetImageSize = configuration!!.maxImageSize
-        }
-        if (options == null) {
-            options = configuration!!.defaultDisplayImageOptions
-        }
-        val imageAware = NonViewAware(uri, targetImageSize, ViewScaleType.CROP)
-        displayImage(uri, imageAware, options, listener, progressListener)
+        val imageAware = NonViewAware(uri, loadTargetSize, ViewScaleType.CROP)
+        displayImage(uri, imageAware, loadOptions, listener, progressListener)
         return imageAware.id
     }
 
@@ -667,75 +653,13 @@ class ImageLoader protected constructor() {
     fun loadImageSync(uri: String?, options: DisplayImageOptions?): Bitmap? {
         return loadImageSync(uri, null, options)
     }
-    /**
-     * Loads and decodes image synchronously.<br></br>
-     * **NOTE:** [.init] method must be
-     * called before this method call
-     *
-     * @param uri
-     * Image URI (i.e. "http://site.com/image.png",
-     * "file:///mnt/sdcard/image.png")
-     * @param targetImageSize
-     * Minimal size for [Bitmap] which will be returned.
-     * Downloaded image will be decoded and scaled to [Bitmap]
-     * of the size which is **equal or larger** (usually a bit
-     * larger) than incoming targetImageSize.
-     * @param options
-     * [            Options][DisplayImageOptions] for image decoding and scaling. If **null** -
-     * default display image options
-     * [            from configuration][ImageLoaderConfiguration.Builder.defaultDisplayImageOptions] will be used.
-     * @return Result image Bitmap. Can be **null** if image loading/decoding
-     * was failed or cancelled.
-     * @throws IllegalStateException
-     * if [.init] method wasn't
-     * called before
-     */
-    /**
-     * Loads and decodes image synchronously.<br></br>
-     * Default display image options
-     * [ from configuration][ImageLoaderConfiguration.Builder.defaultDisplayImageOptions] will be used.<br></br>
-     * **NOTE:** [.init] method must be
-     * called before this method call
-     *
-     * @param uri
-     * Image URI (i.e. "http://site.com/image.png",
-     * "file:///mnt/sdcard/image.png")
-     * @return Result image Bitmap. Can be **null** if image loading/decoding
-     * was failed or cancelled.
-     * @throws IllegalStateException
-     * if [.init] method wasn't
-     * called before
-     */
-    /**
-     * Loads and decodes image synchronously.<br></br>
-     * Default display image options
-     * [ from configuration][ImageLoaderConfiguration.Builder.defaultDisplayImageOptions] will be used.<br></br>
-     * **NOTE:** [.init] method must be
-     * called before this method call
-     *
-     * @param uri
-     * Image URI (i.e. "http://site.com/image.png",
-     * "file:///mnt/sdcard/image.png")
-     * @param targetImageSize
-     * Minimal size for [Bitmap] which will be returned.
-     * Downloaded image will be decoded and scaled to [Bitmap]
-     * of the size which is **equal or larger** (usually a bit
-     * larger) than incoming targetImageSize.
-     * @return Result image Bitmap. Can be **null** if image loading/decoding
-     * was failed or cancelled.
-     * @throws IllegalStateException
-     * if [.init] method wasn't
-     * called before
-     */
+
     @JvmOverloads
     fun loadImageSync(uri: String?, targetImageSize: ImageSize? = null, options: DisplayImageOptions? = null): Bitmap? {
-        var options = options
-        if (options == null) {
-            options = configuration!!.defaultDisplayImageOptions
-        }
-        options = DisplayImageOptions.Builder().cloneFrom(options!!).syncLoading(true).build()
+        val baseOptions = options ?: configuration!!.defaultDisplayImageOptions
+        val syncOptions = DisplayImageOptions.Builder().cloneFrom(baseOptions!!).syncLoading(true).build()
         val listener = SyncImageLoadingListener()
-        loadImage(uri, targetImageSize, options, listener)
+        loadImage(uri, targetImageSize, syncOptions, listener)
         return listener.loadedBitmap
     }
 
@@ -991,7 +915,7 @@ class ImageLoader protected constructor() {
             if (options.isSyncLoading) {
                 handler = null
             } else if (handler == null && Looper.myLooper() == Looper.getMainLooper()) {
-                handler = Handler()
+                handler = Handler(Looper.getMainLooper())
             }
             return handler
         }

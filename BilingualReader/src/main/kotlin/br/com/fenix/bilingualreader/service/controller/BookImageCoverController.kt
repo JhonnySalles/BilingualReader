@@ -57,7 +57,7 @@ class BookImageCoverController private constructor() {
             val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key)
 
             if (file.exists()) {
-                return BitmapFactory.decodeFile(file.absolutePath) ?: return null
+                return ImageUtil.decodeFile(file) ?: return null
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
@@ -100,7 +100,7 @@ class BookImageCoverController private constructor() {
         }
 
         val file = book.file
-        if (file == null || !file.exists()) {
+        if (!file.exists()) {
             return null
         }
 
@@ -121,7 +121,7 @@ class BookImageCoverController private constructor() {
 
         if (image == null) {
             val file = book.file
-            if (file == null || !file.exists())
+            if (!file.exists())
                 return image
 
             image = getCoverFromFile(context, hash, book.file, isCoverSize)
@@ -152,7 +152,7 @@ class BookImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
+    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true) {
         imageView.load(book) {
             allowHardware(false)
             crossfade(true)
@@ -173,7 +173,7 @@ class BookImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
+    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
         imageView.load(book) {
             allowHardware(false)
             crossfade(true)

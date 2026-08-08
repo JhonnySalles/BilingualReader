@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
@@ -20,6 +21,7 @@ class DirectoryParse : Parse {
     private val mFiles = ArrayList<File>()
     private val mSubtitles = ArrayList<File>()
     private var mComicInfo: File? = null
+    private var mCover: Array<File?> = arrayOfNulls<File?>(3)
 
     override fun parse(file: File?) {
         if (file == null)
@@ -28,20 +30,34 @@ class DirectoryParse : Parse {
         if (!file.isDirectory)
             throw IOException("Not a directory: " + file.absolutePath)
 
-        if (file.listFiles() != null) {
-            for (f in file.listFiles()) {
+        val files = file.listFiles()
+        if (files != null) {
+            for (f in files) {
                 if (f.isDirectory)
                     throw IOException("Probably not a comic directory")
 
-                if (FileUtil.isImage(f.absolutePath))
+                if (FileUtil.isImage(f.absolutePath)) {
                     mFiles.add(f)
-                else if (FileUtil.isJson(f.absolutePath))
+                    val fileName = Util.getNameFromPath(f.name)
+                    if (fileName.contains("volume", true)) {
+                        val cover = fileName.lowercase().substringAfterLast("volume")
+                        if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
+                            mCover[0] = f
+                        else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
+                            mCover[1] = f
+                        else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
+                            mCover[2] = f
+                    }
+                } else if (FileUtil.isJson(f.absolutePath))
                     mSubtitles.add(f)
                 else if (FileUtil.isXml(f.absolutePath) && f.name.contains("comicinfo", true))
                     mComicInfo = f
             }
         }
         mFiles.sortBy { it.name }
+
+        if (mCover[0] == null)
+            mCover[0] = mFiles[0]
     }
 
     override fun numPages(): Int {
@@ -130,6 +146,12 @@ class DirectoryParse : Parse {
     override fun getPage(num: Int): InputStream {
         return FileInputStream(mFiles[num])
     }
+
+    override fun hasFullCover(): Boolean = mCover[2] != null
+
+    override fun getFullCover(): InputStream? = if (hasFullCover()) FileInputStream(mCover[2]!!) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) FileInputStream(mCover[0]!!) else getPage(0), if (mCover[1] != null) FileInputStream(mCover[1]!!) else null)
 
     override fun destroy(isClearCache: Boolean) {
     }

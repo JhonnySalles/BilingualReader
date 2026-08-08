@@ -71,6 +71,9 @@ class ZoomRecyclerView : RecyclerView {
     var isEnableZoom = true
     var useMagnifierType: Boolean = false
     var isZoom = false
+    /** Notifies the reader when zoom/drag needs continuous blur updates. */
+    var onZoomInteractionChanged: ((Boolean) -> Unit)? = null
+    private var mZoomInteractionActive = false
     var isEnablePinchZoom = true
         set(value) {
             if (field != value) {
@@ -242,6 +245,7 @@ class ZoomRecyclerView : RecyclerView {
                         val x = ev.getX(pointerIndex)
                         val y = ev.getY(pointerIndex)
                         if (!isZoom && mScaleFactor > 1) {
+                            notifyZoomInteraction(true)
                             val dx = x - mLastTouchX
                             val dy = y - mLastTouchY
                             setTranslateXY(mTranX + dx, mTranY + dy)
@@ -255,6 +259,7 @@ class ZoomRecyclerView : RecyclerView {
                         val x = ev.x
                         val y = ev.y
                         if (!isZoom && mScaleFactor > 1 && mLastTouchX != INVALID_TOUCH_POSITION) {
+                            notifyZoomInteraction(true)
                             val dx = x - mLastTouchX
                             val dy = y - mLastTouchY
                             setTranslateXY(mTranX + dx, mTranY + dy)
@@ -271,6 +276,8 @@ class ZoomRecyclerView : RecyclerView {
                     mActivePointerId = MotionEvent.INVALID_POINTER_ID
                     mLastTouchX = INVALID_TOUCH_POSITION
                     mLastTouchY = INVALID_TOUCH_POSITION
+                    if (mScaleAnimator?.isRunning != true)
+                        notifyZoomInteraction(false)
                 }
 
                 MotionEvent.ACTION_POINTER_UP -> {
@@ -382,9 +389,9 @@ class ZoomRecyclerView : RecyclerView {
         mTranY = correctXY[1]
     }
 
-    private fun correctTranslateXY(x: Float, y: Float): FloatArray {
-        var x = x
-        var y = y
+    private fun correctTranslateXY(posX: Float, posY: Float): FloatArray {
+        var x = posX
+        var y = posY
         if (mScaleFactor <= 1) {
             return floatArrayOf(x, y)
         }
@@ -401,6 +408,12 @@ class ZoomRecyclerView : RecyclerView {
         return floatArrayOf(x, y)
     }
 
+    private fun notifyZoomInteraction(active: Boolean) {
+        if (mZoomInteractionActive == active) return
+        mZoomInteractionActive = active
+        onZoomInteractionChanged?.invoke(active)
+    }
+
     private fun zoom(startVal: Float, endVal: Float) {
         if (mScaleAnimator == null)
             newZoomAnimation()
@@ -408,6 +421,7 @@ class ZoomRecyclerView : RecyclerView {
         if (mScaleAnimator!!.isRunning)
             return
 
+        notifyZoomInteraction(true)
         mMaxTranX = mViewWidth - mViewWidth * endVal
         mMaxTranY = mViewHeight - mViewHeight * endVal
         val startTranX = mTranX
@@ -441,20 +455,24 @@ class ZoomRecyclerView : RecyclerView {
         mScaleAnimator!!.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 isZoom = true
+                notifyZoomInteraction(true)
             }
 
             override fun onAnimationEnd(animation: Animator) {
                 isZoom = false
+                notifyZoomInteraction(false)
             }
 
             override fun onAnimationCancel(animation: Animator) {
                 isZoom = false
+                notifyZoomInteraction(false)
             }
         })
     }
 
     private inner class ScaleListener : OnScaleGestureListener {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            notifyZoomInteraction(true)
             return true
         }
 
@@ -480,6 +498,8 @@ class ZoomRecyclerView : RecyclerView {
                 mScaleCenterX = if (mScaleCenterX.isNaN()) 0f else mScaleCenterX
                 mScaleCenterY = if (mScaleCenterY.isNaN()) 0f else mScaleCenterY
                 zoom(mScaleFactor, mDefaultScaleFactor)
+            } else {
+                notifyZoomInteraction(false)
             }
             isZoom = false
         }

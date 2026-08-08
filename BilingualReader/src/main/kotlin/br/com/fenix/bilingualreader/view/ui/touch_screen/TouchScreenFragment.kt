@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -34,12 +35,14 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
 
+@Suppress("DEPRECATION")
 class TouchScreenFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(TouchScreenFragment::class.java)
@@ -71,7 +74,6 @@ class TouchScreenFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
     }
 
@@ -126,14 +128,14 @@ class TouchScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         arguments?.let {
-            mType = it.getSerializable(GeneralConsts.KEYS.OBJECT.TYPE) as Type
+            mType = BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.TYPE, Type::class.java) ?: Type.MANGA
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK)) {
-                val book = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
+                val book = BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java) ?: return@let
                 BookImageCoverController.instance.setImageCoverAsync(requireContext(), book, isCoverSize = true) { mCover = it }
                 BookImageCoverController.instance.setImageCoverAsync(requireContext(), book, isCoverSize = false) { mCover = it }
             } else if (it.containsKey(GeneralConsts.KEYS.OBJECT.MANGA)) {
-                val book = it.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga
+                val book = BundleCompat.getSerializable(it, GeneralConsts.KEYS.OBJECT.MANGA, Manga::class.java) ?: return@let
                 MangaImageCoverController.instance.setImageCoverAsync(requireContext(), book, isCoverSize = true) { mCover = it }
                 MangaImageCoverController.instance.setImageCoverAsync(requireContext(), book, isCoverSize = false) { mCover = it }
             }
@@ -369,7 +371,7 @@ class TouchScreenFragment : Fragment() {
                 val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
                 val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
                 val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(requireContext())
-                blurView.setupWith(rootView, blurAlgorithm)
+                GlassSetup.setupGlass(blurView, rootView, blurAlgorithm)
                     .setFrameClearDrawable(background)
                     .setBlurRadius(15f)
                 blurView.setBlurAutoUpdate(true)
@@ -459,7 +461,7 @@ class TouchScreenFragment : Fragment() {
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mBlurTop.setupWith(rootView, blurAlgorithm)
+        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

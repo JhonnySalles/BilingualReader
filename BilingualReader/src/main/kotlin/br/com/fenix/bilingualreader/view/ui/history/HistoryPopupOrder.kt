@@ -17,6 +17,9 @@ class HistoryPopupOrder : Fragment() {
     private lateinit var mOrderName: TriStateCheckBox
     private lateinit var mOrderAccess: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
+    private lateinit var mOrderSeries: TriStateCheckBox
+    private lateinit var mOrderAuthor: TriStateCheckBox
+    private lateinit var mOrderGenre: TriStateCheckBox
 
     private lateinit var mCheckList: Map<TriStateCheckBox, Order>
 
@@ -31,14 +34,20 @@ class HistoryPopupOrder : Fragment() {
         mOrderName = root.findViewById(R.id.popup_history_order_name)
         mOrderAccess = root.findViewById(R.id.popup_history_order_access)
         mOrderFavorite = root.findViewById(R.id.popup_history_order_favorite)
+        mOrderSeries = root.findViewById(R.id.popup_history_order_series)
+        mOrderAuthor = root.findViewById(R.id.popup_history_order_author)
+        mOrderGenre = root.findViewById(R.id.popup_history_order_genre)
 
         mCheckList = mapOf(
             mOrderName to Order.Name,
             mOrderAccess to Order.LastAccess,
-            mOrderFavorite to Order.Favorite
+            mOrderFavorite to Order.Favorite,
+            mOrderSeries to Order.Series,
+            mOrderAuthor to Order.Author,
+            mOrderGenre to Order.Genre
         )
 
-        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, true)
+        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, false)
         setChecked(mCheckList, currentOrder.first, currentOrder.second)
         addListener(mCheckList)
         observer()
@@ -50,13 +59,14 @@ class HistoryPopupOrder : Fragment() {
             check.state = TriStateCheckBox.STATE_UNCHECKED
         }
 
+        val state = if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
         when (order) {
-            Order.Name -> mOrderName.state =
-                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
-            Order.LastAccess -> mOrderAccess.state =
-                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
-            Order.Favorite -> mOrderFavorite.state =
-                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+            Order.Name -> mOrderName.state = state
+            Order.LastAccess -> mOrderAccess.state = state
+            Order.Favorite -> mOrderFavorite.state = state
+            Order.Series -> mOrderSeries.state = state
+            Order.Author -> mOrderAuthor.state = state
+            Order.Genre -> mOrderGenre.state = state
             else -> {}
         }
     }

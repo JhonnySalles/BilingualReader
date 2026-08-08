@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.detail
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -56,23 +57,37 @@ class DetailActivity : AppCompatActivity() {
                 .replace(R.id.root_frame_detail, fragment)
                 .commit()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val intent = Intent()
+                setResult(RESULT_OK, intent)
+                revertFragmentTransition()
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                supportFinishAfterTransition()
+            }
+        })
+    }
+
+    private fun revertFragmentTransition() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.root_frame_detail)
+        if (fragment is MangaDetailFragment) {
+            fragment.revertCoverTransition()
+        } else if (fragment is BookDetailFragment) {
+            fragment.revertCoverTransition()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
+                revertFragmentTransition()
                 supportFinishAfterTransition()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        val intent = Intent()
-        setResult(RESULT_OK, intent)
-        super.onBackPressed()
-        supportFinishAfterTransition()
     }
 
 }

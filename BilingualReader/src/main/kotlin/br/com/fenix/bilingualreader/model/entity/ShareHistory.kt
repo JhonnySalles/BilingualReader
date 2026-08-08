@@ -123,7 +123,7 @@ data class ShareHistory(
         result = 31 * result + pageEnd
         result = 31 * result + pages
         result = 31 * result + start.hashCode()
-        result = 31 * result + (end?.hashCode() ?: 0)
+        result = 31 * result + end.hashCode()
         return result
     }
 

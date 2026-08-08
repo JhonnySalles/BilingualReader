@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground.Accent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ui.history.HistoryPopupType">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="@dimen/margin_small"
+        android:paddingTop="@dimen/margin"
+        android:paddingBottom="@dimen/margin_bottom">
+
+        <CheckBox
+            android:id="@+id/popup_history_type_line"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_history_type_line"/>
+
+        <CheckBox
+            android:id="@+id/popup_history_type_separator_big"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_library_book_type_separator_big"/>
+
+        <CheckBox
+            android:id="@+id/popup_history_type_separator_medium"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_library_book_type_separator_medium"/>
+
+        <CheckBox
+            android:id="@+id/popup_history_type_separator_carousel"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_history_type_separator_carousel"/>
+
+        <CheckBox
+            android:id="@+id/popup_history_type_separator_line"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_history_type_separator_line"/>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

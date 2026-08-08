@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy
 import java.util.LinkedList
 
 open class SuperReplacementSpan @JvmOverloads constructor(@field:Alignment val mAlignment: Int = Alignment.CENTER) : ReplacementSpan() {
-    @Retention(RetentionPolicy.SOURCE)
+@kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     @IntDef(*[Alignment.BEGIN, Alignment.END, Alignment.CENTER, Alignment.JUSTIFIED, Alignment.JIS])
     annotation class Alignment {
         companion object {

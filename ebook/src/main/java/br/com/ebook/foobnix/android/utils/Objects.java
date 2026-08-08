@@ -13,7 +13,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class Objects {
@@ -27,8 +26,7 @@ public class Objects {
     }
 
     public static void saveToSP(Object obj, SharedPreferences sp) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("{} - saveToSP", TAG);
+        
 
         Editor edit = sp.edit();
         for (final Field f : obj.getClass().getDeclaredFields()) {
@@ -36,8 +34,7 @@ public class Objects {
                 continue;
 
             try {
-                if (Config.SHOW_LOG)
-                    LOGGER.info("{} - saveToSP: {} {} {}", TAG, f.getType(), f.getName(), f.get(obj));
+                
 
                 if (f.getType().equals(int.class)) {
                     edit.putInt(f.getName(), f.getInt(obj));
@@ -100,8 +97,7 @@ public class Objects {
                     f.set(obj, sp.getStringSet(f.getName(), new HashSet<String>()));
                 }
 
-                if (Config.SHOW_LOG)
-                    LOGGER.info("{} - loadFromSp: {} {} {}", TAG, f.getType(), f.getName(), f.get(obj));
+                
 
             } catch (Exception e) {
                 LOGGER.error("Error get load from sp: {}", e.getMessage(), e);
@@ -138,8 +134,7 @@ public class Objects {
 
         }
         int hashCode = res.toString().hashCode();
-        if (Config.SHOW_LOG)
-            LOGGER.info("{} - hashCode: {}", TAG, hashCode);
+        
         return hashCode;
     }
 
@@ -152,8 +147,7 @@ public class Objects {
                 String value1 = "" + f.get(obj1);
                 String value2 = "" + f.get(obj2);
                 if (!value1.equals(value2)) {
-                    if (Config.SHOW_LOG)
-                        LOGGER.info("{} - compareObjects not same: {} {} {}", TAG, f.getName(), value1, value2);
+                    
                 }
 
             } catch (Exception e) {

@@ -18,7 +18,7 @@ class BookSearchViewHolder(itemView: View, private val listener: BookSearchListe
 
         root.setOnClickListener { listener.onClick(search) }
 
-        text.text = Html.fromHtml(search.search)
+        text.text = androidx.core.text.HtmlCompat.fromHtml(search.search, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY)
         page.text = itemView.context.getString(R.string.book_search_page, search.page)
     }
 

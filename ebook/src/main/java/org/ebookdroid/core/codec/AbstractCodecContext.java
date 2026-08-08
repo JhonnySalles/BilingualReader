@@ -10,11 +10,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicLong;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public abstract class AbstractCodecContext implements CodecContext {
@@ -39,8 +37,7 @@ public abstract class AbstractCodecContext implements CodecContext {
 
     public CodecDocument openDocumentInnerCanceled(String fileName, String password) {
         CodecDocument openDocument = openDocumentInner(fileName, password);
-        if (Config.SHOW_LOG)
-            LOGGER.info("removeTempFiles1: {}", TempHolder.get().loadingCancelled);
+        
         if (TempHolder.get().loadingCancelled) {
             TempHolder.get().clear();
             removeTempFiles();
@@ -50,8 +47,7 @@ public abstract class AbstractCodecContext implements CodecContext {
     }
 
     public void removeTempFiles() {
-        if (Config.SHOW_LOG)
-            LOGGER.info("removeTempFiles2: {}", TempHolder.get().loadingCancelled);
+        
 
         if (TempHolder.get().loadingCancelled) {
             recycle();
@@ -61,25 +57,18 @@ public abstract class AbstractCodecContext implements CodecContext {
 
     @Override
     public CodecDocument openDocument(String fileNameOriginal, String password) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("Open-Document: {}", fileNameOriginal);
+        
         // TempHolder.get().loadingCancelled = false;
         if (ExtUtils.isZip(fileNameOriginal)) {
-            if (Config.SHOW_LOG)
-                LOGGER.info("Open-Document ZIP: {}", fileNameOriginal);
+            
             return openDocumentInnerCanceled(fileNameOriginal, password);
         }
-
-
-        if (Config.SHOW_LOG)
-            LOGGER.info("Open-Document 2 LANG: {} - {}", BookCSS.get().hypenLang, fileNameOriginal);
 
         File cacheFileName = getCacheFileName(fileNameOriginal);
         CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
 
         if (cacheFileName != null && cacheFileName.isFile()) {
-            if (Config.SHOW_LOG)
-                LOGGER.error("Open-Document from cache: {}", fileNameOriginal);
+            
             return openDocumentInnerCanceled(fileNameOriginal, password);
         }
 
@@ -87,8 +76,7 @@ public abstract class AbstractCodecContext implements CodecContext {
         CacheZipUtils.createAllCacheDirs();
         try {
             String fileName = CacheZipUtils.extracIfNeed(fileNameOriginal, CacheDir.ZipApp).unZipPath;
-            if (Config.SHOW_LOG)
-                LOGGER.error("Open-Document extract: {}", fileName);
+            
             if (!ExtUtils.isValidFile(fileName))
                 return null;
 

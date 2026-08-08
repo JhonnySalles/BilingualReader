@@ -61,19 +61,16 @@ class LruMemoryCache(maxSize: Int) : MemoryCache {
      * @param maxSize the maximum size of the cache before returning. May be -1 to evict even 0-sized elements.
      */
     private fun trimToSize(maxSize: Int) {
-        var process = true
         while (true) {
             var key: String?
             var value: Bitmap?
 
             synchronized(this) {
                 check(!(size < 0 || map.isEmpty() && size != 0)) { javaClass.name + ".sizeOf() is reporting inconsistent results!" }
-                process = false
                 if (size <= maxSize || map.isEmpty()) {
-                    return@synchronized
+                    return
                 }
-                val (key1, value1) = map.entries.iterator().next() ?: return@synchronized
-                process = true
+                val (key1, value1) = map.entries.iterator().next()
                 key = key1
                 value = value1
                 map.remove(key)
@@ -110,7 +107,7 @@ class LruMemoryCache(maxSize: Int) : MemoryCache {
      *
      * An entry's size must not change while it is in the cache.
      */
-    private fun sizeOf(key: String?, value: Bitmap): Int {
+    private fun sizeOf(@Suppress("UNUSED_PARAMETER") key: String?, value: Bitmap): Int {
         return value.rowBytes * value.height
     }
 

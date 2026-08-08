@@ -21,7 +21,7 @@ class BookAnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
     override fun getItemViewType(position: Int): Int = if (mBookAnnotationList[position].id == null) HEADER else CONTENT
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val pos = holder.adapterPosition
+        val pos = holder.bindingAdapterPosition
         when (getItemViewType(position)) {
             HEADER -> {
                 (holder as BookAnnotationHeaderViewHolder).bind(mBookAnnotationList[position], pos == 0)

@@ -154,6 +154,7 @@ class GeneralConsts private constructor() {
 
     object DEFAULTS {
         const val DEFAULT_HANDLE_SEARCH_FILTER = 500L
+        const val DEFAULT_COVER_DELAY = 1300L
     }
 
     object PATTERNS {
@@ -178,6 +179,9 @@ class GeneralConsts private constructor() {
 
             const val BOOK_ORDER = "BOOK_LIBRARY_ORDER"
             const val BOOK_LIBRARY_TYPE = "BOOK_LAST_LIBRARY_TYPE"
+
+            const val HISTORY_TYPE = "HISTORY_LAST_TYPE"
+            const val HISTORY_STATISTICS_TYPE = "HISTORY_STATISTICS_LAST_TYPE"
 
             const val LAST_LIBRARY = "LAST_LIBRARY"
             const val LIBRARY_TYPE = "LIBRARY_TYPE"
@@ -206,6 +210,7 @@ class GeneralConsts private constructor() {
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
             const val MANGA_KEEP_ZOOM_BETWEEN_PAGES = "MANGA_KEEP_ZOOM_BETWEEN_PAGES"
+            const val MANGA_PROCESS_VOCABULARY = "MANGA_PROCESS_VOCABULARY"
             const val BOOK_PAGE_ALIGNMENT = "BOOK_PAGE_ALIGNMENT"
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
             const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
@@ -328,14 +333,13 @@ class GeneralConsts private constructor() {
         object FRAGMENT {
             const val ID = "FRAGMENT_ID"
         }
-
         object THEME {
             const val THEME_USED = "THEME_USED"
             const val THEME_MODE = "THEME_MODE"
             const val THEME_CHANGE = "THEME_CHANGE"
             const val THEME_GLASSMORPHISM = "THEME_GLASSMORPHISM"
+            const val THEME_3D_COVER_IN_DETAIL = "THEME_3D_COVER_IN_DETAIL"
         }
-
         object SHARE_MARKS {
             const val LAST_SYNC_MANGA = "SHARE_MARKS_LAST_SYNC_MANGA"
             const val LAST_SYNC_BOOK = "SHARE_MARKS_LAST_SYNC_BOOK"

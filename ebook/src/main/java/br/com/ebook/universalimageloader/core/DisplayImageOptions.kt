@@ -126,15 +126,15 @@ class DisplayImageOptions private constructor(builder: Builder) {
     }
 
     fun getImageOnLoading(res: Resources): Drawable {
-        return if (imageResOnLoading != 0) res.getDrawable(imageResOnLoading) else imageOnLoading!!
+        return if (imageResOnLoading != 0) androidx.core.content.res.ResourcesCompat.getDrawable(res, imageResOnLoading, null)!! else imageOnLoading!!
     }
 
     fun getImageForEmptyUri(res: Resources): Drawable {
-        return if (imageResForEmptyUri != 0) res.getDrawable(imageResForEmptyUri) else imageForEmptyUri!!
+        return if (imageResForEmptyUri != 0) androidx.core.content.res.ResourcesCompat.getDrawable(res, imageResForEmptyUri, null)!! else imageForEmptyUri!!
     }
 
     fun getImageOnFail(res: Resources): Drawable {
-        return if (imageResOnFail != 0) res.getDrawable(imageResOnFail) else imageOnFail!!
+        return if (imageResOnFail != 0) androidx.core.content.res.ResourcesCompat.getDrawable(res, imageResOnFail, null)!! else imageOnFail!!
     }
 
     /**

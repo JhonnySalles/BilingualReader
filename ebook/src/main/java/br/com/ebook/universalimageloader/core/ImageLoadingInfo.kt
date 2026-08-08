@@ -38,5 +38,5 @@ import java.util.concurrent.locks.ReentrantLock
 internal class ImageLoadingInfo(
     val uri: String, val imageAware: ImageAware, val targetSize: ImageSize, val memoryCacheKey: String,
     val options: DisplayImageOptions, val listener: ImageLoadingListener,
-    val progressListener: ImageLoadingProgressListener, val loadFromUriLock: ReentrantLock
+    val progressListener: ImageLoadingProgressListener?, val loadFromUriLock: ReentrantLock
 )

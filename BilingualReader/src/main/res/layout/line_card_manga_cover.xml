@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/manga_cover_content"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="3dp"
+    android:layout_marginEnd="3dp"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/manga_cover_image_card"
+        style="@style/AppBackground.Card"
+        android:layout_width="@dimen/history_cover_width"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:strokeWidth="0.0dp"
+        app:rippleColor="?attr/colorPrimaryContainer">
+
+        <FrameLayout
+            android:layout_width="@dimen/history_cover_width"
+            android:layout_height="@dimen/history_cover_height">
+
+            <ImageView
+                android:id="@+id/manga_cover_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/book_cover_2" />
+
+            <ProgressBar
+                android:id="@+id/manga_cover_progress"
+                style="@style/ProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/history_cover_progress_height"
+                android:layout_gravity="bottom"
+                android:progress="50" />
+
+        </FrameLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/manga_cover_title"
+        style="@style/TextNormal.Line"
+        android:layout_width="@dimen/history_cover_width"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center_horizontal"
+        android:maxLines="4"
+        android:textSize="@dimen/history_cover_title_size" />
+
+</LinearLayout>
