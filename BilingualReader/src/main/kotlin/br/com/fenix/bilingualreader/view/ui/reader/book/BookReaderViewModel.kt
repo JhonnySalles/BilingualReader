@@ -44,6 +44,7 @@ import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -602,22 +603,27 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         if (holder.isOnlyImage) {
             try {
                 val images = TextUtil.getImagesFromTag(text)
+                var bitmaps = emptyList<Bitmap>()
                 if (images.isNotEmpty()) {
-                    val bitmaps = images.mapNotNull {
+                    bitmaps = images.mapNotNull {
                         val img = it.substringAfter(",").trim()
                         ImageUtil.decodeImageBase64(img)
                     }
-                    if (bitmaps.isNotEmpty()) {
-                        val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
-                        val combined = if (TextUtil.hasBrBetweenImages(text)) {
-                            ImageUtil.combineImagesVertically(bitmaps, alignment)
-                        } else {
-                            ImageUtil.combineImagesHorizontally(bitmaps)
-                        }
-                        holder.imageView.setImageBitmap(combined)
-                    } else {
-                        holder.imageView.setImageBitmap(null)
+                }
+                if (bitmaps.isEmpty() && parse != null) {
+                    val nativeBitmap = ImageParse(context).getPage(parse.path, page)
+                    if (nativeBitmap != null) {
+                        bitmaps = listOf(nativeBitmap)
                     }
+                }
+                if (bitmaps.isNotEmpty()) {
+                    val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
+                    val combined = if (TextUtil.hasBrBetweenImages(text)) {
+                        ImageUtil.combineImagesVertically(bitmaps, alignment)
+                    } else {
+                        ImageUtil.combineImagesHorizontally(bitmaps)
+                    }
+                    holder.imageView.setImageBitmap(combined)
                 } else {
                     holder.imageView.setImageBitmap(null)
                 }
@@ -817,8 +823,14 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             } else {
                 documentPage.recycle()
                 val images = TextUtil.getImagesFromTag(text)
-                val bitmaps = images.mapNotNull {
+                var bitmaps = images.mapNotNull {
                     ImageUtil.decodeImageBase64(it.substringAfter(",").trim(), imageMaxWidth, imageMaxWidth)
+                }
+                if (bitmaps.isEmpty()) {
+                    val nativeBitmap = ImageParse(context).getPage(parse.path, page, imageMaxWidth)
+                    if (nativeBitmap != null) {
+                        bitmaps = listOf(nativeBitmap)
+                    }
                 }
                 bitmap = when {
                     bitmaps.isEmpty() -> return null

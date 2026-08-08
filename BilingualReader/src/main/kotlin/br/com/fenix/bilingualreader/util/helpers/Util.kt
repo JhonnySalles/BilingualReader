@@ -1022,7 +1022,6 @@ class ImageUtil {
             val iffBitmap = decodeIff(bytes)
             if (iffBitmap != null) return iffBitmap
 
-            // 8. Standard Android Decoders
             val options = BitmapFactory.Options()
             if (reqWidth > 0 && reqHeight > 0) {
                 options.inJustDecodeBounds = true
@@ -1039,6 +1038,47 @@ class ImageUtil {
             }
 
             return null
+        }
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        private object ImageDecoderApi29Helper {
+            fun decode(bytes: ByteArray, reqWidth: Int, reqHeight: Int): Bitmap? {
+                return try {
+                    val source = android.graphics.ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes))
+                    android.graphics.ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                        decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
+                        if (reqWidth > 0 && reqHeight > 0) {
+                            val sample = ImageUtil.calculateInSampleSize(info.size.width, info.size.height, reqWidth, reqHeight)
+                            if (sample > 1) decoder.setTargetSampleSize(sample)
+                        }
+                    }
+                } catch (ignored: Throwable) {
+                    null
+                }
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.P)
+        private object ImageDecoderApi28Helper {
+            fun decode(bytes: ByteArray): Bitmap? {
+                return try {
+                    val source = android.graphics.ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes))
+                    val hwBmp = android.graphics.ImageDecoder.decodeBitmap(source)
+                    hwBmp.copy(Bitmap.Config.ARGB_8888, true)
+                } catch (e: Throwable) {
+                    android.util.Log.e("ImageUtil", "ImageDecoderApi28Helper.decode failed: ${e.message}", e)
+                    null
+                }
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.P)
+        fun decodeBitmapNative(bytes: ByteArray, reqWidth: Int, reqHeight: Int): Bitmap? {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ImageDecoderApi29Helper.decode(bytes, reqWidth, reqHeight)
+            } else {
+                ImageDecoderApi28Helper.decode(bytes)
+            }
         }
 
         private fun decodePcx(bytes: ByteArray): Bitmap? {
@@ -1290,21 +1330,7 @@ class ImageUtil {
             reqHeight: Int = 0
         ): Bitmap? = decodeFile(file.absolutePath, reqWidth, reqHeight)
 
-        @RequiresApi(Build.VERSION_CODES.P)
-        fun decodeBitmapNative(bytes: ByteArray, reqWidth: Int, reqHeight: Int): Bitmap? {
-            return try {
-                val source = android.graphics.ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes))
-                android.graphics.ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-                    decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
-                    if (reqWidth > 0 && reqHeight > 0) {
-                        val sample = ImageUtil.calculateInSampleSize(info.size.width, info.size.height, reqWidth, reqHeight)
-                        if (sample > 1) decoder.setTargetSampleSize(sample)
-                    }
-                }
-            } catch (ignored: Throwable) {
-                null
-            }
-        }
+
 
         fun imageToByteArray(image: Bitmap): ByteArray? {
             val output = ByteArrayOutputStream()
