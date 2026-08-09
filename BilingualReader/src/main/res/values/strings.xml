@@ -1204,6 +1204,7 @@
     <string name="llm_prepare_progress">Preparing… %1$d%%</string>
     <string name="llm_prepare_error">Failed to prepare the AI model.</string>
     <string name="llm_error_load">Failed to load the AI model.</string>
+    <string name="llm_error_unsupported_device">On-device AI requires a physical 64-bit (arm64) device. It is not supported on emulators or 32-bit devices.</string>
     <string name="llm_disabled">On-device AI is disabled in settings.</string>
     <string name="llm_summary_title">Chapter summary</string>
     <string name="llm_summary_generating">Generating summary…</string>

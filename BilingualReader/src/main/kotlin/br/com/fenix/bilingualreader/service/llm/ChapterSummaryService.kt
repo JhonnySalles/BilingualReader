@@ -62,7 +62,13 @@ class ChapterSummaryService(private val context: Context) {
 
         val maxChars = UserLanguageHelper.maxContextChars(context)
         val prompt = LlmPromptBuilder.buildSummaryPrompt(title, chaptersText, userLanguage, maxChars)
+        val manager = LlmModelManager.getInstance(context)
         val engine = LlmInferenceEngine.getInstance(context)
+        if (!manager.isModelReady()) {
+            throw IllegalStateException("Model missing")
+        }
+        engine.ensureLoaded(manager.getModelFile().absolutePath)
+
         var last = ""
         engine.generateStreamingTokens(prompt).collect { (text, done) ->
             last = text

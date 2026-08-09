@@ -8,6 +8,7 @@ import android.widget.TextView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
 import br.com.fenix.bilingualreader.service.llm.LlmModelManager
+import br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException
 import br.com.fenix.bilingualreader.service.llm.ModelPrepareState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +26,12 @@ object LlmModelGate {
         onReady: () -> Unit,
         onCancel: (() -> Unit)? = null
     ) {
+        if (!LlmInferenceEngine.isNativeBackendAvailable()) {
+            showError(context, context.getString(R.string.llm_error_unsupported_device))
+            onCancel?.invoke()
+            return
+        }
+
         val manager = LlmModelManager.getInstance(context)
         if (manager.isModelReady()) {
             scope.launch {
@@ -34,7 +41,7 @@ object LlmModelGate {
                     }
                     onReady()
                 } catch (e: Exception) {
-                    showError(context, e.message ?: context.getString(R.string.llm_error_load))
+                    showError(context, resolveErrorMessage(context, e))
                     onCancel?.invoke()
                 }
             }
@@ -90,10 +97,21 @@ object LlmModelGate {
                     dialog.dismiss()
                     onCancel?.invoke()
                 } else {
-                    status.text = e.message ?: context.getString(R.string.llm_prepare_error)
+                    status.text = resolveErrorMessage(context, e)
                     dialog.getButton(Dialog.BUTTON_NEGATIVE)?.setText(R.string.action_neutral)
                 }
             }
+        }
+    }
+
+    private fun resolveErrorMessage(context: Context, error: Throwable): String {
+        return when {
+            error is LlmUnsupportedDeviceException ->
+                context.getString(R.string.llm_error_unsupported_device)
+            LlmInferenceEngine.isNativeLinkFailure(error) ->
+                context.getString(R.string.llm_error_unsupported_device)
+            else ->
+                error.message ?: context.getString(R.string.llm_error_load)
         }
     }
 

@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.service.llm.ContextSource
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
 import br.com.fenix.bilingualreader.service.llm.LlmModelManager
 import br.com.fenix.bilingualreader.service.llm.LlmPromptBuilder
+import br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException
 import br.com.fenix.bilingualreader.service.llm.MangaContextProvider
 import br.com.fenix.bilingualreader.service.llm.ReadingContext
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -134,7 +135,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 val prompt = LlmPromptBuilder.buildQaPrompt(ctx, question, maxChars)
                 engine.generateStreamingTokens(prompt)
                     .catch { e ->
-                        replaceLastAssistant(getApplication<Application>().getString(R.string.llm_assistant_error) + "\n" + (e.message ?: ""))
+                        replaceLastAssistant(resolveError(e))
                         _generating.value = false
                     }
                     .collect { (text, done) ->
@@ -144,7 +145,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         if (done) _generating.value = false
                     }
             } catch (e: Exception) {
-                replaceLastAssistant(getApplication<Application>().getString(R.string.llm_assistant_error) + "\n" + (e.message ?: ""))
+                replaceLastAssistant(resolveError(e))
                 _generating.value = false
             }
         }
@@ -153,6 +154,17 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     fun cancel() {
         generateJob?.cancel()
         _generating.value = false
+    }
+
+    private fun resolveError(error: Throwable): String {
+        val app = getApplication<Application>()
+        return when {
+            error is LlmUnsupportedDeviceException ||
+                LlmInferenceEngine.isNativeLinkFailure(error) ->
+                app.getString(R.string.llm_error_unsupported_device)
+            else ->
+                app.getString(R.string.llm_assistant_error) + "\n" + (error.message ?: "")
+        }
     }
 
     private fun emptyContext(): ReadingContext {

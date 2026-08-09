@@ -31,8 +31,6 @@ android {
         testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
 
-        buildConfigField "boolean", "USE_MOCK_LLM", "false"
-
         manifestPlaceholders = [
                 sentryDsnKey: props['SENTRY_DSN'] ?: ""
         ]
@@ -48,7 +46,6 @@ android {
         debug {
             minifyEnabled false
             testCoverageEnabled false
-            buildConfigField "boolean", "USE_MOCK_LLM", "true"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders["crashlyticsEnabled"] = "true"
             manifestPlaceholders["sentryAutoInit"] = "true"

@@ -8,6 +8,7 @@ import android.widget.TextView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.service.llm.ChapterSummaryService
+import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -97,7 +98,7 @@ object ChapterSummaryDialog {
                         chapterEnd = book.chapter
                     ).catch { e ->
                         progress.visibility = android.view.View.GONE
-                        text.text = e.message ?: context.getString(R.string.llm_assistant_error)
+                        text.text = resolveLlmError(context, e)
                     }.collect { (partial, done) ->
                         lastSummary = partial
                         text.text = partial.ifBlank { context.getString(R.string.llm_summary_generating) }
@@ -109,9 +110,19 @@ object ChapterSummaryDialog {
                     }
                 } catch (e: Exception) {
                     progress.visibility = android.view.View.GONE
-                    text.text = e.message ?: context.getString(R.string.llm_assistant_error)
+                    text.text = resolveLlmError(context, e)
                 }
             }
         }, onCancel = { dialog.dismiss() })
+    }
+
+    private fun resolveLlmError(context: Context, error: Throwable): String {
+        return when {
+            error is br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException ||
+                LlmInferenceEngine.isNativeLinkFailure(error) ->
+                context.getString(R.string.llm_error_unsupported_device)
+            else ->
+                error.message ?: context.getString(R.string.llm_assistant_error)
+        }
     }
 }

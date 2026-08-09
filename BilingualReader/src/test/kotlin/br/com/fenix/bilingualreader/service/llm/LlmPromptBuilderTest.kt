@@ -31,6 +31,9 @@ class LlmPromptBuilderTest {
         assertTrue(prompt.contains("My Book"))
         assertTrue(prompt.contains("Portuguese"))
         assertTrue(prompt.contains("Once upon a time"))
+        assertTrue(prompt.contains("<start_of_turn>user"))
+        assertTrue(prompt.contains("<end_of_turn>"))
+        assertTrue(prompt.contains("<start_of_turn>model"))
     }
 
     @Test
@@ -47,5 +50,16 @@ class LlmPromptBuilderTest {
         assertTrue(prompt.contains("Who met a dragon?"))
         assertTrue(prompt.contains("Novel"))
         assertTrue(prompt.contains("dragon"))
+        assertTrue(prompt.startsWith("<start_of_turn>user"))
+        assertTrue(prompt.endsWith("<start_of_turn>model\n") || prompt.endsWith("<start_of_turn>model"))
+    }
+
+    @Test
+    fun wrapGemmaChatAppliesTemplate() {
+        val wrapped = LlmPromptBuilder.wrapGemmaChat("Hello")
+        assertEquals(
+            "<start_of_turn>user\nHello\n<end_of_turn>\n<start_of_turn>model\n",
+            wrapped
+        )
     }
 }
