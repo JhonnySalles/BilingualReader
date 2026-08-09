@@ -273,7 +273,6 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigAiEnable: SwitchMaterial
     private lateinit var mConfigAiModelStatus: TextView
-    private lateinit var mConfigAiDownload: MaterialButton
     private lateinit var mConfigAiDelete: MaterialButton
     private lateinit var mConfigAiMaxContextValue: com.google.android.material.textfield.TextInputEditText
 
@@ -448,7 +447,6 @@ class ConfigFragment : Fragment() {
 
         mConfigAiEnable = view.findViewById(R.id.config_ai_enable)
         mConfigAiModelStatus = view.findViewById(R.id.config_ai_model_status)
-        mConfigAiDownload = view.findViewById(R.id.config_ai_download)
         mConfigAiDelete = view.findViewById(R.id.config_ai_delete)
         mConfigAiMaxContextValue = view.findViewById(R.id.config_ai_max_context_value)
 
@@ -815,13 +813,6 @@ class ConfigFragment : Fragment() {
                 .create().show()
         }
 
-        mConfigAiDownload.setOnClickListener {
-            br.com.fenix.bilingualreader.view.ui.assistant.LlmModelGate.ensureReady(
-                requireContext(),
-                lifecycleScope,
-                onReady = { refreshAiModelStatus() }
-            )
-        }
         mConfigAiDelete.setOnClickListener {
             br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext()).deleteModel()
             refreshAiModelStatus()

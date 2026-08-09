@@ -71,6 +71,9 @@ android {
         dataBinding true
         buildConfig true
     }
+    aaptOptions {
+        noCompress 'task'
+    }
     packagingOptions {
         resources {
             excludes += [

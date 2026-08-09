@@ -20,3 +20,4 @@ BilingualReader/google-services.json
 test_unit.txt
 .agent/*
 /BilingualReader/BilingualReader/build
+BilingualReader/src/main/assets/llm/gemma3-1b-it-int4.task

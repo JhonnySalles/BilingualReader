@@ -1120,10 +1120,10 @@
     <string name="annotation_colors_erase">Erase</string>
 
     <!-- LLM / On-device AI -->
-    <string name="llm_download_title">On-device AI model</string>
-    <string name="llm_download_message">Download the on-device AI model (~500 MB) to enable summaries and reading questions. The model stays on your device.</string>
-    <string name="llm_download_progress">Downloading… %1$d%%</string>
-    <string name="llm_download_error">Failed to download the AI model.</string>
+    <string name="llm_prepare_title">On-device AI model</string>
+    <string name="llm_prepare_message">Preparing the on-device AI model for summaries and reading questions. This only happens once.</string>
+    <string name="llm_prepare_progress">Preparing… %1$d%%</string>
+    <string name="llm_prepare_error">Failed to prepare the AI model.</string>
     <string name="llm_error_load">Failed to load the AI model.</string>
     <string name="llm_disabled">On-device AI is disabled in settings.</string>
     <string name="llm_summary_title">Chapter summary</string>
@@ -1151,9 +1151,8 @@
     <string name="config_ai_enable">Enable on-device AI</string>
     <string name="config_ai_model_status">Model status</string>
     <string name="config_ai_model_ready">Model ready (%1$s)</string>
-    <string name="config_ai_model_missing">Model not downloaded</string>
-    <string name="config_ai_download">Download model</string>
-    <string name="config_ai_delete">Delete model</string>
+    <string name="config_ai_model_missing">Model not extracted yet</string>
+    <string name="config_ai_delete">Clear local model copy</string>
     <string name="config_ai_max_context">Max context characters</string>
 
 </resources>

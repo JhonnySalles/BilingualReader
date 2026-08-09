@@ -1120,10 +1120,10 @@
     <string name="annotation_colors_erase">Apagar</string>
 
     <!-- LLM / On-device AI -->
-    <string name="llm_download_title">Modelo de IA no dispositivo</string>
-    <string name="llm_download_message">Baixe o modelo de IA (~500 MB) para ativar resumos e perguntas sobre a leitura. O modelo permanece no seu dispositivo.</string>
-    <string name="llm_download_progress">Baixando… %1$d%%</string>
-    <string name="llm_download_error">Falha ao baixar o modelo de IA.</string>
+    <string name="llm_prepare_title">Modelo de IA no dispositivo</string>
+    <string name="llm_prepare_message">Preparando o modelo de IA para resumos e perguntas sobre a leitura. Isso ocorre apenas uma vez.</string>
+    <string name="llm_prepare_progress">Preparando… %1$d%%</string>
+    <string name="llm_prepare_error">Falha ao preparar o modelo de IA.</string>
     <string name="llm_error_load">Falha ao carregar o modelo de IA.</string>
     <string name="llm_disabled">A IA no dispositivo está desativada nas configurações.</string>
     <string name="llm_summary_title">Resumo dos capítulos</string>
@@ -1151,9 +1151,8 @@
     <string name="config_ai_enable">Ativar IA no dispositivo</string>
     <string name="config_ai_model_status">Status do modelo</string>
     <string name="config_ai_model_ready">Modelo pronto (%1$s)</string>
-    <string name="config_ai_model_missing">Modelo não baixado</string>
-    <string name="config_ai_download">Baixar modelo</string>
-    <string name="config_ai_delete">Excluir modelo</string>
+    <string name="config_ai_model_missing">Modelo ainda não extraído</string>
+    <string name="config_ai_delete">Limpar cópia local do modelo</string>
     <string name="config_ai_max_context">Máx. caracteres de contexto</string>
 
 </resources>

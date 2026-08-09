@@ -10,23 +10,21 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlin.coroutines.coroutineContext
 
-sealed class ModelDownloadState {
-    data object Idle : ModelDownloadState()
-    data object Ready : ModelDownloadState()
-    data class Downloading(val progress: Int, val bytesDownloaded: Long, val totalBytes: Long) : ModelDownloadState()
-    data class Error(val message: String) : ModelDownloadState()
+sealed class ModelPrepareState {
+    data object Idle : ModelPrepareState()
+    data object Ready : ModelPrepareState()
+    data class Extracting(val progress: Int, val bytesCopied: Long, val totalBytes: Long) : ModelPrepareState()
+    data class Error(val message: String) : ModelPrepareState()
 }
 
 class LlmModelManager(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(LlmModelManager::class.java)
 
-    private val _state = MutableStateFlow<ModelDownloadState>(ModelDownloadState.Idle)
-    val state: StateFlow<ModelDownloadState> = _state
+    private val _state = MutableStateFlow<ModelPrepareState>(ModelPrepareState.Idle)
+    val state: StateFlow<ModelPrepareState> = _state
 
     @Volatile
     private var cancelRequested = false
@@ -59,10 +57,10 @@ class LlmModelManager(private val context: Context) {
     fun getModelSizeBytes(): Long = if (isModelReady()) getModelFile().length() else 0L
 
     fun refreshState() {
-        _state.value = if (isModelReady()) ModelDownloadState.Ready else ModelDownloadState.Idle
+        _state.value = if (isModelReady()) ModelPrepareState.Ready else ModelPrepareState.Idle
     }
 
-    fun cancelDownload() {
+    fun cancelExtract() {
         cancelRequested = true
     }
 
@@ -71,71 +69,60 @@ class LlmModelManager(private val context: Context) {
             val file = getModelFile()
             val deleted = !file.exists() || file.delete()
             GeneralConsts.getSharedPreferences(context).edit()
-                .putBoolean(GeneralConsts.KEYS.LLM.MODEL_DOWNLOADED, false)
+                .putBoolean(GeneralConsts.KEYS.LLM.MODEL_EXTRACTED, false)
                 .remove(GeneralConsts.KEYS.LLM.MODEL_PATH)
                 .apply()
-            _state.value = ModelDownloadState.Idle
+            _state.value = ModelPrepareState.Idle
             deleted
         } catch (e: Exception) {
-            mLOGGER.error("Failed to delete LLM model", e)
+            mLOGGER.error("Failed to delete LLM model copy", e)
             false
         }
     }
 
     suspend fun ensureModel(onProgress: ((Int) -> Unit)? = null): File = withContext(Dispatchers.IO) {
         if (isModelReady()) {
-            _state.value = ModelDownloadState.Ready
+            _state.value = ModelPrepareState.Ready
             return@withContext getModelFile()
         }
-        downloadModel(onProgress)
+        extractFromAssets(onProgress)
     }
 
-    private suspend fun downloadModel(onProgress: ((Int) -> Unit)?): File {
+    private suspend fun extractFromAssets(onProgress: ((Int) -> Unit)?): File {
         cancelRequested = false
         val prefs = GeneralConsts.getSharedPreferences(context)
-        val urlString = prefs.getString(
-            GeneralConsts.KEYS.LLM.MODEL_URL,
-            GeneralConsts.KEYS.LLM.DEFAULT_MODEL_URL
-        ) ?: GeneralConsts.KEYS.LLM.DEFAULT_MODEL_URL
-
+        val assetPath = GeneralConsts.KEYS.LLM.ASSET_MODEL_PATH
         val target = getModelFile()
         val partial = File(target.parentFile, target.name + ".partial")
 
-        mLOGGER.info("Downloading LLM model from $urlString to ${target.absolutePath}")
-        _state.value = ModelDownloadState.Downloading(0, 0, 0)
+        mLOGGER.info("Extracting LLM model from assets/$assetPath to ${target.absolutePath}")
+        _state.value = ModelPrepareState.Extracting(0, 0, 0)
 
-        var connection: HttpURLConnection? = null
         try {
-            connection = (URL(urlString).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 30_000
-                readTimeout = 60_000
-                instanceFollowRedirects = true
-                requestMethod = "GET"
-                setRequestProperty("User-Agent", "BilingualReader")
+            val assetFd = try {
+                context.assets.openFd(assetPath)
+            } catch (_: Exception) {
+                null
             }
-            connection.connect()
-            val code = connection.responseCode
-            if (code !in 200..299) {
-                throw IllegalStateException("HTTP $code downloading model")
-            }
+            val total = assetFd?.length ?: -1L
+            assetFd?.close()
 
-            val total = connection.contentLengthLong.coerceAtLeast(0)
-            connection.inputStream.use { input ->
+            context.assets.open(assetPath).use { input ->
                 FileOutputStream(partial).use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER)
-                    var downloaded = 0L
+                    var copied = 0L
                     var lastProgress = -1
                     while (true) {
                         coroutineContext.ensureActive()
-                        if (cancelRequested) throw InterruptedException("Download cancelled")
+                        if (cancelRequested) throw InterruptedException("Extract cancelled")
                         val read = input.read(buffer)
                         if (read < 0) break
                         output.write(buffer, 0, read)
-                        downloaded += read
-                        val progress = if (total > 0) ((downloaded * 100) / total).toInt() else 0
+                        copied += read
+                        val progress = if (total > 0) ((copied * 100) / total).toInt().coerceIn(0, 100) else 0
                         if (progress != lastProgress) {
                             lastProgress = progress
-                            _state.value = ModelDownloadState.Downloading(progress, downloaded, total)
+                            _state.value = ModelPrepareState.Extracting(progress, copied, total.coerceAtLeast(0))
                             onProgress?.invoke(progress)
                         }
                     }
@@ -145,7 +132,7 @@ class LlmModelManager(private val context: Context) {
 
             if (partial.length() < MIN_MODEL_BYTES) {
                 partial.delete()
-                throw IllegalStateException("Downloaded model is too small")
+                throw IllegalStateException("Extracted model is too small")
             }
 
             if (target.exists()) target.delete()
@@ -155,7 +142,7 @@ class LlmModelManager(private val context: Context) {
             }
 
             prefs.edit()
-                .putBoolean(GeneralConsts.KEYS.LLM.MODEL_DOWNLOADED, true)
+                .putBoolean(GeneralConsts.KEYS.LLM.MODEL_EXTRACTED, true)
                 .putString(GeneralConsts.KEYS.LLM.MODEL_PATH, target.absolutePath)
                 .putString(
                     GeneralConsts.KEYS.LLM.MODEL_VERSION,
@@ -166,15 +153,13 @@ class LlmModelManager(private val context: Context) {
                 )
                 .apply()
 
-            _state.value = ModelDownloadState.Ready
+            _state.value = ModelPrepareState.Ready
             return target
         } catch (e: Exception) {
-            mLOGGER.error("LLM model download failed: ${e.message}", e)
+            mLOGGER.error("LLM model extract failed: ${e.message}", e)
             partial.delete()
-            _state.value = ModelDownloadState.Error(e.message ?: "Download failed")
+            _state.value = ModelPrepareState.Error(e.message ?: "Extract failed")
             throw e
-        } finally {
-            connection?.disconnect()
         }
     }
 
