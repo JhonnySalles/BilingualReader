@@ -349,6 +349,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     }
 
     fun addList(manga: Manga): Int {
+        if (manga.fkLibrary != mLibrary.id)
+            return -1
+
         var index = -1
         if (!containsInFull(manga)) {
             index = mListMangas.value!!.size
@@ -424,24 +427,22 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
         mLoading.value = true
+        val requested = mLibrary
         viewModelScope.launch(Dispatchers.IO) {
-            val list = mMangaRepository.list(mLibrary)
+            val list = mMangaRepository.list(requested)
             withContext(Dispatchers.Main) {
-                mLoading.value = false
+                if (mLibrary.id != requested.id)
+                    return@withContext
 
+                mLoading.value = false
                 if (list != null) {
-                    if (mFullMap.isEmpty()) {
-                        mListMangas.value = list.toMutableList()
-                        setFullFromList(list)
-                        setSuggestionsFromFull()
-                    } else
-                        update(list)
+                    mListMangas.value = list.toMutableList()
+                    setFullFromList(list)
                 } else {
                     mFullMap.clear()
                     mListMangas.value = mutableListOf()
-                    setSuggestionsFromFull()
                 }
-
+                setSuggestionsFromFull()
                 refreshComplete(mListMangas.value!!.isNotEmpty())
             }
         }

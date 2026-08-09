@@ -144,7 +144,8 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         })
                         if (done) _generating.value = false
                     }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 replaceLastAssistant(resolveError(e))
                 _generating.value = false
             }

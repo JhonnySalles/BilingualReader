@@ -174,6 +174,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }, false)
 
+        val isColdStart = savedInstanceState == null
         lifecycleScope.launch(Dispatchers.IO) {
             val defaultManga = LibraryUtil.getDefault(this@MainActivity, Type.MANGA)
             val defaultBook = LibraryUtil.getDefault(this@MainActivity, Type.BOOK)
@@ -195,7 +196,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     setLibraries(loadedLibraries)
                 }
 
-                var fragment: Fragment
                 if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
                     mPreferences.edit(commit = true) {
                         this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
@@ -203,7 +203,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     mMangaLibraryModel.isLoading = false
                     mBookLibraryModel.isLoading = false
-                    fragment = ConfigFragment()
+                    if (isColdStart) {
+                        mFragmentManager.beginTransaction()
+                            .replace(R.id.main_content_root, ConfigFragment())
+                            .commit()
+                    }
                 } else {
                     val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
                     val library = loadedLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
@@ -211,32 +215,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     else
                         defaultManga
 
-                    fragment = when (library.type) {
-                        Type.MANGA -> {
+                    val deepLink = intent.dataString
+                    when {
+                        deepLink == "history" -> {
+                            mMangaLibraryModel.isLoading = false
+                            mBookLibraryModel.isLoading = false
+                            if (isColdStart) {
+                                mFragmentManager.beginTransaction()
+                                    .replace(R.id.main_content_root, HistoryFragment())
+                                    .commit()
+                            }
+                        }
+                        library.type == Type.MANGA -> {
                             mMangaLibraryModel.setLibrary(library)
                             mBookLibraryModel.isLoading = false
-                            MangaLibraryFragment()
+                            if (isColdStart) {
+                                mFragmentManager.beginTransaction()
+                                    .replace(R.id.main_content_root, MangaLibraryFragment())
+                                    .commit()
+                            } else {
+                                mMangaLibraryModel.list {
+                                    mMangaLibraryModel.isLoading = false
+                                }
+                            }
                         }
-
-                        Type.BOOK -> {
+                        else -> {
                             mBookLibraryModel.setLibrary(library)
                             mMangaLibraryModel.isLoading = false
-                            BookLibraryFragment()
-                        }
-                    }
-
-                    intent.dataString?.let {
-                        mMangaLibraryModel.isLoading = false
-                        mBookLibraryModel.isLoading = false
-                        fragment = when (it) {
-                            "history" -> HistoryFragment()
-                            else -> fragment
+                            if (isColdStart) {
+                                mFragmentManager.beginTransaction()
+                                    .replace(R.id.main_content_root, BookLibraryFragment())
+                                    .commit()
+                            } else {
+                                mBookLibraryModel.list {
+                                    mBookLibraryModel.isLoading = false
+                                }
+                            }
                         }
                     }
                 }
-
-                // content_fragment use for receive fragments layout
-                mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
 
                 setupBlurViews()
                 setupWindowInsets()

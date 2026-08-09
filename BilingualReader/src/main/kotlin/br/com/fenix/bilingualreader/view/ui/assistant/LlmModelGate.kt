@@ -40,7 +40,7 @@ object LlmModelGate {
                         LlmInferenceEngine.getInstance(context).ensureLoaded(manager.getModelFile().absolutePath)
                     }
                     onReady()
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     showError(context, resolveErrorMessage(context, e))
                     onCancel?.invoke()
                 }
@@ -92,7 +92,8 @@ object LlmModelGate {
                 }
                 dialog.dismiss()
                 onReady()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 if (e is InterruptedException) {
                     dialog.dismiss()
                     onCancel?.invoke()

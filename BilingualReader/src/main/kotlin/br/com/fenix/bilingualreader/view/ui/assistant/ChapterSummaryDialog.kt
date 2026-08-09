@@ -108,7 +108,7 @@ object ChapterSummaryDialog {
                                 partial.isNotBlank()
                         }
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     progress.visibility = android.view.View.GONE
                     text.text = resolveLlmError(context, e)
                 }

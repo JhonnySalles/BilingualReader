@@ -329,6 +329,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     }
 
     fun addList(Book: Book): Int {
+        if (Book.fkLibrary != mLibrary.id)
+            return -1
+
         var index = -1
         if (!containsInFull(Book)) {
             index = mListBook.value!!.size
@@ -398,18 +401,17 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
         mLoading.value = true
+        val requested = mLibrary
         viewModelScope.launch(Dispatchers.IO) {
-            val list = mBookRepository.list(mLibrary)
+            val list = mBookRepository.list(requested)
             withContext(Dispatchers.Main) {
+                if (mLibrary.id != requested.id)
+                    return@withContext
+
                 mLoading.value = false
-
-                if (mFullMap.isEmpty()) {
-                    mListBook.value = list.toMutableList()
-                    setFullFromList(list)
-                    setSuggestionsFromFull()
-                } else
-                    update(list)
-
+                mListBook.value = list.toMutableList()
+                setFullFromList(list)
+                setSuggestionsFromFull()
                 refreshComplete(mListBook.value!!.isNotEmpty())
             }
         }

@@ -312,14 +312,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/config_ai_max_context">
+            android:hint="@string/config_ai_max_context"
+            app:startIconDrawable="@drawable/ico_ai_context">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/config_ai_max_context_value"
+                style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:maxLines="1" />
+                android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.divider.MaterialDivider

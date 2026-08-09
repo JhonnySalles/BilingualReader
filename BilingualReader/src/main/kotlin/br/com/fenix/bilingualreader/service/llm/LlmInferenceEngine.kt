@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.llm
 
 import android.content.Context
 import android.os.Build
-import com.google.mediapipe.tasks.genai.llminference.LlmInference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +17,15 @@ import java.util.concurrent.atomic.AtomicReference
 
 class LlmUnsupportedDeviceException : IllegalStateException("LLM_UNSUPPORTED_DEVICE")
 
+/**
+ * MediaPipe LlmInference is never referenced as a field type here: its <clinit>
+ * calls System.loadLibrary and would crash before [isNativeBackendAvailable] can run.
+ */
 class LlmInferenceEngine(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(LlmInferenceEngine::class.java)
     private val mutex = Mutex()
-    private var llmInference: LlmInference? = null
+    private var llmInference: Any? = null
     private var loadedModelPath: String? = null
     private val streamListener = AtomicReference<((String, Boolean) -> Unit)?>(null)
 
@@ -42,8 +45,8 @@ class LlmInferenceEngine(private val context: Context) {
         closeLocked()
         withContext(Dispatchers.IO) {
             try {
-                llmInference = createInference(modelPath, LlmInference.Backend.GPU)
-                    ?: createInference(modelPath, LlmInference.Backend.CPU)
+                llmInference = MediapipeLlmBridge.create(context, modelPath, MediapipeLlmBridge.Backend.GPU, streamListener)
+                    ?: MediapipeLlmBridge.create(context, modelPath, MediapipeLlmBridge.Backend.CPU, streamListener)
                     ?: throw IllegalStateException("Failed to load LLM on GPU and CPU")
                 loadedModelPath = modelPath
                 mLOGGER.info("LLM loaded from $modelPath")
@@ -56,30 +59,9 @@ class LlmInferenceEngine(private val context: Context) {
         }
     }
 
-    private fun createInference(modelPath: String, backend: LlmInference.Backend): LlmInference? {
-        return try {
-            val options = LlmInference.LlmInferenceOptions.builder()
-                .setModelPath(modelPath)
-                .setMaxTokens(1024)
-                .setMaxTopK(40)
-                .setPreferredBackend(backend)
-                .setResultListener { partialResult, done ->
-                    streamListener.get()?.invoke(partialResult, done)
-                }
-                .build()
-            LlmInference.createFromOptions(context, options).also {
-                mLOGGER.info("LLM backend $backend ready")
-            }
-        } catch (e: Throwable) {
-            mLOGGER.warn("LLM backend $backend failed: ${e.message}")
-            if (isNativeLinkFailure(e)) throw LlmUnsupportedDeviceException()
-            null
-        }
-    }
-
     suspend fun generate(prompt: String): String = mutex.withLock {
         val engine = llmInference ?: throw IllegalStateException("LLM not loaded")
-        withContext(Dispatchers.IO) { engine.generateResponse(prompt) }
+        withContext(Dispatchers.IO) { MediapipeLlmBridge.generate(engine, prompt) }
     }
 
     fun generateStreamingTokens(prompt: String): Flow<Pair<String, Boolean>> = callbackFlow {
@@ -102,7 +84,7 @@ class LlmInferenceEngine(private val context: Context) {
         }
 
         try {
-            engine.generateResponseAsync(prompt)
+            MediapipeLlmBridge.generateAsync(engine, prompt)
         } catch (e: Throwable) {
             streamListener.set(null)
             close(if (e is Exception) e else IllegalStateException(e.message, e))
@@ -120,7 +102,7 @@ class LlmInferenceEngine(private val context: Context) {
     private fun closeLocked() {
         streamListener.set(null)
         try {
-            llmInference?.close()
+            llmInference?.let { MediapipeLlmBridge.close(it) }
         } catch (e: Exception) {
             mLOGGER.warn("Error closing LLM: ${e.message}")
         }
@@ -156,5 +138,57 @@ class LlmInferenceEngine(private val context: Context) {
                 INSTANCE ?: LlmInferenceEngine(context.applicationContext).also { INSTANCE = it }
             }
         }
+    }
+}
+
+/**
+ * Isolates MediaPipe class references so [LlmInferenceEngine] can load without
+ * triggering LlmInference <clinit> / System.loadLibrary.
+ */
+private object MediapipeLlmBridge {
+    private val mLOGGER = LoggerFactory.getLogger(MediapipeLlmBridge::class.java)
+
+    enum class Backend { GPU, CPU }
+
+    fun create(
+        context: Context,
+        modelPath: String,
+        backend: Backend,
+        streamListener: AtomicReference<((String, Boolean) -> Unit)?>
+    ): Any? {
+        return try {
+            val llmBackend = when (backend) {
+                Backend.GPU -> com.google.mediapipe.tasks.genai.llminference.LlmInference.Backend.GPU
+                Backend.CPU -> com.google.mediapipe.tasks.genai.llminference.LlmInference.Backend.CPU
+            }
+            val options = com.google.mediapipe.tasks.genai.llminference.LlmInference.LlmInferenceOptions.builder()
+                .setModelPath(modelPath)
+                .setMaxTokens(1024)
+                .setMaxTopK(40)
+                .setPreferredBackend(llmBackend)
+                .setResultListener { partialResult, done ->
+                    streamListener.get()?.invoke(partialResult, done)
+                }
+                .build()
+            com.google.mediapipe.tasks.genai.llminference.LlmInference.createFromOptions(context, options).also {
+                mLOGGER.info("LLM backend $backend ready")
+            }
+        } catch (e: Throwable) {
+            mLOGGER.warn("LLM backend $backend failed: ${e.message}")
+            if (LlmInferenceEngine.isNativeLinkFailure(e)) throw LlmUnsupportedDeviceException()
+            null
+        }
+    }
+
+    fun generate(engine: Any, prompt: String): String {
+        return (engine as com.google.mediapipe.tasks.genai.llminference.LlmInference).generateResponse(prompt)
+    }
+
+    fun generateAsync(engine: Any, prompt: String) {
+        (engine as com.google.mediapipe.tasks.genai.llminference.LlmInference).generateResponseAsync(prompt)
+    }
+
+    fun close(engine: Any) {
+        (engine as com.google.mediapipe.tasks.genai.llminference.LlmInference).close()
     }
 }
