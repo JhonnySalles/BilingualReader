@@ -2090,6 +2090,15 @@ class PopupUtil {
             view.viewTreeObserver.addOnGlobalLayoutListener(listener)
         }
 
+        /** Runs [runnable] immediately when [view] is already laid out; otherwise waits for the next layout. */
+        fun whenLaidOut(view: View, runnable: Runnable) {
+            if (view.isLaidOut && !view.isLayoutRequested) {
+                runnable.run()
+            } else {
+                onGlobalLayout(view, runnable)
+            }
+        }
+
         fun googleTranslate(context: Context, text: String) {
             try {
                 val intent = Intent()

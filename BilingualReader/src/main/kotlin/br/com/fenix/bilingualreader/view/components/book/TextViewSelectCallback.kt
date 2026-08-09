@@ -146,7 +146,8 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewAdapter.T
 
     override fun onDestroyActionMode(mode: ActionMode?) {
         try {
-            if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+            // SelectionChangeListener dismisses when selection is cleared; avoid racing an active selection.
+            if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT && !mTextView.hasSelection())
                 holder.popupTextSelect.dismiss()
         } catch (e: Exception) {
             mLOGGER.error("Error to destroy action mode: " + e.message, e)

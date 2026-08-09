@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.text.Spannable
 import android.text.method.MovementMethod
 import android.util.AttributeSet
@@ -41,8 +43,12 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     /** Notifies the reader when pinch-zoom needs continuous blur updates. */
     var onZoomInteractionChanged: ((Boolean) -> Unit)? = null
     private var mZoomInteractionActive = false
+    private var mSelectionNotifyPending = false
+    // Nullable: onSelectionChanged can run during TextView.<init> before subclass fields are set.
+    private var mSelectionHandler: Handler? = null
 
     init {
+        mSelectionHandler = Handler(Looper.getMainLooper())
         mOriginalSize = textSize
 
         mGestureDetector = GestureDetector(context, SimpleGestureListener())
@@ -55,13 +61,16 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             }
 
             if (event.pointerCount > 1) {
-                setTextIsSelectable(false)
+                // Keep selectable while a selection is active so ActionMode/popup are not torn down.
+                if (!hasSelection())
+                    setTextIsSelectable(false)
                 notifyZoomInteraction(true)
                 zoom(view, event)
                 parent.requestDisallowInterceptTouchEvent(true)
                 return@setOnTouchListener true
             } else {
-                setTextIsSelectable(true)
+                if (!isTextSelectable)
+                    setTextIsSelectable(true)
                 if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL)
                     notifyZoomInteraction(false)
             }
@@ -107,10 +116,19 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
-        if (hasSelection())
-            mSelectionListener?.onTextSelected()
-        else
-            mSelectionListener?.onTextUnselected()
+        // Skip during TextView construction (handler not initialized yet; no listener either).
+        val handler = mSelectionHandler ?: return
+        // Debounce transient empty selection events while dragging handles.
+        if (mSelectionNotifyPending)
+            return
+        mSelectionNotifyPending = true
+        handler.post {
+            mSelectionNotifyPending = false
+            if (hasSelection())
+                mSelectionListener?.onTextSelected()
+            else
+                mSelectionListener?.onTextUnselected()
+        }
     }
 
     private var mLastZoomDistance = 0f
