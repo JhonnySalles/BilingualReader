@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.adapter.detail.manga
 
-import android.text.Html
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout

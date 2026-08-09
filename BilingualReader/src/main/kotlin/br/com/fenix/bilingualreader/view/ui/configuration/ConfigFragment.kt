@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.ui.configuration
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -51,9 +50,9 @@ import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.secrets.Secrets

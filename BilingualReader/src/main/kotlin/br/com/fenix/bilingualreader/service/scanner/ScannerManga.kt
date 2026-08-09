@@ -21,13 +21,12 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.managers.MangaScannerHandler
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
 import java.util.UUID
-
-import br.com.fenix.bilingualreader.view.managers.MangaScannerHandler
 
 class ScannerManga(private val context: Context) {
 

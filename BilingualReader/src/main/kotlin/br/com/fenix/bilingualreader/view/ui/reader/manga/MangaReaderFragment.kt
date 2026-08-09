@@ -48,11 +48,13 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.BundleCompat
 import androidx.core.util.isNotEmpty
 import androidx.core.util.size
 import androidx.core.view.MenuProvider
@@ -62,8 +64,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -114,6 +114,7 @@ import br.com.fenix.bilingualreader.view.components.manga.ImageViewScrolling
 import br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
 import br.com.fenix.bilingualreader.view.managers.MangaReaderHandler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import coil.transform.Transformation
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -121,7 +122,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import coil.transform.Transformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

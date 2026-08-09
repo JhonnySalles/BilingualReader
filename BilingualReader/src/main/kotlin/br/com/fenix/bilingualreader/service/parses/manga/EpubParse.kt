@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
-import com.github.junrar.rarfile.FileHeader
 import org.jsoup.Jsoup
 import org.kxml2.io.KXmlParser
 import org.kxml2.kdom.Document

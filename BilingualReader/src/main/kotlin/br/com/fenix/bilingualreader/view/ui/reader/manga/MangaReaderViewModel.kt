@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.ui.reader.manga
 import android.app.Application
 import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData

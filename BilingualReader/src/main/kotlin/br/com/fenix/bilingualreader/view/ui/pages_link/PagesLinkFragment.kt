@@ -11,6 +11,8 @@ import android.graphics.Canvas
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -35,6 +37,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.os.BundleCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -52,18 +55,19 @@ import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.page_link.PageLinkCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.page_link.PageNotLinkCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.components.ImageShadowBuilder
 import br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
-import br.com.fenix.bilingualreader.util.helpers.MenuUtil
-import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.components.manga.TextViewEllipsizing
+import br.com.fenix.bilingualreader.view.managers.PagesLinkHandler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -78,11 +82,6 @@ import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
-import br.com.fenix.bilingualreader.view.managers.PagesLinkHandler
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 
 class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {

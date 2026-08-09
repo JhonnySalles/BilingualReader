@@ -17,13 +17,12 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.view.managers.BookScannerHandler
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
 import java.util.UUID
-
-import br.com.fenix.bilingualreader.view.managers.BookScannerHandler
 
 class ScannerBook(private val context: Context) {
 

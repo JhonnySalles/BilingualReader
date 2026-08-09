@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.library.book
 
+
 import android.Manifest
 import android.app.ActivityOptions
 import android.app.SearchManager
@@ -50,8 +51,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -63,6 +62,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Libraries
@@ -96,6 +97,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.BookSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
+import br.com.fenix.bilingualreader.view.managers.BookLibraryHandler
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
@@ -114,9 +116,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-
-
-import br.com.fenix.bilingualreader.view.managers.BookLibraryHandler
 
 
 class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, BookLibraryHandler.Listener {

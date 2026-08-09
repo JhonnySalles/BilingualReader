@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.llm
 
 import android.content.Context
 import android.os.Build
+import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine.Companion.isNativeBackendAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

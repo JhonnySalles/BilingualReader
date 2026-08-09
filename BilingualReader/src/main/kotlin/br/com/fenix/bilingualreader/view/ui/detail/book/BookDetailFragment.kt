@@ -7,8 +7,8 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -27,8 +27,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.view.components.BookCover3DView
-import com.google.android.material.card.MaterialCardView
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -49,11 +47,13 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
+import br.com.fenix.bilingualreader.view.components.BookCover3DView
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout

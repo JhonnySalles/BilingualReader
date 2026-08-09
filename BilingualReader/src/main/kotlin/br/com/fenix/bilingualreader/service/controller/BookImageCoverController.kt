@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.controller
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.model.entity.Book

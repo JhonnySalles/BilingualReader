@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.os.Build
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.services.NotificationBroadcastReceiver
