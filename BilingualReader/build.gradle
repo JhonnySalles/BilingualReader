@@ -31,6 +31,8 @@ android {
         testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
 
+        buildConfigField "boolean", "USE_MOCK_LLM", "false"
+
         manifestPlaceholders = [
                 sentryDsnKey: props['SENTRY_DSN'] ?: ""
         ]
@@ -46,6 +48,7 @@ android {
         debug {
             minifyEnabled false
             testCoverageEnabled false
+            buildConfigField "boolean", "USE_MOCK_LLM", "true"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders["crashlyticsEnabled"] = "true"
             manifestPlaceholders["sentryAutoInit"] = "true"
@@ -66,6 +69,7 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+        buildConfig true
     }
     packagingOptions {
         resources {
@@ -119,6 +123,17 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// MediaPipe tasks-genai ships Java 21 bytecode; AGP 7.4 AsmClassesTransform
+// (used by Sentry tracing instrumentation) cannot read major version 65.
+sentry {
+    tracingInstrumentation {
+        enabled = false
+    }
+    autoInstallation {
+        enabled = false
+    }
+}
+
 configurations {
     all*.exclude group: 'xpp3', module: 'xpp3'
     configurations.all {
@@ -132,6 +147,8 @@ dependencies {
     // ** MANGA - COMIC **
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.activity:activity-ktx:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-ktx:1.13.1'
@@ -183,11 +200,16 @@ dependencies {
     //Horizontal list view
     implementation 'org.lucasr.twowayview:twowayview:0.1.4'
 
-    // OCR
+    // OCR / Translate / Language ID
     implementation 'cz.adaptech:tesseract4android:4.1.1'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.0'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition-japanese:16.0.0'
     implementation 'com.google.mlkit:translate:17.0.1'
+    implementation 'com.google.mlkit:language-id:17.0.6'
+
+    // On-device LLM (MediaPipe) — pin 0.10.21: Java 8 bytecode; 0.10.22+ is Java 21 and breaks AGP 7.4 D8
+    implementation 'com.google.mediapipe:tasks-genai:0.10.21'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 
     // API CONECTION
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

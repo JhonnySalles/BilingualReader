@@ -1119,4 +1119,41 @@
     <string name="annotation_colors_yellow">Amarelo</string>
     <string name="annotation_colors_erase">Apagar</string>
 
+    <!-- LLM / On-device AI -->
+    <string name="llm_download_title">Modelo de IA no dispositivo</string>
+    <string name="llm_download_message">Baixe o modelo de IA (~500 MB) para ativar resumos e perguntas sobre a leitura. O modelo permanece no seu dispositivo.</string>
+    <string name="llm_download_progress">Baixando… %1$d%%</string>
+    <string name="llm_download_error">Falha ao baixar o modelo de IA.</string>
+    <string name="llm_error_load">Falha ao carregar o modelo de IA.</string>
+    <string name="llm_disabled">A IA no dispositivo está desativada nas configurações.</string>
+    <string name="llm_summary_title">Resumo dos capítulos</string>
+    <string name="llm_summary_generating">Gerando resumo…</string>
+    <string name="llm_summary_empty">Ainda não há capítulos suficientes para resumir.</string>
+    <string name="llm_summary_open_assistant">Fazer perguntas</string>
+    <string name="llm_assistant_title">Assistente de leitura</string>
+    <string name="llm_assistant_hint">Quem é o pai do protagonista? Explique este termo mágico…</string>
+    <string name="llm_assistant_send">Enviar</string>
+    <string name="llm_assistant_cancel">Cancelar</string>
+    <string name="llm_assistant_context_subtitles">Contexto: legendas</string>
+    <string name="llm_assistant_context_ocr">Contexto: OCR</string>
+    <string name="llm_assistant_context_book">Contexto: capítulos recentes</string>
+    <string name="llm_assistant_context_empty">Contexto: indisponível</string>
+    <string name="llm_assistant_refresh_context">Atualizar contexto</string>
+    <string name="llm_assistant_privacy">As respostas ficam no dispositivo. Sem nuvem.</string>
+    <string name="llm_assistant_thinking">Pensando…</string>
+    <string name="llm_assistant_error">Não foi possível gerar uma resposta.</string>
+    <string name="menu_reader_assistant">Perguntar à IA</string>
+    <string name="menu_reader_summary">Resumir capítulos</string>
+    <string name="menu_popup_ocr_translate">OCR + Traduzir (ML Kit)</string>
+    <string name="ocr_translate_processing">Reconhecendo e traduzindo…</string>
+    <string name="ocr_translate_done">Tradução pronta</string>
+    <string name="config_sector_ai">IA no dispositivo</string>
+    <string name="config_ai_enable">Ativar IA no dispositivo</string>
+    <string name="config_ai_model_status">Status do modelo</string>
+    <string name="config_ai_model_ready">Modelo pronto (%1$s)</string>
+    <string name="config_ai_model_missing">Modelo não baixado</string>
+    <string name="config_ai_download">Baixar modelo</string>
+    <string name="config_ai_delete">Excluir modelo</string>
+    <string name="config_ai_max_context">Máx. caracteres de contexto</string>
+
 </resources>

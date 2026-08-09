@@ -60,6 +60,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -586,6 +587,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         (miSearch.icon as AnimatedVectorDrawable).reset()
                         (miSearch.icon as AnimatedVectorDrawable).start()
                         openBookSearch()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_summary -> {
+                        openChapterSummary()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_assistant -> {
+                        openReadingAssistant()
                         true
                     }
 
@@ -1457,6 +1468,36 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         bookAnnotationLauncher.launch(intent)
+    }
+
+    private fun openChapterSummary() {
+        val book = mBook ?: return
+        val parse = mParse ?: return
+        if (mTextToSpeech != null) mTextToSpeech?.stop()
+        val page0 = (getCurrentPage() - 1).coerceAtLeast(0)
+        br.com.fenix.bilingualreader.view.ui.assistant.ChapterSummaryDialog.show(
+            requireContext(),
+            lifecycleScope,
+            book,
+            parse,
+            page0
+        )
+    }
+
+    private fun openReadingAssistant() {
+        val book = mBook ?: return
+        val parse = mParse ?: return
+        if (mTextToSpeech != null) mTextToSpeech?.stop()
+        val page0 = (getCurrentPage() - 1).coerceAtLeast(0)
+        br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity.prepareBook(
+            title = book.title.ifBlank { book.name },
+            page = page0,
+            chapter = book.chapter,
+            bookId = book.id,
+            parse = parse,
+            language = book.language
+        )
+        startActivity(Intent(requireContext(), br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity::class.java))
     }
 
     fun configTouchFunctions() {

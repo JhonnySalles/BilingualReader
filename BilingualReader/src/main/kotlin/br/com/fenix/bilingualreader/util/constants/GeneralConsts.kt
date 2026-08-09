@@ -261,6 +261,31 @@ class GeneralConsts private constructor() {
             const val SHARE_MARK_CLOUD = "SHARE_MARK_CLOUD"
         }
 
+        object LLM {
+            const val ENABLED = "LLM_ENABLED"
+            const val MODEL_VERSION = "LLM_MODEL_VERSION"
+            const val MODEL_PATH = "LLM_MODEL_PATH"
+            const val MODEL_URL = "LLM_MODEL_URL"
+            const val MODEL_DOWNLOADED = "LLM_MODEL_DOWNLOADED"
+            const val MAX_CONTEXT_CHARS = "LLM_MAX_CONTEXT_CHARS"
+            const val SUMMARY_CACHE_PREFIX = "LLM_SUMMARY_CACHE_"
+            const val DEFAULT_MAX_CONTEXT_CHARS = 12000
+            const val DEFAULT_MODEL_VERSION = "gemma3-1b-it-int4"
+            const val DEFAULT_MODEL_FILENAME = "gemma3-1b-it-int4.task"
+            const val DEFAULT_MODEL_URL =
+                "https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/gemma3-1b-it-int4.task"
+        }
+
+        object ASSISTANT {
+            const val TYPE = "ASSISTANT_TYPE"
+            const val TITLE = "ASSISTANT_TITLE"
+            const val PAGE = "ASSISTANT_PAGE"
+            const val CHAPTER = "ASSISTANT_CHAPTER"
+            const val LANGUAGE = "ASSISTANT_LANGUAGE"
+            const val PRELOAD_SUMMARY = "ASSISTANT_PRELOAD_SUMMARY"
+            const val CONTEXT_SOURCE = "ASSISTANT_CONTEXT_SOURCE"
+        }
+
         object MANGA {
             const val ID = "MANGA_ID"
             const val NAME = "MANGA_NAME"
@@ -373,6 +398,7 @@ class GeneralConsts private constructor() {
         const val IMAGE = "Image"
         const val AUDIO = "Audio"
         const val THREAD = "Thread"
+        const val LLM = "llm"
         const val A = "a"
         const val B = "b"
         const val C = "c"

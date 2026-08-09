@@ -46,3 +46,14 @@
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
+
+# MediaPipe LLM Inference
+-keep class com.google.mediapipe.** { *; }
+-dontwarn com.google.mediapipe.**
+-keep class com.google.android.odml.** { *; }
+-dontwarn com.google.android.odml.**
+
+# ML Kit Translate / Language ID / Text Recognition
+-keep class com.google.mlkit.** { *; }
+-dontwarn com.google.mlkit.**
+-keep class com.google.android.gms.internal.mlkit_** { *; }

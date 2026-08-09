@@ -103,6 +103,7 @@ import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
+import br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity
 import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
 import br.com.fenix.bilingualreader.view.ui.window.FloatingOcr
 import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
@@ -1090,6 +1091,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
 
             R.id.menu_item_reader_manga_chapters_menu -> openChapters()
+            R.id.menu_item_reader_manga_assistant -> openReadingAssistant()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -1102,7 +1104,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 popup.setOnMenuItemClickListener { menuItem: MenuItem ->
                     when (menuItem.itemId) {
                         R.id.menu_popup_ocr_tesseract -> openTesseract()
-                        R.id.menu_popup_ocr_google_vision -> openGoogleVisionOcr()
+                        R.id.menu_popup_ocr_google_vision -> openGoogleVisionOcr(translate = false)
+                        R.id.menu_popup_ocr_translate -> openGoogleVisionOcr(translate = true)
                     }
                     true
                 }
@@ -1661,9 +1664,22 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             false
     }
 
-    private fun openGoogleVisionOcr() {
+    private fun openGoogleVisionOcr(translate: Boolean = false) {
         val image = getImage() ?: return
-        GoogleVision.getInstance(this).process(image) { setText(it) }
+        GoogleVision.getInstance(this).process(image, mViewModel.mLanguageOcr, translate) { setText(it) }
+    }
+
+    private fun openReadingAssistant() {
+        val manga = mManga ?: return
+        val parse = mFragment?.mParse
+        ReadingAssistantActivity.prepareManga(
+            title = manga.title.ifBlank { manga.name },
+            page = MangaReaderFragment.mCurrentPage,
+            mangaId = manga.id,
+            parse = parse,
+            ocrLanguage = mViewModel.mLanguageOcr
+        )
+        startActivity(Intent(this, ReadingAssistantActivity::class.java))
     }
 
     override fun getImage(): Bitmap? {

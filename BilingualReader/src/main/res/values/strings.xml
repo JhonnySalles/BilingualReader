@@ -1198,4 +1198,41 @@
     <string name="annotation_colors_yellow">Yellow</string>
     <string name="annotation_colors_erase">Erase</string>
 
+    <!-- LLM / On-device AI -->
+    <string name="llm_download_title">On-device AI model</string>
+    <string name="llm_download_message">Download the on-device AI model (~500 MB) to enable summaries and reading questions. The model stays on your device.</string>
+    <string name="llm_download_progress">Downloading… %1$d%%</string>
+    <string name="llm_download_error">Failed to download the AI model.</string>
+    <string name="llm_error_load">Failed to load the AI model.</string>
+    <string name="llm_disabled">On-device AI is disabled in settings.</string>
+    <string name="llm_summary_title">Chapter summary</string>
+    <string name="llm_summary_generating">Generating summary…</string>
+    <string name="llm_summary_empty">Not enough chapters yet to summarize.</string>
+    <string name="llm_summary_open_assistant">Ask questions</string>
+    <string name="llm_assistant_title">Reading assistant</string>
+    <string name="llm_assistant_hint">Who is the protagonist\'s father? Explain this magic term…</string>
+    <string name="llm_assistant_send">Send</string>
+    <string name="llm_assistant_cancel">Cancel</string>
+    <string name="llm_assistant_context_subtitles">Context: subtitles</string>
+    <string name="llm_assistant_context_ocr">Context: OCR</string>
+    <string name="llm_assistant_context_book">Context: recent chapters</string>
+    <string name="llm_assistant_context_empty">Context: none available</string>
+    <string name="llm_assistant_refresh_context">Refresh context</string>
+    <string name="llm_assistant_privacy">Answers stay on your device. No cloud required.</string>
+    <string name="llm_assistant_thinking">Thinking…</string>
+    <string name="llm_assistant_error">Could not generate a response.</string>
+    <string name="menu_reader_assistant">Ask AI</string>
+    <string name="menu_reader_summary">Summarize chapters</string>
+    <string name="menu_popup_ocr_translate">OCR + Translate (ML Kit)</string>
+    <string name="ocr_translate_processing">Recognizing and translating…</string>
+    <string name="ocr_translate_done">Translation ready</string>
+    <string name="config_sector_ai">On-device AI</string>
+    <string name="config_ai_enable">Enable on-device AI</string>
+    <string name="config_ai_model_status">Model status</string>
+    <string name="config_ai_model_ready">Model ready (%1$s)</string>
+    <string name="config_ai_model_missing">Model not downloaded</string>
+    <string name="config_ai_download">Download model</string>
+    <string name="config_ai_delete">Delete model</string>
+    <string name="config_ai_max_context">Max context characters</string>
+
 </resources>

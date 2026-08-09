@@ -200,6 +200,13 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/menu_item_reader_manga_assistant"
+        android:icon="@drawable/ico_animated_search"
+        android:orderInCategory="109"
+        android:title="@string/menu_reader_assistant"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_item_reader_manga_save_share_image"
         android:icon="@drawable/ico_save_share_image"
         android:orderInCategory="110"

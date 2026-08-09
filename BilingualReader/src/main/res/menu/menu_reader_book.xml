@@ -45,6 +45,20 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/menu_item_reader_book_summary"
+        android:icon="@drawable/ico_animated_book_chapter"
+        android:orderInCategory="106"
+        android:title="@string/menu_reader_summary"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_item_reader_book_assistant"
+        android:icon="@drawable/ico_animated_search"
+        android:orderInCategory="107"
+        android:title="@string/menu_reader_assistant"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_item_reader_book_scrolling_mode"
         android:icon="@drawable/ico_reading_mode"
         android:orderInCategory="102"

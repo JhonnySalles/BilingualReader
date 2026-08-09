@@ -271,6 +271,12 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigStatisticsDelete: MaterialButton
 
+    private lateinit var mConfigAiEnable: SwitchMaterial
+    private lateinit var mConfigAiModelStatus: TextView
+    private lateinit var mConfigAiDownload: MaterialButton
+    private lateinit var mConfigAiDelete: MaterialButton
+    private lateinit var mConfigAiMaxContextValue: com.google.android.material.textfield.TextInputEditText
+
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
     private var mConfigSystemDateSelect: String = GeneralConsts.CONFIG.DATA_FORMAT[0]
@@ -439,6 +445,12 @@ class ConfigFragment : Fragment() {
         mConfigUpdateApp = view.findViewById(R.id.config_update_app)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
+
+        mConfigAiEnable = view.findViewById(R.id.config_ai_enable)
+        mConfigAiModelStatus = view.findViewById(R.id.config_ai_model_status)
+        mConfigAiDownload = view.findViewById(R.id.config_ai_download)
+        mConfigAiDelete = view.findViewById(R.id.config_ai_delete)
+        mConfigAiMaxContextValue = view.findViewById(R.id.config_ai_max_context_value)
 
         mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
         mConfigSystemThemeGlassmorphism.setOnCheckedChangeListener { _, isChecked ->
@@ -803,6 +815,18 @@ class ConfigFragment : Fragment() {
                 .create().show()
         }
 
+        mConfigAiDownload.setOnClickListener {
+            br.com.fenix.bilingualreader.view.ui.assistant.LlmModelGate.ensureReady(
+                requireContext(),
+                lifecycleScope,
+                onReady = { refreshAiModelStatus() }
+            )
+        }
+        mConfigAiDelete.setOnClickListener {
+            br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext()).deleteModel()
+            refreshAiModelStatus()
+        }
+
         mConfigStatisticsDelete.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
                 .setTitle(getString(R.string.config_statistics_clear_title))
@@ -1058,6 +1082,15 @@ class ConfigFragment : Fragment() {
                 mMangaUsePathNameForLinked.isChecked
             )
 
+            this.putBoolean(
+                GeneralConsts.KEYS.LLM.ENABLED,
+                mConfigAiEnable.isChecked
+            )
+
+            val maxContext = mConfigAiMaxContextValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
+            this.putInt(GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS, maxContext)
+
             this.putString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
                 mBookOrderSelect.toString()
@@ -1243,6 +1276,15 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
+
+        mConfigAiEnable.isChecked = sharedPreferences.getBoolean(GeneralConsts.KEYS.LLM.ENABLED, true)
+        mConfigAiMaxContextValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
+            ).toString()
+        )
+        refreshAiModelStatus()
         mMangaReaderUseMagnifierType.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
             false
@@ -1445,6 +1487,17 @@ class ConfigFragment : Fragment() {
             View.VISIBLE
         } else
             View.GONE
+    }
+
+    private fun refreshAiModelStatus() {
+        if (!::mConfigAiModelStatus.isInitialized) return
+        val manager = br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext())
+        if (manager.isModelReady()) {
+            val sizeMb = manager.getModelSizeBytes() / (1024.0 * 1024.0)
+            mConfigAiModelStatus.text = getString(R.string.config_ai_model_ready, String.format("%.0f MB", sizeMb))
+        } else {
+            mConfigAiModelStatus.text = getString(R.string.config_ai_model_missing)
+        }
     }
 
     private fun openLibraries(type: Type) {
