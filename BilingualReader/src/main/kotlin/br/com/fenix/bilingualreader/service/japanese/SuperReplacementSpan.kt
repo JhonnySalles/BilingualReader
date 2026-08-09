@@ -23,8 +23,6 @@ import android.text.style.CharacterStyle
 import android.text.style.MetricAffectingSpan
 import android.text.style.ReplacementSpan
 import androidx.annotation.IntDef
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
 import java.util.LinkedList
 
 open class SuperReplacementSpan @JvmOverloads constructor(@field:Alignment val mAlignment: Int = Alignment.CENTER) : ReplacementSpan() {

@@ -30,6 +30,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.Choreographer
@@ -74,8 +75,8 @@ import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.HistoryType
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -89,6 +90,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
@@ -96,8 +98,6 @@ import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
-import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
-import android.os.ParcelFileDescriptor
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
