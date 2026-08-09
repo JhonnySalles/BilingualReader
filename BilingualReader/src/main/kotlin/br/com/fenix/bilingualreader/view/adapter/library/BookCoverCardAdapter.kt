@@ -64,6 +64,16 @@ class BookCoverCardAdapter(private val listener: BookCardListener) :
         LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
     }
 
+    override fun onViewDetachedFromWindow(holder: BookCoverViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: BookCoverViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
+    }
+
     override fun getItemCount(): Int = mList.size
 
     fun updateList(list: List<Book>, order: Order = Order.Series) {
