@@ -1126,6 +1126,12 @@
     <string name="llm_prepare_error">Failed to prepare the AI model.</string>
     <string name="llm_error_load">Failed to load the AI model.</string>
     <string name="llm_error_unsupported_device">On-device AI requires a physical 64-bit (arm64) device. It is not supported on emulators or 32-bit devices.</string>
+    <string name="llm_error_openrouter_key_missing">OpenRouter API key is missing. Add it in Settings or secrets.properties.</string>
+    <string name="llm_error_openrouter_network">Could not reach OpenRouter. Check your internet connection.</string>
+    <string name="llm_error_openrouter_unauthorized">OpenRouter rejected the API key.</string>
+    <string name="llm_error_openrouter_payment">OpenRouter account has insufficient credits for this request.</string>
+    <string name="llm_error_openrouter_rate_limit">OpenRouter rate limit reached. Try again later.</string>
+    <string name="llm_error_openrouter_http">OpenRouter error (HTTP %1$d).</string>
     <string name="llm_disabled">On-device AI is disabled in settings.</string>
     <string name="llm_summary_title">Chapter summary</string>
     <string name="llm_summary_generating">Generating summary…</string>
@@ -1150,9 +1156,19 @@
     <string name="ocr_translate_done">Translation ready</string>
     <string name="config_sector_ai">On-device AI</string>
     <string name="config_ai_enable">Enable on-device AI</string>
+    <string name="config_ai_provider">AI provider</string>
+    <string name="config_ai_provider_auto">Auto (on-device if available)</string>
+    <string name="config_ai_provider_on_device">On-device (MediaPipe)</string>
+    <string name="config_ai_provider_openrouter">OpenRouter (free models)</string>
+    <string name="config_ai_openrouter_key">OpenRouter API key</string>
+    <string name="config_ai_openrouter_model">OpenRouter free model</string>
+    <string name="config_ai_openrouter_model_loading">Loading free models…</string>
+    <string name="config_ai_openrouter_model_error">Could not load free models. Using Free Models Router.</string>
     <string name="config_ai_model_status">Model status</string>
     <string name="config_ai_model_ready">Model ready (%1$s)</string>
     <string name="config_ai_model_missing">Model not extracted yet</string>
+    <string name="config_ai_model_openrouter">OpenRouter ready (%1$s)</string>
+    <string name="config_ai_model_openrouter_no_key">OpenRouter selected — API key required</string>
     <string name="config_ai_delete">Clear local model copy</string>
     <string name="config_ai_max_context">Max context characters</string>
 

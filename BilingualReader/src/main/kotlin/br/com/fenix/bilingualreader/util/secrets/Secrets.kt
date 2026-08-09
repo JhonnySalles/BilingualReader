@@ -28,6 +28,7 @@ class Secrets {
 
     private var MY_ANIME_LIST_CLIENT_ID: String = ""
     private var GOOGLE_ID_TOKEN: String = ""
+    private var OPENROUTER_API_KEY: String = ""
 
     init {
         try {
@@ -38,6 +39,7 @@ class Secrets {
 
             MY_ANIME_LIST_CLIENT_ID = properties.getProperty("ANIME_LIST_CLIENT_ID") ?: ""
             GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN") ?: ""
+            OPENROUTER_API_KEY = properties.getProperty("OPENROUTER_API_KEY") ?: ""
         } catch (e: IOException) {
             mLOGGER.error("Error to read secrets: " + e.message, e)
             Telemetry.recordException(e, "Error to read secrets: " + e.message)
@@ -50,6 +52,10 @@ class Secrets {
 
     fun getGoogleIdToken(): String {
         return GOOGLE_ID_TOKEN
+    }
+
+    fun getOpenRouterApiKey(): String {
+        return OPENROUTER_API_KEY
     }
 
 }

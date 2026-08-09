@@ -25,6 +25,7 @@ import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.LlmProvider
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
@@ -45,6 +46,7 @@ import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.service.update.Releases
 import br.com.fenix.bilingualreader.service.update.UpdateApp
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
@@ -272,8 +274,18 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigAiEnable: SwitchMaterial
     private lateinit var mConfigAiModelStatus: TextView
+    private lateinit var mConfigAiProviderAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigAiOpenRouterKeyLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigAiOpenRouterKeyValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiOpenRouterModelLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigAiOpenRouterModelAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigAiDelete: MaterialButton
     private lateinit var mConfigAiMaxContextValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiProviderMap: HashMap<String, LlmProvider>
+    private var mConfigAiProviderSelect: LlmProvider = LlmProvider.AUTO
+    private var mConfigAiOpenRouterModelMap: LinkedHashMap<String, String> = linkedMapOf()
+    private var mConfigAiOpenRouterModelSelect: String =
+        GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
@@ -446,8 +458,44 @@ class ConfigFragment : Fragment() {
 
         mConfigAiEnable = view.findViewById(R.id.config_ai_enable)
         mConfigAiModelStatus = view.findViewById(R.id.config_ai_model_status)
+        mConfigAiProviderAutoComplete = view.findViewById(R.id.config_ai_provider_value)
+        mConfigAiOpenRouterKeyLayout = view.findViewById(R.id.config_ai_openrouter_key)
+        mConfigAiOpenRouterKeyValue = view.findViewById(R.id.config_ai_openrouter_key_value)
+        mConfigAiOpenRouterModelLayout = view.findViewById(R.id.config_ai_openrouter_model)
+        mConfigAiOpenRouterModelAutoComplete = view.findViewById(R.id.config_ai_openrouter_model_value)
         mConfigAiDelete = view.findViewById(R.id.config_ai_delete)
         mConfigAiMaxContextValue = view.findViewById(R.id.config_ai_max_context_value)
+
+        mConfigAiProviderMap = linkedMapOf(
+            getString(R.string.config_ai_provider_auto) to LlmProvider.AUTO,
+            getString(R.string.config_ai_provider_on_device) to LlmProvider.ON_DEVICE,
+            getString(R.string.config_ai_provider_openrouter) to LlmProvider.OPENROUTER
+        )
+        val adapterAiProvider = ArrayAdapter(
+            requireContext(),
+            R.layout.list_item,
+            mConfigAiProviderMap.keys.toTypedArray()
+        )
+        mConfigAiProviderAutoComplete.setAdapter(adapterAiProvider)
+        mConfigAiProviderAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val key = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigAiProviderSelect = if (key.isNotEmpty() && mConfigAiProviderMap.containsKey(key)) {
+                    mConfigAiProviderMap[key]!!
+                } else {
+                    LlmProvider.AUTO
+                }
+                updateOpenRouterFieldsVisibility()
+                refreshAiModelStatus()
+            }
+
+        mConfigAiOpenRouterModelAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val label = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigAiOpenRouterModelSelect =
+                    mConfigAiOpenRouterModelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                refreshAiModelStatus()
+            }
 
         mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
         mConfigSystemThemeGlassmorphism.setOnCheckedChangeListener { _, isChecked ->
@@ -1077,6 +1125,23 @@ class ConfigFragment : Fragment() {
                 mConfigAiEnable.isChecked
             )
 
+            this.putString(
+                GeneralConsts.KEYS.LLM.PROVIDER,
+                mConfigAiProviderSelect.prefValue
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.OPENROUTER_API_KEY,
+                mConfigAiOpenRouterKeyValue.text?.toString()?.trim().orEmpty()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.OPENROUTER_MODEL,
+                mConfigAiOpenRouterModelSelect.ifBlank {
+                    GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                }
+            )
+
             val maxContext = mConfigAiMaxContextValue.text?.toString()?.toIntOrNull()
                 ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
             this.putInt(GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS, maxContext)
@@ -1268,12 +1333,24 @@ class ConfigFragment : Fragment() {
         )
 
         mConfigAiEnable.isChecked = sharedPreferences.getBoolean(GeneralConsts.KEYS.LLM.ENABLED, true)
+        mConfigAiProviderSelect = LlmSettings.getProvider(requireContext())
+        mConfigAiProviderAutoComplete.setText(
+            mConfigAiProviderMap.entries.first { it.value == mConfigAiProviderSelect }.key,
+            false
+        )
+        val storedKey = sharedPreferences.getString(GeneralConsts.KEYS.LLM.OPENROUTER_API_KEY, "") ?: ""
+        mConfigAiOpenRouterKeyValue.setText(storedKey)
+        mConfigAiOpenRouterModelSelect = sharedPreferences.getString(
+            GeneralConsts.KEYS.LLM.OPENROUTER_MODEL,
+            GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
         mConfigAiMaxContextValue.setText(
             sharedPreferences.getInt(
                 GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS,
                 GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
             ).toString()
         )
+        updateOpenRouterFieldsVisibility()
         refreshAiModelStatus()
         mMangaReaderUseMagnifierType.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
@@ -1479,14 +1556,79 @@ class ConfigFragment : Fragment() {
             View.GONE
     }
 
+    private fun updateOpenRouterFieldsVisibility() {
+        if (!::mConfigAiOpenRouterModelLayout.isInitialized) return
+        val showCloud = mConfigAiProviderSelect != LlmProvider.ON_DEVICE
+        val visibility = if (showCloud) View.VISIBLE else View.GONE
+        mConfigAiOpenRouterKeyLayout.visibility = visibility
+        mConfigAiOpenRouterModelLayout.visibility = visibility
+        if (showCloud) {
+            loadOpenRouterFreeModels()
+        }
+    }
+
+    private fun loadOpenRouterFreeModels() {
+        if (!::mConfigAiOpenRouterModelAutoComplete.isInitialized) return
+        mConfigAiOpenRouterModelAutoComplete.setText(getString(R.string.config_ai_openrouter_model_loading), false)
+        lifecycleScope.launch {
+            val models = withContext(Dispatchers.IO) {
+                br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient(requireContext())
+                    .listFreeModels()
+            }
+            if (!isAdded) return@launch
+
+            mConfigAiOpenRouterModelMap = linkedMapOf()
+            models.forEach { info ->
+                mConfigAiOpenRouterModelMap[info.label()] = info.id
+            }
+            if (mConfigAiOpenRouterModelMap.isEmpty()) {
+                val fallbackId = GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                mConfigAiOpenRouterModelMap[fallbackId] = fallbackId
+            }
+
+            val labels = mConfigAiOpenRouterModelMap.keys.toTypedArray()
+            mConfigAiOpenRouterModelAutoComplete.setAdapter(
+                ArrayAdapter(requireContext(), R.layout.list_item, labels)
+            )
+
+            val selectedLabel = mConfigAiOpenRouterModelMap.entries
+                .firstOrNull { it.value == mConfigAiOpenRouterModelSelect }
+                ?.key
+                ?: mConfigAiOpenRouterModelMap.entries.first().key
+            mConfigAiOpenRouterModelSelect = mConfigAiOpenRouterModelMap[selectedLabel]
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+            mConfigAiOpenRouterModelAutoComplete.setText(selectedLabel, false)
+            refreshAiModelStatus()
+        }
+    }
+
     private fun refreshAiModelStatus() {
         if (!::mConfigAiModelStatus.isInitialized) return
-        val manager = br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext())
-        if (manager.isModelReady()) {
-            val sizeMb = manager.getModelSizeBytes() / (1024.0 * 1024.0)
-            mConfigAiModelStatus.text = getString(R.string.config_ai_model_ready, String.format("%.0f MB", sizeMb))
+        val statusProvider = if (mConfigAiProviderSelect == LlmProvider.AUTO) {
+            LlmSettings.effectiveProvider(requireContext())
         } else {
-            mConfigAiModelStatus.text = getString(R.string.config_ai_model_missing)
+            mConfigAiProviderSelect
+        }
+
+        when (statusProvider) {
+            LlmProvider.OPENROUTER -> {
+                val typedKey = mConfigAiOpenRouterKeyValue.text?.toString()?.trim().orEmpty()
+                val hasKey = typedKey.isNotBlank() || LlmSettings.resolveApiKey(requireContext()).isNotBlank()
+                mConfigAiModelStatus.text = if (hasKey) {
+                    getString(R.string.config_ai_model_openrouter, mConfigAiOpenRouterModelSelect)
+                } else {
+                    getString(R.string.config_ai_model_openrouter_no_key)
+                }
+            }
+            else -> {
+                val manager = br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext())
+                if (manager.isModelReady()) {
+                    val sizeMb = manager.getModelSizeBytes() / (1024.0 * 1024.0)
+                    mConfigAiModelStatus.text = getString(R.string.config_ai_model_ready, String.format("%.0f MB", sizeMb))
+                } else {
+                    mConfigAiModelStatus.text = getString(R.string.config_ai_model_missing)
+                }
+            }
         }
     }
 

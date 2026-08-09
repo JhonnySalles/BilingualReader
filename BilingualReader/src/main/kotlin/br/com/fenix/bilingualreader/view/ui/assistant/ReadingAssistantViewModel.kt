@@ -12,8 +12,8 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.llm.BookContextProvider
 import br.com.fenix.bilingualreader.service.llm.ContextSource
+import br.com.fenix.bilingualreader.service.llm.LlmBackendFactory
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
-import br.com.fenix.bilingualreader.service.llm.LlmModelManager
 import br.com.fenix.bilingualreader.service.llm.LlmPromptBuilder
 import br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException
 import br.com.fenix.bilingualreader.service.llm.MangaContextProvider
@@ -126,14 +126,11 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         generateJob?.cancel()
         generateJob = viewModelScope.launch {
             try {
-                val manager = LlmModelManager.getInstance(getApplication())
-                val engine = LlmInferenceEngine.getInstance(getApplication())
-                if (!manager.isModelReady()) throw IllegalStateException("Model missing")
-                engine.ensureLoaded(manager.getModelFile().absolutePath)
-
                 val maxChars = UserLanguageHelper.maxContextChars(getApplication())
-                val prompt = LlmPromptBuilder.buildQaPrompt(ctx, question, maxChars)
-                engine.generateStreamingTokens(prompt)
+                val request = LlmPromptBuilder.buildQaRequest(ctx, question, maxChars)
+                val backend = LlmBackendFactory.resolve(getApplication())
+                backend.ensureReady()
+                backend.generateStreaming(request)
                     .catch { e ->
                         replaceLastAssistant(resolveError(e))
                         _generating.value = false
@@ -164,7 +161,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 LlmInferenceEngine.isNativeLinkFailure(error) ->
                 app.getString(R.string.llm_error_unsupported_device)
             else ->
-                app.getString(R.string.llm_assistant_error) + "\n" + (error.message ?: "")
+                error.message ?: app.getString(R.string.llm_assistant_error)
         }
     }
 

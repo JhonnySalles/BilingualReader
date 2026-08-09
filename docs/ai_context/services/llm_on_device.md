@@ -1,28 +1,41 @@
-# LLM On-Device Services
+# LLM On-Device / Cloud Services
 
 ## Componentes
 
 | Classe | Papel |
 |--------|--------|
-| `LlmModelManager` | Extrai o `.task` empacotado (`assets/llm/`) para `filesDir/llm/` na primeira carga |
+| `LlmBackend` / `LlmBackendFactory` | Escolhe backend efetivo (Auto / On-device / OpenRouter) |
+| `OnDeviceLlmBackend` | Extrai `.task` e roda MediaPipe GenAI |
+| `OpenRouterLlmBackend` + `OpenRouterClient` | Chat completions SSE; lista modelos free via `GET /api/v1/models` |
+| `LlmModelManager` | Extrai o `.task` empacotado (`assets/llm/`) para `filesDir/llm/` |
 | `LlmInferenceEngine` | Wrapper MediaPipe `tasks-genai` (GPU com fallback CPU) |
-| `LlmPromptBuilder` | Prompts de resumo e Q&A (template Gemma IT) + truncamento |
+| `LlmPromptBuilder` | Prompts system+user; Gemma IT wrap só no on-device |
 | `ChapterSummaryService` | Últimos 3 capítulos + cache SharedPreferences |
 | `BookTextExtractor` | HTML → texto; seleção de ranges de capítulo |
 | `MlKitTranslator` | Language ID + Translate on-device |
 | `OcrFacade` | ML Kit Text Recognition Latin/Japanese com bounding boxes |
 
-## Requisitos de dispositivo
+## Provider
+
+Pref `KEYS.LLM.PROVIDER`: `auto` | `on_device` | `openrouter` (default `auto`).
+
+- **AUTO:** MediaPipe se ABI `arm64-v8a`; senão OpenRouter.
+- **ON_DEVICE:** exige device físico arm64 + modelo em assets.
+- **OPENROUTER:** exige API key (Config ou `secrets.properties` → `OPENROUTER_API_KEY`).
+
+Modelo cloud: pref `OPENROUTER_MODEL` (default `openrouter/free`). Na Config (provider Auto/OpenRouter), o dropdown lista modelos free (`pricing.prompt`/`completion` = 0) + o router `openrouter/free`.
+
+## Requisitos on-device
 
 - MediaPipe GenAI embute `libllm_inference_engine_jni.so` para **`arm64-v8a`**.
-- **Requer aparelho físico 64-bit.** Emuladores e ABIs 32-bit (`armeabi-v7a`) / x86 não são suportados; o app mostra `llm_error_unsupported_device` em vez de crashar.
-- `LlmInferenceEngine.isNativeBackendAvailable()` checa ABI **antes** de carregar a classe `LlmInference` (cujo `<clinit>` chama `System.loadLibrary`).
+- Emuladores / 32-bit: use OpenRouter (Auto ou explícito).
 
 ## Preferências (`GeneralConsts.KEYS.LLM`)
 
-- `ENABLED`, `MODEL_PATH`, `MODEL_VERSION`, `MODEL_EXTRACTED`, `MAX_CONTEXT_CHARS`, cache de resumo
+- `ENABLED`, `PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`
+- `MODEL_PATH`, `MODEL_VERSION`, `MODEL_EXTRACTED`, `MAX_CONTEXT_CHARS`, cache de resumo
 - Asset: `ASSET_MODEL_PATH` (`llm/gemma3-1b-it-int4.task`)
 
 ## Config
 
-Seção **On-device AI** em `fragment_config_system.xml` / `ConfigFragment`.
+Seção **On-device AI** em `fragment_config_system.xml` / `ConfigFragment`: enable, provider, API key, modelo free OpenRouter, status, limpar cópia local, max context.

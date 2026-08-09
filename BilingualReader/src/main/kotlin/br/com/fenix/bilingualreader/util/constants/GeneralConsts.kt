@@ -268,10 +268,15 @@ class GeneralConsts private constructor() {
             const val MODEL_EXTRACTED = "LLM_MODEL_EXTRACTED"
             const val MAX_CONTEXT_CHARS = "LLM_MAX_CONTEXT_CHARS"
             const val SUMMARY_CACHE_PREFIX = "LLM_SUMMARY_CACHE_"
+            const val PROVIDER = "LLM_PROVIDER"
+            const val OPENROUTER_API_KEY = "LLM_OPENROUTER_API_KEY"
+            const val OPENROUTER_MODEL = "LLM_OPENROUTER_MODEL"
             const val DEFAULT_MAX_CONTEXT_CHARS = 12000
             const val DEFAULT_MODEL_VERSION = "gemma3-1b-it-int4"
             const val DEFAULT_MODEL_FILENAME = "gemma3-1b-it-int4.task"
             const val ASSET_MODEL_PATH = "llm/gemma3-1b-it-int4.task"
+            const val DEFAULT_PROVIDER = "auto"
+            const val DEFAULT_OPENROUTER_MODEL = "openrouter/free"
         }
 
         object ASSISTANT {

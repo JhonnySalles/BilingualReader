@@ -4,6 +4,7 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +20,8 @@ class ChapterSummaryService(private val context: Context) {
                 GeneralConsts.KEYS.LLM.MODEL_VERSION,
                 GeneralConsts.KEYS.LLM.DEFAULT_MODEL_VERSION
             )
-        return "${GeneralConsts.KEYS.LLM.SUMMARY_CACHE_PREFIX}${bookId}_${chapterEnd}_$version"
+        val provider = LlmSettings.effectiveProvider(context).prefValue
+        return "${GeneralConsts.KEYS.LLM.SUMMARY_CACHE_PREFIX}${bookId}_${chapterEnd}_${version}_$provider"
     }
 
     fun getCachedSummary(bookId: Long, chapterEnd: Int): String? {
@@ -61,16 +63,12 @@ class ChapterSummaryService(private val context: Context) {
         }
 
         val maxChars = UserLanguageHelper.maxContextChars(context)
-        val prompt = LlmPromptBuilder.buildSummaryPrompt(title, chaptersText, userLanguage, maxChars)
-        val manager = LlmModelManager.getInstance(context)
-        val engine = LlmInferenceEngine.getInstance(context)
-        if (!manager.isModelReady()) {
-            throw IllegalStateException("Model missing")
-        }
-        engine.ensureLoaded(manager.getModelFile().absolutePath)
+        val request = LlmPromptBuilder.buildSummaryRequest(title, chaptersText, userLanguage, maxChars)
+        val backend = LlmBackendFactory.resolve(context)
+        backend.ensureReady()
 
         var last = ""
-        engine.generateStreamingTokens(prompt).collect { (text, done) ->
+        backend.generateStreaming(request).collect { (text, done) ->
             last = text
             emit(text to done)
             if (done && bookId != null && text.isNotBlank()) {

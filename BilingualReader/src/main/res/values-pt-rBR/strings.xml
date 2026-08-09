@@ -1126,6 +1126,12 @@
     <string name="llm_prepare_error">Falha ao preparar o modelo de IA.</string>
     <string name="llm_error_load">Falha ao carregar o modelo de IA.</string>
     <string name="llm_error_unsupported_device">A IA no dispositivo exige um aparelho físico 64-bit (arm64). Não é suportada em emuladores ou dispositivos 32-bit.</string>
+    <string name="llm_error_openrouter_key_missing">Chave da API OpenRouter ausente. Adicione em Configurações ou em secrets.properties.</string>
+    <string name="llm_error_openrouter_network">Não foi possível conectar ao OpenRouter. Verifique a internet.</string>
+    <string name="llm_error_openrouter_unauthorized">O OpenRouter rejeitou a chave da API.</string>
+    <string name="llm_error_openrouter_payment">Conta OpenRouter sem créditos suficientes para esta solicitação.</string>
+    <string name="llm_error_openrouter_rate_limit">Limite de uso do OpenRouter atingido. Tente novamente mais tarde.</string>
+    <string name="llm_error_openrouter_http">Erro OpenRouter (HTTP %1$d).</string>
     <string name="llm_disabled">A IA no dispositivo está desativada nas configurações.</string>
     <string name="llm_summary_title">Resumo dos capítulos</string>
     <string name="llm_summary_generating">Gerando resumo…</string>
@@ -1150,9 +1156,19 @@
     <string name="ocr_translate_done">Tradução pronta</string>
     <string name="config_sector_ai">IA no dispositivo</string>
     <string name="config_ai_enable">Ativar IA no dispositivo</string>
+    <string name="config_ai_provider">Provedor de IA</string>
+    <string name="config_ai_provider_auto">Automático (on-device se disponível)</string>
+    <string name="config_ai_provider_on_device">No dispositivo (MediaPipe)</string>
+    <string name="config_ai_provider_openrouter">OpenRouter (modelos free)</string>
+    <string name="config_ai_openrouter_key">Chave da API OpenRouter</string>
+    <string name="config_ai_openrouter_model">Modelo free OpenRouter</string>
+    <string name="config_ai_openrouter_model_loading">Carregando modelos free…</string>
+    <string name="config_ai_openrouter_model_error">Não foi possível carregar modelos free. Usando Free Models Router.</string>
     <string name="config_ai_model_status">Status do modelo</string>
     <string name="config_ai_model_ready">Modelo pronto (%1$s)</string>
     <string name="config_ai_model_missing">Modelo ainda não extraído</string>
+    <string name="config_ai_model_openrouter">OpenRouter pronto (%1$s)</string>
+    <string name="config_ai_model_openrouter_no_key">OpenRouter selecionado — chave da API necessária</string>
     <string name="config_ai_delete">Limpar cópia local do modelo</string>
     <string name="config_ai_max_context">Máx. caracteres de contexto</string>
 

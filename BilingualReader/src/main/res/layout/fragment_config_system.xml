@@ -285,6 +285,56 @@
             android:layout_margin="@dimen/margin_small"
             android:text="@string/config_ai_enable" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_provider"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_provider"
+            app:startIconDrawable="@drawable/ico_ai_provider">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_ai_provider_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_openrouter_key"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_openrouter_key"
+            app:startIconDrawable="@drawable/ico_openrouter_key">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_openrouter_key_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_openrouter_model"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_openrouter_model"
+            android:visibility="gone"
+            app:startIconDrawable="@drawable/ico_openrouter_model">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_ai_openrouter_model_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:id="@+id/config_ai_model_status"
             style="@style/TextTitle.SubTitle"

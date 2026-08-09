@@ -6,10 +6,14 @@ import android.view.LayoutInflater
 import android.widget.ProgressBar
 import android.widget.TextView
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.LlmProvider
+import br.com.fenix.bilingualreader.service.llm.LlmBackendFactory
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
 import br.com.fenix.bilingualreader.service.llm.LlmModelManager
 import br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException
 import br.com.fenix.bilingualreader.service.llm.ModelPrepareState
+import br.com.fenix.bilingualreader.service.llm.OnDeviceLlmBackend
+import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,21 +30,40 @@ object LlmModelGate {
         onReady: () -> Unit,
         onCancel: (() -> Unit)? = null
     ) {
-        if (!LlmInferenceEngine.isNativeBackendAvailable()) {
-            showError(context, context.getString(R.string.llm_error_unsupported_device))
+        LlmBackendFactory.requireReadyOrMessage(context)?.let { message ->
+            showError(context, message)
             onCancel?.invoke()
             return
         }
 
+        val provider = LlmSettings.effectiveProvider(context)
+        if (provider == LlmProvider.OPENROUTER) {
+            scope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        LlmBackendFactory.resolve(context).ensureReady()
+                    }
+                    onReady()
+                } catch (e: Throwable) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    showError(context, resolveErrorMessage(context, e))
+                    onCancel?.invoke()
+                }
+            }
+            return
+        }
+
+        // On-device path (explicit or AUTO resolved to on-device)
         val manager = LlmModelManager.getInstance(context)
         if (manager.isModelReady()) {
             scope.launch {
                 try {
                     withContext(Dispatchers.IO) {
-                        LlmInferenceEngine.getInstance(context).ensureLoaded(manager.getModelFile().absolutePath)
+                        OnDeviceLlmBackend(context).ensureReady()
                     }
                     onReady()
                 } catch (e: Throwable) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     showError(context, resolveErrorMessage(context, e))
                     onCancel?.invoke()
                 }
@@ -86,9 +109,8 @@ object LlmModelGate {
             }
 
             try {
-                val file = withContext(Dispatchers.IO) { manager.ensureModel() }
                 withContext(Dispatchers.IO) {
-                    LlmInferenceEngine.getInstance(context).ensureLoaded(file.absolutePath)
+                    OnDeviceLlmBackend(context).ensureReady()
                 }
                 dialog.dismiss()
                 onReady()
