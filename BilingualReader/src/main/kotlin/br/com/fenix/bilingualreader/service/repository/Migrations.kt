@@ -81,6 +81,25 @@ class Migrations {
             override fun migrate(db: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 3 - 4...")
 
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS " + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME + " (" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + " INTEGER NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE + " TEXT NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.ROLE + " TEXT NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.MESSAGE + " TEXT NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.DATE + " TEXT NOT NULL)"
+                )
+
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME + "_" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + "_" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE +
+                            " ON " + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME + "(" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + ", " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE + ")"
+                )
+
                 mLOGGER.info("Completed migration 3 - 4.")
             }
         }

@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.assistant
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -22,6 +24,7 @@ import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
 import br.com.fenix.bilingualreader.view.adapter.assistant.AssistantMessageAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -96,12 +99,39 @@ class ReadingAssistantActivity : AppCompatActivity() {
         ensureModelThen { viewModel.refreshContext() }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_reading_assistant, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_assistant_clear_history -> {
+                confirmClearHistory()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun confirmClearHistory() {
+        MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
+            .setTitle(R.string.llm_assistant_clear_history_title)
+            .setMessage(R.string.llm_assistant_clear_history_message)
+            .setPositiveButton(R.string.action_positive) { _, _ ->
+                viewModel.clearHistory()
+            }
+            .setNegativeButton(R.string.action_negative, null)
+            .show()
+    }
+
     private fun bindSession() {
         val holder = AssistantSessionHolder
         viewModel.configure(
             type = holder.type,
             title = holder.title,
             page = holder.page,
+            referenceId = holder.bookId ?: holder.mangaId,
             bookParse = holder.bookParse,
             mangaParse = holder.mangaParse,
             ocrLanguage = holder.ocrLanguage,

@@ -337,6 +337,19 @@ class DataBaseConsts private constructor() {
         }
     }
 
+    object ASSISTANT_HISTORY {
+        const val TABLE_NAME = "AssistantHistory"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_REFERENCE = "id_reference"
+            const val TYPE = "type"
+            const val ROLE = "role"
+            const val MESSAGE = "message"
+            const val DATE = "date"
+        }
+    }
+
     object STATISTICS {
         object COLUMNS {
             const val READING = "reading"

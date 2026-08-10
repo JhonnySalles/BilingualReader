@@ -17,9 +17,16 @@ Tela de perguntas over on-device LLM (MediaPipe Gemma 3 1B) para livro e mangá.
 
 1. Leitor prepara sessão via `ReadingAssistantActivity.prepareBook/prepareManga`.
 2. Activity abre, garante download/load do modelo, monta contexto.
-3. Chat com streaming; origem do contexto exibida (legendas / OCR / capítulos).
+3. Carrega histórico local (`AssistantHistory` por `id_reference` + `type`) e exibe no chat.
+4. Chat com streaming; ao finalizar cada turno USER/ASSISTANT, grava no Room (exceto preload do dialog e mensagens SYSTEM).
+5. Menu da toolbar permite limpar o histórico da obra atual.
 
 ## Entrada
 
 - Menu livro: Resumir capítulos / Perguntar à IA
 - Menu mangá: Perguntar à IA
+
+## Persistência
+
+- Tabela Room `AssistantHistory` (v4): `id_reference`, `type` (BOOK/MANGA), `role` (USER/ASSISTANT), `message`, `date`.
+- `ChapterSummaryDialog` não grava neste histórico; `preloadSummary` só aparece na UI.

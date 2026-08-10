@@ -15,6 +15,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.AssistantHistory
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
@@ -42,10 +43,11 @@ import java.io.BufferedReader
 import java.io.File
 
 @Database(
-    version = 3, exportSchema = true,
+    version = 4, exportSchema = true,
     entities = [Manga::class, MangaAnnotation::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
-        Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class, History::class]
+        Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class, History::class,
+        AssistantHistory::class]
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
@@ -65,6 +67,7 @@ abstract class DataBase : RoomDatabase() {
     abstract fun getLibrariesDao(): LibrariesDAO
     abstract fun getTagsDao(): TagsDAO
     abstract fun getHistoryDao(): HistoryDAO
+    abstract fun getAssistantHistoryDao(): AssistantHistoryDAO
     abstract fun getStatisticsDao(): StatisticsDAO
 
     // Singleton - One database initialize only

@@ -1228,6 +1228,9 @@
     <string name="llm_assistant_privacy">Answers stay on your device. No cloud required.</string>
     <string name="llm_assistant_thinking">Thinking…</string>
     <string name="llm_assistant_error">Could not generate a response.</string>
+    <string name="llm_assistant_clear_history">Clear history</string>
+    <string name="llm_assistant_clear_history_title">Clear chat history</string>
+    <string name="llm_assistant_clear_history_message">Delete all saved conversations for this title?</string>
     <string name="menu_reader_assistant">Ask AI</string>
     <string name="menu_reader_summary">Summarize chapters</string>
     <string name="menu_popup_ocr_translate">OCR + Translate (ML Kit)</string>

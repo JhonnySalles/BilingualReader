@@ -1149,6 +1149,9 @@
     <string name="llm_assistant_privacy">As respostas ficam no dispositivo. Sem nuvem.</string>
     <string name="llm_assistant_thinking">Pensando…</string>
     <string name="llm_assistant_error">Não foi possível gerar uma resposta.</string>
+    <string name="llm_assistant_clear_history">Limpar histórico</string>
+    <string name="llm_assistant_clear_history_title">Limpar histórico do chat</string>
+    <string name="llm_assistant_clear_history_message">Excluir todas as conversas salvas deste título?</string>
     <string name="menu_reader_assistant">Perguntar à IA</string>
     <string name="menu_reader_summary">Resumir capítulos</string>
     <string name="menu_popup_ocr_translate">OCR + Traduzir (ML Kit)</string>

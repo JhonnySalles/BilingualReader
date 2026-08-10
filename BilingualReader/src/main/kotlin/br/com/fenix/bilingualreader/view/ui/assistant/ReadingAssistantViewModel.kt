@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.AssistantHistory
 import br.com.fenix.bilingualreader.model.enums.AssistantMessage
 import br.com.fenix.bilingualreader.model.enums.AssistantMessageRole
 import br.com.fenix.bilingualreader.model.enums.Languages
@@ -20,12 +21,17 @@ import br.com.fenix.bilingualreader.service.llm.MangaContextProvider
 import br.com.fenix.bilingualreader.service.llm.ReadingContext
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.service.repository.AssistantHistoryRepository
 import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ReadingAssistantViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val historyRepository = AssistantHistoryRepository(application)
 
     private val _messages = MutableLiveData<List<AssistantMessage>>(emptyList())
     val messages: LiveData<List<AssistantMessage>> = _messages
@@ -43,6 +49,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     private var generateJob: Job? = null
 
     private var type: Type = Type.BOOK
+    private var referenceId: Long? = null
     private var title: String = ""
     private var page: Int = 0
     private var bookParse: DocumentParse? = null
@@ -54,6 +61,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         type: Type,
         title: String,
         page: Int,
+        referenceId: Long? = null,
         bookParse: DocumentParse? = null,
         mangaParse: Parse? = null,
         ocrLanguage: Languages? = null,
@@ -63,12 +71,20 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         this.type = type
         this.title = title
         this.page = page
+        this.referenceId = referenceId
         this.bookParse = bookParse
         this.mangaParse = mangaParse
         this.ocrLanguage = ocrLanguage
         this.bookLanguage = bookLanguage
 
         val initial = mutableListOf<AssistantMessage>()
+        if (referenceId != null) {
+            historyRepository.find(type, referenceId).forEach { row ->
+                if (row.role == AssistantMessageRole.USER || row.role == AssistantMessageRole.ASSISTANT) {
+                    initial.add(AssistantMessage(row.role, row.message))
+                }
+            }
+        }
         if (!preloadSummary.isNullOrBlank()) {
             initial.add(AssistantMessage(AssistantMessageRole.ASSISTANT, preloadSummary))
         }
@@ -120,6 +136,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         }
 
         append(AssistantMessage(AssistantMessageRole.USER, question))
+        persistMessage(AssistantMessageRole.USER, question)
         append(AssistantMessage(AssistantMessageRole.ASSISTANT, getApplication<Application>().getString(R.string.llm_assistant_thinking)))
         _generating.value = true
 
@@ -132,18 +149,28 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 backend.ensureReady()
                 backend.generateStreaming(request)
                     .catch { e ->
-                        replaceLastAssistant(resolveError(e))
+                        val errorText = resolveError(e)
+                        replaceLastAssistant(errorText)
+                        persistMessage(AssistantMessageRole.ASSISTANT, errorText)
                         _generating.value = false
                     }
                     .collect { (text, done) ->
-                        replaceLastAssistant(text.ifBlank {
+                        val display = text.ifBlank {
                             getApplication<Application>().getString(R.string.llm_assistant_thinking)
-                        })
-                        if (done) _generating.value = false
+                        }
+                        replaceLastAssistant(display)
+                        if (done) {
+                            if (text.isNotBlank()) {
+                                persistMessage(AssistantMessageRole.ASSISTANT, text)
+                            }
+                            _generating.value = false
+                        }
                     }
             } catch (e: Throwable) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                replaceLastAssistant(resolveError(e))
+                val errorText = resolveError(e)
+                replaceLastAssistant(errorText)
+                persistMessage(AssistantMessageRole.ASSISTANT, errorText)
                 _generating.value = false
             }
         }
@@ -152,6 +179,24 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     fun cancel() {
         generateJob?.cancel()
         _generating.value = false
+    }
+
+    fun clearHistory() {
+        val id = referenceId ?: return
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                historyRepository.clear(type, id)
+            }
+            _messages.value = emptyList()
+        }
+    }
+
+    private fun persistMessage(role: AssistantMessageRole, message: String) {
+        val id = referenceId ?: return
+        if (message.isBlank()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            historyRepository.save(AssistantHistory(id, type, role, message))
+        }
     }
 
     private fun resolveError(error: Throwable): String {

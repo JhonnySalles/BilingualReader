@@ -9,6 +9,7 @@ import androidx.room.Update
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.SupportSQLiteQuery
+import br.com.fenix.bilingualreader.model.entity.AssistantHistory
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
@@ -668,6 +669,31 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
 
     @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
     abstract fun find(type: Type, idLibrary: Long, idReference: Long) : List<History>
+
+}
+
+
+@Dao
+abstract class AssistantHistoryDAO : BaseDAO<AssistantHistory, Long>(
+    DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME,
+    DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.ID
+) {
+
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME +
+                " WHERE " + DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE + " = :type" +
+                " AND " + DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference" +
+                " ORDER BY " + DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.DATE + " ASC, " +
+                DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.ID + " ASC"
+    )
+    abstract fun find(type: Type, idReference: Long): List<AssistantHistory>
+
+    @Query(
+        "DELETE FROM " + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME +
+                " WHERE " + DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE + " = :type" +
+                " AND " + DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference"
+    )
+    abstract fun deleteAll(type: Type, idReference: Long)
 
 }
 
