@@ -278,16 +278,14 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         options
                     )
                 }
-                if (restored != null) {
-                    _selectedIndices.value = restored
-                } else {
+                _selectedIndices.value = restored ?: run {
                     val defaults = BookTextExtractor.selectLastChapters(
                         bookRanges,
                         page + 1,
                         LlmSettings.defaultBookChapters()
                     )
                     val defaultTitles = defaults.map { it.title }.toSet()
-                    _selectedIndices.value = bookRanges.withIndex()
+                    bookRanges.withIndex()
                         .filter { it.value.title in defaultTitles }
                         .map { it.index }
                         .toSet()
@@ -305,13 +303,11 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         pageCount
                     )
                 }
-                if (restored != null) {
-                    _selectedIndices.value = restored
-                } else {
+                _selectedIndices.value = restored ?: run {
                     val radius = LlmSettings.defaultMangaRadius()
                     val from = (page - radius).coerceAtLeast(0)
                     val to = (page + radius).coerceAtMost((pageCount - 1).coerceAtLeast(0))
-                    _selectedIndices.value = if (pageCount <= 0) emptySet() else (from..to).toSet()
+                    if (pageCount <= 0) emptySet() else (from..to).toSet()
                 }
             }
         }
