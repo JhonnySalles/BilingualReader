@@ -1223,10 +1223,34 @@
     <string name="llm_assistant_cancel">Cancel</string>
     <string name="llm_assistant_context_subtitles">Context: subtitles</string>
     <string name="llm_assistant_context_ocr">Context: OCR</string>
-    <string name="llm_assistant_context_book">Context: recent chapters</string>
+    <string name="llm_assistant_context_book">Context: book chapters</string>
     <string name="llm_assistant_context_empty">Context: none available</string>
+    <string name="llm_assistant_context_with_selection">%1$s — %2$s</string>
     <string name="llm_assistant_refresh_context">Refresh context</string>
+    <string name="llm_assistant_select_chapters">Chapters</string>
+    <string name="llm_assistant_select_pages">Pages</string>
+    <string name="llm_assistant_page_label">Page %1$d</string>
+    <string name="llm_assistant_pages_range">Pages %1$d–%2$d</string>
+    <string name="llm_assistant_pages_selected">%1$d pages</string>
+    <string name="llm_assistant_chapters_selected">%1$d chapters</string>
+    <string name="llm_assistant_chapters_summary_named">%1$d chapters · %2$s</string>
+    <string name="llm_assistant_pages_summary_count">%1$d pages · %2$s</string>
+    <string name="llm_assistant_page_range">Page range</string>
+    <string name="llm_assistant_page_range_from">From page</string>
+    <string name="llm_assistant_page_range_to">To page</string>
+    <string name="llm_assistant_page_range_invalid">Enter a valid page range</string>
+    <string name="llm_assistant_selection_none">None selected</string>
+    <string name="llm_assistant_selection_limit">Select at most %1$d items</string>
+    <string name="llm_assistant_view_context">View context</string>
+    <string name="llm_assistant_context_preview_body">%1$d characters\n\n%2$s</string>
+    <string name="llm_assistant_empty_title">Ask about what you are reading</string>
+    <string name="llm_assistant_empty_hint">Select chapters or pages above, then ask a question or tap a suggestion.</string>
+    <string name="llm_assistant_chip_summarize">Summarize what happened</string>
+    <string name="llm_assistant_chip_characters">Who are the main characters?</string>
+    <string name="llm_assistant_chip_explain">Explain a difficult term or concept</string>
+    <string name="llm_assistant_chip_unresolved">What is still unresolved?</string>
     <string name="llm_assistant_privacy">Answers stay on your device. No cloud required.</string>
+    <string name="llm_assistant_privacy_openrouter">Answers are sent to OpenRouter (cloud). Do not share sensitive personal data.</string>
     <string name="llm_assistant_thinking">Thinking…</string>
     <string name="llm_assistant_error">Could not generate a response.</string>
     <string name="llm_assistant_clear_history">Clear history</string>
@@ -1234,6 +1258,9 @@
     <string name="llm_assistant_clear_history_message">Delete all saved conversations for this title?</string>
     <string name="menu_reader_assistant">Ask AI</string>
     <string name="menu_reader_summary">Summarize chapters</string>
+    <string name="menu_reader_summary_pages">Summarize pages</string>
+    <string name="llm_summary_generate">Generate</string>
+    <string name="llm_summary_select_hint">Choose what to summarize, then tap Generate.</string>
     <string name="menu_popup_ocr_translate">OCR + Translate (ML Kit)</string>
     <string name="ocr_translate_processing">Recognizing and translating…</string>
     <string name="ocr_translate_done">Translation ready</string>
@@ -1245,6 +1272,8 @@
     <string name="config_ai_provider_openrouter">OpenRouter (free models)</string>
     <string name="config_ai_openrouter_key">OpenRouter API key</string>
     <string name="config_ai_openrouter_model">OpenRouter free model</string>
+    <string name="config_ai_openrouter_model_qa">OpenRouter model (Q&amp;A)</string>
+    <string name="config_ai_openrouter_model_summary">OpenRouter model (summary)</string>
     <string name="config_ai_openrouter_model_loading">Loading free models…</string>
     <string name="config_ai_openrouter_model_error">Could not load free models. Using Free Models Router.</string>
     <string name="config_ai_model_status">Model status</string>
@@ -1254,5 +1283,9 @@
     <string name="config_ai_model_openrouter_no_key">OpenRouter selected — API key required</string>
     <string name="config_ai_delete">Clear local model copy</string>
     <string name="config_ai_max_context">Max context characters</string>
+    <string name="config_ai_max_book_chapters">Max book chapters for AI</string>
+    <string name="config_ai_max_manga_pages">Max manga pages for AI</string>
+    <string name="config_ai_temperature">Creativity (0–100)</string>
+    <string name="config_ai_temperature_hint">80 ≈ 0.80 temperature. Higher = more creative.</string>
 
 </resources>

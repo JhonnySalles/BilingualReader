@@ -34,13 +34,15 @@ class OpenRouterClient(private val context: Context) {
     fun streamChat(
         apiKey: String,
         model: String,
-        messages: List<OpenRouterMessage>
+        messages: List<OpenRouterMessage>,
+        temperature: Float? = null
     ): Flow<Pair<String, Boolean>> = callbackFlow {
         val bodyJson = gson.toJson(
             OpenRouterChatRequest(
                 model = model,
                 messages = messages,
-                stream = true
+                stream = true,
+                temperature = temperature
             )
         )
         val request = Request.Builder()

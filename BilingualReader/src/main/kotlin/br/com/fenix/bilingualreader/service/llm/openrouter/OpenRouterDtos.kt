@@ -9,7 +9,8 @@ data class OpenRouterChatRequest(
     val model: String,
     val messages: List<OpenRouterMessage>,
     val stream: Boolean = true,
-    val max_tokens: Int = 1024
+    val max_tokens: Int = 1024,
+    val temperature: Float? = null
 )
 
 data class OpenRouterDelta(

@@ -1,15 +1,18 @@
 package br.com.fenix.bilingualreader.view.adapter.assistant
 
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.AssistantMessage
 import br.com.fenix.bilingualreader.model.enums.AssistantMessageRole
+import com.google.android.material.color.MaterialColors
 
 class AssistantMessageAdapter : RecyclerView.Adapter<AssistantMessageAdapter.Holder>() {
 
@@ -23,7 +26,7 @@ class AssistantMessageAdapter : RecyclerView.Adapter<AssistantMessageAdapter.Hol
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_assistant_message, parent, false)
+            .inflate(R.layout.list_item_assistant_message, parent, false)
         return Holder(view)
     }
 
@@ -39,12 +42,44 @@ class AssistantMessageAdapter : RecyclerView.Adapter<AssistantMessageAdapter.Hol
         fun bind(message: AssistantMessage) {
             textView.text = message.text
             val params = textView.layoutParams as FrameLayout.LayoutParams
-            params.gravity = when (message.role) {
-                AssistantMessageRole.USER -> Gravity.END
-                else -> Gravity.START
+            val context = itemView.context
+
+            when (message.role) {
+                AssistantMessageRole.USER -> {
+                    params.gravity = Gravity.END
+                    textView.setBackgroundResource(R.drawable.bg_assistant_bubble_user)
+                    textView.setTextColor(
+                        MaterialColors.getColor(textView, com.google.android.material.R.attr.colorOnPrimaryContainer)
+                    )
+                    textView.alpha = 1f
+                }
+                AssistantMessageRole.ASSISTANT -> {
+                    params.gravity = Gravity.START
+                    textView.setBackgroundResource(R.drawable.bg_assistant_bubble_assistant)
+                    textView.setTextColor(
+                        MaterialColors.getColor(textView, com.google.android.material.R.attr.colorOnSurface)
+                    )
+                    textView.alpha = 1f
+                }
+                AssistantMessageRole.SYSTEM -> {
+                    params.gravity = Gravity.CENTER_HORIZONTAL
+                    textView.setBackgroundResource(R.drawable.bg_assistant_bubble_system)
+                    val typed = TypedValue()
+                    val resolved = context.theme.resolveAttribute(
+                        com.google.android.material.R.attr.colorOnSurfaceVariant,
+                        typed,
+                        true
+                    )
+                    if (resolved) {
+                        textView.setTextColor(
+                            if (typed.resourceId != 0) ContextCompat.getColor(context, typed.resourceId)
+                            else typed.data
+                        )
+                    }
+                    textView.alpha = 0.85f
+                }
             }
             textView.layoutParams = params
-            textView.alpha = if (message.role == AssistantMessageRole.SYSTEM) 0.75f else 1f
         }
     }
 }

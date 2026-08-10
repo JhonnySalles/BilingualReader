@@ -10,8 +10,10 @@
 | `LlmModelManager` | Extrai o `.task` empacotado (`assets/llm/`) para `filesDir/llm/` |
 | `LlmInferenceEngine` | Wrapper MediaPipe `tasks-genai` (`LlmInference` + `LlmInferenceSession`; GPU com fallback CPU) |
 | `LlmPromptBuilder` | Prompts system+user; Gemma IT wrap só no on-device |
-| `ChapterSummaryService` | Últimos 3 capítulos + cache SharedPreferences |
+| `ChapterSummaryService` | Capítulos/páginas selecionados + cache SharedPreferences (inclui model OpenRouter) |
 | `BookTextExtractor` | HTML → texto; seleção de ranges de capítulo |
+| `BookContextProvider` / `MangaContextProvider` | Contexto do assistente; OCR com `OcrPageCache` |
+| `LlmSettings` | Provider, modelos QA/resumo, limites, temperatura, seleção persistida |
 | `MlKitTranslator` | Language ID + Translate on-device |
 | `OcrFacade` | ML Kit Text Recognition Latin/Japanese com bounding boxes |
 
@@ -36,10 +38,11 @@ Modelo cloud: pref `OPENROUTER_MODEL` (default `openrouter/free`). Na Config (pr
 
 ## Preferências (`GeneralConsts.KEYS.LLM`)
 
-- `ENABLED`, `PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`
-- `MODEL_PATH`, `MODEL_VERSION`, `MODEL_EXTRACTED`, `MAX_CONTEXT_CHARS`, cache de resumo
+- `ENABLED`, `PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` (Q&A), `OPENROUTER_MODEL_SUMMARY`
+- `MAX_CONTEXT_CHARS`, `MAX_BOOK_CHAPTERS`, `MAX_MANGA_PAGES`, `TEMPERATURE` (0–100)
+- `SELECTION_PREFIX`, `SUMMARY_CACHE_PREFIX`, `MODEL_PATH` / `MODEL_VERSION` / `MODEL_EXTRACTED`
 - Asset: `ASSET_MODEL_PATH` (`llm/gemma3-1b-it-int4.task`)
 
 ## Config
 
-Seção **On-device AI** em `fragment_config_system.xml` / `ConfigFragment`: enable, provider, API key, modelo free OpenRouter, status, limpar cópia local, max context.
+Seção **On-device AI** em `fragment_config_system.xml` / `ConfigFragment`: enable, provider, API key, modelos free OpenRouter (Q&A + resumo), status, limpar cópia local, max context / capítulos / páginas, temperatura.

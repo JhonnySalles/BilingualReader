@@ -508,6 +508,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
                 miPaginationMode = menu.findItem(R.id.menu_item_reader_book_pagination_type)
 
+                miReaderTTS.setShowAsAction(
+                    if (resources.configuration.screenWidthDp >= 400)
+                        MenuItem.SHOW_AS_ACTION_ALWAYS
+                    else
+                        MenuItem.SHOW_AS_ACTION_NEVER
+                )
+
                 val isLoaded = mParse != null
                 miChapter.isVisible = isLoaded
                 miAnnotation.isVisible = isLoaded
@@ -1475,7 +1482,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val parse = mParse ?: return
         if (mTextToSpeech != null) mTextToSpeech?.stop()
         val page0 = (getCurrentPage() - 1).coerceAtLeast(0)
-        br.com.fenix.bilingualreader.view.ui.assistant.ChapterSummaryDialog.show(
+        br.com.fenix.bilingualreader.view.ui.assistant.PopupChapterSummary.show(
             requireContext(),
             lifecycleScope,
             book,

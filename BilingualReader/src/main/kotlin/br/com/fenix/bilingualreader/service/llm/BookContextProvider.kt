@@ -14,13 +14,20 @@ class BookContextProvider(
     private val sourceLanguage: Languages? = null
 ) {
     fun build(includeCurrentPage: Boolean = true): ReadingContext {
-        val userLanguage = UserLanguageHelper.getUserLanguage(context)
         val ranges = BookTextExtractor.buildChapterRanges(parse)
-        val currentPage1 = currentPage0Based + 1
-        val lastThree = BookTextExtractor.selectLastChapters(ranges, currentPage1, 3)
-        val chunks = mutableListOf<ContextChunk>()
+        val lastThree = BookTextExtractor.selectLastChapters(ranges, currentPage0Based + 1, 3)
+        return build(lastThree, includeCurrentPage)
+    }
 
-        for (chapter in lastThree) {
+    fun build(
+        selectedRanges: List<BookTextExtractor.ChapterRange>,
+        includeCurrentPage: Boolean = true
+    ): ReadingContext {
+        val userLanguage = UserLanguageHelper.getUserLanguage(context)
+        val chunks = mutableListOf<ContextChunk>()
+        val currentPage1 = currentPage0Based + 1
+
+        for (chapter in selectedRanges) {
             val text = BookTextExtractor.extractChaptersText(parse, listOf(chapter))
             if (text.isNotBlank()) {
                 chunks.add(ContextChunk(chapter.title, text, chapter.startPage))
@@ -54,4 +61,7 @@ class BookContextProvider(
         val ranges = BookTextExtractor.buildChapterRanges(parse)
         return BookTextExtractor.selectLastChapters(ranges, currentPage0Based + 1, 3).map { it.title }
     }
+
+    fun allChapterRanges(): List<BookTextExtractor.ChapterRange> =
+        BookTextExtractor.buildChapterRanges(parse)
 }

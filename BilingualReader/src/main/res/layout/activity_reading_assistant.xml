@@ -12,29 +12,51 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="?attr/homeAsUpIndicator"
         app:title="@string/llm_assistant_title" />
 
-    <TextView
-        android:id="@+id/assistant_context_label"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/assistant_context_selector_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:hint="@string/llm_assistant_select_chapters"
         app:layout_constraintEnd_toStartOf="@+id/assistant_refresh_context"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/assistant_toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/assistant_toolbar">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/assistant_context_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="none"
+            android:maxLines="2" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/assistant_refresh_context"
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:text="@string/llm_assistant_refresh_context"
-        app:layout_constraintBottom_toBottomOf="@id/assistant_context_label"
+        app:layout_constraintBottom_toBottomOf="@id/assistant_context_selector_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/assistant_context_label" />
+        app:layout_constraintTop_toTopOf="@id/assistant_context_selector_layout" />
+
+    <TextView
+        android:id="@+id/assistant_context_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/assistant_context_selector_layout" />
 
     <TextView
         android:id="@+id/assistant_privacy"
@@ -54,10 +76,56 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="12dp"
-        app:layout_constraintBottom_toTopOf="@id/assistant_input_row"
+        app:layout_constraintBottom_toTopOf="@id/assistant_empty_state"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/assistant_privacy" />
+
+    <LinearLayout
+        android:id="@+id/assistant_empty_state"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="bottom|center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/assistant_input_row"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/assistant_empty_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/llm_assistant_empty_title"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <TextView
+            android:id="@+id/assistant_empty_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/llm_assistant_empty_hint"
+            android:textAppearance="?attr/textAppearanceBodySmall" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/assistant_suggestion_chips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                app:singleSelection="false" />
+        </HorizontalScrollView>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/assistant_input_row"

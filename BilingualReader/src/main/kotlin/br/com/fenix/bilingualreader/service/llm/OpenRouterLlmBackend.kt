@@ -2,12 +2,16 @@ package br.com.fenix.bilingualreader.service.llm
 
 import android.content.Context
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.LlmUse
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterMessage
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import kotlinx.coroutines.flow.Flow
 
-class OpenRouterLlmBackend(private val context: Context) : LlmBackend {
+class OpenRouterLlmBackend(
+    private val context: Context,
+    private val use: LlmUse = LlmUse.QA
+) : LlmBackend {
 
     override val isCloud: Boolean = true
 
@@ -24,11 +28,12 @@ class OpenRouterLlmBackend(private val context: Context) : LlmBackend {
         if (apiKey.isBlank()) {
             throw IllegalStateException(context.getString(R.string.llm_error_openrouter_key_missing))
         }
-        val model = LlmSettings.openRouterModel(context)
+        val model = LlmSettings.openRouterModelFor(context, use)
+        val temperature = LlmSettings.temperature(context)
         val messages = listOf(
             OpenRouterMessage(role = "system", content = request.system),
             OpenRouterMessage(role = "user", content = request.user)
         )
-        return client.streamChat(apiKey, model, messages)
+        return client.streamChat(apiKey, model, messages, temperature)
     }
 }

@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_assistant_view_context"
+        android:orderInCategory="90"
+        android:title="@string/llm_assistant_view_context"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_assistant_clear_history"
         android:icon="@drawable/ico_animated_delete_history"
         android:orderInCategory="100"

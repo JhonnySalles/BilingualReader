@@ -279,12 +279,19 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigAiOpenRouterKeyValue: com.google.android.material.textfield.TextInputEditText
     private lateinit var mConfigAiOpenRouterModelLayout: com.google.android.material.textfield.TextInputLayout
     private lateinit var mConfigAiOpenRouterModelAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigAiOpenRouterModelSummaryLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigAiOpenRouterModelSummaryAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigAiDelete: MaterialButton
     private lateinit var mConfigAiMaxContextValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiMaxBookChaptersValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiMaxMangaPagesValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiTemperatureValue: com.google.android.material.textfield.TextInputEditText
     private lateinit var mConfigAiProviderMap: HashMap<String, LlmProvider>
     private var mConfigAiProviderSelect: LlmProvider = LlmProvider.AUTO
     private var mConfigAiOpenRouterModelMap: LinkedHashMap<String, String> = linkedMapOf()
     private var mConfigAiOpenRouterModelSelect: String =
+        GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+    private var mConfigAiOpenRouterModelSummarySelect: String =
         GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
@@ -463,8 +470,13 @@ class ConfigFragment : Fragment() {
         mConfigAiOpenRouterKeyValue = view.findViewById(R.id.config_ai_openrouter_key_value)
         mConfigAiOpenRouterModelLayout = view.findViewById(R.id.config_ai_openrouter_model)
         mConfigAiOpenRouterModelAutoComplete = view.findViewById(R.id.config_ai_openrouter_model_value)
+        mConfigAiOpenRouterModelSummaryLayout = view.findViewById(R.id.config_ai_openrouter_model_summary)
+        mConfigAiOpenRouterModelSummaryAutoComplete = view.findViewById(R.id.config_ai_openrouter_model_summary_value)
         mConfigAiDelete = view.findViewById(R.id.config_ai_delete)
         mConfigAiMaxContextValue = view.findViewById(R.id.config_ai_max_context_value)
+        mConfigAiMaxBookChaptersValue = view.findViewById(R.id.config_ai_max_book_chapters_value)
+        mConfigAiMaxMangaPagesValue = view.findViewById(R.id.config_ai_max_manga_pages_value)
+        mConfigAiTemperatureValue = view.findViewById(R.id.config_ai_temperature_value)
 
         mConfigAiProviderMap = linkedMapOf(
             getString(R.string.config_ai_provider_auto) to LlmProvider.AUTO,
@@ -495,6 +507,13 @@ class ConfigFragment : Fragment() {
                 mConfigAiOpenRouterModelSelect =
                     mConfigAiOpenRouterModelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
                 refreshAiModelStatus()
+            }
+
+        mConfigAiOpenRouterModelSummaryAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val label = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigAiOpenRouterModelSummarySelect =
+                    mConfigAiOpenRouterModelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
             }
 
         mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
@@ -1142,9 +1161,28 @@ class ConfigFragment : Fragment() {
                 }
             )
 
+            this.putString(
+                GeneralConsts.KEYS.LLM.OPENROUTER_MODEL_SUMMARY,
+                mConfigAiOpenRouterModelSummarySelect.ifBlank {
+                    GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                }
+            )
+
             val maxContext = mConfigAiMaxContextValue.text?.toString()?.toIntOrNull()
                 ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
             this.putInt(GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS, maxContext)
+
+            val maxChapters = mConfigAiMaxBookChaptersValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_BOOK_CHAPTERS
+            this.putInt(GeneralConsts.KEYS.LLM.MAX_BOOK_CHAPTERS, maxChapters.coerceIn(1, 20))
+
+            val maxPages = mConfigAiMaxMangaPagesValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_MANGA_PAGES
+            this.putInt(GeneralConsts.KEYS.LLM.MAX_MANGA_PAGES, maxPages.coerceIn(1, 50))
+
+            val temperature = mConfigAiTemperatureValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_TEMPERATURE
+            this.putInt(GeneralConsts.KEYS.LLM.TEMPERATURE, temperature.coerceIn(0, 100))
 
             this.putString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
@@ -1344,10 +1382,32 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.LLM.OPENROUTER_MODEL,
             GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
         ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        mConfigAiOpenRouterModelSummarySelect = sharedPreferences.getString(
+            GeneralConsts.KEYS.LLM.OPENROUTER_MODEL_SUMMARY,
+            GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
         mConfigAiMaxContextValue.setText(
             sharedPreferences.getInt(
                 GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS,
                 GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
+            ).toString()
+        )
+        mConfigAiMaxBookChaptersValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.MAX_BOOK_CHAPTERS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_BOOK_CHAPTERS
+            ).toString()
+        )
+        mConfigAiMaxMangaPagesValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.MAX_MANGA_PAGES,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_MANGA_PAGES
+            ).toString()
+        )
+        mConfigAiTemperatureValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.TEMPERATURE,
+                GeneralConsts.KEYS.LLM.DEFAULT_TEMPERATURE
             ).toString()
         )
         updateOpenRouterFieldsVisibility()
@@ -1562,6 +1622,7 @@ class ConfigFragment : Fragment() {
         val visibility = if (showCloud) View.VISIBLE else View.GONE
         mConfigAiOpenRouterKeyLayout.visibility = visibility
         mConfigAiOpenRouterModelLayout.visibility = visibility
+        mConfigAiOpenRouterModelSummaryLayout.visibility = visibility
         if (showCloud) {
             loadOpenRouterFreeModels()
         }
@@ -1570,6 +1631,7 @@ class ConfigFragment : Fragment() {
     private fun loadOpenRouterFreeModels() {
         if (!::mConfigAiOpenRouterModelAutoComplete.isInitialized) return
         mConfigAiOpenRouterModelAutoComplete.setText(getString(R.string.config_ai_openrouter_model_loading), false)
+        mConfigAiOpenRouterModelSummaryAutoComplete.setText(getString(R.string.config_ai_openrouter_model_loading), false)
         lifecycleScope.launch {
             val models = withContext(Dispatchers.IO) {
                 br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient(requireContext())
@@ -1587,7 +1649,9 @@ class ConfigFragment : Fragment() {
             }
 
             val labels = mConfigAiOpenRouterModelMap.keys.toTypedArray()
-            mConfigAiOpenRouterModelAutoComplete.setAdapter(
+            val adapter = ArrayAdapter(requireContext(), R.layout.list_item, labels)
+            mConfigAiOpenRouterModelAutoComplete.setAdapter(adapter)
+            mConfigAiOpenRouterModelSummaryAutoComplete.setAdapter(
                 ArrayAdapter(requireContext(), R.layout.list_item, labels)
             )
 
@@ -1598,6 +1662,14 @@ class ConfigFragment : Fragment() {
             mConfigAiOpenRouterModelSelect = mConfigAiOpenRouterModelMap[selectedLabel]
                 ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
             mConfigAiOpenRouterModelAutoComplete.setText(selectedLabel, false)
+
+            val summaryLabel = mConfigAiOpenRouterModelMap.entries
+                .firstOrNull { it.value == mConfigAiOpenRouterModelSummarySelect }
+                ?.key
+                ?: mConfigAiOpenRouterModelMap.entries.first().key
+            mConfigAiOpenRouterModelSummarySelect = mConfigAiOpenRouterModelMap[summaryLabel]
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+            mConfigAiOpenRouterModelSummaryAutoComplete.setText(summaryLabel, false)
             refreshAiModelStatus()
         }
     }

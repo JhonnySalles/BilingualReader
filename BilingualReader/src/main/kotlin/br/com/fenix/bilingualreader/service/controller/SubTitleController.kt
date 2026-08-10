@@ -1051,17 +1051,31 @@ class SubTitleController private constructor(private val context: Context) {
             pages.indexOfFirst { mListPages[it]?.number == MangaReaderFragment.mCurrentPage }
                 .coerceAtLeast(0)
 
-        val result = mutableListOf<Pair<String, String>>()
         val from = (currentIndex - radius).coerceAtLeast(0)
         val to = (currentIndex + radius).coerceAtMost(pages.lastIndex)
-        for (i in from..to) {
-            val key = pages[i]
-            val page = mListPages[key] ?: continue
+        val selected = (from..to).mapNotNull { i ->
+            mListPages[pages[i]]?.number
+        }
+        return collectSubtitleTextsForPages(selected)
+    }
+
+    /**
+     * Collects subtitle text for the given page numbers (same numbering as [SubTitlePage.number] /
+     * [MangaReaderFragment.mCurrentPage], typically 0-based).
+     */
+    fun collectSubtitleTextsForPages(pageNumbers: Collection<Int>): List<Pair<String, String>> {
+        if (pageNumbers.isEmpty()) return emptyList()
+        val wanted = pageNumbers.toSet()
+        val result = mutableListOf<Pair<String, String>>()
+        for (page in mListPages.values) {
+            if (page.number !in wanted) continue
             val text = page.subTitleTexts.joinToString("\n") { it.text }.trim()
             if (text.isNotEmpty())
-                result.add("Page ${page.number}" to text)
+                result.add("Page ${page.number + 1}" to text)
         }
-        return result
+        return result.sortedBy { pair ->
+            pair.first.removePrefix("Page ").toIntOrNull() ?: Int.MAX_VALUE
+        }
     }
 
     fun hasSubtitleTexts(): Boolean =

@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.service.llm
 import android.content.Context
 import android.os.Build
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine.Companion.isNativeBackendAvailable
+import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -60,7 +61,7 @@ class LlmInferenceEngine(private val context: Context) {
 
     suspend fun generate(prompt: String): String = mutex.withLock {
         val engine = loaded ?: throw IllegalStateException("LLM not loaded")
-        withContext(Dispatchers.IO) { MediapipeLlmBridge.generate(engine, prompt) }
+        withContext(Dispatchers.IO) { MediapipeLlmBridge.generate(context, engine, prompt) }
     }
 
     fun generateStreamingTokens(prompt: String): Flow<Pair<String, Boolean>> = callbackFlow {
@@ -83,7 +84,7 @@ class LlmInferenceEngine(private val context: Context) {
         }
 
         try {
-            MediapipeLlmBridge.generateAsync(engine, prompt) { partial, done ->
+            MediapipeLlmBridge.generateAsync(context, engine, prompt) { partial, done ->
                 streamListener.get()?.invoke(partial, done)
             }
         } catch (e: Throwable) {
@@ -172,7 +173,6 @@ private object MediapipeLlmBridge {
 
     private const val MAX_TOKENS = 1024
     private const val TOP_K = 40
-    private const val TEMPERATURE = 0.8f
 
     class LoadedEngine(
         val inference: com.google.mediapipe.tasks.genai.llminference.LlmInference,
@@ -217,16 +217,17 @@ private object MediapipeLlmBridge {
             .build()
         val inference =
             com.google.mediapipe.tasks.genai.llminference.LlmInference.createFromOptions(context, options)
-        val session = createSession(inference)
+        val session = createSession(inference, LlmSettings.temperature(context))
         return LoadedEngine(inference, session)
     }
 
     private fun createSession(
-        inference: com.google.mediapipe.tasks.genai.llminference.LlmInference
+        inference: com.google.mediapipe.tasks.genai.llminference.LlmInference,
+        temperature: Float
     ): com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession {
         val sessionOptions =
             com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession.LlmInferenceSessionOptions.builder()
-                .setTemperature(TEMPERATURE)
+                .setTemperature(temperature)
                 .setTopK(TOP_K)
                 .build()
         return com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession.createFromOptions(
@@ -235,31 +236,32 @@ private object MediapipeLlmBridge {
         )
     }
 
-    fun generate(engine: LoadedEngine, prompt: String): String {
-        recreateSession(engine)
+    fun generate(context: Context, engine: LoadedEngine, prompt: String): String {
+        recreateSession(context, engine)
         engine.session.addQueryChunk(prompt)
         return engine.session.generateResponse()
     }
 
     fun generateAsync(
+        context: Context,
         engine: LoadedEngine,
         prompt: String,
         listener: (String, Boolean) -> Unit
     ) {
-        recreateSession(engine)
+        recreateSession(context, engine)
         engine.session.addQueryChunk(prompt)
         engine.session.generateResponseAsync { partialResult, done ->
             listener(partialResult, done)
         }
     }
 
-    private fun recreateSession(engine: LoadedEngine) {
+    private fun recreateSession(context: Context, engine: LoadedEngine) {
         try {
             engine.session.close()
         } catch (e: Exception) {
             mLOGGER.warn("Error closing LLM session before recreate: ${e.message}")
         }
-        engine.session = createSession(engine.inference)
+        engine.session = createSession(engine.inference, LlmSettings.temperature(context))
     }
 
     fun close(engine: LoadedEngine) {

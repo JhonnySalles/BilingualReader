@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.enums.LlmProvider
+import br.com.fenix.bilingualreader.model.enums.LlmUse
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.secrets.Secrets
@@ -41,11 +43,84 @@ object LlmSettings {
         }
     }
 
-    fun openRouterModel(context: Context): String {
+    fun openRouterModel(context: Context): String = openRouterModelQa(context)
+
+    fun openRouterModelQa(context: Context): String {
         return GeneralConsts.getSharedPreferences(context)
             .getString(
                 GeneralConsts.KEYS.LLM.OPENROUTER_MODEL,
                 GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
             ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+    }
+
+    fun openRouterModelSummary(context: Context): String {
+        return GeneralConsts.getSharedPreferences(context)
+            .getString(
+                GeneralConsts.KEYS.LLM.OPENROUTER_MODEL_SUMMARY,
+                GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+            ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+    }
+
+    fun openRouterModelFor(context: Context, use: LlmUse): String {
+        return when (use) {
+            LlmUse.QA -> openRouterModelQa(context)
+            LlmUse.SUMMARY -> openRouterModelSummary(context)
+        }
+    }
+
+    fun maxBookChapters(context: Context): Int {
+        return GeneralConsts.getSharedPreferences(context)
+            .getInt(
+                GeneralConsts.KEYS.LLM.MAX_BOOK_CHAPTERS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_BOOK_CHAPTERS
+            )
+            .coerceIn(1, 20)
+    }
+
+    fun maxMangaPages(context: Context): Int {
+        return GeneralConsts.getSharedPreferences(context)
+            .getInt(
+                GeneralConsts.KEYS.LLM.MAX_MANGA_PAGES,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_MANGA_PAGES
+            )
+            .coerceIn(1, 50)
+    }
+
+    fun defaultBookChapters(): Int = GeneralConsts.KEYS.LLM.DEFAULT_BOOK_CHAPTERS
+
+    fun defaultMangaRadius(): Int = GeneralConsts.KEYS.LLM.DEFAULT_MANGA_RADIUS
+
+    /** Temperature in 0f..1f from stored int 0..100. */
+    fun temperature(context: Context): Float {
+        val stored = GeneralConsts.getSharedPreferences(context)
+            .getInt(
+                GeneralConsts.KEYS.LLM.TEMPERATURE,
+                GeneralConsts.KEYS.LLM.DEFAULT_TEMPERATURE
+            )
+            .coerceIn(0, 100)
+        return stored / 100f
+    }
+
+    fun temperaturePercent(context: Context): Int {
+        return GeneralConsts.getSharedPreferences(context)
+            .getInt(
+                GeneralConsts.KEYS.LLM.TEMPERATURE,
+                GeneralConsts.KEYS.LLM.DEFAULT_TEMPERATURE
+            )
+            .coerceIn(0, 100)
+    }
+
+    fun selectionPrefsKey(type: Type, referenceId: Long): String =
+        "${GeneralConsts.KEYS.LLM.SELECTION_PREFIX}${type.name}_$referenceId"
+
+    fun loadSelection(context: Context, type: Type, referenceId: Long): String? {
+        return GeneralConsts.getSharedPreferences(context)
+            .getString(selectionPrefsKey(type, referenceId), null)
+    }
+
+    fun saveSelection(context: Context, type: Type, referenceId: Long, value: String) {
+        GeneralConsts.getSharedPreferences(context).edit()
+            .putString(selectionPrefsKey(type, referenceId), value)
+            .apply()
     }
 }

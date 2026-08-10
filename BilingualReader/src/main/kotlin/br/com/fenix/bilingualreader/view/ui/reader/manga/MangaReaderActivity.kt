@@ -56,6 +56,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -101,6 +102,7 @@ import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity
+import br.com.fenix.bilingualreader.view.ui.assistant.PopupReadingSummary
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
@@ -1091,6 +1093,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
 
             R.id.menu_item_reader_manga_chapters_menu -> openChapters()
+            R.id.menu_item_reader_manga_summary -> openReadingSummary()
             R.id.menu_item_reader_manga_assistant -> openReadingAssistant()
         }
         return super.onOptionsItemSelected(item)
@@ -1667,6 +1670,19 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private fun openGoogleVisionOcr(translate: Boolean = false) {
         val image = getImage() ?: return
         GoogleVision.getInstance(this).process(image, mViewModel.mLanguageOcr, translate) { setText(it) }
+    }
+
+    private fun openReadingSummary() {
+        val manga = mManga ?: return
+        val parse = mFragment?.mParse
+        PopupReadingSummary.showManga(
+            this,
+            lifecycleScope,
+            manga,
+            parse,
+            MangaReaderFragment.mCurrentPage,
+            mViewModel.mLanguageOcr
+        )
     }
 
     private fun openReadingAssistant() {

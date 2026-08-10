@@ -324,12 +324,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/config_ai_openrouter_model"
+            android:hint="@string/config_ai_openrouter_model_qa"
             android:visibility="gone"
             app:startIconDrawable="@drawable/ico_openrouter_model">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_ai_openrouter_model_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_openrouter_model_summary"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_openrouter_model_summary"
+            android:visibility="gone"
+            app:startIconDrawable="@drawable/ico_openrouter_model">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_ai_openrouter_model_summary_value"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -373,6 +390,70 @@
                 android:inputType="number"
                 android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_max_book_chapters"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_max_book_chapters"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_max_book_chapters_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_max_manga_pages"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_max_manga_pages"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_max_manga_pages_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_temperature"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_temperature"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_temperature_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/config_ai_temperature_hint"
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_ai_temperature_hint" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"

@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.service.llm
 import android.content.Context
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
@@ -14,24 +15,28 @@ import kotlinx.coroutines.withContext
 
 class ChapterSummaryService(private val context: Context) {
 
-    fun cacheKey(bookId: Long, chapterEnd: Int): String {
+    fun cacheKey(referenceId: Long, chapterEnd: Int, selectionKey: String): String {
         val version = GeneralConsts.getSharedPreferences(context)
             .getString(
                 GeneralConsts.KEYS.LLM.MODEL_VERSION,
                 GeneralConsts.KEYS.LLM.DEFAULT_MODEL_VERSION
             )
         val provider = LlmSettings.effectiveProvider(context).prefValue
-        return "${GeneralConsts.KEYS.LLM.SUMMARY_CACHE_PREFIX}${bookId}_${chapterEnd}_${version}_$provider"
+        val model = LlmSettings.openRouterModelSummary(context)
+            .replace(Regex("[^A-Za-z0-9_\\-.]"), "_")
+            .take(40)
+        val safeSelection = selectionKey.replace(Regex("[^A-Za-z0-9_\\-]"), "_").take(80)
+        return "${GeneralConsts.KEYS.LLM.SUMMARY_CACHE_PREFIX}${referenceId}_${chapterEnd}_${safeSelection}_${version}_${provider}_$model"
     }
 
-    fun getCachedSummary(bookId: Long, chapterEnd: Int): String? {
+    fun getCachedSummary(referenceId: Long, chapterEnd: Int, selectionKey: String): String? {
         return GeneralConsts.getSharedPreferences(context)
-            .getString(cacheKey(bookId, chapterEnd), null)
+            .getString(cacheKey(referenceId, chapterEnd, selectionKey), null)
     }
 
-    fun saveCachedSummary(bookId: Long, chapterEnd: Int, summary: String) {
+    fun saveCachedSummary(referenceId: Long, chapterEnd: Int, selectionKey: String, summary: String) {
         GeneralConsts.getSharedPreferences(context).edit()
-            .putString(cacheKey(bookId, chapterEnd), summary)
+            .putString(cacheKey(referenceId, chapterEnd, selectionKey), summary)
             .apply()
     }
 
@@ -43,20 +48,42 @@ class ChapterSummaryService(private val context: Context) {
         provider.buildLastThreeChaptersText() to provider.selectedChapterTitles()
     }
 
+    suspend fun prepareChaptersText(
+        parse: DocumentParse,
+        ranges: List<BookTextExtractor.ChapterRange>
+    ): Pair<String, List<String>> = withContext(Dispatchers.IO) {
+        val text = BookTextExtractor.extractChaptersText(parse, ranges)
+        text to ranges.map { it.title }
+    }
+
+    suspend fun prepareMangaPagesText(
+        parse: Parse?,
+        title: String,
+        currentPage0Based: Int,
+        pages: List<Int>,
+        ocrLanguage: Languages?,
+        referenceId: Long? = null
+    ): String = withContext(Dispatchers.IO) {
+        MangaContextProvider(context, parse, title, currentPage0Based, ocrLanguage, referenceId)
+            .build(pages)
+            .joinedText()
+    }
+
     fun summarizeStreaming(
         title: String,
         chaptersText: String,
         userLanguage: Languages,
-        bookId: Long?,
-        chapterEnd: Int
+        referenceId: Long?,
+        chapterEnd: Int,
+        selectionKey: String
     ): Flow<Pair<String, Boolean>> = flow {
         if (chaptersText.isBlank()) {
             emit("" to true)
             return@flow
         }
 
-        bookId?.let { id ->
-            getCachedSummary(id, chapterEnd)?.let { cached ->
+        referenceId?.let { id ->
+            getCachedSummary(id, chapterEnd, selectionKey)?.let { cached ->
                 emit(cached to true)
                 return@flow
             }
@@ -64,17 +91,33 @@ class ChapterSummaryService(private val context: Context) {
 
         val maxChars = UserLanguageHelper.maxContextChars(context)
         val request = LlmPromptBuilder.buildSummaryRequest(title, chaptersText, userLanguage, maxChars)
-        val backend = LlmBackendFactory.resolve(context)
+        val backend = LlmBackendFactory.resolve(context, br.com.fenix.bilingualreader.model.enums.LlmUse.SUMMARY)
         backend.ensureReady()
 
         var last = ""
         backend.generateStreaming(request).collect { (text, done) ->
             last = text
             emit(text to done)
-            if (done && bookId != null && text.isNotBlank()) {
-                saveCachedSummary(bookId, chapterEnd, text)
+            if (done && referenceId != null && text.isNotBlank()) {
+                saveCachedSummary(referenceId, chapterEnd, selectionKey, text)
             }
         }
         if (last.isEmpty()) emit("" to true)
     }.flowOn(Dispatchers.IO)
+
+    companion object {
+        fun selectionKeyFromTitles(titles: List<String>): String =
+            titles.joinToString("|").ifBlank { "none" }
+
+        fun selectionKeyFromPages(pages: List<Int>): String {
+            val sorted = pages.distinct().sorted()
+            if (sorted.isEmpty()) return "none"
+            val contiguous = sorted.zipWithNext().all { (a, b) -> b == a + 1 }
+            return if (contiguous && sorted.size > 1) {
+                "${sorted.first()}-${sorted.last()}"
+            } else {
+                sorted.joinToString("_")
+            }
+        }
+    }
 }

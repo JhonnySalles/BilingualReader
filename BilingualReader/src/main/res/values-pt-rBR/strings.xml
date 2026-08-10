@@ -1144,10 +1144,34 @@
     <string name="llm_assistant_cancel">Cancelar</string>
     <string name="llm_assistant_context_subtitles">Contexto: legendas</string>
     <string name="llm_assistant_context_ocr">Contexto: OCR</string>
-    <string name="llm_assistant_context_book">Contexto: capítulos recentes</string>
+    <string name="llm_assistant_context_book">Contexto: capítulos do livro</string>
     <string name="llm_assistant_context_empty">Contexto: indisponível</string>
+    <string name="llm_assistant_context_with_selection">%1$s — %2$s</string>
     <string name="llm_assistant_refresh_context">Atualizar contexto</string>
+    <string name="llm_assistant_select_chapters">Capítulos</string>
+    <string name="llm_assistant_select_pages">Páginas</string>
+    <string name="llm_assistant_page_label">Página %1$d</string>
+    <string name="llm_assistant_pages_range">Págs. %1$d–%2$d</string>
+    <string name="llm_assistant_pages_selected">%1$d páginas</string>
+    <string name="llm_assistant_chapters_selected">%1$d capítulos</string>
+    <string name="llm_assistant_chapters_summary_named">%1$d capítulos · %2$s</string>
+    <string name="llm_assistant_pages_summary_count">%1$d páginas · %2$s</string>
+    <string name="llm_assistant_page_range">Intervalo de páginas</string>
+    <string name="llm_assistant_page_range_from">Da página</string>
+    <string name="llm_assistant_page_range_to">Até a página</string>
+    <string name="llm_assistant_page_range_invalid">Informe um intervalo válido</string>
+    <string name="llm_assistant_selection_none">Nenhum selecionado</string>
+    <string name="llm_assistant_selection_limit">Selecione no máximo %1$d itens</string>
+    <string name="llm_assistant_view_context">Ver contexto</string>
+    <string name="llm_assistant_context_preview_body">%1$d caracteres\n\n%2$s</string>
+    <string name="llm_assistant_empty_title">Pergunte sobre a leitura</string>
+    <string name="llm_assistant_empty_hint">Selecione capítulos ou páginas acima e faça uma pergunta ou toque em uma sugestão.</string>
+    <string name="llm_assistant_chip_summarize">Resuma o que aconteceu</string>
+    <string name="llm_assistant_chip_characters">Quem são os personagens principais?</string>
+    <string name="llm_assistant_chip_explain">Explique um termo ou conceito difícil</string>
+    <string name="llm_assistant_chip_unresolved">O que ficou em aberto?</string>
     <string name="llm_assistant_privacy">As respostas ficam no dispositivo. Sem nuvem.</string>
+    <string name="llm_assistant_privacy_openrouter">As respostas são enviadas ao OpenRouter (nuvem). Não compartilhe dados pessoais sensíveis.</string>
     <string name="llm_assistant_thinking">Pensando…</string>
     <string name="llm_assistant_error">Não foi possível gerar uma resposta.</string>
     <string name="llm_assistant_clear_history">Limpar histórico</string>
@@ -1155,6 +1179,9 @@
     <string name="llm_assistant_clear_history_message">Excluir todas as conversas salvas deste título?</string>
     <string name="menu_reader_assistant">Perguntar à IA</string>
     <string name="menu_reader_summary">Resumir capítulos</string>
+    <string name="menu_reader_summary_pages">Resumir páginas</string>
+    <string name="llm_summary_generate">Gerar</string>
+    <string name="llm_summary_select_hint">Escolha o que resumir e toque em Gerar.</string>
     <string name="menu_popup_ocr_translate">OCR + Traduzir (ML Kit)</string>
     <string name="ocr_translate_processing">Reconhecendo e traduzindo…</string>
     <string name="ocr_translate_done">Tradução pronta</string>
@@ -1166,6 +1193,8 @@
     <string name="config_ai_provider_openrouter">OpenRouter (modelos free)</string>
     <string name="config_ai_openrouter_key">Chave da API OpenRouter</string>
     <string name="config_ai_openrouter_model">Modelo free OpenRouter</string>
+    <string name="config_ai_openrouter_model_qa">Modelo OpenRouter (perguntas)</string>
+    <string name="config_ai_openrouter_model_summary">Modelo OpenRouter (resumo)</string>
     <string name="config_ai_openrouter_model_loading">Carregando modelos free…</string>
     <string name="config_ai_openrouter_model_error">Não foi possível carregar modelos free. Usando Free Models Router.</string>
     <string name="config_ai_model_status">Status do modelo</string>
@@ -1175,5 +1204,9 @@
     <string name="config_ai_model_openrouter_no_key">OpenRouter selecionado — chave da API necessária</string>
     <string name="config_ai_delete">Limpar cópia local do modelo</string>
     <string name="config_ai_max_context">Máx. caracteres de contexto</string>
+    <string name="config_ai_max_book_chapters">Máx. capítulos de livro para IA</string>
+    <string name="config_ai_max_manga_pages">Máx. páginas de mangá para IA</string>
+    <string name="config_ai_temperature">Criatividade (0–100)</string>
+    <string name="config_ai_temperature_hint">80 ≈ temperatura 0,80. Maior = mais criativo.</string>
 
 </resources>
