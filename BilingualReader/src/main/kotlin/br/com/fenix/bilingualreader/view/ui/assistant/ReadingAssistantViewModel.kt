@@ -24,6 +24,7 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.AssistantHistoryRepository
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -182,6 +183,10 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 _contextSource.value = readingContext?.source ?: ContextSource.EMPTY
                 updateContextSummary()
                 updateContextPreview()
+            } catch (e: Throwable) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    Telemetry.recordException(e, "ReadingAssistantViewModel refreshContext failed")
+                }
             } finally {
                 _loading.value = false
             }
@@ -195,18 +200,39 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         return ctx != null && ctx.chunks.isNotEmpty()
     }
 
-    fun ask(question: String) {
+    fun startQuestionProcess(question: String) {
         if (question.isBlank() || _generating.value == true) return
+        append(AssistantMessage(AssistantMessageRole.USER, question))
+        persistMessage(AssistantMessageRole.USER, question)
+        append(AssistantMessage(AssistantMessageRole.ASSISTANT, getApplication<Application>().getString(R.string.llm_assistant_loading_model)))
+        _generating.value = true
+    }
+
+    fun cancelQuestionProcess() {
+        _generating.value = false
+        removeThinkingPlaceholder()
+    }
+
+    fun ask(question: String, preAsked: Boolean = false) {
+        if (question.isBlank()) return
         val ctx = readingContext
         if (ctx == null || ctx.chunks.isEmpty()) {
-            append(AssistantMessage(AssistantMessageRole.SYSTEM, getApplication<Application>().getString(R.string.llm_assistant_context_empty)))
+            val emptyMsg = getApplication<Application>().getString(R.string.llm_assistant_context_empty)
+            if (preAsked) {
+                replaceLastAssistant(emptyMsg)
+            } else {
+                append(AssistantMessage(AssistantMessageRole.SYSTEM, emptyMsg))
+            }
+            _generating.value = false
             return
         }
 
-        append(AssistantMessage(AssistantMessageRole.USER, question))
-        persistMessage(AssistantMessageRole.USER, question)
-        append(AssistantMessage(AssistantMessageRole.ASSISTANT, getApplication<Application>().getString(R.string.llm_assistant_thinking)))
-        _generating.value = true
+        if (!preAsked) {
+            append(AssistantMessage(AssistantMessageRole.USER, question))
+            persistMessage(AssistantMessageRole.USER, question)
+            append(AssistantMessage(AssistantMessageRole.ASSISTANT, getApplication<Application>().getString(R.string.llm_assistant_loading_model)))
+            _generating.value = true
+        }
 
         generateJob?.cancel()
         generateJob = viewModelScope.launch {
@@ -215,8 +241,12 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 val request = LlmPromptBuilder.buildQaRequest(ctx, question, maxChars)
                 val backend = LlmBackendFactory.resolve(getApplication(), br.com.fenix.bilingualreader.model.enums.LlmUse.QA)
                 backend.ensureReady()
+
+                replaceLastAssistant(getApplication<Application>().getString(R.string.llm_assistant_thinking))
+
                 backend.generateStreaming(request)
                     .catch { e ->
+                        Telemetry.recordException(e, "LlmBackend generateStreaming error")
                         val errorText = resolveError(e)
                         replaceLastAssistant(errorText)
                         persistMessage(AssistantMessageRole.ASSISTANT, errorText)
@@ -236,6 +266,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                     }
             } catch (e: Throwable) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
+                Telemetry.recordException(e, "ReadingAssistantViewModel ask error")
                 val errorText = resolveError(e)
                 replaceLastAssistant(errorText)
                 persistMessage(AssistantMessageRole.ASSISTANT, errorText)
@@ -365,9 +396,10 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
 
     private fun removeThinkingPlaceholder() {
         val thinking = getApplication<Application>().getString(R.string.llm_assistant_thinking)
+        val loadingModel = getApplication<Application>().getString(R.string.llm_assistant_loading_model)
         val list = (_messages.value ?: emptyList()).toMutableList()
         val index = list.indexOfLast { it.role == AssistantMessageRole.ASSISTANT }
-        if (index >= 0 && list[index].text == thinking) {
+        if (index >= 0 && (list[index].text == thinking || list[index].text == loadingModel)) {
             list.removeAt(index)
             _messages.value = list
         }

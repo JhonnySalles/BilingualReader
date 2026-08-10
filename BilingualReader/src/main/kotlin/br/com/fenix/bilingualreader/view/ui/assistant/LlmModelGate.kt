@@ -14,6 +14,7 @@ import br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException
 import br.com.fenix.bilingualreader.service.llm.ModelPrepareState
 import br.com.fenix.bilingualreader.service.llm.OnDeviceLlmBackend
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,7 @@ object LlmModelGate {
                     onReady()
                 } catch (e: Throwable) {
                     if (e is kotlinx.coroutines.CancellationException) throw e
+                    Telemetry.recordException(e, "LlmModelGate OpenRouter ensureReady failed")
                     showError(context, resolveErrorMessage(context, e))
                     onCancel?.invoke()
                 }
@@ -64,6 +66,7 @@ object LlmModelGate {
                     onReady()
                 } catch (e: Throwable) {
                     if (e is kotlinx.coroutines.CancellationException) throw e
+                    Telemetry.recordException(e, "LlmModelGate OnDevice ensureReady failed")
                     showError(context, resolveErrorMessage(context, e))
                     onCancel?.invoke()
                 }
@@ -120,6 +123,7 @@ object LlmModelGate {
                     dialog.dismiss()
                     onCancel?.invoke()
                 } else {
+                    Telemetry.recordException(e, "LlmModelGate download/extract prepare failed")
                     status.text = resolveErrorMessage(context, e)
                     dialog.getButton(Dialog.BUTTON_NEGATIVE)?.setText(R.string.action_neutral)
                 }

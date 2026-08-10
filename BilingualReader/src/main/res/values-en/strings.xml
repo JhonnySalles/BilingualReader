@@ -1172,6 +1172,7 @@
     <string name="llm_assistant_chip_unresolved">What is still unresolved?</string>
     <string name="llm_assistant_privacy">Answers stay on your device. No cloud required.</string>
     <string name="llm_assistant_privacy_openrouter">Answers are sent to OpenRouter (cloud). Do not share sensitive personal data.</string>
+    <string name="llm_assistant_loading_model">Loading model…</string>
     <string name="llm_assistant_thinking">Thinking…</string>
     <string name="llm_assistant_error">Could not generate a response.</string>
     <string name="llm_assistant_clear_history">Clear history</string>

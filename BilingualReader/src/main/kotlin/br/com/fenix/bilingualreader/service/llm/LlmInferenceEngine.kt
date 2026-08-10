@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine.Companion.isNativeBackendAvailable
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -54,6 +55,7 @@ class LlmInferenceEngine(private val context: Context) {
                 throw e
             } catch (e: Throwable) {
                 if (isNativeLinkFailure(e)) throw LlmUnsupportedDeviceException()
+                Telemetry.recordException(e, "LlmInferenceEngine ensureLoaded failed")
                 throw if (e is Exception) e else IllegalStateException(e.message, e)
             }
         }
@@ -190,6 +192,7 @@ private object MediapipeLlmBridge {
                 }
             } catch (e: Throwable) {
                 mLOGGER.warn("LLM backend $backend failed: ${e.message}", e)
+                Telemetry.recordException(e, "LLM backend $backend failed")
                 if (LlmInferenceEngine.isNativeLinkFailure(e)) throw LlmUnsupportedDeviceException()
                 lastError = e
             }

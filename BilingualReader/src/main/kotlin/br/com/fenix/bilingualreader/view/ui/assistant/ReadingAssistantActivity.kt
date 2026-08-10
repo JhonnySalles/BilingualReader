@@ -175,10 +175,16 @@ class ReadingAssistantActivity : AppCompatActivity() {
     private fun sendCurrentInput() {
         val question = input.text?.toString().orEmpty().trim()
         if (question.isEmpty() || isLoadingContext || isGenerating) return
-        ensureModelThen {
-            viewModel.ask(question)
-            input.setText("")
-        }
+        input.setText("")
+        viewModel.startQuestionProcess(question)
+        ensureModelThen(
+            action = {
+                viewModel.ask(question, preAsked = true)
+            },
+            onCancel = {
+                viewModel.cancelQuestionProcess()
+            }
+        )
     }
 
     private fun confirmClearHistory() {
@@ -322,6 +328,10 @@ class ReadingAssistantActivity : AppCompatActivity() {
 
     private fun ensureModelThen(action: () -> Unit) {
         LlmModelGate.ensureReady(this, scope, onReady = action)
+    }
+
+    private fun ensureModelThen(action: () -> Unit, onCancel: (() -> Unit)?) {
+        LlmModelGate.ensureReady(this, scope, onReady = action, onCancel = onCancel)
     }
 
     override fun onDestroy() {
