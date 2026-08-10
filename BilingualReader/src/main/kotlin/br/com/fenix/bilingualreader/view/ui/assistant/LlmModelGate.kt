@@ -133,6 +133,8 @@ object LlmModelGate {
                 context.getString(R.string.llm_error_unsupported_device)
             LlmInferenceEngine.isNativeLinkFailure(error) ->
                 context.getString(R.string.llm_error_unsupported_device)
+            LlmInferenceEngine.isModelIncompatibleFailure(error) ->
+                context.getString(R.string.llm_error_model_incompatible)
             else ->
                 error.message ?: context.getString(R.string.llm_error_load)
         }

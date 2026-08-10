@@ -5,7 +5,7 @@ import br.com.fenix.bilingualreader.model.entity.AssistantHistory
 import br.com.fenix.bilingualreader.model.enums.Type
 import org.slf4j.LoggerFactory
 
-class AssistantHistoryRepository(context: Context) {
+class AssistantHistoryRepository(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(AssistantHistoryRepository::class.java)
     private val mDataBase get() = DataBase.getDataBase(context).getAssistantHistoryDao()

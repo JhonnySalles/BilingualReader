@@ -8,7 +8,7 @@
 | `OnDeviceLlmBackend` | Extrai `.task` e roda MediaPipe GenAI |
 | `OpenRouterLlmBackend` + `OpenRouterClient` | Chat completions SSE; lista modelos free via `GET /api/v1/models` |
 | `LlmModelManager` | Extrai o `.task` empacotado (`assets/llm/`) para `filesDir/llm/` |
-| `LlmInferenceEngine` | Wrapper MediaPipe `tasks-genai` (GPU com fallback CPU) |
+| `LlmInferenceEngine` | Wrapper MediaPipe `tasks-genai` (`LlmInference` + `LlmInferenceSession`; GPU com fallback CPU) |
 | `LlmPromptBuilder` | Prompts system+user; Gemma IT wrap só no on-device |
 | `ChapterSummaryService` | Últimos 3 capítulos + cache SharedPreferences |
 | `BookTextExtractor` | HTML → texto; seleção de ranges de capítulo |
@@ -27,8 +27,12 @@ Modelo cloud: pref `OPENROUTER_MODEL` (default `openrouter/free`). Na Config (pr
 
 ## Requisitos on-device
 
+- Dependência: `com.google.mediapipe:tasks-genai:0.10.27` (Gemma-3 1B).
+- Modelo asset: `llm/gemma3-1b-it-int4.task` (~555 MB; faixa válida 500–600 MiB).
+- Fonte: Hugging Face `litert-community/Gemma3-1B-IT` (INT4 `.task`).
 - MediaPipe GenAI embute `libllm_inference_engine_jni.so` para **`arm64-v8a`**.
 - Emuladores / 32-bit: use OpenRouter (Auto ou explícito).
+- Engine: `maxTokens=1024` (KV do modelo); topK/temperature na `LlmInferenceSession`.
 
 ## Preferências (`GeneralConsts.KEYS.LLM`)
 

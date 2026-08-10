@@ -1125,6 +1125,7 @@
     <string name="llm_prepare_progress">Preparando… %1$d%%</string>
     <string name="llm_prepare_error">Falha ao preparar o modelo de IA.</string>
     <string name="llm_error_load">Falha ao carregar o modelo de IA.</string>
+    <string name="llm_error_model_incompatible">O modelo de IA no dispositivo é incompatível ou está corrompido. Limpe a cópia local em Configurações e tente novamente, ou reinstale o asset do modelo no app.</string>
     <string name="llm_error_unsupported_device">A IA no dispositivo exige um aparelho físico 64-bit (arm64). Não é suportada em emuladores ou dispositivos 32-bit.</string>
     <string name="llm_error_openrouter_key_missing">Chave da API OpenRouter ausente. Adicione em Configurações ou em secrets.properties.</string>
     <string name="llm_error_openrouter_network">Não foi possível conectar ao OpenRouter. Verifique a internet.</string>

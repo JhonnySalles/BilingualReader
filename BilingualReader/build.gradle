@@ -68,10 +68,10 @@ android {
         dataBinding true
         buildConfig true
     }
-    aaptOptions {
+    androidResources {
         noCompress 'task'
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += [
                 'META-INF/CONTRIBUTORS.md',
@@ -83,7 +83,6 @@ android {
             ]
         }
     }
-    buildToolsVersion '33.0.0'
     namespace 'br.com.fenix.bilingualreader'
 
     sourceSets {
@@ -123,8 +122,7 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
-// MediaPipe tasks-genai ships Java 21 bytecode; AGP 7.4 AsmClassesTransform
-// (used by Sentry tracing instrumentation) cannot read major version 65.
+// Keep Sentry AsmClassesTransform off; tasks-genai 0.10.27 is Java 21 bytecode.
 sentry {
     tracingInstrumentation {
         enabled = false
@@ -207,8 +205,8 @@ dependencies {
     implementation 'com.google.mlkit:translate:17.0.1'
     implementation 'com.google.mlkit:language-id:17.0.6'
 
-    // On-device LLM (MediaPipe) — pin 0.10.21: Java 8 bytecode; 0.10.22+ is Java 21 and breaks AGP 7.4 D8
-    implementation 'com.google.mediapipe:tasks-genai:0.10.21'
+    // On-device LLM (MediaPipe) — 0.10.27 required for Gemma-3 1B .task
+    implementation 'com.google.mediapipe:tasks-genai:0.10.27'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 
     // API CONECTION

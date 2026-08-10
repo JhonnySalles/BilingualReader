@@ -1125,6 +1125,7 @@
     <string name="llm_prepare_progress">Preparing… %1$d%%</string>
     <string name="llm_prepare_error">Failed to prepare the AI model.</string>
     <string name="llm_error_load">Failed to load the AI model.</string>
+    <string name="llm_error_model_incompatible">The on-device AI model is incompatible or corrupted. Clear the local model copy in Settings and try again, or reinstall the app model asset.</string>
     <string name="llm_error_unsupported_device">On-device AI requires a physical 64-bit (arm64) device. It is not supported on emulators or 32-bit devices.</string>
     <string name="llm_error_openrouter_key_missing">OpenRouter API key is missing. Add it in Settings or secrets.properties.</string>
     <string name="llm_error_openrouter_network">Could not reach OpenRouter. Check your internet connection.</string>

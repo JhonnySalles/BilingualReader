@@ -121,6 +121,8 @@ object ChapterSummaryDialog {
             error is br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException ||
                 LlmInferenceEngine.isNativeLinkFailure(error) ->
                 context.getString(R.string.llm_error_unsupported_device)
+            LlmInferenceEngine.isModelIncompatibleFailure(error) ->
+                context.getString(R.string.llm_error_model_incompatible)
             else ->
                 error.message ?: context.getString(R.string.llm_assistant_error)
         }

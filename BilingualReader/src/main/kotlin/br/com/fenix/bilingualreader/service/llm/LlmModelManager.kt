@@ -6,6 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -22,6 +24,7 @@ sealed class ModelPrepareState {
 class LlmModelManager(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(LlmModelManager::class.java)
+    private val extractMutex = Mutex()
 
     private val _state = MutableStateFlow<ModelPrepareState>(ModelPrepareState.Idle)
     val state: StateFlow<ModelPrepareState> = _state
@@ -51,7 +54,7 @@ class LlmModelManager(private val context: Context) {
 
     fun isModelReady(): Boolean {
         val file = getModelFile()
-        return file.exists() && file.length() > MIN_MODEL_BYTES
+        return file.exists() && LlmInferenceEngine.isModelSizeValid(file.length())
     }
 
     fun getModelSizeBytes(): Long = if (isModelReady()) getModelFile().length() else 0L
@@ -80,12 +83,22 @@ class LlmModelManager(private val context: Context) {
         }
     }
 
-    suspend fun ensureModel(onProgress: ((Int) -> Unit)? = null): File = withContext(Dispatchers.IO) {
-        if (isModelReady()) {
-            _state.value = ModelPrepareState.Ready
-            return@withContext getModelFile()
+    suspend fun ensureModel(onProgress: ((Int) -> Unit)? = null): File = extractMutex.withLock {
+        withContext(Dispatchers.IO) {
+            if (isModelReady()) {
+                _state.value = ModelPrepareState.Ready
+                return@withContext getModelFile()
+            }
+            // Stale/truncated copy left from a failed extract or wrong file.
+            val existing = getModelFile()
+            if (existing.exists()) {
+                mLOGGER.warn(
+                    "Removing invalid LLM model copy (${existing.length()} bytes); expected ${LlmInferenceEngine.MIN_MODEL_BYTES}..${LlmInferenceEngine.MAX_MODEL_BYTES}"
+                )
+                existing.delete()
+            }
+            extractFromAssets(onProgress)
         }
-        extractFromAssets(onProgress)
     }
 
     private suspend fun extractFromAssets(onProgress: ((Int) -> Unit)?): File {
@@ -130,9 +143,12 @@ class LlmModelManager(private val context: Context) {
                 }
             }
 
-            if (partial.length() < MIN_MODEL_BYTES) {
+            if (!LlmInferenceEngine.isModelSizeValid(partial.length())) {
+                val size = partial.length()
                 partial.delete()
-                throw IllegalStateException("Extracted model is too small")
+                throw IllegalStateException(
+                    "Extracted model incomplete or incompatible ($size bytes); expected ${LlmInferenceEngine.MIN_MODEL_BYTES}..${LlmInferenceEngine.MAX_MODEL_BYTES}"
+                )
             }
 
             if (target.exists()) target.delete()
@@ -164,7 +180,6 @@ class LlmModelManager(private val context: Context) {
     }
 
     companion object {
-        private const val MIN_MODEL_BYTES = 10L * 1024L * 1024L
         private const val DEFAULT_BUFFER = 64 * 1024
 
         @Volatile

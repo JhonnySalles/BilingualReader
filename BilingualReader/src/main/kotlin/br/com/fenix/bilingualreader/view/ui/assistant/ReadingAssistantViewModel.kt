@@ -205,6 +205,8 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
             error is LlmUnsupportedDeviceException ||
                 LlmInferenceEngine.isNativeLinkFailure(error) ->
                 app.getString(R.string.llm_error_unsupported_device)
+            LlmInferenceEngine.isModelIncompatibleFailure(error) ->
+                app.getString(R.string.llm_error_model_incompatible)
             else ->
                 error.message ?: app.getString(R.string.llm_assistant_error)
         }
