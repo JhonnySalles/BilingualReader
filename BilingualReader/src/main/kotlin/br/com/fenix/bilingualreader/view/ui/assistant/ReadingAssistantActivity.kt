@@ -265,6 +265,7 @@ class ReadingAssistantActivity : AppCompatActivity() {
         }
         MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
             .setTitle(R.string.llm_assistant_view_context)
+            .setMessage(getString(R.string.llm_assistant_context_size, preview.length))
             .setView(scroll)
             .setPositiveButton(R.string.action_neutral, null)
             .show()

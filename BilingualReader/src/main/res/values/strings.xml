@@ -1243,6 +1243,8 @@
     <string name="llm_assistant_selection_default_book_pages">Current page &amp; 3 previous pages</string>
     <string name="llm_assistant_selection_limit">Select at most %1$d items</string>
     <string name="llm_assistant_view_context">View context</string>
+    <string name="llm_assistant_context_size">%1$d characters</string>
+    <string name="llm_assistant_copied_to_clipboard">Copied to clipboard</string>
     <string name="llm_assistant_context_preview_body">%1$d characters\n\n%2$s</string>
     <string name="llm_assistant_empty_title">Ask about what you are reading</string>
     <string name="llm_assistant_empty_hint">Select chapters or pages above, then ask a question or tap a suggestion.</string>

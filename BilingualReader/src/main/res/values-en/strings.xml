@@ -1193,8 +1193,9 @@
     <string name="config_ai_provider_openrouter">OpenRouter (free models)</string>
     <string name="config_ai_openrouter_key">OpenRouter API key</string>
     <string name="config_ai_openrouter_model">OpenRouter free model</string>
-    <string name="config_ai_openrouter_model_qa">OpenRouter model (Q&amp;A)</string>
-    <string name="config_ai_openrouter_model_summary">OpenRouter model (summary)</string>
+    <string name="config_book_ai_openrouter_model">OpenRouter model (Book)</string>
+    <string name="config_book_ai_openrouter_model_summary">OpenRouter model (Book summary)</string>
+    <string name="config_manga_ai_openrouter_model">OpenRouter model (Manga vision)</string>
     <string name="config_ai_openrouter_model_loading">Loading free models…</string>
     <string name="config_ai_openrouter_model_error">Could not load free models. Using Free Models Router.</string>
     <string name="config_ai_model_status">Model status</string>

@@ -16,14 +16,9 @@ object AssistantSelectionHelper {
         val labels = indices.sorted().mapNotNull { options.getOrNull(it) }
         return when {
             labels.isEmpty() -> context.getString(R.string.llm_assistant_selection_default_book_pages)
-            labels.size == 1 -> context.getString(
+            labels.size <= 3 -> context.getString(
                 R.string.llm_assistant_chapters_summary_named,
-                1,
-                labels.first()
-            )
-            labels.size == 2 -> context.getString(
-                R.string.llm_assistant_chapters_summary_named,
-                2,
+                labels.size,
                 labels.joinToString(", ")
             )
             else -> context.getString(R.string.llm_assistant_chapters_selected, labels.size)

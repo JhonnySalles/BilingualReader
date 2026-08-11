@@ -1163,6 +1163,8 @@
     <string name="llm_assistant_selection_none">Nenhum selecionado</string>
     <string name="llm_assistant_selection_limit">Selecione no máximo %1$d itens</string>
     <string name="llm_assistant_view_context">Ver contexto</string>
+    <string name="llm_assistant_context_size">%1$d caracteres</string>
+    <string name="llm_assistant_copied_to_clipboard">Copiado para a área de transferência</string>
     <string name="llm_assistant_context_preview_body">%1$d caracteres\n\n%2$s</string>
     <string name="llm_assistant_empty_title">Pergunte sobre a leitura</string>
     <string name="llm_assistant_empty_hint">Selecione capítulos ou páginas acima e faça uma pergunta ou toque em uma sugestão.</string>
@@ -1193,10 +1195,11 @@
     <string name="config_ai_provider_openrouter">OpenRouter (modelos free)</string>
     <string name="config_ai_openrouter_key">Chave da API OpenRouter</string>
     <string name="config_ai_openrouter_model">Modelo free OpenRouter</string>
-    <string name="config_ai_openrouter_model_qa">Modelo OpenRouter (perguntas)</string>
-    <string name="config_ai_openrouter_model_summary">Modelo OpenRouter (resumo)</string>
+    <string name="config_book_ai_openrouter_model">Modelo OpenRouter (Book)</string>
+    <string name="config_book_ai_openrouter_model_summary">Modelo OpenRouter (resumo)</string>
+    <string name="config_manga_ai_openrouter_model">Modelo OpenRouter (Manga vision)</string>
     <string name="config_ai_openrouter_model_loading">Carregando modelos free…</string>
-    <string name="config_ai_openrouter_model_error">Não foi possível carregar modelos free. Usando Free Models Router.</string>
+    <string name="config_ai_openrouter_model_error">Não foi possível carregar modelos grátis. Usando Free Models Router.</string>
     <string name="config_ai_model_status">Status do modelo</string>
     <string name="config_ai_model_ready">Modelo pronto (%1$s)</string>
     <string name="config_ai_model_missing">Modelo ainda não extraído</string>

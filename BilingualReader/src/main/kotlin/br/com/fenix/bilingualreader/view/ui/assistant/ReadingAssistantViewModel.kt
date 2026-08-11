@@ -174,14 +174,20 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         }
                     }
                     Type.MANGA -> {
-                        MangaContextProvider(
+                        val selectedPages = selectedMangaPages()
+                        val provider = MangaContextProvider(
                             getApplication(),
                             mangaParse,
                             title,
                             page,
                             ocrLanguage,
                             referenceId
-                        ).build(selectedMangaPages())
+                        )
+                        if (selectedPages.isEmpty()) {
+                            provider.build(LlmSettings.defaultMangaRadius())
+                        } else {
+                            provider.build(selectedPages)
+                        }
                     }
                 }
                 _contextSource.value = readingContext?.source ?: ContextSource.EMPTY
@@ -312,13 +318,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 }
                 val options = bookRanges.map { it.title }
                 _availableOptions.value = options
-                val restored = referenceId?.let { id ->
-                    AssistantSelectionHelper.decodeBookSelection(
-                        LlmSettings.loadSelection(app, type, id),
-                        options
-                    )
-                }
-                _selectedIndices.value = restored ?: emptySet()
+                _selectedIndices.value = emptySet()
             }
             Type.MANGA -> {
                 bookRanges = emptyList()
@@ -326,18 +326,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 _availableOptions.value = (0 until pageCount).map { pageIndex ->
                     app.getString(R.string.llm_assistant_page_label, pageIndex + 1)
                 }
-                val restored = referenceId?.let { id ->
-                    AssistantSelectionHelper.decodeMangaSelection(
-                        LlmSettings.loadSelection(app, type, id),
-                        pageCount
-                    )
-                }
-                _selectedIndices.value = restored ?: run {
-                    val radius = LlmSettings.defaultMangaRadius()
-                    val from = (page - radius).coerceAtLeast(0)
-                    val to = (page + radius).coerceAtMost((pageCount - 1).coerceAtLeast(0))
-                    if (pageCount <= 0) emptySet() else (from..to).toSet()
-                }
+                _selectedIndices.value = emptySet()
             }
         }
         updateContextSummary()
@@ -388,11 +377,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
             return
         }
         val truncated = LlmPromptBuilder.truncate(full, PREVIEW_MAX_CHARS)
-        _contextPreviewText.value = app.getString(
-            R.string.llm_assistant_context_preview_body,
-            full.length,
-            truncated
-        )
+        _contextPreviewText.value = truncated
     }
 
     private fun removeThinkingPlaceholder() {

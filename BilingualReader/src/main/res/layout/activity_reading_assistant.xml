@@ -14,52 +14,52 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/llm_assistant_title" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/assistant_context_selector_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+    <LinearLayout
+        android:id="@+id/assistant_selectors_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:hint="@string/llm_assistant_select_chapters"
-        app:layout_constraintEnd_toStartOf="@+id/assistant_model_selector_layout"
-        app:layout_constraintHorizontal_weight="1"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/assistant_toolbar">
 
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/assistant_context_selector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusable="false"
-            android:inputType="none"
-            android:maxLines="2" />
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/assistant_context_selector_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
+            android:hint="@string/llm_assistant_select_chapters">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/assistant_model_selector_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="16dp"
-        android:hint="@string/config_ai_provider_openrouter"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/assistant_context_selector_layout"
-        app:layout_constraintTop_toBottomOf="@id/assistant_toolbar">
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/assistant_context_selector"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/assistant_model_selector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusable="false"
-            android:inputType="none"
-            android:maxLines="1" />
-    </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/assistant_model_selector_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
+            android:hint="@string/config_ai_provider_openrouter"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/assistant_model_selector"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/assistant_context_label"
@@ -71,7 +71,7 @@
         android:textAppearance="?attr/textAppearanceBodySmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/assistant_context_selector_layout" />
+        app:layout_constraintTop_toBottomOf="@id/assistant_selectors_container" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/assistant_messages"

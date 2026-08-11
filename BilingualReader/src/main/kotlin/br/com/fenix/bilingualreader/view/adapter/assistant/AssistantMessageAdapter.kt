@@ -1,5 +1,8 @@
 package br.com.fenix.bilingualreader.view.adapter.assistant
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -7,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -43,6 +47,14 @@ class AssistantMessageAdapter : RecyclerView.Adapter<AssistantMessageAdapter.Hol
             textView.text = message.text
             val params = textView.layoutParams as FrameLayout.LayoutParams
             val context = itemView.context
+
+            textView.setOnLongClickListener {
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Assistant Message", message.text)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(context, R.string.llm_assistant_copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                true
+            }
 
             when (message.role) {
                 AssistantMessageRole.USER -> {
