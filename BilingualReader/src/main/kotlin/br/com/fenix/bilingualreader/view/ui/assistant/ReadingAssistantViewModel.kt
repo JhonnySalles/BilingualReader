@@ -68,6 +68,9 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     private val _contextPreviewText = MutableLiveData("")
     val contextPreviewText: LiveData<String> = _contextPreviewText
 
+    private val _contextSizeInfo = MutableLiveData<Pair<Int, Int>>(0 to 4096)
+    val contextSizeInfo: LiveData<Pair<Int, Int>> = _contextSizeInfo
+
     private var readingContext: ReadingContext? = null
     private var generateJob: Job? = null
 
@@ -376,12 +379,15 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
 
     private fun updateContextPreview() {
         val full = readingContext?.joinedText().orEmpty()
+        val app = getApplication<Application>()
+        val maxChars = UserLanguageHelper.maxContextChars(app)
+        _contextSizeInfo.value = full.length to maxChars
+
         if (full.isBlank()) {
             _contextPreviewText.value = ""
             return
         }
         val truncated = LlmPromptBuilder.truncate(full, PREVIEW_MAX_CHARS)
-        val app = getApplication<Application>()
         _contextPreviewText.value = app.getString(
             R.string.llm_assistant_context_preview_body,
             full.length,
@@ -410,6 +416,14 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
 
     private fun resolveError(error: Throwable): String {
         val app = getApplication<Application>()
+        var current: Throwable? = error
+        while (current != null) {
+            val msg = current.message.orEmpty()
+            if (msg.contains("OUT_OF_RANGE", ignoreCase = true) || msg.contains("Input is too long", ignoreCase = true)) {
+                return error.message ?: app.getString(R.string.llm_assistant_error)
+            }
+            current = current.cause
+        }
         return when {
             error is LlmUnsupportedDeviceException ||
                 LlmInferenceEngine.isNativeLinkFailure(error) ->
@@ -417,7 +431,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
             LlmInferenceEngine.isModelIncompatibleFailure(error) ->
                 app.getString(R.string.llm_error_model_incompatible)
             else ->
-                error.message ?: app.getString(R.string.llm_assistant_error)
+                error.message.takeIf { !it.isNullOrBlank() } ?: app.getString(R.string.llm_assistant_error)
         }
     }
 
@@ -441,7 +455,9 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         val index = list.indexOfLast { it.role == AssistantMessageRole.ASSISTANT }
         if (index >= 0) {
             list[index] = AssistantMessage(AssistantMessageRole.ASSISTANT, text)
-            _messages.value = list
+        } else {
+            list.add(AssistantMessage(AssistantMessageRole.ASSISTANT, text))
         }
+        _messages.value = list
     }
 }

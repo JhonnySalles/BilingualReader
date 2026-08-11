@@ -59,6 +59,7 @@ class ReadingAssistantActivity : AppCompatActivity() {
     private lateinit var messagesList: RecyclerView
     private lateinit var input: TextInputEditText
     private lateinit var sendButton: MaterialButton
+    private lateinit var contextSizeFeedback: TextView
     private lateinit var loading: ProgressBar
 
     private var isLoadingContext = false
@@ -95,6 +96,7 @@ class ReadingAssistantActivity : AppCompatActivity() {
         suggestionChips = findViewById(R.id.assistant_suggestion_chips)
         input = findViewById(R.id.assistant_input)
         sendButton = findViewById(R.id.assistant_send)
+        contextSizeFeedback = findViewById(R.id.assistant_context_size_feedback)
         loading = findViewById(R.id.assistant_loading)
 
         messagesList = findViewById(R.id.assistant_messages)
@@ -323,6 +325,16 @@ class ReadingAssistantActivity : AppCompatActivity() {
         viewModel.generating.observe(this) { generating ->
             isGenerating = generating
             updateInteractionEnabled()
+        }
+        viewModel.contextSizeInfo.observe(this) { (current, max) ->
+            contextSizeFeedback.text = "$current / $max"
+            val ratio = if (max > 0) current.toFloat() / max.toFloat() else 0f
+            val color = when {
+                ratio >= 1.0f -> android.graphics.Color.parseColor("#F44336")
+                ratio >= 0.8f -> android.graphics.Color.parseColor("#FFC107")
+                else -> android.graphics.Color.parseColor("#4CAF50")
+            }
+            contextSizeFeedback.setTextColor(color)
         }
     }
 

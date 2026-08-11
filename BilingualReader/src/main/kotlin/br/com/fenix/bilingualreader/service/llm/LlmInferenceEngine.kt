@@ -173,7 +173,7 @@ class LlmInferenceEngine(private val context: Context) {
 private object MediapipeLlmBridge {
     private val mLOGGER = LoggerFactory.getLogger(MediapipeLlmBridge::class.java)
 
-    private const val MAX_TOKENS = 1024
+    private const val MAX_TOKENS = 4096
     private const val TOP_K = 40
 
     class LoadedEngine(

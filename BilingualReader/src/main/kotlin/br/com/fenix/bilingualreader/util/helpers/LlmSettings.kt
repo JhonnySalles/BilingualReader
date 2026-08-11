@@ -118,6 +118,30 @@ object LlmSettings {
             .coerceIn(0, 100)
     }
 
+    const val MAX_ON_DEVICE_CHARS = 4096
+    const val MAX_OPENROUTER_CHARS = 12000
+
+    fun maxContextLimit(context: Context, provider: LlmProvider = getProvider(context)): Int {
+        return when (provider) {
+            LlmProvider.ON_DEVICE -> MAX_ON_DEVICE_CHARS
+            LlmProvider.OPENROUTER -> MAX_OPENROUTER_CHARS
+            LlmProvider.AUTO -> {
+                if (LlmInferenceEngine.isNativeBackendAvailable()) MAX_ON_DEVICE_CHARS
+                else MAX_OPENROUTER_CHARS
+            }
+        }
+    }
+
+    fun maxContextChars(context: Context): Int {
+        val stored = GeneralConsts.getSharedPreferences(context)
+            .getInt(
+                GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
+            )
+        val limit = maxContextLimit(context)
+        return stored.coerceIn(500, limit)
+    }
+
     fun selectionPrefsKey(type: Type, referenceId: Long): String =
         "${GeneralConsts.KEYS.LLM.SELECTION_PREFIX}${type.name}_$referenceId"
 

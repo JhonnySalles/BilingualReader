@@ -504,6 +504,11 @@ class ConfigFragment : Fragment() {
                 } else {
                     LlmProvider.AUTO
                 }
+                val limit = LlmSettings.maxContextLimit(requireContext(), mConfigAiProviderSelect)
+                val currentVal = mConfigAiMaxContextValue.text?.toString()?.toIntOrNull() ?: limit
+                if (currentVal > limit) {
+                    mConfigAiMaxContextValue.setText(limit.toString())
+                }
                 updateOpenRouterFieldsVisibility()
                 refreshAiModelStatus()
             }
@@ -1189,8 +1194,9 @@ class ConfigFragment : Fragment() {
                 }
             )
 
-            val maxContext = mConfigAiMaxContextValue.text?.toString()?.toIntOrNull()
-                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
+            val limit = LlmSettings.maxContextLimit(requireContext(), mConfigAiProviderSelect)
+            val maxContext = (mConfigAiMaxContextValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS).coerceIn(500, limit)
             this.putInt(GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS, maxContext)
 
             val maxChapters = mConfigAiMaxBookChaptersValue.text?.toString()?.toIntOrNull()

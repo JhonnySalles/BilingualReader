@@ -29,11 +29,7 @@ object UserLanguageHelper {
     }
 
     fun maxContextChars(context: Context): Int {
-        return GeneralConsts.getSharedPreferences(context)
-            .getInt(
-                GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS,
-                GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
-            )
+        return LlmSettings.maxContextChars(context)
     }
 
     fun isLlmEnabled(context: Context): Boolean {
