@@ -43,28 +43,36 @@ object LlmSettings {
         }
     }
 
-    fun openRouterModel(context: Context): String = openRouterModelQa(context)
+    fun openRouterModel(context: Context): String = openRouterModelBook(context)
 
-    fun openRouterModelQa(context: Context): String {
+    fun openRouterModelBook(context: Context): String {
         return GeneralConsts.getSharedPreferences(context)
             .getString(
-                GeneralConsts.KEYS.LLM.OPENROUTER_MODEL,
+                GeneralConsts.KEYS.LLM.BOOK_OPENROUTER_MODEL,
                 GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
             ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
     }
 
-    fun openRouterModelSummary(context: Context): String {
+    fun openRouterModelBookSummary(context: Context): String {
         return GeneralConsts.getSharedPreferences(context)
             .getString(
-                GeneralConsts.KEYS.LLM.OPENROUTER_MODEL_SUMMARY,
+                GeneralConsts.KEYS.LLM.BOOK_OPENROUTER_MODEL_SUMMARY,
                 GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
             ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
     }
 
-    fun openRouterModelFor(context: Context, use: LlmUse): String {
+    fun openRouterModelManga(context: Context): String {
+        return GeneralConsts.getSharedPreferences(context)
+            .getString(
+                GeneralConsts.KEYS.LLM.MANGA_OPENROUTER_MODEL,
+                GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+            ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+    }
+
+    fun openRouterModelFor(context: Context, use: LlmUse, type: Type = Type.BOOK): String {
         return when (use) {
-            LlmUse.QA -> openRouterModelQa(context)
-            LlmUse.SUMMARY -> openRouterModelSummary(context)
+            LlmUse.QA -> if (type == Type.BOOK) openRouterModelBook(context) else openRouterModelManga(context)
+            LlmUse.SUMMARY -> openRouterModelBookSummary(context)
         }
     }
 

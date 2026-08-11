@@ -21,6 +21,7 @@ object AssistantSessionHolder {
     var preloadSummary: String? = null
     var bookParse: DocumentParse? = null
     var mangaParse: Parse? = null
+    var selectedOpenRouterModel: String? = null
 
     fun clear() {
         bookParse = null
@@ -33,5 +34,6 @@ object AssistantSessionHolder {
         mangaId = null
         ocrLanguage = null
         bookLanguage = null
+        selectedOpenRouterModel = null
     }
 }

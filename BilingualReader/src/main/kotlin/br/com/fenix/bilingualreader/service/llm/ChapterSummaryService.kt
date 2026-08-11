@@ -22,7 +22,7 @@ class ChapterSummaryService(private val context: Context) {
                 GeneralConsts.KEYS.LLM.DEFAULT_MODEL_VERSION
             )
         val provider = LlmSettings.effectiveProvider(context).prefValue
-        val model = LlmSettings.openRouterModelSummary(context)
+        val model = LlmSettings.openRouterModelBookSummary(context)
             .replace(Regex("[^A-Za-z0-9_\\-.]"), "_")
             .take(40)
         val safeSelection = selectionKey.replace(Regex("[^A-Za-z0-9_\\-]"), "_").take(80)

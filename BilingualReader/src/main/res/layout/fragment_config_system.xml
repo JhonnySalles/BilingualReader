@@ -319,34 +319,51 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_ai_openrouter_model"
+            android:id="@+id/config_book_ai_openrouter_model"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/config_ai_openrouter_model_qa"
+            android:hint="@string/config_book_ai_openrouter_model"
             android:visibility="gone"
             app:startIconDrawable="@drawable/ico_openrouter_model">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/config_ai_openrouter_model_value"
+                android:id="@+id/config_book_ai_openrouter_model_value"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_ai_openrouter_model_summary"
+            android:id="@+id/config_book_ai_openrouter_model_summary"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/config_ai_openrouter_model_summary"
+            android:hint="@string/config_book_ai_openrouter_model_summary"
             android:visibility="gone"
             app:startIconDrawable="@drawable/ico_openrouter_model">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/config_ai_openrouter_model_summary_value"
+                android:id="@+id/config_book_ai_openrouter_model_summary_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_manga_ai_openrouter_model"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_ai_openrouter_model"
+            android:visibility="gone"
+            app:startIconDrawable="@drawable/ico_openrouter_model">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_manga_ai_openrouter_model_value"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

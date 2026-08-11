@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.model.enums.AssistantMessage
 import br.com.fenix.bilingualreader.model.enums.AssistantMessageRole
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.llm.AssistantSessionHolder
 import br.com.fenix.bilingualreader.service.llm.BookContextProvider
 import br.com.fenix.bilingualreader.service.llm.BookTextExtractor
 import br.com.fenix.bilingualreader.service.llm.ContextSource
@@ -239,7 +240,12 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
             try {
                 val maxChars = UserLanguageHelper.maxContextChars(getApplication())
                 val request = LlmPromptBuilder.buildQaRequest(ctx, question, maxChars)
-                val backend = LlmBackendFactory.resolve(getApplication(), br.com.fenix.bilingualreader.model.enums.LlmUse.QA)
+                val backend = LlmBackendFactory.resolve(
+                    getApplication(),
+                    br.com.fenix.bilingualreader.model.enums.LlmUse.QA,
+                    type,
+                    customModel = AssistantSessionHolder.selectedOpenRouterModel
+                )
                 backend.ensureReady()
 
                 replaceLastAssistant(getApplication<Application>().getString(R.string.llm_assistant_thinking))
@@ -309,18 +315,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         options
                     )
                 }
-                _selectedIndices.value = restored ?: run {
-                    val defaults = BookTextExtractor.selectLastChapters(
-                        bookRanges,
-                        page + 1,
-                        LlmSettings.defaultBookChapters()
-                    )
-                    val defaultTitles = defaults.map { it.title }.toSet()
-                    bookRanges.withIndex()
-                        .filter { it.value.title in defaultTitles }
-                        .map { it.index }
-                        .toSet()
-                }
+                _selectedIndices.value = restored ?: emptySet()
             }
             Type.MANGA -> {
                 bookRanges = emptyList()

@@ -38,6 +38,13 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 class ReadingAssistantActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ReadingAssistantViewModel
@@ -47,13 +54,11 @@ class ReadingAssistantActivity : AppCompatActivity() {
     private lateinit var contextSelectorLayout: TextInputLayout
     private lateinit var contextSelector: MaterialAutoCompleteTextView
     private lateinit var contextLabel: TextView
-    private lateinit var privacyLabel: TextView
     private lateinit var emptyState: LinearLayout
     private lateinit var suggestionChips: ChipGroup
     private lateinit var messagesList: RecyclerView
     private lateinit var input: TextInputEditText
     private lateinit var sendButton: MaterialButton
-    private lateinit var cancelButton: MaterialButton
     private lateinit var loading: ProgressBar
 
     private var isLoadingContext = false
@@ -86,12 +91,10 @@ class ReadingAssistantActivity : AppCompatActivity() {
         contextSelectorLayout = findViewById(R.id.assistant_context_selector_layout)
         contextSelector = findViewById(R.id.assistant_context_selector)
         contextLabel = findViewById(R.id.assistant_context_label)
-        privacyLabel = findViewById(R.id.assistant_privacy)
         emptyState = findViewById(R.id.assistant_empty_state)
         suggestionChips = findViewById(R.id.assistant_suggestion_chips)
         input = findViewById(R.id.assistant_input)
         sendButton = findViewById(R.id.assistant_send)
-        cancelButton = findViewById(R.id.assistant_cancel)
         loading = findViewById(R.id.assistant_loading)
 
         messagesList = findViewById(R.id.assistant_messages)
@@ -99,7 +102,6 @@ class ReadingAssistantActivity : AppCompatActivity() {
         messagesList.adapter = adapter
 
         setupSuggestionChips()
-        updatePrivacyLabel()
         contextSelector.keyListener = null
         contextSelector.setOnClickListener { showContextPicker() }
         contextSelector.setOnFocusChangeListener { _, hasFocus ->
@@ -110,11 +112,7 @@ class ReadingAssistantActivity : AppCompatActivity() {
         }
         contextSelectorLayout.setEndIconOnClickListener { showContextPicker() }
 
-        findViewById<MaterialButton>(R.id.assistant_refresh_context).setOnClickListener {
-            ensureModelThen { viewModel.refreshContext() }
-        }
         sendButton.setOnClickListener { sendCurrentInput() }
-        cancelButton.setOnClickListener { viewModel.cancel() }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -124,7 +122,56 @@ class ReadingAssistantActivity : AppCompatActivity() {
 
         observe()
         bindSession()
+        setupInlineModelSelector()
         ensureModelThen { viewModel.refreshContext() }
+    }
+
+    private fun setupInlineModelSelector() {
+        val modelSelectorLayout = findViewById<TextInputLayout>(R.id.assistant_model_selector_layout)
+        val modelSelector = findViewById<MaterialAutoCompleteTextView>(R.id.assistant_model_selector)
+
+        if (LlmSettings.effectiveProvider(this) != LlmProvider.OPENROUTER) {
+            modelSelectorLayout.visibility = View.GONE
+            return
+        }
+
+        modelSelectorLayout.visibility = View.VISIBLE
+        modelSelector.setText(getString(R.string.config_ai_openrouter_model_loading), false)
+
+        val isBook = viewModel.isBookContext()
+        val defaultModel = if (isBook) LlmSettings.openRouterModelBook(this) else LlmSettings.openRouterModelManga(this)
+        val currentSelected = AssistantSessionHolder.selectedOpenRouterModel ?: defaultModel
+
+        scope.launch {
+            val models = withContext(Dispatchers.IO) {
+                OpenRouterClient(this@ReadingAssistantActivity).listFreeModels()
+            }
+            if (isFinishing || isDestroyed) return@launch
+
+            val filtered = if (isBook) models else models.filter { it.hasVision }
+            val modelMap = linkedMapOf<String, String>()
+            filtered.forEach { info ->
+                modelMap[info.label()] = info.id
+            }
+            if (modelMap.isEmpty()) {
+                val fallbackId = GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                modelMap[fallbackId] = fallbackId
+            }
+
+            val labels = modelMap.keys.toTypedArray()
+            val adapter = ArrayAdapter(this@ReadingAssistantActivity, R.layout.list_item, labels)
+            modelSelector.setAdapter(adapter)
+
+            val initialLabel = modelMap.entries.firstOrNull { it.value == currentSelected }?.key ?: modelMap.keys.first()
+            AssistantSessionHolder.selectedOpenRouterModel = modelMap[initialLabel]
+            modelSelector.setText(initialLabel, false)
+
+            modelSelector.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val label = parent.getItemAtPosition(position)?.toString().orEmpty()
+                val selectedId = modelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                AssistantSessionHolder.selectedOpenRouterModel = selectedId
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -275,16 +322,26 @@ class ReadingAssistantActivity : AppCompatActivity() {
         }
         viewModel.generating.observe(this) { generating ->
             isGenerating = generating
-            cancelButton.visibility = if (generating) View.VISIBLE else View.GONE
             updateInteractionEnabled()
         }
     }
 
     private fun updateInteractionEnabled() {
-        val enabled = !isLoadingContext && !isGenerating
-        sendButton.isEnabled = enabled
+        val busy = isLoadingContext || isGenerating
+        if (busy) {
+            sendButton.text = getString(R.string.llm_assistant_cancel)
+            sendButton.isEnabled = true
+            sendButton.setOnClickListener {
+                viewModel.cancelQuestionProcess()
+                viewModel.cancel()
+            }
+        } else {
+            sendButton.text = getString(R.string.llm_assistant_send)
+            sendButton.isEnabled = true
+            sendButton.setOnClickListener { sendCurrentInput() }
+        }
         for (i in 0 until suggestionChips.childCount) {
-            suggestionChips.getChildAt(i).isEnabled = enabled
+            suggestionChips.getChildAt(i).isEnabled = !busy
         }
     }
 
@@ -301,15 +358,6 @@ class ReadingAssistantActivity : AppCompatActivity() {
         } else {
             getString(R.string.llm_assistant_context_with_selection, sourceText, summary)
         }
-    }
-
-    private fun updatePrivacyLabel() {
-        privacyLabel.setText(
-            when (LlmSettings.effectiveProvider(this)) {
-                LlmProvider.OPENROUTER -> R.string.llm_assistant_privacy_openrouter
-                else -> R.string.llm_assistant_privacy
-            }
-        )
     }
 
     private fun showContextPicker() {

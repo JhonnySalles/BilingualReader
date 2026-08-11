@@ -4,15 +4,16 @@
 
     <item
         android:id="@+id/menu_assistant_view_context"
+        android:icon="@drawable/ico_ai_context"
         android:orderInCategory="90"
         android:title="@string/llm_assistant_view_context"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_assistant_clear_history"
         android:icon="@drawable/ico_animated_delete_history"
         android:orderInCategory="100"
         android:title="@string/llm_assistant_clear_history"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
 </menu>

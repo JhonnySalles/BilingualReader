@@ -119,7 +119,8 @@ class OpenRouterClient(private val context: Context) {
         val fallback = listOf(
             OpenRouterModelInfo(
                 id = FREE_ROUTER_ID,
-                name = FREE_ROUTER_NAME
+                name = FREE_ROUTER_NAME,
+                hasVision = true
             )
         )
         return@withContext try {
@@ -142,9 +143,13 @@ class OpenRouterClient(private val context: Context) {
                         id.isNotEmpty() && isFreePricing(entry.pricing)
                     }
                     .map { entry ->
+                        val modality = entry.architecture?.modality.orEmpty().lowercase()
+                        val inputs = entry.architecture?.input_modalities.orEmpty().map { it.lowercase() }
+                        val hasVision = modality.contains("image") || modality.contains("vision") || inputs.contains("image") || inputs.contains("vision")
                         OpenRouterModelInfo(
                             id = entry.id!!.trim(),
-                            name = entry.name?.trim().orEmpty().ifBlank { entry.id!!.trim() }
+                            name = entry.name?.trim().orEmpty().ifBlank { entry.id!!.trim() },
+                            hasVision = hasVision
                         )
                     }
                     .sortedBy { it.name.lowercase() }

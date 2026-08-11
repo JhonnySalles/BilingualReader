@@ -25,19 +25,21 @@ class BookContextProvider(
     ): ReadingContext {
         val userLanguage = UserLanguageHelper.getUserLanguage(context)
         val chunks = mutableListOf<ContextChunk>()
-        val currentPage1 = currentPage0Based + 1
 
-        for (chapter in selectedRanges) {
-            val text = BookTextExtractor.extractChaptersText(parse, listOf(chapter))
-            if (text.isNotBlank()) {
-                chunks.add(ContextChunk(chapter.title, text, chapter.startPage))
+        if (selectedRanges.isEmpty()) {
+            val startPage0 = (currentPage0Based - 3).coerceAtLeast(0)
+            for (p in startPage0..currentPage0Based) {
+                val pageText = BookTextExtractor.extractPageText(parse, p)
+                if (pageText.isNotBlank()) {
+                    chunks.add(ContextChunk("Page ${p + 1}", pageText, p + 1))
+                }
             }
-        }
-
-        if (includeCurrentPage) {
-            val pageText = BookTextExtractor.extractPageText(parse, currentPage0Based)
-            if (pageText.isNotBlank()) {
-                chunks.add(ContextChunk("Current page", pageText, currentPage1))
+        } else {
+            for (chapter in selectedRanges) {
+                val text = BookTextExtractor.extractChaptersText(parse, listOf(chapter))
+                if (text.isNotBlank()) {
+                    chunks.add(ContextChunk(chapter.title, text, chapter.startPage))
+                }
             }
         }
 

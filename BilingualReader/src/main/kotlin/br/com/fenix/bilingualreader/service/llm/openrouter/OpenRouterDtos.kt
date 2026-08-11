@@ -35,9 +35,14 @@ data class OpenRouterError(
 
 data class OpenRouterModelInfo(
     val id: String,
-    val name: String
+    val name: String,
+    val hasVision: Boolean = false
 ) {
-    fun label(): String = if (name.isNotBlank() && name != id) "$name ($id)" else id
+    fun label(): String {
+        val cleanName = name.replace(Regex("\\s*\\(.*?\\)"), "").trim()
+        val displayName = if (cleanName.isNotBlank() && cleanName != id) cleanName else id
+        return if (displayName.lowercase().endsWith("(free)")) displayName else "$displayName (free)"
+    }
 }
 
 data class OpenRouterModelsResponse(
@@ -47,10 +52,17 @@ data class OpenRouterModelsResponse(
 data class OpenRouterModelEntry(
     val id: String? = null,
     val name: String? = null,
-    val pricing: OpenRouterPricing? = null
+    val pricing: OpenRouterPricing? = null,
+    val architecture: OpenRouterArchitecture? = null
+)
+
+data class OpenRouterArchitecture(
+    val modality: String? = null,
+    val input_modalities: List<String>? = null
 )
 
 data class OpenRouterPricing(
     val prompt: String? = null,
     val completion: String? = null
 )
+

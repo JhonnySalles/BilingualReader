@@ -21,8 +21,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
         android:hint="@string/llm_assistant_select_chapters"
-        app:layout_constraintEnd_toStartOf="@+id/assistant_refresh_context"
+        app:layout_constraintEnd_toStartOf="@+id/assistant_model_selector_layout"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/assistant_toolbar">
 
@@ -35,16 +37,29 @@
             android:maxLines="2" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/assistant_refresh_context"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/assistant_model_selector_layout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="@string/llm_assistant_refresh_context"
-        app:layout_constraintBottom_toBottomOf="@id/assistant_context_selector_layout"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/config_ai_provider_openrouter"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/assistant_context_selector_layout" />
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@+id/assistant_context_selector_layout"
+        app:layout_constraintTop_toBottomOf="@id/assistant_toolbar">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/assistant_model_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="none"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/assistant_context_label"
@@ -58,18 +73,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/assistant_context_selector_layout" />
 
-    <TextView
-        android:id="@+id/assistant_privacy"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="8dp"
-        android:text="@string/llm_assistant_privacy"
-        android:textAppearance="?attr/textAppearanceBodySmall"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/assistant_context_label" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/assistant_messages"
         android:layout_width="0dp"
@@ -79,7 +82,7 @@
         app:layout_constraintBottom_toTopOf="@id/assistant_empty_state"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/assistant_privacy" />
+        app:layout_constraintTop_toBottomOf="@id/assistant_context_label" />
 
     <LinearLayout
         android:id="@+id/assistant_empty_state"
@@ -158,14 +161,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="@string/llm_assistant_send" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/assistant_cancel"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/llm_assistant_cancel"
-            android:visibility="gone" />
     </LinearLayout>
 
     <ProgressBar

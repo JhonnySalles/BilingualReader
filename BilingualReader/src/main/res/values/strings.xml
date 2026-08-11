@@ -1240,6 +1240,7 @@
     <string name="llm_assistant_page_range_to">To page</string>
     <string name="llm_assistant_page_range_invalid">Enter a valid page range</string>
     <string name="llm_assistant_selection_none">None selected</string>
+    <string name="llm_assistant_selection_default_book_pages">Current page &amp; 3 previous pages</string>
     <string name="llm_assistant_selection_limit">Select at most %1$d items</string>
     <string name="llm_assistant_view_context">View context</string>
     <string name="llm_assistant_context_preview_body">%1$d characters\n\n%2$s</string>
@@ -1249,7 +1250,6 @@
     <string name="llm_assistant_chip_characters">Who are the main characters?</string>
     <string name="llm_assistant_chip_explain">Explain a difficult term or concept</string>
     <string name="llm_assistant_chip_unresolved">What is still unresolved?</string>
-    <string name="llm_assistant_privacy">Answers stay on your device. No cloud required.</string>
     <string name="llm_assistant_privacy_openrouter">Answers are sent to OpenRouter (cloud). Do not share sensitive personal data.</string>
     <string name="llm_assistant_loading_model">Loading model…</string>
     <string name="llm_assistant_thinking">Thinking…</string>
@@ -1273,8 +1273,9 @@
     <string name="config_ai_provider_openrouter">OpenRouter (free models)</string>
     <string name="config_ai_openrouter_key">OpenRouter API key</string>
     <string name="config_ai_openrouter_model">OpenRouter free model</string>
-    <string name="config_ai_openrouter_model_qa">OpenRouter model (Q&amp;A)</string>
-    <string name="config_ai_openrouter_model_summary">OpenRouter model (summary)</string>
+    <string name="config_book_ai_openrouter_model">OpenRouter model (Book)</string>
+    <string name="config_book_ai_openrouter_model_summary">OpenRouter model (Book summary)</string>
+    <string name="config_manga_ai_openrouter_model">OpenRouter model (Manga vision)</string>
     <string name="config_ai_openrouter_model_loading">Loading free models…</string>
     <string name="config_ai_openrouter_model_error">Could not load free models. Using Free Models Router.</string>
     <string name="config_ai_model_status">Model status</string>

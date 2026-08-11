@@ -15,7 +15,7 @@ object AssistantSelectionHelper {
     fun formatBookSelection(context: Context, options: List<String>, indices: Set<Int>): String {
         val labels = indices.sorted().mapNotNull { options.getOrNull(it) }
         return when {
-            labels.isEmpty() -> context.getString(R.string.llm_assistant_selection_none)
+            labels.isEmpty() -> context.getString(R.string.llm_assistant_selection_default_book_pages)
             labels.size == 1 -> context.getString(
                 R.string.llm_assistant_chapters_summary_named,
                 1,
@@ -96,7 +96,20 @@ object AssistantSelectionHelper {
 
         val builder = MaterialAlertDialogBuilder(context, R.style.AppCompatAlertDialogMultiChoice)
             .setTitle(titleRes)
-            .setMultiChoiceItems(options.toTypedArray(), working) { _, which, isChecked ->
+            .setMultiChoiceItems(options.toTypedArray(), working) { dialog, which, isChecked ->
+                if (isChecked) {
+                    val count = working.count { it }
+                    if (count >= maxSelection) {
+                        working[which] = false
+                        (dialog as? androidx.appcompat.app.AlertDialog)?.listView?.setItemChecked(which, false)
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.llm_assistant_selection_limit, maxSelection),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setMultiChoiceItems
+                    }
+                }
                 working[which] = isChecked
             }
             .setPositiveButton(R.string.action_positive) { _, _ ->
@@ -168,7 +181,7 @@ object AssistantSelectionHelper {
     }
 
     fun maxSelection(context: Context, type: Type): Int {
-        return if (type == Type.BOOK) LlmSettings.maxBookChapters(context)
+        return if (type == Type.BOOK) 3
         else LlmSettings.maxMangaPages(context)
     }
 }

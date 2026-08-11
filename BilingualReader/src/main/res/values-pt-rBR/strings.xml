@@ -1170,7 +1170,6 @@
     <string name="llm_assistant_chip_characters">Quem são os personagens principais?</string>
     <string name="llm_assistant_chip_explain">Explique um termo ou conceito difícil</string>
     <string name="llm_assistant_chip_unresolved">O que ficou em aberto?</string>
-    <string name="llm_assistant_privacy">As respostas ficam no dispositivo. Sem nuvem.</string>
     <string name="llm_assistant_privacy_openrouter">As respostas são enviadas ao OpenRouter (nuvem). Não compartilhe dados pessoais sensíveis.</string>
     <string name="llm_assistant_loading_model">Carregando modelo…</string>
     <string name="llm_assistant_thinking">Pensando…</string>

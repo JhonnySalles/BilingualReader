@@ -274,8 +274,9 @@ class GeneralConsts private constructor() {
             const val SELECTION_PREFIX = "LLM_ASSISTANT_SELECTION_"
             const val PROVIDER = "LLM_PROVIDER"
             const val OPENROUTER_API_KEY = "LLM_OPENROUTER_API_KEY"
-            const val OPENROUTER_MODEL = "LLM_OPENROUTER_MODEL"
-            const val OPENROUTER_MODEL_SUMMARY = "LLM_OPENROUTER_MODEL_SUMMARY"
+            const val BOOK_OPENROUTER_MODEL = "LLM_BOOK_OPENROUTER_MODEL"
+            const val BOOK_OPENROUTER_MODEL_SUMMARY = "LLM_BOOK_OPENROUTER_MODEL_SUMMARY"
+            const val MANGA_OPENROUTER_MODEL = "LLM_MANGA_OPENROUTER_MODEL"
             const val DEFAULT_MAX_CONTEXT_CHARS = 12000
             const val DEFAULT_MAX_BOOK_CHAPTERS = 5
             const val DEFAULT_MAX_MANGA_PAGES = 10
