@@ -142,6 +142,15 @@ object LlmSettings {
         return stored.coerceIn(500, limit)
     }
 
+    fun maxHistoryChars(context: Context): Int {
+        val stored = GeneralConsts.getSharedPreferences(context)
+            .getInt(
+                GeneralConsts.KEYS.LLM.MAX_HISTORY_CHARS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_HISTORY_CHARS
+            )
+        return stored.coerceIn(100, 3000)
+    }
+
     fun selectionPrefsKey(type: Type, referenceId: Long): String =
         "${GeneralConsts.KEYS.LLM.SELECTION_PREFIX}${type.name}_$referenceId"
 

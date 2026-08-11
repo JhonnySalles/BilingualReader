@@ -20,8 +20,18 @@ object LlmPromptBuilder {
     }
 
     fun toGemmaPrompt(request: LlmChatRequest): String {
-        val combined = "${request.system.trim()}\n\n${request.user.trim()}"
-        return wrapGemmaChat(combined)
+        if (request.history.isEmpty()) {
+            val combined = "${request.system.trim()}\n\n${request.user.trim()}"
+            return wrapGemmaChat(combined)
+        }
+        val sb = StringBuilder()
+        sb.append("<start_of_turn>user\n${request.system.trim()}\n<end_of_turn>\n")
+        for (msg in request.history) {
+            val role = if (msg.role.equals("user", ignoreCase = true)) "user" else "model"
+            sb.append("<start_of_turn>$role\n${msg.text.trim()}\n<end_of_turn>\n")
+        }
+        sb.append("<start_of_turn>user\n${request.user.trim()}\n<end_of_turn>\n<start_of_turn>model\n")
+        return sb.toString()
     }
 
     fun buildSummaryRequest(
@@ -49,14 +59,15 @@ $body
     fun buildQaRequest(
         context: ReadingContext,
         question: String,
-        maxChars: Int
+        maxChars: Int,
+        history: List<LlmChatMessage> = emptyList()
     ): LlmChatRequest {
         val lang = languageName(context.userLanguage)
         val body = truncate(context.joinedText(), maxChars)
         return LlmChatRequest(
             system = """
 You are a reading assistant for the work "${context.title}".
-Answer the user's question using ONLY the context below. If the answer is not in the context, say you do not know based on the available text.
+Answer the user's question using ONLY the context below. If the answer is not in the context, say "Não encontrei a resposta neste trecho" (or the equivalent translation in $lang).
 Reply in $lang. Be concise and clear.
 """.trimIndent(),
             user = """
@@ -64,7 +75,8 @@ Context:
 $body
 
 Question: $question
-""".trimIndent()
+""".trimIndent(),
+            history = history
         )
     }
 

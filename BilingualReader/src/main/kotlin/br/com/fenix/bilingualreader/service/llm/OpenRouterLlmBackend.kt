@@ -33,10 +33,13 @@ class OpenRouterLlmBackend(
         }
         val model = customModel?.ifBlank { null } ?: LlmSettings.openRouterModelFor(context, use, type)
         val temperature = LlmSettings.temperature(context)
-        val messages = listOf(
-            OpenRouterMessage(role = "system", content = request.system),
-            OpenRouterMessage(role = "user", content = request.user)
-        )
+        val messages = mutableListOf<OpenRouterMessage>()
+        messages.add(OpenRouterMessage(role = "system", content = request.system))
+        for (h in request.history) {
+            val role = if (h.role.equals("user", ignoreCase = true)) "user" else "assistant"
+            messages.add(OpenRouterMessage(role = role, content = h.text))
+        }
+        messages.add(OpenRouterMessage(role = "user", content = request.user))
         return client.streamChat(apiKey, model, messages, temperature)
     }
 }

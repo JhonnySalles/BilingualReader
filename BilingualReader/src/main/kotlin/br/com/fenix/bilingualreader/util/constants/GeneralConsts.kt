@@ -267,6 +267,7 @@ class GeneralConsts private constructor() {
             const val MODEL_PATH = "LLM_MODEL_PATH"
             const val MODEL_EXTRACTED = "LLM_MODEL_EXTRACTED"
             const val MAX_CONTEXT_CHARS = "LLM_MAX_CONTEXT_CHARS"
+            const val MAX_HISTORY_CHARS = "LLM_MAX_HISTORY_CHARS"
             const val MAX_BOOK_CHAPTERS = "LLM_MAX_BOOK_CHAPTERS"
             const val MAX_MANGA_PAGES = "LLM_MAX_MANGA_PAGES"
             const val TEMPERATURE = "LLM_TEMPERATURE"
@@ -278,6 +279,7 @@ class GeneralConsts private constructor() {
             const val BOOK_OPENROUTER_MODEL_SUMMARY = "LLM_BOOK_OPENROUTER_MODEL_SUMMARY"
             const val MANGA_OPENROUTER_MODEL = "LLM_MANGA_OPENROUTER_MODEL"
             const val DEFAULT_MAX_CONTEXT_CHARS = 12000
+            const val DEFAULT_MAX_HISTORY_CHARS = 600
             const val DEFAULT_MAX_BOOK_CHAPTERS = 5
             const val DEFAULT_MAX_MANGA_PAGES = 10
             const val DEFAULT_BOOK_CHAPTERS = 3

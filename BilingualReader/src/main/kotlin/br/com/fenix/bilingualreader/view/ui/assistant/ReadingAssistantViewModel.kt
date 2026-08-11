@@ -16,11 +16,13 @@ import br.com.fenix.bilingualreader.service.llm.BookContextProvider
 import br.com.fenix.bilingualreader.service.llm.BookTextExtractor
 import br.com.fenix.bilingualreader.service.llm.ContextSource
 import br.com.fenix.bilingualreader.service.llm.LlmBackendFactory
+import br.com.fenix.bilingualreader.service.llm.LlmChatMessage
 import br.com.fenix.bilingualreader.service.llm.LlmInferenceEngine
 import br.com.fenix.bilingualreader.service.llm.LlmPromptBuilder
 import br.com.fenix.bilingualreader.service.llm.LlmUnsupportedDeviceException
 import br.com.fenix.bilingualreader.service.llm.MangaContextProvider
 import br.com.fenix.bilingualreader.service.llm.ReadingContext
+import br.com.fenix.bilingualreader.service.llm.SmartContextOrchestrator
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.AssistantHistoryRepository
@@ -247,8 +249,13 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         generateJob?.cancel()
         generateJob = viewModelScope.launch {
             try {
+                val (historyList, ragQuery) = buildTrimmedHistory(question)
                 val maxChars = UserLanguageHelper.maxContextChars(getApplication())
-                val request = LlmPromptBuilder.buildQaRequest(ctx, question, maxChars)
+                val orchestrator = SmartContextOrchestrator(getApplication(), ctx)
+                orchestrator.prepareIndex()
+                val relevantContext = orchestrator.getRelevantContext(ragQuery, maxChars)
+
+                val request = LlmPromptBuilder.buildQaRequest(relevantContext, question, maxChars, historyList)
                 val backend = LlmBackendFactory.resolve(
                     getApplication(),
                     br.com.fenix.bilingualreader.model.enums.LlmUse.QA,
@@ -444,5 +451,42 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
             list.add(AssistantMessage(AssistantMessageRole.ASSISTANT, text))
         }
         _messages.value = list
+    }
+
+    private fun buildTrimmedHistory(currentQuestion: String): Pair<List<LlmChatMessage>, String> {
+        val app = getApplication<Application>()
+        val maxChars = LlmSettings.maxHistoryChars(app)
+        val rawMessages = _messages.value.orEmpty()
+            .filter { it.role == AssistantMessageRole.USER || it.role == AssistantMessageRole.ASSISTANT }
+            .filter {
+                it.text != app.getString(R.string.llm_assistant_loading_model) &&
+                it.text != app.getString(R.string.llm_assistant_thinking) &&
+                it.text.isNotBlank()
+            }
+
+        val candidateMessages = if (rawMessages.isNotEmpty() && rawMessages.last().role == AssistantMessageRole.USER && rawMessages.last().text == currentQuestion) {
+            rawMessages.dropLast(1)
+        } else rawMessages
+
+        val historyList = mutableListOf<LlmChatMessage>()
+        var totalChars = 0
+        var lastUserMsgText = ""
+
+        for (msg in candidateMessages.reversed()) {
+            if (msg.role == AssistantMessageRole.USER && lastUserMsgText.isEmpty()) {
+                lastUserMsgText = msg.text
+            }
+            val textLength = msg.text.length
+            if (totalChars + textLength > maxChars && historyList.isNotEmpty()) {
+                break
+            }
+            val roleStr = if (msg.role == AssistantMessageRole.USER) "user" else "assistant"
+            historyList.add(0, LlmChatMessage(roleStr, msg.text))
+            totalChars += textLength
+            if (historyList.size >= 4) break
+        }
+
+        val ragQuery = if (lastUserMsgText.isNotBlank()) "$lastUserMsgText $currentQuestion" else currentQuestion
+        return historyList to ragQuery
     }
 }
