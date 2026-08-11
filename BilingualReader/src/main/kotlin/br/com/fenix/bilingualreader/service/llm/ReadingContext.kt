@@ -13,7 +13,8 @@ enum class ContextSource {
 data class ContextChunk(
     val label: String,
     val text: String,
-    val pageOrChapter: Int = -1
+    val pageOrChapter: Int = -1,
+    val imageBase64: String? = null
 )
 
 data class ReadingContext(

@@ -73,6 +73,9 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     private val _contextSizeInfo = MutableLiveData<Pair<Int, Int>>(0 to 4096)
     val contextSizeInfo: LiveData<Pair<Int, Int>> = _contextSizeInfo
 
+    private val _wordCount = MutableLiveData(0)
+    val wordCount: LiveData<Int> = _wordCount
+
     private var readingContext: ReadingContext? = null
     private var generateJob: Job? = null
 
@@ -378,6 +381,9 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         val app = getApplication<Application>()
         val maxChars = UserLanguageHelper.maxContextChars(app)
         _contextSizeInfo.value = full.length to maxChars
+
+        val words = if (full.isBlank()) 0 else full.split(Regex("\\s+")).count { it.isNotBlank() }
+        _wordCount.value = words
 
         if (full.isBlank()) {
             _contextPreviewText.value = ""

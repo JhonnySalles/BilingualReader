@@ -308,6 +308,9 @@ class ReadingAssistantActivity : AppCompatActivity() {
             contextSelector.setText(summary.orEmpty(), false)
             updateContextLabel(viewModel.contextSource.value ?: ContextSource.EMPTY)
         }
+        viewModel.wordCount.observe(this) { _ ->
+            updateContextLabel(viewModel.contextSource.value ?: ContextSource.EMPTY)
+        }
         viewModel.selectionLimitExceeded.observe(this) { limit ->
             if (limit != null) {
                 Toast.makeText(
@@ -358,7 +361,7 @@ class ReadingAssistantActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateContextLabel(source: ContextSource) {
+    private fun updateContextLabel(source: ContextSource, wordCount: Int = viewModel.wordCount.value ?: 0) {
         val sourceText = when (source) {
             ContextSource.SUBTITLES -> getString(R.string.llm_assistant_context_subtitles)
             ContextSource.OCR -> getString(R.string.llm_assistant_context_ocr)
@@ -366,10 +369,15 @@ class ReadingAssistantActivity : AppCompatActivity() {
             ContextSource.EMPTY -> getString(R.string.llm_assistant_context_empty)
         }
         val summary = viewModel.contextSummary.value.orEmpty()
-        contextLabel.text = if (summary.isBlank() || source == ContextSource.EMPTY) {
+        val baseLabel = if (summary.isBlank() || source == ContextSource.EMPTY) {
             sourceText
         } else {
             getString(R.string.llm_assistant_context_with_selection, sourceText, summary)
+        }
+        contextLabel.text = if (source == ContextSource.EMPTY || wordCount <= 0) {
+            baseLabel
+        } else {
+            getString(R.string.llm_assistant_context_words, baseLabel, wordCount)
         }
     }
 

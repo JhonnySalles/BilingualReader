@@ -8,5 +8,6 @@ data class LlmChatMessage(
 data class LlmChatRequest(
     val system: String,
     val user: String,
-    val history: List<LlmChatMessage> = emptyList()
+    val history: List<LlmChatMessage> = emptyList(),
+    val imagesBase64: List<String> = emptyList()
 )

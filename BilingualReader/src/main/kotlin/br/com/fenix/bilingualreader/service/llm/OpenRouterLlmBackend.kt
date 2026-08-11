@@ -6,6 +6,9 @@ import br.com.fenix.bilingualreader.model.enums.LlmUse
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterMessage
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterTextPart
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterImagePart
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterImagePartUrl
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import kotlinx.coroutines.flow.Flow
 
@@ -39,7 +42,18 @@ class OpenRouterLlmBackend(
             val role = if (h.role.equals("user", ignoreCase = true)) "user" else "assistant"
             messages.add(OpenRouterMessage(role = role, content = h.text))
         }
-        messages.add(OpenRouterMessage(role = "user", content = request.user))
+
+        if (request.imagesBase64.isNotEmpty()) {
+            val parts = mutableListOf<Any>()
+            parts.add(OpenRouterTextPart(text = request.user))
+            for (img in request.imagesBase64) {
+                parts.add(OpenRouterImagePart(image_url = OpenRouterImagePartUrl("data:image/jpeg;base64,$img")))
+            }
+            messages.add(OpenRouterMessage(role = "user", content = parts))
+        } else {
+            messages.add(OpenRouterMessage(role = "user", content = request.user))
+        }
+
         return client.streamChat(apiKey, model, messages, temperature)
     }
 }

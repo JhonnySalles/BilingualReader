@@ -64,6 +64,7 @@ $body
     ): LlmChatRequest {
         val lang = languageName(context.userLanguage)
         val body = truncate(context.joinedText(), maxChars)
+        val images = context.chunks.mapNotNull { it.imageBase64 }.filter { it.isNotBlank() }
         return LlmChatRequest(
             system = """
 You are a reading assistant for the work "${context.title}".
@@ -76,7 +77,8 @@ $body
 
 Question: $question
 """.trimIndent(),
-            history = history
+            history = history,
+            imagesBase64 = images
         )
     }
 

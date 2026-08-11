@@ -89,8 +89,42 @@ object AssistantSelectionHelper {
             R.string.llm_assistant_select_pages
         }
 
+        val titleLayout = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            val density = context.resources.displayMetrics.density
+            setPadding((24 * density).toInt(), (16 * density).toInt(), (24 * density).toInt(), 0)
+        }
+        val titleTextView = android.widget.TextView(context).apply {
+            text = context.getString(titleRes)
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20f)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            val typed = android.util.TypedValue()
+            if (context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typed, true)) {
+                setTextColor(if (typed.resourceId != 0) androidx.core.content.ContextCompat.getColor(context, typed.resourceId) else typed.data)
+            }
+        }
+        titleLayout.addView(titleTextView)
+
+        var dialogInstance: androidx.appcompat.app.AlertDialog? = null
+
+        if (type == Type.MANGA) {
+            val rangeButton = com.google.android.material.button.MaterialButton(context, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+                text = context.getString(R.string.llm_assistant_page_range)
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f)
+                setOnClickListener {
+                    dialogInstance?.dismiss()
+                    showPageRangeDialog(context, options.size, maxSelection) { range ->
+                        onConfirmed(range)
+                    }
+                }
+            }
+            titleLayout.addView(rangeButton)
+        }
+
         val builder = MaterialAlertDialogBuilder(context, R.style.AppCompatAlertDialogMultiChoice)
-            .setTitle(titleRes)
+            .setCustomTitle(titleLayout)
             .setMultiChoiceItems(options.toTypedArray(), working) { dialog, which, isChecked ->
                 if (isChecked) {
                     val count = working.count { it }
@@ -121,15 +155,7 @@ object AssistantSelectionHelper {
             }
             .setNegativeButton(R.string.action_negative, null)
 
-        if (type == Type.MANGA) {
-            builder.setNeutralButton(R.string.llm_assistant_page_range) { _, _ ->
-                showPageRangeDialog(context, options.size, maxSelection) { range ->
-                    onConfirmed(range)
-                }
-            }
-        }
-
-        builder.show()
+        dialogInstance = builder.show()
     }
 
     private fun showPageRangeDialog(

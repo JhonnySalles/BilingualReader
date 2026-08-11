@@ -2,7 +2,21 @@ package br.com.fenix.bilingualreader.service.llm.openrouter
 
 data class OpenRouterMessage(
     val role: String,
-    val content: String
+    val content: Any
+)
+
+data class OpenRouterTextPart(
+    val type: String = "text",
+    val text: String
+)
+
+data class OpenRouterImagePartUrl(
+    val url: String
+)
+
+data class OpenRouterImagePart(
+    val type: String = "image_url",
+    val image_url: OpenRouterImagePartUrl
 )
 
 data class OpenRouterChatRequest(

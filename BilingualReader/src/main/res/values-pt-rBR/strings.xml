@@ -1147,6 +1147,7 @@
     <string name="llm_assistant_context_book">Contexto: capítulos do livro</string>
     <string name="llm_assistant_context_empty">Contexto: indisponível</string>
     <string name="llm_assistant_context_with_selection">%1$s — %2$s</string>
+    <string name="llm_assistant_context_words">%1$s • %2$d palavras</string>
     <string name="llm_assistant_refresh_context">Atualizar contexto</string>
     <string name="llm_assistant_select_chapters">Capítulos</string>
     <string name="llm_assistant_select_pages">Páginas</string>

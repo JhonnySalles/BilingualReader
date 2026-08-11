@@ -65,7 +65,8 @@ class MangaContextProvider(
         for (page in pages) {
             val subtitle = subtitleByPage[page]
             if (!subtitle.isNullOrBlank()) {
-                chunks.add(ContextChunk("Page ${page + 1}", subtitle, page + 1))
+                val imageBase64 = getPageImageBase64(page)
+                chunks.add(ContextChunk("Page ${page + 1}", subtitle, page + 1, imageBase64))
                 continue
             }
 
@@ -73,7 +74,8 @@ class MangaContextProvider(
 
             val cached = cache.get(referenceId, page, ocrLanguage)
             if (!cached.isNullOrBlank()) {
-                chunks.add(ContextChunk("Page ${page + 1}", cached, page + 1))
+                val imageBase64 = getPageImageBase64(page)
+                chunks.add(ContextChunk("Page ${page + 1}", cached, page + 1, imageBase64))
                 usedOcr = true
                 continue
             }
@@ -82,11 +84,12 @@ class MangaContextProvider(
             try {
                 stream = parse.getPage(page)
                 val bitmap = BitmapFactory.decodeStream(stream) ?: continue
+                val imageBase64 = bitmapToBase64(bitmap)
                 val result = ocr.recognize(bitmap, ocrLanguage)
                 if (result.fullText.isBlank()) continue
                 val (text, _) = translator.translateIfNeeded(result.fullText, ocrLanguage, userLanguage)
                 cache.put(referenceId, page, ocrLanguage, text)
-                chunks.add(ContextChunk("Page ${page + 1}", text, page + 1))
+                chunks.add(ContextChunk("Page ${page + 1}", text, page + 1, imageBase64))
                 usedOcr = true
             } catch (_: Exception) {
             } finally {
@@ -108,5 +111,48 @@ class MangaContextProvider(
             chunks = chunks,
             source = source
         )
+    }
+
+    private fun bitmapToBase64(bitmap: android.graphics.Bitmap): String? {
+        return try {
+            val maxDim = 800
+            val width = bitmap.width
+            val height = bitmap.height
+            val resized = if (width > maxDim || height > maxDim) {
+                val ratio = width.toFloat() / height.toFloat()
+                val (newW, newH) = if (ratio > 1f) {
+                    maxDim to (maxDim / ratio).toInt()
+                } else {
+                    (maxDim * ratio).toInt() to maxDim
+                }
+                android.graphics.Bitmap.createScaledBitmap(bitmap, newW, newH, true)
+            } else {
+                bitmap
+            }
+            val out = java.io.ByteArrayOutputStream()
+            resized.compress(android.graphics.Bitmap.CompressFormat.JPEG, 65, out)
+            val bytes = out.toByteArray()
+            if (resized != bitmap) resized.recycle()
+            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun getPageImageBase64(page: Int): String? {
+        val p = parse ?: return null
+        if (page >= p.numPages()) return null
+        var stream: java.io.InputStream? = null
+        try {
+            stream = p.getPage(page)
+            val bitmap = BitmapFactory.decodeStream(stream) ?: return null
+            val base64 = bitmapToBase64(bitmap)
+            bitmap.recycle()
+            return base64
+        } catch (_: Exception) {
+            return null
+        } finally {
+            Util.closeInputStream(stream)
+        }
     }
 }

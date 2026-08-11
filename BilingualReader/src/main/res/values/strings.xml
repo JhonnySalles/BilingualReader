@@ -1226,6 +1226,7 @@
     <string name="llm_assistant_context_book">Context: book chapters</string>
     <string name="llm_assistant_context_empty">Context: none available</string>
     <string name="llm_assistant_context_with_selection">%1$s — %2$s</string>
+    <string name="llm_assistant_context_words">%1$s • %2$d words</string>
     <string name="llm_assistant_refresh_context">Refresh context</string>
     <string name="llm_assistant_select_chapters">Chapters</string>
     <string name="llm_assistant_select_pages">Pages</string>

@@ -70,7 +70,8 @@ class SmartContextOrchestrator(
                 break
             }
 
-            filteredChunks.add(ContextChunk(chunkLabel, chunkText, item.pageNumber))
+            val originalBase64 = baseReadingContext.chunks.firstOrNull { it.pageOrChapter == item.pageNumber }?.imageBase64
+            filteredChunks.add(ContextChunk(chunkLabel, chunkText, item.pageNumber, originalBase64))
             currentLength += chunkLength
         }
 
