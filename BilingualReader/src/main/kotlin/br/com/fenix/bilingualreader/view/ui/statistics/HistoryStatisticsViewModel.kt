@@ -501,6 +501,7 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             if (next.contains(year)) {
                 next.remove(year)
             } else {
+                next.clear()
                 next.add(year)
             }
             mYearsFilter.value = next
