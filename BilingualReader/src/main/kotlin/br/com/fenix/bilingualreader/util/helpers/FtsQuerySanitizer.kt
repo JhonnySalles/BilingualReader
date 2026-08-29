@@ -2,7 +2,7 @@ package br.com.fenix.bilingualreader.util.helpers
 
 object FtsQuerySanitizer {
 
-    private val STOPWORDS = setOf(
+    val STOPWORDS_SET = setOf(
         "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das",
         "em", "no", "na", "nos", "nas", "por", "pelo", "pela", "pelos", "pelas",
         "que", "e", "ou", "se", "para", "com", "como", "qual", "quais", "quem", "onde",
@@ -21,7 +21,7 @@ object FtsQuerySanitizer {
             .trim()
 
         val tokens = cleaned.split(Regex("\\s+"))
-            .filter { it.length > 1 && !STOPWORDS.contains(it) }
+            .filter { it.length > 1 && !STOPWORDS_SET.contains(it) }
 
         if (tokens.isEmpty()) {
             val fallbackTokens = cleaned.split(Regex("\\s+")).filter { it.isNotBlank() }

@@ -54,7 +54,20 @@ class SmartContextOrchestrator(
         var results = dao.searchChunks(sanitizedQuery, limit = 5)
 
         if (results.isEmpty()) {
-            // Fallback: take top 3 chunks (e.g. current page / recent chunks)
+            val individualTerms = extractKeyTerms(question)
+            if (individualTerms.isNotBlank()) {
+                results = dao.searchChunks(individualTerms, limit = 5)
+            }
+        }
+
+        if (results.isEmpty()) {
+            val maxPage = findCurrentPage()
+            val nearbyEntities = dao.getAll(limit = 10)
+                .sortedBy { kotlin.math.abs(it.pageNumber - maxPage) }
+            results = nearbyEntities.take(5)
+        }
+
+        if (results.isEmpty()) {
             results = dao.getAll(limit = 3)
         }
 
@@ -83,5 +96,24 @@ class SmartContextOrchestrator(
             chunks = filteredChunks,
             source = if (filteredChunks.isEmpty()) ContextSource.EMPTY else baseReadingContext.source
         )
+    }
+
+    private fun extractKeyTerms(question: String): String {
+        val words = question.lowercase()
+            .replace(Regex("[^a-záàâãéèêíïóôõöúçñ\\w\\s]"), " ")
+            .split(Regex("\\s+"))
+            .filter { it.length > 2 }
+            .filter { it !in FtsQuerySanitizer.STOPWORDS_SET }
+            .distinct()
+            .take(3)
+
+        if (words.isEmpty()) return ""
+        return words.joinToString(" OR ") { "$it*" }
+    }
+
+    private fun findCurrentPage(): Int {
+        return baseReadingContext.chunks
+            .map { it.pageOrChapter }
+            .maxOrNull() ?: 0
     }
 }

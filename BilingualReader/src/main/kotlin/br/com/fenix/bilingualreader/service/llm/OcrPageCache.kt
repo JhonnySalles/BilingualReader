@@ -41,6 +41,15 @@ class OcrPageCache private constructor(private val context: Context) {
         }
     }
 
+    fun clearAll() {
+        memory.evictAll()
+        try {
+            root.deleteRecursively()
+            root.mkdirs()
+        } catch (_: Exception) {
+        }
+    }
+
     private fun key(referenceId: Long?, page0: Int, ocrLanguage: Languages?): String? {
         val id = referenceId ?: return null
         val lang = ocrLanguage?.name ?: "unknown"

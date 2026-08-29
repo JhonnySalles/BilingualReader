@@ -74,10 +74,12 @@ class MangaContextProvider(
 
             val cached = cache.get(referenceId, page, ocrLanguage)
             if (!cached.isNullOrBlank()) {
-                val imageBase64 = getPageImageBase64(page)
-                chunks.add(ContextChunk("Page ${page + 1}", cached, page + 1, imageBase64))
-                usedOcr = true
-                continue
+                if (br.com.fenix.bilingualreader.util.helpers.TextQualityValidator.isReadable(cached)) {
+                    val imageBase64 = getPageImageBase64(page)
+                    chunks.add(ContextChunk("Page ${page + 1}", cached, page + 1, imageBase64))
+                    usedOcr = true
+                    continue
+                }
             }
 
             var stream: java.io.InputStream? = null
@@ -86,8 +88,38 @@ class MangaContextProvider(
                 val bitmap = BitmapFactory.decodeStream(stream) ?: continue
                 val imageBase64 = bitmapToBase64(bitmap)
                 val result = ocr.recognize(bitmap, ocrLanguage)
-                if (result.fullText.isBlank()) continue
+                if (result.fullText.isBlank()) {
+                    chunks.add(ContextChunk(
+                        "Page ${page + 1}",
+                        context.getString(br.com.fenix.bilingualreader.R.string.llm_assistant_no_readable_text),
+                        page + 1,
+                        imageBase64
+                    ))
+                    continue
+                }
+
+                val confidence = br.com.fenix.bilingualreader.util.helpers.TextQualityValidator.confidenceScore(result.fullText)
+                if (confidence < 0.25f) {
+                    chunks.add(ContextChunk(
+                        "Page ${page + 1}",
+                        context.getString(br.com.fenix.bilingualreader.R.string.llm_assistant_low_confidence_text),
+                        page + 1,
+                        imageBase64
+                    ))
+                    continue
+                }
+
                 val (text, _) = translator.translateIfNeeded(result.fullText, ocrLanguage, userLanguage)
+                if (!br.com.fenix.bilingualreader.util.helpers.TextQualityValidator.isReadable(text)) {
+                    chunks.add(ContextChunk(
+                        "Page ${page + 1}",
+                        context.getString(br.com.fenix.bilingualreader.R.string.llm_assistant_incoherent_text),
+                        page + 1,
+                        imageBase64
+                    ))
+                    continue
+                }
+
                 cache.put(referenceId, page, ocrLanguage, text)
                 chunks.add(ContextChunk("Page ${page + 1}", text, page + 1, imageBase64))
                 usedOcr = true

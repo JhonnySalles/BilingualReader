@@ -24,7 +24,7 @@ object TextChunker {
         val cleaned = cleanNoise(text)
         if (cleaned.isBlank()) return emptyList()
 
-        val words = cleaned.split(Regex("\\s+"))
+        val words = cleaned.split(Regex("\\s+")).filter { it.isNotBlank() }
         if (words.size <= targetWords) return listOf(cleaned)
 
         val chunks = mutableListOf<String>()
@@ -32,13 +32,42 @@ object TextChunker {
 
         while (start < words.size) {
             val end = (start + targetWords).coerceAtMost(words.size)
-            val chunkWords = words.subList(start, end)
-            chunks.add(chunkWords.joinToString(" "))
+            var adjustedEnd = if (end == words.size) words.size else findSentenceBoundary(words, end, targetWords)
+            
+            if (adjustedEnd <= start) {
+                adjustedEnd = (start + 1).coerceAtMost(words.size)
+            }
 
-            if (end == words.size) break
-            start += (targetWords - overlapWords).coerceAtLeast(1)
+            val chunkWords = words.subList(start, adjustedEnd)
+            val chunk = chunkWords.joinToString(" ")
+            if (chunk.isNotBlank()) chunks.add(chunk)
+
+            if (adjustedEnd >= words.size) break
+            start += (adjustedEnd - start - overlapWords).coerceAtLeast(1)
         }
 
         return chunks
+    }
+
+    private fun findSentenceBoundary(words: List<String>, position: Int, targetWords: Int): Int {
+        val maxExtend = (targetWords * 0.3).toInt().coerceAtLeast(5)
+        val limit = (position + maxExtend).coerceAtMost(words.size)
+
+        for (i in position until limit) {
+            val word = words[i]
+            if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?') ||
+                word.endsWith('。') || word.endsWith('」')) {
+                return i + 1
+            }
+        }
+
+        for (i in (position - 1) downTo (position - maxExtend).coerceAtLeast(0)) {
+            val word = words[i]
+            if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?') ||
+                word.endsWith('。') || word.endsWith('」')) {
+                return i + 1
+            }
+        }
+        return position.coerceAtMost(words.size)
     }
 }

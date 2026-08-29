@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.service.llm
 
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Type
 
 object LlmPromptBuilder {
 
@@ -65,12 +66,9 @@ $body
         val lang = languageName(context.userLanguage)
         val body = truncate(context.joinedText(), maxChars)
         val images = context.chunks.mapNotNull { it.imageBase64 }.filter { it.isNotBlank() }
+        val systemPrompt = buildContextAwareSystemPrompt(context, lang)
         return LlmChatRequest(
-            system = """
-You are a reading assistant for the work "${context.title}".
-Answer the user's question using ONLY the context below. If the answer is not in the context, say "Não encontrei a resposta neste trecho" (or the equivalent translation in $lang).
-Reply in $lang. Be concise and clear.
-""".trimIndent(),
+            system = systemPrompt,
             user = """
 Context:
 $body
@@ -80,6 +78,37 @@ Question: $question
             history = history,
             imagesBase64 = images
         )
+    }
+
+    private fun buildContextAwareSystemPrompt(context: ReadingContext, lang: String): String {
+        val base = """
+You are a reading assistant for the work "${context.title}".
+Answer the user's question using ONLY the context provided below.
+Reply in $lang. Be concise and clear.
+""".trimIndent()
+
+        val noiseInstructions = """
+
+IMPORTANT INSTRUCTIONS:
+- The context may contain OCR artifacts, broken characters, or formatting noise. Ignore these and focus on extracting meaning from recognizable words and sentences.
+- If the context is too noisy, garbled, or consists mostly of random characters to understand, respond clearly stating that the text could not be read properly.
+- If the answer is not present in the context, say that you could not find the answer in the provided excerpt (translated to $lang).
+- Do NOT invent information that is not in the context.
+- Do NOT output raw OCR artifacts or meaningless character sequences in your response.
+""".trimIndent()
+
+        val typeSpecific = when (context.type) {
+            Type.MANGA -> """
+- You are analyzing manga/comic pages. The text may come from speech bubbles extracted via OCR and may be fragmented. Try to reconstruct dialogue flow.
+- If images are provided, use visual context to complement text understanding.
+""".trimIndent()
+            Type.BOOK -> """
+- You are analyzing an ebook/novel. The text should be mostly well-structured paragraphs.
+- Pay attention to chapter titles and narrative flow when answering.
+""".trimIndent()
+        }
+
+        return "$base\n$noiseInstructions\n$typeSpecific"
     }
 
     /** Kept for unit tests / Gemma-only callers. */

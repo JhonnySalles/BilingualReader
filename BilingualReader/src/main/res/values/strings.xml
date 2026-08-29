@@ -1292,5 +1292,11 @@
     <string name="config_ai_max_manga_pages">Max manga pages for AI</string>
     <string name="config_ai_temperature">Creativity (0–100)</string>
     <string name="config_ai_temperature_hint">80 ≈ 0.80 temperature. Higher = more creative.</string>
+    <string name="llm_assistant_no_readable_text">[This page contains no readable text — it may be an action scene or illustration]</string>
+    <string name="llm_assistant_low_confidence_text">[OCR could not reliably read this page — low confidence text]</string>
+    <string name="llm_assistant_incoherent_text">[Text extracted but not coherent enough to process]</string>
+    <string name="pref_clear_ocr_cache">Clear OCR Cache</string>
+    <string name="pref_clear_ocr_cache_desc">Clear cached OCR text for manga pages</string>
+    <string name="pref_clear_ocr_cache_success">OCR Cache cleared successfully</string>
 
 </resources>

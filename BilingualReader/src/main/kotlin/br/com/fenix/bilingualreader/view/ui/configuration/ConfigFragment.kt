@@ -900,6 +900,8 @@ class ConfigFragment : Fragment() {
 
         mConfigAiDelete.setOnClickListener {
             br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext()).deleteModel()
+            br.com.fenix.bilingualreader.service.llm.OcrPageCache.getInstance(requireContext()).clearAll()
+            Toast.makeText(requireContext(), getString(R.string.pref_clear_ocr_cache_success), Toast.LENGTH_SHORT).show()
             refreshAiModelStatus()
         }
 

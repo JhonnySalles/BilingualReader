@@ -4,6 +4,8 @@ import android.text.Html
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import org.jsoup.Jsoup
 
+import br.com.fenix.bilingualreader.util.helpers.TextQualityValidator
+
 object BookTextExtractor {
 
     data class ChapterRange(
@@ -14,11 +16,25 @@ object BookTextExtractor {
 
     fun htmlToPlainText(html: String): String {
         if (html.isBlank()) return ""
+        val cleaned = html
+            .replace(Regex("<image-begin>.*?<image-end>", RegexOption.DOT_MATCHES_ALL), "")
+            .replace(Regex("<img[^>]*>", RegexOption.IGNORE_CASE), "")
         return try {
-            Jsoup.parse(html).text().trim()
+            val text = Jsoup.parse(cleaned).text()
+            sanitizePlainText(text)
         } catch (_: Exception) {
-            Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT).toString().trim()
+            val text = Html.fromHtml(cleaned, Html.FROM_HTML_MODE_COMPACT).toString()
+            sanitizePlainText(text)
         }
+    }
+
+    fun sanitizePlainText(raw: String): String {
+        return raw
+            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]"), "")
+            .replace(Regex("\\u00A0"), " ")
+            .replace(Regex("[ \\t]{2,}"), " ")
+            .replace(Regex("\\n{3,}"), "\n\n")
+            .trim()
     }
 
     /**
@@ -97,6 +113,7 @@ object BookTextExtractor {
 
     fun extractPageText(parse: DocumentParse, page0Based: Int): String {
         if (page0Based < 0 || page0Based >= parse.pageCount) return ""
-        return htmlToPlainText(parse.getPage(page0Based)?.pageHTMLWithImages.orEmpty())
+        val raw = htmlToPlainText(parse.getPage(page0Based)?.pageHTMLWithImages.orEmpty())
+        return if (TextQualityValidator.isReadable(raw)) raw else ""
     }
 }
