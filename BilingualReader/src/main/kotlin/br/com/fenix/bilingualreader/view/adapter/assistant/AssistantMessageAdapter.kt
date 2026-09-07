@@ -12,20 +12,18 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.AssistantMessage
 import br.com.fenix.bilingualreader.model.enums.AssistantMessageRole
 import com.google.android.material.color.MaterialColors
 
-class AssistantMessageAdapter : RecyclerView.Adapter<AssistantMessageAdapter.Holder>() {
+class AssistantMessageAdapter : ListAdapter<AssistantMessage, AssistantMessageAdapter.Holder>(DiffCallback) {
 
-    private val items = mutableListOf<AssistantMessage>()
-
-    fun submit(list: List<AssistantMessage>) {
-        items.clear()
-        items.addAll(list)
-        notifyDataSetChanged()
+    fun submit(list: List<AssistantMessage>, commitCallback: Runnable? = null) {
+        submitList(list, commitCallback)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -35,10 +33,16 @@ class AssistantMessageAdapter : RecyclerView.Adapter<AssistantMessageAdapter.Hol
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int = items.size
+    private object DiffCallback : DiffUtil.ItemCallback<AssistantMessage>() {
+        override fun areItemsTheSame(oldItem: AssistantMessage, newItem: AssistantMessage): Boolean =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: AssistantMessage, newItem: AssistantMessage): Boolean =
+            oldItem == newItem
+    }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textView: TextView = itemView.findViewById(R.id.assistant_message_text)

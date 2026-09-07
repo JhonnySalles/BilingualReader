@@ -43,6 +43,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
 
     private val historyRepository = AssistantHistoryRepository(application)
 
+    private val messageList = mutableListOf<AssistantMessage>()
     private val _messages = MutableLiveData<List<AssistantMessage>>(emptyList())
     val messages: LiveData<List<AssistantMessage>> = _messages
 
@@ -123,7 +124,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         if (!preloadSummary.isNullOrBlank()) {
             initial.add(AssistantMessage(AssistantMessageRole.ASSISTANT, preloadSummary))
         }
-        _messages.value = initial
+        setMessages(initial)
     }
 
     fun isBookContext(): Boolean = type == Type.BOOK
@@ -158,7 +159,15 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         return true
     }
 
-    fun refreshContext() {
+    private var lastLoadedSelectionKey: String? = null
+
+    fun refreshContext(force: Boolean = false) {
+        val selected = _selectedIndices.value.orEmpty().sorted().joinToString(",")
+        val currentKey = "${type}_${referenceId}_${page}_${selected}"
+        if (!force && lastLoadedSelectionKey == currentKey && readingContext != null) {
+            return
+        }
+
         viewModelScope.launch {
             _loading.value = true
             try {
@@ -166,14 +175,14 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                     Type.BOOK -> {
                         val parse = bookParse
                         if (parse != null) {
-                            val selected = selectedBookRanges()
+                            val selectedRanges = selectedBookRanges()
                             BookContextProvider(
                                 getApplication(),
                                 parse,
                                 title,
                                 page,
                                 bookLanguage
-                            ).build(selected)
+                            ).build(selectedRanges)
                         } else {
                             emptyContext()
                         }
@@ -195,6 +204,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         }
                     }
                 }
+                lastLoadedSelectionKey = currentKey
                 _contextSource.value = readingContext?.source ?: ContextSource.EMPTY
                 updateContextSummary()
                 updateContextPreview()
@@ -267,13 +277,16 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 )
                 backend.ensureReady()
 
-                replaceLastAssistant(getApplication<Application>().getString(R.string.llm_assistant_thinking))
+                replaceLastAssistant(getApplication<Application>().getString(R.string.llm_assistant_thinking), notifyImmediately = true)
+
+                var lastStreamUpdateTime = 0L
+                val streamThrottleMs = 50L
 
                 backend.generateStreaming(request)
                     .catch { e ->
                         Telemetry.recordException(e, "LlmBackend generateStreaming error")
                         val errorText = resolveError(e)
-                        replaceLastAssistant(errorText)
+                        replaceLastAssistant(errorText, notifyImmediately = true)
                         persistMessage(AssistantMessageRole.ASSISTANT, errorText)
                         _generating.value = false
                     }
@@ -281,8 +294,16 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                         val display = text.ifBlank {
                             getApplication<Application>().getString(R.string.llm_assistant_thinking)
                         }
-                        replaceLastAssistant(display)
+                        val now = System.currentTimeMillis()
+                        if (done || now - lastStreamUpdateTime >= streamThrottleMs) {
+                            lastStreamUpdateTime = now
+                            replaceLastAssistant(display, notifyImmediately = true)
+                        } else {
+                            replaceLastAssistant(display, notifyImmediately = false)
+                        }
+
                         if (done) {
+                            replaceLastAssistant(display, notifyImmediately = true)
                             if (text.isNotBlank()) {
                                 persistMessage(AssistantMessageRole.ASSISTANT, text)
                             }
@@ -293,7 +314,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 Telemetry.recordException(e, "ReadingAssistantViewModel ask error")
                 val errorText = resolveError(e)
-                replaceLastAssistant(errorText)
+                replaceLastAssistant(errorText, notifyImmediately = true)
                 persistMessage(AssistantMessageRole.ASSISTANT, errorText)
                 _generating.value = false
             }
@@ -312,6 +333,7 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
             withContext(Dispatchers.IO) {
                 historyRepository.clear(type, id)
             }
+            messageList.clear()
             _messages.value = emptyList()
         }
     }
@@ -377,13 +399,12 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     }
 
     private fun updateContextPreview() {
-        val full = readingContext?.joinedText().orEmpty()
+        val rc = readingContext
+        val full = rc?.joinedText.orEmpty()
         val app = getApplication<Application>()
         val maxChars = UserLanguageHelper.maxContextChars(app)
         _contextSizeInfo.value = full.length to maxChars
-
-        val words = if (full.isBlank()) 0 else full.split(Regex("\\s+")).count { it.isNotBlank() }
-        _wordCount.value = words
+        _wordCount.value = rc?.wordCount ?: 0
 
         if (full.isBlank()) {
             _contextPreviewText.value = ""
@@ -396,11 +417,10 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
     private fun removeThinkingPlaceholder() {
         val thinking = getApplication<Application>().getString(R.string.llm_assistant_thinking)
         val loadingModel = getApplication<Application>().getString(R.string.llm_assistant_loading_model)
-        val list = (_messages.value ?: emptyList()).toMutableList()
-        val index = list.indexOfLast { it.role == AssistantMessageRole.ASSISTANT }
-        if (index >= 0 && (list[index].text == thinking || list[index].text == loadingModel)) {
-            list.removeAt(index)
-            _messages.value = list
+        val index = messageList.indexOfLast { it.role == AssistantMessageRole.ASSISTANT }
+        if (index >= 0 && (messageList[index].text == thinking || messageList[index].text == loadingModel)) {
+            messageList.removeAt(index)
+            _messages.value = messageList.toList()
         }
     }
 
@@ -444,19 +464,28 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
         )
     }
 
-    private fun append(message: AssistantMessage) {
-        _messages.value = (_messages.value ?: emptyList()) + message
+    private fun setMessages(list: List<AssistantMessage>) {
+        messageList.clear()
+        messageList.addAll(list)
+        _messages.value = messageList.toList()
     }
 
-    private fun replaceLastAssistant(text: String) {
-        val list = (_messages.value ?: emptyList()).toMutableList()
-        val index = list.indexOfLast { it.role == AssistantMessageRole.ASSISTANT }
+    private fun append(message: AssistantMessage) {
+        messageList.add(message)
+        _messages.value = messageList.toList()
+    }
+
+    private fun replaceLastAssistant(text: String, notifyImmediately: Boolean = true) {
+        val index = messageList.indexOfLast { it.role == AssistantMessageRole.ASSISTANT }
         if (index >= 0) {
-            list[index] = AssistantMessage(AssistantMessageRole.ASSISTANT, text)
+            val existing = messageList[index]
+            messageList[index] = existing.copy(text = text)
         } else {
-            list.add(AssistantMessage(AssistantMessageRole.ASSISTANT, text))
+            messageList.add(AssistantMessage(AssistantMessageRole.ASSISTANT, text))
         }
-        _messages.value = list
+        if (notifyImmediately) {
+            _messages.value = messageList.toList()
+        }
     }
 
     private fun buildTrimmedHistory(currentQuestion: String): Pair<List<LlmChatMessage>, String> {

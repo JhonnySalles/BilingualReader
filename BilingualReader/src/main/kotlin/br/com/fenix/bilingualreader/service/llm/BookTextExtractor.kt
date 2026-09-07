@@ -4,6 +4,7 @@ import android.text.Html
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import org.jsoup.Jsoup
 
+import br.com.fenix.bilingualreader.util.helpers.TextPreprocessor
 import br.com.fenix.bilingualreader.util.helpers.TextQualityValidator
 
 object BookTextExtractor {
@@ -14,28 +15,9 @@ object BookTextExtractor {
         val endPageExclusive: Int
     )
 
-    fun htmlToPlainText(html: String): String {
-        if (html.isBlank()) return ""
-        val cleaned = html
-            .replace(Regex("<image-begin>.*?<image-end>", RegexOption.DOT_MATCHES_ALL), "")
-            .replace(Regex("<img[^>]*>", RegexOption.IGNORE_CASE), "")
-        return try {
-            val text = Jsoup.parse(cleaned).text()
-            sanitizePlainText(text)
-        } catch (_: Exception) {
-            val text = Html.fromHtml(cleaned, Html.FROM_HTML_MODE_COMPACT).toString()
-            sanitizePlainText(text)
-        }
-    }
+    fun htmlToPlainText(html: String): String = TextPreprocessor.cleanBookHtml(html)
 
-    fun sanitizePlainText(raw: String): String {
-        return raw
-            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]"), "")
-            .replace(Regex("\\u00A0"), " ")
-            .replace(Regex("[ \\t]{2,}"), " ")
-            .replace(Regex("\\n{3,}"), "\n\n")
-            .trim()
-    }
+    fun sanitizePlainText(raw: String): String = TextPreprocessor.cleanNoise(raw)
 
     /**
      * Builds chapter ranges from parse.getChapters() map (title -> 1-based page).

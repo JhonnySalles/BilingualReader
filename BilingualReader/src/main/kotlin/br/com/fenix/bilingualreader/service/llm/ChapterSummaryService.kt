@@ -66,7 +66,7 @@ class ChapterSummaryService(private val context: Context) {
     ): String = withContext(Dispatchers.IO) {
         MangaContextProvider(context, parse, title, currentPage0Based, ocrLanguage, referenceId)
             .build(pages)
-            .joinedText()
+            .joinedText
     }
 
     fun summarizeStreaming(

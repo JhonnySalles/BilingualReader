@@ -3,6 +3,8 @@ package br.com.fenix.bilingualreader.service.llm
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
 
+import br.com.fenix.bilingualreader.util.helpers.TextPreprocessor
+
 enum class ContextSource {
     SUBTITLES,
     OCR,
@@ -25,9 +27,26 @@ data class ReadingContext(
     val chunks: List<ContextChunk>,
     val source: ContextSource
 ) {
-    fun joinedText(separator: String = "\n\n"): String =
+    val joinedText: String by lazy {
         chunks.filter { it.text.isNotBlank() }
+            .joinToString("\n\n") { chunk ->
+                if (chunk.label.isNotBlank()) "${chunk.label}\n${chunk.text}" else chunk.text
+            }
+    }
+
+    val wordCount: Int by lazy {
+        TextPreprocessor.countWords(joinedText)
+    }
+
+    fun joinedText(separator: String = "\n\n"): String {
+        if (separator == "\n\n") return joinedText
+        return chunks.filter { it.text.isNotBlank() }
             .joinToString(separator) { chunk ->
                 if (chunk.label.isNotBlank()) "${chunk.label}\n${chunk.text}" else chunk.text
             }
+    }
+
+    companion object {
+        fun countWords(text: CharSequence): Int = TextPreprocessor.countWords(text)
+    }
 }

@@ -13,9 +13,12 @@ class BookContextProvider(
     private val currentPage0Based: Int,
     private val sourceLanguage: Languages? = null
 ) {
+    private val cachedRanges: List<BookTextExtractor.ChapterRange> by lazy {
+        BookTextExtractor.buildChapterRanges(parse)
+    }
+
     fun build(includeCurrentPage: Boolean = true): ReadingContext {
-        val ranges = BookTextExtractor.buildChapterRanges(parse)
-        val lastThree = BookTextExtractor.selectLastChapters(ranges, currentPage0Based + 1, 3)
+        val lastThree = BookTextExtractor.selectLastChapters(cachedRanges, currentPage0Based + 1, 3)
         return build(lastThree, includeCurrentPage)
     }
 
@@ -54,16 +57,13 @@ class BookContextProvider(
     }
 
     fun buildLastThreeChaptersText(): String {
-        val ranges = BookTextExtractor.buildChapterRanges(parse)
-        val lastThree = BookTextExtractor.selectLastChapters(ranges, currentPage0Based + 1, 3)
+        val lastThree = BookTextExtractor.selectLastChapters(cachedRanges, currentPage0Based + 1, 3)
         return BookTextExtractor.extractChaptersText(parse, lastThree)
     }
 
     fun selectedChapterTitles(): List<String> {
-        val ranges = BookTextExtractor.buildChapterRanges(parse)
-        return BookTextExtractor.selectLastChapters(ranges, currentPage0Based + 1, 3).map { it.title }
+        return BookTextExtractor.selectLastChapters(cachedRanges, currentPage0Based + 1, 3).map { it.title }
     }
 
-    fun allChapterRanges(): List<BookTextExtractor.ChapterRange> =
-        BookTextExtractor.buildChapterRanges(parse)
+    fun allChapterRanges(): List<BookTextExtractor.ChapterRange> = cachedRanges
 }

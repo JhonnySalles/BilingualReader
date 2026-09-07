@@ -2,14 +2,19 @@ package br.com.fenix.bilingualreader.util.helpers
 
 object TextChunker {
 
+    private val REGEX_LINE_BREAK = Regex("\r\n|\r")
+    private val REGEX_MULTI_NEWLINE = Regex("\n{2,}")
+    private val REGEX_MULTI_SPACE = Regex("[ \\t]{2,}")
+    private val REGEX_WHITESPACE = Regex("\\s+")
+
     /**
      * Cleans noise such as duplicate line breaks, excess whitespace, etc.
      */
     fun cleanNoise(text: String): String {
         return text
-            .replace(Regex("\r\n|\r"), "\n")
-            .replace(Regex("\n{2,}"), "\n")
-            .replace(Regex("[ \t]{2,}"), " ")
+            .replace(REGEX_LINE_BREAK, "\n")
+            .replace(REGEX_MULTI_NEWLINE, "\n")
+            .replace(REGEX_MULTI_SPACE, " ")
             .trim()
     }
 
@@ -24,7 +29,7 @@ object TextChunker {
         val cleaned = cleanNoise(text)
         if (cleaned.isBlank()) return emptyList()
 
-        val words = cleaned.split(Regex("\\s+")).filter { it.isNotBlank() }
+        val words = cleaned.split(REGEX_WHITESPACE).filter { it.isNotBlank() }
         if (words.size <= targetWords) return listOf(cleaned)
 
         val chunks = mutableListOf<String>()

@@ -64,7 +64,7 @@ $body
         history: List<LlmChatMessage> = emptyList()
     ): LlmChatRequest {
         val lang = languageName(context.userLanguage)
-        val body = truncate(context.joinedText(), maxChars)
+        val body = truncate(context.joinedText, maxChars)
         val images = context.chunks.mapNotNull { it.imageBase64 }.filter { it.isNotBlank() }
         val systemPrompt = buildContextAwareSystemPrompt(context, lang)
         return LlmChatRequest(

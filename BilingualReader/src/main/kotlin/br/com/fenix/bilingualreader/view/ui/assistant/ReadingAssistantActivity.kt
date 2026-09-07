@@ -293,13 +293,12 @@ class ReadingAssistantActivity : AppCompatActivity() {
 
     private fun observe() {
         viewModel.messages.observe(this) { list ->
-            adapter.submit(list)
-            emptyState.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-            if (list.isNotEmpty()) {
-                messagesList.post {
+            adapter.submit(list) {
+                if (list.isNotEmpty()) {
                     messagesList.scrollToPosition(list.lastIndex)
                 }
             }
+            emptyState.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
         }
         viewModel.contextSource.observe(this) { source ->
             updateContextLabel(source)

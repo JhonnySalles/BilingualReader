@@ -7,7 +7,10 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.RAGContextDatabase
 import br.com.fenix.bilingualreader.util.helpers.FtsQuerySanitizer
 import br.com.fenix.bilingualreader.util.helpers.TextChunker
+import br.com.fenix.bilingualreader.util.helpers.TextPreprocessor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class SmartContextOrchestrator(
@@ -17,28 +20,58 @@ class SmartContextOrchestrator(
     private val db = RAGContextDatabase.getInstance(context)
     private val dao = db.contextChunkDao()
 
-    suspend fun prepareIndex() = withContext(Dispatchers.IO) {
-        dao.clearAll()
+    companion object {
+        private val mutex = Mutex()
+        @Volatile
+        private var lastIndexedFingerprint: String? = null
 
-        val ftsEntities = mutableListOf<ContextChunkFtsEntity>()
-        var rowIdCounter = 1
+        private val REGEX_KEY_TERMS_CLEAN = Regex("[^a-z0-9áàâãéèêíïóôõöúçñ\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF\\u3005-\\u3007\\s]")
+        private val REGEX_WHITESPACE = Regex("\\s+")
 
-        for (chunk in baseReadingContext.chunks) {
-            val textChunks = TextChunker.chunkText(chunk.text)
-            for (textChunk in textChunks) {
-                ftsEntities.add(
-                    ContextChunkFtsEntity(
-                        rowid = rowIdCounter++,
-                        chapterTitle = chunk.label,
-                        text = textChunk,
-                        pageNumber = chunk.pageOrChapter
-                    )
-                )
-            }
+        fun computeFingerprint(readingContext: ReadingContext): String {
+            val chunkCount = readingContext.chunks.size
+            val totalLength = readingContext.chunks.sumOf { it.text.length }
+            val pageHash = readingContext.chunks.fold(1) { acc, c -> 31 * acc + c.pageOrChapter }
+            return "${readingContext.type}_${readingContext.title}_${chunkCount}_${totalLength}_${pageHash}"
         }
 
-        if (ftsEntities.isNotEmpty()) {
-            dao.insertAll(ftsEntities)
+        fun invalidateIndex() {
+            lastIndexedFingerprint = null
+        }
+    }
+
+    suspend fun prepareIndex() = withContext(Dispatchers.IO) {
+        val currentFingerprint = computeFingerprint(baseReadingContext)
+        mutex.withLock {
+            if (lastIndexedFingerprint == currentFingerprint) {
+                return@withContext
+            }
+
+            dao.clearAll()
+
+            val ftsEntities = mutableListOf<ContextChunkFtsEntity>()
+            var rowIdCounter = 1
+            val isManga = baseReadingContext.type == Type.MANGA
+
+            for (chunk in baseReadingContext.chunks) {
+                val preprocessed = TextPreprocessor.prepareForLlm(chunk.text, isManga = isManga)
+                val textChunks = TextChunker.chunkText(preprocessed)
+                for (textChunk in textChunks) {
+                    ftsEntities.add(
+                        ContextChunkFtsEntity(
+                            rowid = rowIdCounter++,
+                            chapterTitle = chunk.label,
+                            text = textChunk,
+                            pageNumber = chunk.pageOrChapter
+                        )
+                    )
+                }
+            }
+
+            if (ftsEntities.isNotEmpty()) {
+                dao.insertAll(ftsEntities)
+            }
+            lastIndexedFingerprint = currentFingerprint
         }
     }
 
@@ -99,10 +132,11 @@ class SmartContextOrchestrator(
     }
 
     private fun extractKeyTerms(question: String): String {
-        val words = question.lowercase()
-            .replace(Regex("[^a-záàâãéèêíïóôõöúçñ\\w\\s]"), " ")
-            .split(Regex("\\s+"))
-            .filter { it.length > 2 }
+        val normalized = TextPreprocessor.normalizeJapaneseWidth(question)
+        val words = normalized.lowercase()
+            .replace(REGEX_KEY_TERMS_CLEAN, " ")
+            .split(REGEX_WHITESPACE)
+            .filter { it.length > 1 }
             .filter { it !in FtsQuerySanitizer.STOPWORDS_SET }
             .distinct()
             .take(3)
