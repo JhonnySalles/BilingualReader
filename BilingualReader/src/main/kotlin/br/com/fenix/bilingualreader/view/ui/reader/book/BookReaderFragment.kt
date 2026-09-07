@@ -285,7 +285,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 if (mBook != null) {
                     mFileName = file.name
-                    mLocalCurrentPage = mBook!!.bookMark - 1
+                    mLocalCurrentPage = if (mBook!!.bookMark > 0) mBook!!.bookMark - 1 else 0
                 }
             } else {
                 mLOGGER.info("File not founded.")
@@ -1423,11 +1423,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 if (annotation.fontSize != mViewModel.fontSize.value!!) {
                     mViewModel.changeFontSize(annotation.fontSize)
                     mHandler.postDelayed({
-                        setCurrentPage(annotation.page + 1, isAnimated = false)
-                        mPagerAdapter.notifyItemChanged(annotation.page)
+                        setCurrentPage(annotation.page, isAnimated = false)
+                        mPagerAdapter.notifyItemChanged(annotation.page - 1)
                     }, 1000)
                 } else if (annotation.page > 0)
-                    setCurrentPage(annotation.page + 1, isAnimated = false)
+                    setCurrentPage(annotation.page, isAnimated = false)
             }
         }
 
@@ -1655,7 +1655,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSelectReadingFrom(page: Int, text: String) = executeTTS(page, text)
 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
-        val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
+        val chapter = mParse!!.getChapter(if (page > 0) page - 1 else 0) ?: Pair(0, "")
         val annotation = BookAnnotation(
             mBook!!.id!!, page, mParse!!.pageCount, mViewModel.fontSize.value!!, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
@@ -1683,15 +1683,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
         if (refresh) {
             mViewModel.refreshAnnotations(mBook)
-            mViewPager.adapter!!.notifyItemChanged(page)
+            mViewPager.adapter!!.notifyItemChanged(if (page > 0) page - 1 else 0)
         }
     }
 
-    override fun textSelectRemoveMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(annotation.page)
+    override fun textSelectRemoveMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(if (annotation.page > 0) annotation.page - 1 else 0)
 
-    override fun textSelectChangeMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(annotation.page)
+    override fun textSelectChangeMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(if (annotation.page > 0) annotation.page - 1 else 0)
 
-    override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page + 1))
+    override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page))
 
 
     fun markCurrentPage() {

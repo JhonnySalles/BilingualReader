@@ -368,8 +368,8 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, book.library)
                             bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
 
-                            if ((annotation as BookAnnotation).page >= 0 && annotation.page < book.pages)
-                                bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, annotation.page +1)
+                            if ((annotation as BookAnnotation).page > 0 && annotation.page <= book.pages)
+                                bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, annotation.page)
                             else
                                 bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
 
@@ -396,7 +396,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, manga.library)
                             bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
 
-                            if ((annotation as MangaAnnotation).page >= 0 && annotation.page < manga.pages)
+                            if ((annotation as MangaAnnotation).page > 0 && annotation.page <= manga.pages)
                                 bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, annotation.page)
                             else
                                 bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)

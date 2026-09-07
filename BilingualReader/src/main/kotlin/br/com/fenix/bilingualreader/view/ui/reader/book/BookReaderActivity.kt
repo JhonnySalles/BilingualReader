@@ -353,7 +353,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     fun changePageDescription(chapter: Int, description: String, page: Int, pages: Int) {
-        mToolBarBottomProgressTitle.text = if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
+        val displayPage = if (page > 0) page else if (mBook != null && mBook!!.bookMark > 0) mBook!!.bookMark else 1
+        val displayPages = if (pages > 0) pages else (mBook?.pages ?: 1)
+        mToolBarBottomProgressTitle.text = getString(R.string.reading_book_title_position, displayPage, displayPages, Util.formatDecimal(displayPage.toFloat() / displayPages * 100))
         val title = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
 
         if (mToolBarChapter != null) {
@@ -365,18 +367,18 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             mToolBarTop.subtitle = title
         }
 
-        mBackgroundProgress.progress = page
-        mBackgroundProgress.max = pages
+        mBackgroundProgress.progress = displayPage
+        mBackgroundProgress.max = displayPages
 
         if (description.isNotEmpty()) {
             mBackgroundTitle.gravity = Gravity.START
-            mBackgroundTitle.text = getString(R.string.book_chapter, page, pages, description)
+            mBackgroundTitle.text = getString(R.string.book_chapter, displayPage, displayPages, description)
         } else {
             mBackgroundTitle.gravity = Gravity.CENTER
-            mBackgroundTitle.text = getString(R.string.progress, page, pages)
+            mBackgroundTitle.text = getString(R.string.progress, displayPage, displayPages)
         }
 
-        SharedData.selectPage(page)
+        SharedData.selectPage(displayPage)
     }
 
     fun updateSeekBar(type: ScrollingType) {
@@ -389,7 +391,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private fun setBook(book: Book) {
         mViewModel.stopLoadChapters = true
         SharedData.clearChapters()
-        changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
+        changePageDescription(book.chapter, book.chapterDescription, if (book.bookMark > 0) book.bookMark else 1, book.pages)
         mBook = book
         mRepository.updateLastAccess(book)
 

@@ -81,7 +81,13 @@ data class ShareAnnotation(
     @SerializedName(FIELD_CREATED)
     @PropertyName(FIELD_CREATED)
     @get:PropertyName(FIELD_CREATED)
-    var created: Date
+    var created: Date,
+
+    @Expose
+    @SerializedName(FIELD_CFI_RANGE)
+    @PropertyName(FIELD_CFI_RANGE)
+    @get:PropertyName(FIELD_CFI_RANGE)
+    var cfiRange: String? = null
 ) : Serializable {
 
     companion object {
@@ -97,6 +103,7 @@ data class ShareAnnotation(
         const val FIELD_FAVORITE = "favorito"
         const val FIELD_COLOR = "cor"
         const val FIELD_CREATED = "criado"
+        const val FIELD_CFI_RANGE = "cfiRange"
 
         private fun getFloat(field: Any?, default: Float): Float {
             return try {
@@ -120,16 +127,19 @@ data class ShareAnnotation(
         getFloat(firebase[FIELD_CHAPTER_NUMBER], 0f), firebase[FIELD_CHAPTER] as String, firebase[FIELD_TEXT] as String,
         firebase[FIELD_RANGE] as String, firebase[FIELD_ANNOTATION] as String, firebase[FIELD_FAVORITE] as Boolean,  firebase[FIELD_COLOR] as String,
         (firebase[FIELD_CREATED] as Timestamp).toDate(),
+        firebase[FIELD_CFI_RANGE] as? String
     )
 
     constructor(annotation: BookAnnotation) : this(
         annotation.page, annotation.pages, annotation.fontSize, annotation.markType.toString(), annotation.chapterNumber, annotation.chapter, annotation.text,
-        Util.intArrayToString(annotation.range), annotation.annotation, annotation.favorite, annotation.color.toString(), GeneralConsts.dateTimeToDate(annotation.created)
+        Util.intArrayToString(annotation.range), annotation.annotation, annotation.favorite, annotation.color.toString(), GeneralConsts.dateTimeToDate(annotation.created),
+        annotation.cfiRange
     )
 
     constructor(annotation: MangaAnnotation) : this(
         annotation.page, annotation.pages, 0f, annotation.markType.toString(), 0f, annotation.chapter, annotation.folder,
-        "", annotation.annotation, false, "", GeneralConsts.dateTimeToDate(annotation.created)
+        "", annotation.annotation, false, "", GeneralConsts.dateTimeToDate(annotation.created),
+        null
     )
 
     override fun equals(other: Any?): Boolean {
@@ -144,6 +154,7 @@ data class ShareAnnotation(
         if (type != other.type) return false
         if (range != other.range) return false
         if (color != other.color) return false
+        if (cfiRange != other.cfiRange) return false
 
         return true
     }
@@ -155,11 +166,12 @@ data class ShareAnnotation(
         result = 31 * result + type.hashCode()
         result = 31 * result + range.hashCode()
         result = 31 * result + color.hashCode()
+        result = 31 * result + (cfiRange?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "ShareAnnotation(page=$page, pages=$pages, fontSize=$fontSize, type='$type', chapterNumber=$chapterNumber, chapter='$chapter', text='$text', range='$range', annotation='$annotation', favorite=$favorite, color='$color', created=$created)"
+        return "ShareAnnotation(page=$page, pages=$pages, fontSize=$fontSize, type='$type', chapterNumber=$chapterNumber, chapter='$chapter', text='$text', range='$range', annotation='$annotation', favorite=$favorite, color='$color', created=$created, cfiRange=$cfiRange)"
     }
 
 }

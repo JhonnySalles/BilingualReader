@@ -109,6 +109,15 @@ class Migrations {
             override fun migrate(db: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 4 - 5...")
 
+                try {
+                    db.execSQL(
+                        "ALTER TABLE " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME +
+                                " ADD COLUMN " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CFI_RANGE + " TEXT DEFAULT NULL"
+                    )
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to alter table and create column cfi_range: " + e.message, e)
+                }
+
                 mLOGGER.info("Completed migration 4 - 5.")
             }
         }

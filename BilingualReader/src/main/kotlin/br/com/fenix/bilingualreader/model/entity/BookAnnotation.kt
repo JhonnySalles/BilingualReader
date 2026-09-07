@@ -50,7 +50,9 @@ data class BookAnnotation(
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION)
     var alteration: LocalDateTime,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED)
-    var created: LocalDateTime
+    var created: LocalDateTime,
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CFI_RANGE)
+    var cfiRange: String? = null
 ) : Serializable, Annotation, EntityBase<Long, BookAnnotation> {
 
     //For a annotation title
@@ -68,15 +70,15 @@ data class BookAnnotation(
     @Ignore
     constructor(
         id_book: Long, page: Int, pages: Int, fontSize: Float, type: MarkType, chapterNumber: Float, chapter: String, text: String,
-        range: IntArray, annotation: String, favorite: Boolean = false, color: Color = Color.None
+        range: IntArray, annotation: String, favorite: Boolean = false, color: Color = Color.None, cfiRange: String? = null
     ) : this(
         null, id_book, page, pages, fontSize, type, chapterNumber, chapter, text, range, annotation, favorite,
-        color, LocalDateTime.now(), LocalDateTime.now()
+        color, LocalDateTime.now(), LocalDateTime.now(), cfiRange
     )
     @Ignore //For a annotation title
     constructor(id_book: Long, chapterNumber: Float, chapter: String, text: String, annotation: String, isRoot: Boolean = false, isTitle: Boolean = false) : this(
         null, id_book, -1, -1, 0f, MarkType.Annotation, chapterNumber, chapter, text, intArrayOf(), annotation, false,
-        Color.None, LocalDateTime.now(), LocalDateTime.now()
+        Color.None, LocalDateTime.now(), LocalDateTime.now(), null
     ) {
         this.isRoot = isRoot
         this.isTitle = isTitle
@@ -86,7 +88,7 @@ data class BookAnnotation(
     @Ignore
     constructor(other: BookAnnotation) : this(
         other.id, other.id_parent, other.page, other.pages, other.fontSize, other.markType, other.chapterNumber, other.chapter, other.text, other.range,
-        other.annotation, other.favorite, other.color, other.alteration, other.created
+        other.annotation, other.favorite, other.color, other.alteration, other.created, other.cfiRange
     ) {
         this.count = other.count
         this.isTitle = other.isTitle
@@ -106,6 +108,7 @@ data class BookAnnotation(
         this.alteration = other.alteration
         this.created = other.created
         this.count = other.count
+        this.cfiRange = other.cfiRange
     }
 
     override fun equals(other: Any?): Boolean {
@@ -123,6 +126,8 @@ data class BookAnnotation(
         if (isTitle != other.isTitle) return false
         if (markType != other.markType) return false
         if (type != other.type) return false
+        if (color != other.color) return false
+        if (cfiRange != other.cfiRange) return false
 
         return true
     }
@@ -137,6 +142,8 @@ data class BookAnnotation(
         result = 31 * result + isTitle.hashCode()
         result = 31 * result + markType.hashCode()
         result = 31 * result + type.hashCode()
+        result = 31 * result + color.hashCode()
+        result = 31 * result + (cfiRange?.hashCode() ?: 0)
         return result
     }
 

@@ -62,12 +62,12 @@ class BookAnnotationViewHolder(itemView: View, private val listener: Annotations
         text.text = mark.text
 
         if (mark.markType == MarkType.PageMark) {
-            title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page + 1, mark.pages)
+            title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page, mark.pages)
             note.text = ""
             color.visibility = View.GONE
             noteContent.visibility = View.GONE
         } else {
-            title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page + 1, mark.pages)
+            title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page, mark.pages)
 
             color.visibility = View.VISIBLE
             if (mark.color != Color.None)

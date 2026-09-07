@@ -415,7 +415,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mManga = mStorage.findMangaByName(file.name)
 
                 if (mManga != null) {
-                    mLocalCurrentPage = mManga!!.bookMark - 1
+                    mLocalCurrentPage = if (mManga!!.bookMark > 0) mManga!!.bookMark - 1 else 0
                     mStorage.updateLastAccess(mManga!!)
                 }
             }

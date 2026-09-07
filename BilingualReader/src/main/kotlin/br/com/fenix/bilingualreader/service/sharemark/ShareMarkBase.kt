@@ -81,7 +81,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             manga.bookMark = item.bookMark
             manga.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
             manga.favorite = item.favorite
-            manga.completed = item.completed
+            manga.completed = item.completed || (manga.pages > 0 && manga.bookMark >= manga.pages)
 
             item.processed = true
             item.received = true
@@ -155,7 +155,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             if (book.pages <= 1 && item.pages > 1) {
                 book.bookMark = item.bookMark
                 book.pages = item.pages
-            } else if (item.completed || item.bookMark >= item.pages)
+            } else if (item.completed || (item.pages > 0 && item.bookMark >= item.pages))
                 book.bookMark = book.pages
             else {
                 val percent = item.bookMark.toFloat() / item.pages
@@ -167,7 +167,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
                     book.bookMark = book.pages
             }
 
-            book.completed = item.completed
+            book.completed = item.completed || (book.pages > 0 && book.bookMark >= book.pages)
             book.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
             book.favorite = item.favorite
             item.processed = true

@@ -230,7 +230,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     companion object {
         private lateinit var mPopupTranslateTab: TabLayout
-        fun selectTabReader() = mPopupTranslateTab.selectTab(mPopupTranslateTab.getTabAt(0), true)
+        private lateinit var mPopupTranslateView: ViewPager2
+        fun selectTabReader() {
+            if (::mPopupTranslateView.isInitialized)
+                mPopupTranslateView.setCurrentItem(0, true)
+            if (::mPopupTranslateTab.isInitialized)
+                mPopupTranslateTab.selectTab(mPopupTranslateTab.getTabAt(0), true)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -518,8 +524,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     index = i
                     break
                 }
-            if (index >= 0)
+            if (index >= 0) {
+                mPopupConfigurationsView.setCurrentItem(index, false)
                 mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
+            }
 
             if (!isOpened)
                 AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
@@ -533,8 +541,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     index = i
                     break
                 }
-            if (index >= 0)
+            if (index >= 0) {
+                mPopupConfigurationsView.setCurrentItem(index, false)
                 mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
+            }
 
             buttonAnnotations.executeWithAnimation {
                 val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
@@ -726,9 +736,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     fun changePage(title: String, text: String, page: Int) {
-        mReaderTitle.text = if (page > -1 && mManga != null) getString(
+        val displayPage = if (page > 0) page else if (mManga != null && mManga!!.bookMark > 0) mManga!!.bookMark else 1
+        mReaderTitle.text = if (mManga != null) getString(
             R.string.progress,
-            page,
+            displayPage,
             mManga!!.pages
         ) else ""
         mToolBar.title = title
@@ -741,7 +752,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         )
         mToolBar.subtitle = boldSubtitle
         ensureToolbarTitleEllipsis()
-        SharedData.selectPage(page)
+        SharedData.selectPage(displayPage)
     }
 
     private fun ensureToolbarTitleEllipsis() {
@@ -767,7 +778,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
 
         mManga = manga
-        changePage(manga.title, "", manga.bookMark)
+        changePage(manga.title, "", if (manga.bookMark > 0) manga.bookMark else 1)
         setMangaDots(mutableListOf(), mutableListOf())
         mViewModel.refreshAnnotations(mManga)
     }

@@ -381,12 +381,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     annotation.range = Util.stringToIntArray(shared.range)
                                     annotation.favorite = shared.favorite
                                     annotation.color = Color.valueOf(shared.color)
+                                    annotation.cfiRange = shared.cfiRange
                                     repositoryAnnotation.update(annotation)
                                 } else
                                     repositoryAnnotation.save(
                                         BookAnnotation(null, book.id!!, shared.page, shared.pages, shared.fontSize, MarkType.valueOf(shared.type), shared.chapterNumber,
                                             shared.chapter, shared.text, Util.stringToIntArray(shared.range), shared.annotation, shared.favorite, Color.valueOf(shared.color),
-                                            LocalDateTime.now(), created
+                                            LocalDateTime.now(), created, shared.cfiRange
                                         )
                                     )
                             }

@@ -434,6 +434,7 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
     }
 
     private fun onOpenMenuLibrary(select: Int = 0) {
+        mPopupLibraryView.setCurrentItem(select, false)
         mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(select))
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
         AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupLibrary)

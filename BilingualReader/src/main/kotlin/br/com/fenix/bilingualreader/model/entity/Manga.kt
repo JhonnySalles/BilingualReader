@@ -89,6 +89,12 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PAGES)
     override var pages: Int = pages
+        set(value) {
+            field = value
+            if (value > 0 && bookMark >= value) {
+                this.completed = true
+            }
+        }
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.CHAPTERS)
     var chapters: IntArray = chapters
@@ -100,7 +106,7 @@ class Manga(
     override var bookMark: Int = bookMark
         set(value) {
             field = value
-            this.completed = value >= pages
+            this.completed = (pages > 0 && value >= pages)
         }
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.COMPLETED)
