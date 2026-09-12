@@ -54,6 +54,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.os.BundleCompat
 import androidx.core.view.MenuProvider
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -526,6 +527,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 miPaginationMode.isVisible = isLoaded
                 menu.findItem(R.id.menu_item_reader_book_view_touch_screen)?.isVisible = isLoaded
                 menu.findItem(R.id.menu_item_reader_book_config_touch_screen)?.isVisible = isLoaded
+                menu.findItem(R.id.menu_item_reader_book_tracker)?.isVisible = isLoaded
 
                 if (isLoaded) {
                     when (mViewModel.scrollingMode.value) {
@@ -609,6 +611,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     R.id.menu_item_reader_book_config_touch_screen -> {
                         configTouchFunctions()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_tracker -> {
+                        openTracker()
                         true
                     }
 
@@ -1358,8 +1365,49 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     fun hitEnding() {
         if (mBook != null) {
+            checkTrackerProgress()
             val c: Book? = mStorage.getNextBook(mLibrary, mBook!!)
             confirmSwitch(c, R.string.switch_next_book)
+        }
+    }
+
+    private fun openTracker() {
+        val book = mBook ?: return
+        val libraryId = book.fkLibrary ?: mLibrary.id ?: 0L
+        val fileName = book.file?.name ?: book.fileName
+        TrackerLibraryPopup.show(
+            context = requireContext(),
+            libraryId = libraryId,
+            fileName = fileName,
+            comicInfo = null
+        )
+    }
+
+    private fun checkTrackerProgress() {
+        if (mBook == null) return
+        try {
+            val trackRepository = br.com.fenix.bilingualreader.service.repository.TrackRepository(requireContext())
+            val existingTracks = trackRepository.listByLibrary(mBook!!.fkLibrary ?: mLibrary.id ?: 0L)
+            val matchedTrack = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.matchTrack(
+                existingTracks,
+                null,
+                mBook!!.fileName
+            )
+
+            if (matchedTrack != null) {
+                val parsed = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.parseFileName(mBook!!.fileName)
+                val inferredVol = parsed.volume ?: mBook!!.volume.toIntOrNull()
+                val inferredChap = parsed.chapter?.toInt() ?: mBook!!.chapter
+
+                br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.showReadingConfirmation(
+                    context = requireContext(),
+                    track = matchedTrack,
+                    inferredVolume = inferredVol,
+                    inferredChapter = inferredChap
+                ) { _, _ -> }
+            }
+        } catch (e: Exception) {
+            mLOGGER.error("Error on tracker ending check: ${e.message}", e)
         }
     }
 

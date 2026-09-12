@@ -2,6 +2,7 @@
     <string name="app_name">Bilingual Reader</string>
 
     <string name="action_confirm">Confirm</string>
+    <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_return">Return</string>
     <string name="action_positive">Yes</string>
@@ -166,6 +167,14 @@
     <string name="config_database_error_read_file">An error occurred when reading the file.</string>
     <string name="config_database_error_restore">An error occurred while restoring the informed backup, reverted to the original file.</string>
     <string name="config_database_error_new_database">An error occurred while restoring the backup and the previous version cannot be restored. A new base has been created.</string>
+    <string name="config_data_export">Export Data</string>
+    <string name="config_data_import">Import Data</string>
+    <string name="config_data_export_success">Data exported successfully.</string>
+    <string name="config_data_export_error">An error occurred while exporting data.</string>
+    <string name="config_data_import_success">Data imported successfully: %1$d items updated.</string>
+    <string name="config_data_import_error">An error occurred while importing data.</string>
+    <string name="config_data_import_invalid_file">Invalid or empty file selected.</string>
+    <string name="config_data_import_select_file">Select JSON data file</string>
 
     <string name="config_covers_delete">Clear cover cache</string>
     <string name="config_covers_delete_title">Clear cover cache</string>
@@ -1010,6 +1019,8 @@
     <!-- POPUP - BOOK MARK -->
     <string name="popup_book_mark_page">Book mark</string>
     <string name="popup_book_mark_date">Date</string>
+    <string name="popup_book_mark_time">Time</string>
+    <string name="popup_book_mark_reading_time">Reading time (HH:MM)</string>
 
     <string name="popup_book_select_date">Select a date</string>
     <string name="popup_book_select_time">Select a time</string>
@@ -1021,6 +1032,20 @@
     <string name="popup_book_mark_exceed_max">The page cannot exceed the number of pages, max %d</string>
     <string name="popup_book_mark_necessary_date">Necessary inform a date</string>
     <string name="popup_book_mark_necessary_time">Necessary inform a time</string>
+
+    <string name="config_title_reading_speed">Reading Speed</string>
+    <string name="config_manga_avg_time_per_page">Average time per page (seconds)</string>
+    <string name="config_book_avg_words_per_minute">Reading speed (words/minute)</string>
+    <string name="config_recalculate_reading_time">Recalculate reading time</string>
+    <string name="config_calculate_new_files">Calculate new files</string>
+    <string name="config_recalculate_confirm">Do you want to recalculate reading time for all records of %s?</string>
+    <string name="config_recalculate_new_confirm">Do you want to calculate reading time for new files of %s?</string>
+    <string name="config_recalculate_reading_time_manga_title">Recalculating mangas</string>
+    <string name="config_recalculate_reading_time_book_title">Recalculating books</string>
+    <string name="config_recalculate_reading_time_start">Starting calculation...</string>
+    <string name="config_recalculate_progress">Processing %1$d of %2$d...</string>
+    <string name="config_recalculate_complete">Recalculation complete. %d records processed.</string>
+    <string name="config_recalculate_error">Error recalculating reading times.</string>
 
 
     <!-- SHARE MARK -->
@@ -1299,4 +1324,59 @@
     <string name="pref_clear_ocr_cache_desc">Clear cached OCR text for manga pages</string>
     <string name="pref_clear_ocr_cache_success">OCR Cache cleared successfully</string>
 
+    <!-- TRACKER -->
+    <string name="menu_trackers">Trackers</string>
+    <string name="tracker_title">Reading Tracker</string>
+    <string name="tracker_edit_title">Edit Tracker</string>
+    <string name="tracker_new_title">New Tracker</string>
+    <string name="tracker_link">Link Tracker</string>
+    <string name="tracker_unlink">Unlink</string>
+    <string name="tracker_mal_id">MyAnimeList ID</string>
+    <string name="tracker_ani_id">AniList ID</string>
+    <string name="tracker_series_title">Series Title</string>
+    <string name="tracker_title_regex">Title Matching Regex</string>
+    <string name="tracker_total_volumes">Total Volumes</string>
+    <string name="tracker_total_chapters">Total Chapters</string>
+    <string name="tracker_status">Status</string>
+    <string name="tracker_score">Score (0–10)</string>
+    <string name="tracker_chapters_read">Chapters Read</string>
+    <string name="tracker_volumes_read">Volumes Read</string>
+    <string name="tracker_library">Library</string>
+    <string name="tracker_sync">Sync</string>
+    <string name="tracker_save_success">Tracker saved successfully</string>
+    <string name="tracker_confirm_title">Confirm Reading Progress</string>
+    <string name="tracker_confirm_message">You reached the last page of this file.\nConfirm progress to update tracker:</string>
+    <string name="tracker_confirm_volume_label">Volume completed:</string>
+    <string name="tracker_confirm_chapter_label">Chapter completed:</string>
+    <string name="tracker_confirm_update">Update Progress</string>
+    <string name="menu_configure_tracker">Tracker</string>
+    <string name="tracker_linked_items">Linked Items</string>
+    <string name="tracker_items_count">%1$d linked items</string>
+    <string name="tracker_items_preview">Items Preview</string>
+    <string name="tracker_select_existing">Select Tracker</string>
+    <string name="tracker_new">New Tracker</string>
+    <string name="tracker_empty_list">No trackers registered.\nTap the + button to create one.</string>
+    <string name="tracker_no_matches">No items match the provided regex.</string>
+    <string name="config_title_trackers">Trackers</string>
+    <string name="config_tracker_mal">MyAnimeList</string>
+    <string name="config_tracker_anilist">AniList</string>
+    <string name="config_tracker_login">Login</string>
+    <string name="config_tracker_logout">Logout</string>
+    <string name="config_tracker_logged_in">Logged in as %1$s</string>
+    <string name="config_tracker_not_logged_in">Not logged in</string>
+    <string name="config_tracker_last_sync">Last sync: %1$s</string>
+    <string name="config_tracker_sync_never">Last sync: Never</string>
+    <string name="config_tracker_info_mal">Synchronizes reading progress, volumes, and ratings with your MyAnimeList account.</string>
+    <string name="config_tracker_info_anilist">Synchronizes reading progress, volumes, and ratings with your AniList account.</string>
+    <string name="tracker_search_title">Search Tracker</string>
+    <string name="tracker_search_hint">Search title or series...</string>
+    <string name="tracker_search_empty">No results found.</string>
+    <string name="tracker_search_loading">Searching...</string>
+    <string name="tracker_search_mal_title">Search MyAnimeList</string>
+    <string name="tracker_search_anilist_title">Search AniList</string>
+    <string name="tracker_search_chapters_format">%1$d chapters</string>
+    <string name="tracker_search_volumes_format">%1$d volumes</string>
+    <string name="time_unit_hours">Hours</string>
+    <string name="time_unit_minutes">Minutes</string>
+    <string name="time_unit_seconds">Seconds</string>
 </resources>

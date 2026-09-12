@@ -903,6 +903,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
                         R.id.menu_book_config_delete -> deleteBook(book, position)
                         R.id.menu_book_config_detail -> goBookDetail(book, root, position)
+                        R.id.menu_book_config_tracker -> {
+                            br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.show(
+                                context = requireContext(),
+                                libraryId = book.fkLibrary ?: mViewModel.getLibrary().id ?: 0L,
+                                fileName = book.fileName
+                            )
+                        }
                         R.id.menu_book_config_tag -> {
                             mPopupTag.getPopupTags(book) { mViewModel.loadTags() }
                         }

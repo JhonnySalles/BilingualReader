@@ -64,12 +64,18 @@ data class History(
     var useTTS: Boolean,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.NOTIFIED)
-    var isNotify: Boolean
+    var isNotify: Boolean,
+
+    @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.WORD_COUNT)
+    var wordCount: Long = 0,
+
+    @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ_AUTOMATIC)
+    var secondsReadAutomatic: Boolean = false
 ) : EntityBase<Long, History> {
 
     @Ignore
-    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: String, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(
-        null, fkLibrary, fkReference, type, pageStart, 0, pages, false, volume, 0, LocalDateTime.now(), LocalDateTime.now(), 0, averageTimeByPage, useTTS, isNotify
+    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: String, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false, wordCount: Long = 0, secondsReadAutomatic: Boolean = false) : this(
+        null, fkLibrary, fkReference, type, pageStart, 0, pages, false, volume, 0, LocalDateTime.now(), LocalDateTime.now(), 0, averageTimeByPage, useTTS, isNotify, wordCount, secondsReadAutomatic
     ) { }
 
     fun getEnd() = end
@@ -94,5 +100,9 @@ data class History(
     }
 
     fun getSecondsRead() = secondsRead
+
+    fun setSecondsRead(seconds: Long) {
+        this.secondsRead = seconds
+    }
 
 }

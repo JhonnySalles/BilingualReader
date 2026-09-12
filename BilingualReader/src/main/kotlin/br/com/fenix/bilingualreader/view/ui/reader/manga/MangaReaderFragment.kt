@@ -58,6 +58,7 @@ import androidx.core.os.BundleCompat
 import androidx.core.util.isNotEmpty
 import androidx.core.util.size
 import androidx.core.view.MenuProvider
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -751,6 +752,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         true
                     }
 
+                    R.id.menu_item_reader_manga_tracker -> {
+                        openTracker()
+                        true
+                    }
+
                     else -> false
                 }
             }
@@ -759,6 +765,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     fun syncMangaFavorite(favorite: Boolean) {
         mManga?.favorite = favorite
+    }
+
+    private fun openTracker() {
+        val manga = mManga ?: return
+        TrackerLibraryPopup.show(
+            context = requireContext(),
+            libraryId = manga.fkLibrary ?: 0L,
+            fileName = manga.file.name,
+            comicInfo = mParse?.getComicInfo()
+        )
     }
 
     private fun setupMangaChaptersDots(parse: Parse) {
@@ -1790,8 +1806,38 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     fun hitEnding() {
         if (mManga != null) {
+            checkTrackerOnEnding()
             val c: Manga? = mStorage.getNextManga(mLibrary, mManga!!)
             confirmSwitch(c, R.string.switch_next_comic)
+        }
+    }
+
+    private fun checkTrackerOnEnding() {
+        if (mManga == null) return
+        try {
+            val trackRepository = br.com.fenix.bilingualreader.service.repository.TrackRepository(requireContext())
+            val existingTracks = trackRepository.listByLibrary(mManga!!.fkLibrary ?: mLibrary.id ?: 0L)
+            val comicInfo = mParse?.getComicInfo()
+            val matchedTrack = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.matchTrack(
+                existingTracks,
+                comicInfo,
+                mManga!!.fileName
+            )
+
+            if (matchedTrack != null) {
+                val parsed = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.parseFileName(mManga!!.fileName)
+                val inferredVol = parsed.volume ?: comicInfo?.volume
+                val inferredChap = parsed.chapter?.toInt() ?: comicInfo?.number?.toInt()
+
+                br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.showReadingConfirmation(
+                    context = requireContext(),
+                    track = matchedTrack,
+                    inferredVolume = inferredVol,
+                    inferredChapter = inferredChap
+                ) { _, _ -> }
+            }
+        } catch (e: Exception) {
+            mLOGGER.error("Error on tracker ending check: ${e.message}", e)
         }
     }
 

@@ -51,6 +51,7 @@ import br.com.fenix.bilingualreader.view.components.BookCover3DView
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -93,6 +94,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mClearHistoryButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
+    private lateinit var mTrackerButton: MaterialButton
     private lateinit var mChaptersList: ListView
     private lateinit var mFileLinkContent: LinearLayout
     private lateinit var mFileLinksList: ListView
@@ -232,6 +234,7 @@ class BookDetailFragment : Fragment() {
         mAddTagButton = root.findViewById(R.id.book_detail_button_add_tag)
         mDeleteButton = root.findViewById(R.id.book_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.book_detail_button_vocabulary)
+        mTrackerButton = root.findViewById(R.id.book_detail_button_tracker)
 
         mChaptersList = root.findViewById(R.id.book_detail_chapters_list)
         mFileLinkContent = root.findViewById(R.id.book_detail_files_link_detail)
@@ -312,6 +315,9 @@ class BookDetailFragment : Fragment() {
         mVocabularyButton.setOnClickListener {
             (mVocabularyButton.icon as AnimatedVectorDrawable).start()
             openVocabulary()
+        }
+        mTrackerButton.setOnClickListener {
+            openTracker()
         }
 
         mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mFileLinks)
@@ -714,6 +720,17 @@ class BookDetailFragment : Fragment() {
                 R.anim.fade_out_fragment_remove_exit
             )
             startActivity(intent)
+        }
+    }
+
+    private fun openTracker() {
+        mViewModel.book.value?.let {
+            TrackerLibraryPopup.show(
+                context = requireContext(),
+                libraryId = it.fkLibrary ?: 0L,
+                fileName = it.file.name,
+                comicInfo = null
+            )
         }
     }
 

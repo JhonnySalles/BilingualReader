@@ -220,4 +220,11 @@
         android:title="@string/menu_manga_reading_save_share_image"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/menu_item_reader_manga_tracker"
+        android:icon="@drawable/ico_tracker"
+        android:orderInCategory="112"
+        android:title="@string/tracker_title"
+        app:showAsAction="never"/>
+
 </menu>

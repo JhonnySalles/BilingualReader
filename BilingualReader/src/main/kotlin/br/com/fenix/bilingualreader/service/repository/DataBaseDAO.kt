@@ -25,6 +25,7 @@ import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import br.com.fenix.bilingualreader.model.entity.Tags
+import br.com.fenix.bilingualreader.model.entity.Track
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.entity.VocabularyBook
 import br.com.fenix.bilingualreader.model.entity.VocabularyManga
@@ -149,6 +150,9 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date OR " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " > :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
     abstract fun listSync(date: LocalDateTime): List<Manga>
 
+    @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " = :lastAlteration WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
+    abstract fun updateLastAlteration(id: Long, lastAlteration: LocalDateTime)
+
 }
 
 
@@ -170,23 +174,26 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): Book?
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME + " = :name")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND UPPER(" + DataBaseConsts.BOOK.COLUMNS.FILE_NAME + ") = UPPER(:name)")
     abstract fun getByFileName(name: String): Book?
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH + " = :path")
     abstract fun getByPath(path: String): Book?
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER + " = :folder ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH)
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER + " = :folder ORDER BY " + DataBaseConsts.BOOK.COLUMNS.TITLE)
     abstract fun listByFolder(folder: String): List<Book>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH)
-    abstract fun listOrderByPath(library: Long?): List<Book>
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.BOOK.COLUMNS.TITLE)
+    abstract fun listOrderByTitle(library: Long?): List<Book>
 
     @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " = :marker " + " WHERE " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id ")
     abstract fun updateBookMark(id: Long, marker: Int)
 
     @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id")
     abstract fun delete(id: Long)
+
+    @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library")
+    abstract fun deleteLibrary(library: Long?)
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 1")
     abstract fun listDeleted(library: Long?): List<Book>
@@ -206,6 +213,9 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
                 " ORDER BY " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " DESC "
     )
     abstract fun listHistory(): List<Book>
+
+    @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " = :lastAlteration WHERE " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id")
+    abstract fun updateLastAlteration(id: Long, lastAlteration: LocalDateTime)
 
 }
 
@@ -670,6 +680,12 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
     @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
     abstract fun find(type: Type, idLibrary: Long, idReference: Long) : List<History>
 
+    @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
+    abstract fun listByType(type: Type): List<History>
+
+    @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ_AUTOMATIC + " = 0 ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
+    abstract fun listNotAutomatic(type: Type): List<History>
+
 }
 
 
@@ -812,6 +828,38 @@ abstract class StatisticsDAO {
 
     @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " = :type GROUP BY YEAR")
     abstract fun listYears(type : String): MutableList<Int>
+
+}
+
+@Dao
+abstract class TrackDAO : BaseDAO<Track, Long>(DataBaseConsts.TRACK.TABLE_NAME, DataBaseConsts.TRACK.COLUMNS.ID) {
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME)
+    abstract fun listAll(): List<Track>
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY + " = :idLibrary")
+    abstract fun listByLibrary(idLibrary: Long): List<Track>
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.MAL_ID + " = :malId LIMIT 1")
+    abstract fun findByMalId(malId: Long): Track?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.ANI_ID + " = :aniId LIMIT 1")
+    abstract fun findByAniId(aniId: Long): Track?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.TRACK.COLUMNS.MAL_ID + " = :malId LIMIT 1")
+    abstract fun findByLibraryAndMalId(idLibrary: Long, malId: Long): Track?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.TRACK.COLUMNS.ANI_ID + " = :aniId LIMIT 1")
+    abstract fun findByLibraryAndAniId(idLibrary: Long, aniId: Long): Track?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.ID + " = :id")
+    abstract fun get(id: Long): Track?
+
+    @Query("DELETE FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.ID + " = :id")
+    abstract fun deleteById(id: Long)
+
+    @Query("DELETE FROM " + DataBaseConsts.TRACK.TABLE_NAME + " WHERE " + DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY + " = :idLibrary")
+    abstract fun deleteByLibrary(idLibrary: Long)
 
 }
 

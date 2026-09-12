@@ -55,6 +55,8 @@ import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerFragment
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerListFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
 import eightbitlab.com.blurview.BlurView
@@ -161,6 +163,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     is HistoryFragment -> mToolBar.title = getString(R.string.menu_history)
                     is VocabularyFragment -> mToolBar.title = getString(R.string.menu_vocabulary)
                     is StatisticsFragment -> mToolBar.title = getString(R.string.menu_statistics)
+                    is TrackerListFragment -> mToolBar.title = getString(R.string.menu_trackers)
+                    is TrackerFragment -> mToolBar.title = getString(R.string.tracker_title)
                     is ConfigFragment -> mToolBar.title = getString(R.string.menu_config)
                     is HelpFragment -> mToolBar.title = getString(R.string.menu_help)
                     is AboutFragment -> mToolBar.title = getString(R.string.menu_about)
@@ -318,6 +322,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_statistics -> StatisticsFragment()
+            R.id.menu_trackers -> TrackerListFragment()
             R.id.menu_annotations -> AnnotationFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "cd87d411f2d1269ff217acafc6bc6329",
+    "identityHash": "9c8f22a3803841c5523c62963adf5c11",
     "entities": [
       {
         "tableName": "Manga",
@@ -1627,7 +1627,7 @@
       },
       {
         "tableName": "History",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `volume` TEXT NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `seconds_read` INTEGER NOT NULL, `average_time_page` INTEGER NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `volume` TEXT NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `seconds_read` INTEGER NOT NULL, `average_time_page` INTEGER NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL, `word_count` INTEGER NOT NULL, `seconds_read_automatic` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1724,6 +1724,18 @@
             "columnName": "notified",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "wordCount",
+            "columnName": "word_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "secondsReadAutomatic",
+            "columnName": "seconds_read_automatic",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -1806,12 +1818,138 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Track",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `mal_id` INTEGER, `ani_id` INTEGER, `id_library` INTEGER NOT NULL, `title` TEXT NOT NULL, `title_regex` TEXT NOT NULL, `total_volumes` INTEGER, `total_chapters` INTEGER, `status` TEXT NOT NULL, `score` REAL, `score_date` TEXT, `chapters_read` INTEGER NOT NULL, `volumes_read` INTEGER NOT NULL, `last_sync_date` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "malId",
+            "columnName": "mal_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "aniId",
+            "columnName": "ani_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fkLibrary",
+            "columnName": "id_library",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleRegex",
+            "columnName": "title_regex",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalVolumes",
+            "columnName": "total_volumes",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "totalChapters",
+            "columnName": "total_chapters",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "score",
+            "columnName": "score",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoreDate",
+            "columnName": "score_date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "chaptersRead",
+            "columnName": "chapters_read",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volumesRead",
+            "columnName": "volumes_read",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSyncDate",
+            "columnName": "last_sync_date",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Track_id_library",
+            "unique": false,
+            "columnNames": [
+              "id_library"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Track_id_library` ON `${TABLE_NAME}` (`id_library`)"
+          },
+          {
+            "name": "index_Track_mal_id",
+            "unique": false,
+            "columnNames": [
+              "mal_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Track_mal_id` ON `${TABLE_NAME}` (`mal_id`)"
+          },
+          {
+            "name": "index_Track_ani_id",
+            "unique": false,
+            "columnNames": [
+              "ani_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Track_ani_id` ON `${TABLE_NAME}` (`ani_id`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cd87d411f2d1269ff217acafc6bc6329')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9c8f22a3803841c5523c62963adf5c11')"
     ]
   }
 }

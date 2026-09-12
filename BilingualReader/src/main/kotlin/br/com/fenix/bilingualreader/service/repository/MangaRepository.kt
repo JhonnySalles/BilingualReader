@@ -40,6 +40,10 @@ class MangaRepository(private val context: Context) {
             mDataBase.update(obj)
     }
 
+    fun updateLastAlteration(id: Long, lastAlteration: LocalDateTime = LocalDateTime.now()) {
+        mDataBase.updateLastAlteration(id, lastAlteration)
+    }
+
     fun delete(obj: Manga) {
         obj.lastAlteration = LocalDateTime.now()
         if (obj.id != null)
@@ -50,6 +54,16 @@ class MangaRepository(private val context: Context) {
         obj.lastAlteration = LocalDateTime.now()
         if (obj.id != null)
             mDataBase.delete(obj)
+    }
+
+    fun findAll(): List<Manga> {
+        return try {
+            loadLibrary(mDataBase.findAll())
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find all Manga: " + e.message, e)
+            Telemetry.recordException(e, "Error when find all Manga: " + e.message)
+            listOf()
+        }
     }
 
     fun list(library: Library): List<Manga>? {

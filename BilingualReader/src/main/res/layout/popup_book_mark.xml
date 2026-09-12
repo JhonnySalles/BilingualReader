@@ -53,7 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/popup_book_mark_date"
+            android:hint="@string/popup_book_mark_time"
             app:startIconDrawable="@drawable/ico_book_mark_time">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -65,5 +65,41 @@
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/popup_book_mark_reading_duration"
+                style="@style/TextInputEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_small"
+                android:layout_weight="1"
+                android:hint="@string/popup_book_mark_reading_time"
+                app:startIconDrawable="@drawable/ico_statistics_time">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/popup_book_mark_reading_duration_edit"
+                    android:clickable="true"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_book_mark_btn_auto_calc"
+                style="@style/Button.IconOnly"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small"
+                app:icon="@drawable/ico_refresh" />
+
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

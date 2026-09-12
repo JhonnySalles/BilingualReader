@@ -37,4 +37,10 @@ class HistoryRepository(private val context: Context) {
 
     fun find(type: Type, idLibrary: Long, idReference: Long) = mDataBase.find(type, idLibrary, idReference)
 
+    fun listByType(type: Type): List<History> = mDataBase.listByType(type)
+
+    fun listNotAutomatic(type: Type): List<History> = mDataBase.listNotAutomatic(type)
+
+    fun update(obj: History) = mDataBase.update(obj)
+
 }

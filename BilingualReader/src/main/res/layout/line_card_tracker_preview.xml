@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tracker_preview_line_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/margin"
+    android:layout_marginEnd="@dimen/margin"
+    android:layout_marginTop="3dp"
+    android:layout_marginBottom="3dp"
+    android:background="@drawable/custom_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="@dimen/manga_line_card_layout_height"
+    android:orientation="horizontal">
+
+    <!-- Media / Cover -->
+    <com.google.android.material.card.MaterialCardView
+        style="@style/AppBackground.Card"
+        android:layout_width="@dimen/manga_line_card_image"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        app:cardCornerRadius="7dp"
+        app:strokeWidth="0dp">
+
+        <ImageView
+            android:id="@+id/tracker_preview_image_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="false"
+            android:scaleType="centerCrop"
+            app:srcCompat="@mipmap/book_cover_2" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Details -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tracker_preview_title"
+            style="@style/TextTitle.Line.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textSize="@dimen/manga_line_title_size"
+            tools:text="Solo Leveling - Volume 01" />
+
+        <!-- Series -->
+        <TextView
+            android:id="@+id/tracker_preview_series"
+            style="@style/TextNormal.Line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/manga_line_content_size"
+            android:visibility="gone"
+            tools:text="Série: Solo Leveling"
+            tools:visibility="visible" />
+
+        <!-- Author -->
+        <TextView
+            android:id="@+id/tracker_preview_author"
+            style="@style/TextNormal.Line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="@dimen/manga_line_content_size"
+            android:visibility="gone"
+            tools:text="Autor: Chugong"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</LinearLayout>

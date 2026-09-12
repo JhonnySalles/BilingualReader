@@ -3,6 +3,7 @@
     <string name="app_name">Bilingual Reader</string>
 
     <string name="action_confirm">Confirmar</string>
+    <string name="action_save">Salvar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_return">Retornar</string>
     <string name="action_positive">Sim</string>
@@ -164,6 +165,14 @@
     <string name="config_database_error_read_file">Ocorreu um erro ao ler o arquivo.</string>
     <string name="config_database_error_restore">Ocorreu um erro ao restaurar o backup informado, backup revertido ao arquivo original.</string>
     <string name="config_database_error_new_database">Ocorreu um erro ao restaurar o backup e a versão anterior não pode ser restaurado. Uma nova base foi criada.</string>
+    <string name="config_data_export">Exportar Dados</string>
+    <string name="config_data_import">Importar Dados</string>
+    <string name="config_data_export_success">Dados exportados com sucesso.</string>
+    <string name="config_data_export_error">Ocorreu um erro ao exportar os dados.</string>
+    <string name="config_data_import_success">Dados importados com sucesso: %1$d itens atualizados.</string>
+    <string name="config_data_import_error">Ocorreu um erro ao importar os dados.</string>
+    <string name="config_data_import_invalid_file">Arquivo selecionado inválido ou vazio.</string>
+    <string name="config_data_import_select_file">Selecione o arquivo de dados JSON</string>
 
     <string name="config_covers_delete">Limpar cache de capas</string>
     <string name="config_covers_delete_title">Limpar cache de capas</string>
@@ -961,6 +970,8 @@
     <!-- POPUP - BOOK MARK -->
     <string name="popup_book_mark_page">Marcador</string>
     <string name="popup_book_mark_date">Data</string>
+    <string name="popup_book_mark_time">Hora</string>
+    <string name="popup_book_mark_reading_time">Tempo de leitura (HH:MM)</string>
 
     <string name="popup_book_select_date">Selecione uma data</string>
     <string name="popup_book_select_time">Selecione uma horário</string>
@@ -972,6 +983,20 @@
     <string name="popup_book_mark_exceed_max">A página não pode exceder o número máximo de páginas, máximo %d</string>
     <string name="popup_book_mark_necessary_date">Necessário informar uma data</string>
     <string name="popup_book_mark_necessary_time">Necessário informar uma hora</string>
+
+    <string name="config_title_reading_speed">Velocidade de Leitura</string>
+    <string name="config_manga_avg_time_per_page">Tempo médio por página (segundos)</string>
+    <string name="config_book_avg_words_per_minute">Velocidade de leitura (palavras/minuto)</string>
+    <string name="config_recalculate_reading_time">Recalcular tempo de leitura</string>
+    <string name="config_calculate_new_files">Calcular novos arquivos</string>
+    <string name="config_recalculate_confirm">Deseja recalcular o tempo de leitura de todos os registros de %s?</string>
+    <string name="config_recalculate_new_confirm">Deseja calcular o tempo de leitura dos novos arquivos de %s?</string>
+    <string name="config_recalculate_reading_time_manga_title">Recalculando mangás</string>
+    <string name="config_recalculate_reading_time_book_title">Recalculando livros</string>
+    <string name="config_recalculate_reading_time_start">Iniciando cálculo...</string>
+    <string name="config_recalculate_progress">Processando %1$d de %2$d...</string>
+    <string name="config_recalculate_complete">Recálculo concluído. %d registros processados.</string>
+    <string name="config_recalculate_error">Erro ao recalcular tempos de leitura.</string>
 
 
     <!-- HELP -->
@@ -1213,4 +1238,59 @@
     <string name="config_ai_temperature">Criatividade (0–100)</string>
     <string name="config_ai_temperature_hint">80 ≈ temperatura 0,80. Maior = mais criativo.</string>
 
+    <!-- TRACKER -->
+    <string name="menu_trackers">Rastreadores</string>
+    <string name="tracker_title">Rastreador de Leitura</string>
+    <string name="tracker_edit_title">Editar Rastreador</string>
+    <string name="tracker_new_title">Novo Rastreador</string>
+    <string name="tracker_link">Vincular Rastreador</string>
+    <string name="tracker_unlink">Desvincular</string>
+    <string name="tracker_mal_id">ID MyAnimeList</string>
+    <string name="tracker_ani_id">ID AniList</string>
+    <string name="tracker_series_title">Título da Série</string>
+    <string name="tracker_title_regex">Regex para Reconhecimento</string>
+    <string name="tracker_total_volumes">Total de Volumes</string>
+    <string name="tracker_total_chapters">Total de Capítulos</string>
+    <string name="tracker_status">Status</string>
+    <string name="tracker_score">Nota (0–10)</string>
+    <string name="tracker_chapters_read">Capítulos Lidos</string>
+    <string name="tracker_volumes_read">Volumes Lidos</string>
+    <string name="tracker_library">Biblioteca</string>
+    <string name="tracker_sync">Sincronizar</string>
+    <string name="tracker_save_success">Rastreador salvo com sucesso</string>
+    <string name="tracker_confirm_title">Confirmar Progresso de Leitura</string>
+    <string name="tracker_confirm_message">Você chegou à última página deste arquivo.\nConfirme o progresso para atualizar o rastreador:</string>
+    <string name="tracker_confirm_volume_label">Volume concluído:</string>
+    <string name="tracker_confirm_chapter_label">Capítulo concluído:</string>
+    <string name="tracker_confirm_update">Atualizar Progresso</string>
+    <string name="menu_configure_tracker">Tracker</string>
+    <string name="tracker_linked_items">Itens Vinculados</string>
+    <string name="tracker_items_count">%1$d itens vinculados</string>
+    <string name="tracker_items_preview">Pré-visualização dos Itens</string>
+    <string name="tracker_select_existing">Selecionar Rastreador</string>
+    <string name="tracker_new">Novo Rastreador</string>
+    <string name="tracker_empty_list">Nenhum rastreador cadastrado.\nToque no botão + para criar um.</string>
+    <string name="tracker_no_matches">Nenhum item corresponde à regex informada.</string>
+    <string name="config_title_trackers">Rastreadores</string>
+    <string name="config_tracker_mal">MyAnimeList</string>
+    <string name="config_tracker_anilist">AniList</string>
+    <string name="config_tracker_login">Entrar</string>
+    <string name="config_tracker_logout">Sair</string>
+    <string name="config_tracker_logged_in">Conectado como %1$s</string>
+    <string name="config_tracker_not_logged_in">Não conectado</string>
+    <string name="config_tracker_last_sync">Última sincronização: %1$s</string>
+    <string name="config_tracker_sync_never">Última sincronização: Nunca</string>
+    <string name="config_tracker_info_mal">Sincroniza progresso de leitura, volumes e notas com a sua conta do MyAnimeList.</string>
+    <string name="config_tracker_info_anilist">Sincroniza progresso de leitura, volumes e notas com a sua conta do AniList.</string>
+    <string name="tracker_search_title">Buscar no Rastreador</string>
+    <string name="tracker_search_hint">Pesquisar mangá ou livro...</string>
+    <string name="tracker_search_empty">Nenhum resultado encontrado.</string>
+    <string name="tracker_search_loading">Pesquisando...</string>
+    <string name="tracker_search_mal_title">Buscar no MyAnimeList</string>
+    <string name="tracker_search_anilist_title">Buscar no AniList</string>
+    <string name="tracker_search_chapters_format">%1$d capítulos</string>
+    <string name="tracker_search_volumes_format">%1$d volumes</string>
+    <string name="time_unit_hours">Horas</string>
+    <string name="time_unit_minutes">Minutos</string>
+    <string name="time_unit_seconds">Segundos</string>
 </resources>

@@ -145,4 +145,14 @@ class Converters {
         return libraries?.name
     }
 
+    @TypeConverter
+    fun fromTrackStatus(value: String?): br.com.fenix.bilingualreader.model.enums.TrackStatus? {
+        return value?.let { br.com.fenix.bilingualreader.model.enums.TrackStatus.fromString(it) }
+    }
+
+    @TypeConverter
+    fun trackStatusToString(status: br.com.fenix.bilingualreader.model.enums.TrackStatus?): String? {
+        return status?.name
+    }
+
 }

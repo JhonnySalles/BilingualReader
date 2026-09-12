@@ -224,6 +224,13 @@
         <item name="strokeWidth">1dp</item>
     </style>
 
+    <style name="Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+        <item name="iconTint">?attr/colorOnPrimaryContainer</item>
+        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <item name="rippleColor">?attr/colorOutline</item>
+    </style>
+
     <style name="ButtonRounded" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
         <item name="shapeAppearanceOverlay">@style/ButtonRoundedShapeAppearance</item>
         <item name="android:textColor">?attr/colorOnPrimaryContainer</item>

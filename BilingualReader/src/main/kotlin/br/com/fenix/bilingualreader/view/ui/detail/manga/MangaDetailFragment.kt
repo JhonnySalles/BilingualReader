@@ -48,6 +48,7 @@ import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelated
 import br.com.fenix.bilingualreader.view.components.BookCover3DView
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -82,6 +83,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mBookMakButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
+    private lateinit var mTrackerButton: MaterialButton
     private lateinit var mChaptersList: ListView
     private lateinit var mFileLinkContent: LinearLayout
     private lateinit var mFileLinksList: ListView
@@ -216,6 +218,7 @@ class MangaDetailFragment : Fragment() {
         mMakReadButton = root.findViewById(R.id.manga_detail_button_mark_read)
         mDeleteButton = root.findViewById(R.id.manga_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.manga_detail_button_vocabulary)
+        mTrackerButton = root.findViewById(R.id.manga_detail_button_tracker)
         mChaptersList = root.findViewById(R.id.manga_detail_chapters_list)
         mFileLinkContent = root.findViewById(R.id.manga_detail_files_link_detail)
         mFileLinksList = root.findViewById(R.id.manga_detail_files_links_list)
@@ -281,6 +284,9 @@ class MangaDetailFragment : Fragment() {
         mVocabularyButton.setOnClickListener {
             (mVocabularyButton.icon as AnimatedVectorDrawable).start()
             openVocabulary()
+        }
+        mTrackerButton.setOnClickListener {
+            openTracker()
         }
 
         mImportVocabulary.setOnClickListener { mViewModel.importVocabulary() }
@@ -786,6 +792,17 @@ class MangaDetailFragment : Fragment() {
                 R.anim.fade_out_fragment_remove_exit
             )
             startActivity(intent)
+        }
+    }
+
+    private fun openTracker() {
+        mViewModel.manga.value?.let {
+            TrackerLibraryPopup.show(
+                context = requireContext(),
+                libraryId = it.fkLibrary ?: 0L,
+                fileName = it.file.name,
+                comicInfo = null
+            )
         }
     }
 

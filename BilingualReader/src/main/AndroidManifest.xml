@@ -88,6 +88,11 @@
             android:exported="true"
             android:theme="@style/Theme.MangaReader"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
+        <activity
+            android:name=".view.ui.tracker.TrackerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader"
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
 
         <activity
             android:name=".view.ui.assistant.ReadingAssistantActivity"

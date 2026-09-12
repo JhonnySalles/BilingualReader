@@ -366,5 +366,61 @@
                 android:textSize="32sp" />
         </LinearLayout>
 
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_reading_speed" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_avg_words_per_minute"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_avg_words_per_minute"
+            app:startIconDrawable="@drawable/ico_statistics_time">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_book_avg_words_per_minute_edit"
+                android:inputType="number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_book_btn_recalculate_all"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_recalculate_reading_time"
+            app:icon="@drawable/ico_refresh" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_book_btn_recalculate_new"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_calculate_new_files"
+            app:icon="@drawable/ico_refresh" />
+
     </LinearLayout>
 </LinearLayout>

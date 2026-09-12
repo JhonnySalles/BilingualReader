@@ -30,6 +30,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import br.com.fenix.bilingualreader.model.entity.Tags
+import br.com.fenix.bilingualreader.model.entity.Track
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.entity.VocabularyBook
 import br.com.fenix.bilingualreader.model.entity.VocabularyManga
@@ -47,7 +48,7 @@ import java.io.File
     entities = [Manga::class, MangaAnnotation::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
         Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class, History::class,
-        AssistantHistory::class]
+        AssistantHistory::class, Track::class]
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
@@ -69,6 +70,7 @@ abstract class DataBase : RoomDatabase() {
     abstract fun getHistoryDao(): HistoryDAO
     abstract fun getAssistantHistoryDao(): AssistantHistoryDAO
     abstract fun getStatisticsDao(): StatisticsDAO
+    abstract fun getTrackDao(): TrackDAO
 
     // Singleton - One database initialize only
     companion object {

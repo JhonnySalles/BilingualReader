@@ -895,6 +895,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
                         R.id.menu_manga_config_delete -> deleteManga(manga, position)
                         R.id.menu_manga_config_detail -> goMangaDetail(manga, root, position)
+                        R.id.menu_manga_config_tracker -> {
+                            br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.show(
+                                context = requireContext(),
+                                libraryId = manga.fkLibrary ?: mViewModel.getLibrary().id ?: 0L,
+                                fileName = manga.fileName
+                            )
+                        }
                         R.id.menu_manga_config_book_mark -> {
                             val onUpdate: (History) -> (Unit) = {
                                 mViewModel.save(it as Manga)

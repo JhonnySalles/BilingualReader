@@ -1,11 +1,13 @@
 package br.com.fenix.bilingualreader.service.tracker.mal
 
 import retrofit2.Call
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -73,22 +75,29 @@ interface MyAnimeListService {
         @Query("nsfw") nsfw: Boolean = false
     ): Call<MalMangaList>
 
-    @POST("manga/{manga_id}/my_list_status")
+    @PUT("manga/{manga_id}/my_list_status")
     @FormUrlEncoded
     fun updateMangaList(
         @Header("Authorization") token: String,
         @Path("manga_id") idManga: Long,
-        @Field("is_rereading") isRereading: Boolean = false,
-        @Field("score") score: Int = 0,
-        @Field("start_date", encoded = true) startDate: String = "",
-        @Field("finish_date", encoded = true) finishDate: String = "",
-        @Field("num_volumes_read") volumesRead: Int = 0,
-        @Field("num_chapters_read") chaptersRead: Int = 0,
-        @Field("priority") priority: Int = 0,
-        @Field("num_times_reread") timesReread: Int = 0,
-        @Field("reread_value") reread: Int = 0,
-        @Field("tags") tags: String = "",
-        @Field("comments") comments: String = ""
-    ): Call<MalMangaList>
+        @Field("status") status: String? = null,
+        @Field("is_rereading") isRereading: Boolean? = null,
+        @Field("score") score: Int? = null,
+        @Field("num_volumes_read") volumesRead: Int? = null,
+        @Field("num_chapters_read") chaptersRead: Int? = null,
+        @Field("priority") priority: Int? = null,
+        @Field("num_times_reread") timesReread: Int? = null,
+        @Field("reread_value") reread: Int? = null,
+        @Field("tags") tags: String? = null,
+        @Field("comments") comments: String? = null,
+        @Field("start_date") startDate: String? = null,
+        @Field("finish_date") finishDate: String? = null
+    ): Call<MalStatus>
+
+    @retrofit2.http.DELETE("manga/{manga_id}/my_list_status")
+    fun deleteMangaList(
+        @Header("Authorization") token: String,
+        @Path("manga_id") idManga: Long
+    ): Call<okhttp3.ResponseBody>
 
 }

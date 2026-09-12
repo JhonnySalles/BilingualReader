@@ -228,6 +228,10 @@ class GeneralConsts private constructor() {
             const val BOOK_READER_TTS_VOICE_JAPANESE = "BOOK_READER_TTS_VOICE_JAPANESE"
             const val BOOK_READER_TTS_SPEED = "BOOK_READER_TTS_SPEED"
             const val BOOK_READER_TTS_SPEED_DEFAULT = 0f
+            const val MANGA_AVG_TIME_PER_PAGE = "MANGA_AVG_TIME_PER_PAGE"
+            const val MANGA_AVG_TIME_PER_PAGE_DEFAULT = 120f
+            const val BOOK_AVG_WORDS_PER_MINUTE = "BOOK_AVG_WORDS_PER_MINUTE"
+            const val BOOK_AVG_WORDS_PER_MINUTE_DEFAULT = 250f
         }
 
         object TOUCH {
@@ -384,6 +388,14 @@ class GeneralConsts private constructor() {
         object SHARE_MARKS {
             const val LAST_SYNC_MANGA = "SHARE_MARKS_LAST_SYNC_MANGA"
             const val LAST_SYNC_BOOK = "SHARE_MARKS_LAST_SYNC_BOOK"
+        }
+        object TRACKER {
+            const val MAL_TOKEN = "TRACKER_MAL_TOKEN"
+            const val MAL_USER = "TRACKER_MAL_USER"
+            const val MAL_LAST_SYNC = "TRACKER_MAL_LAST_SYNC"
+            const val ANILIST_TOKEN = "TRACKER_ANILIST_TOKEN"
+            const val ANILIST_USER = "TRACKER_ANILIST_USER"
+            const val ANILIST_LAST_SYNC = "TRACKER_ANILIST_LAST_SYNC"
         }
     }
 

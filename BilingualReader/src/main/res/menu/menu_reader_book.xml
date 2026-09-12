@@ -129,4 +129,11 @@
         android:title="@string/menu_book_reading_config_touch"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/menu_item_reader_book_tracker"
+        android:icon="@drawable/ico_tracker"
+        android:orderInCategory="108"
+        android:title="@string/tracker_title"
+        app:showAsAction="never"/>
+
 </menu>

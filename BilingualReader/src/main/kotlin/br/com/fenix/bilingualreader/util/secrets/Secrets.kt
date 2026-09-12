@@ -27,6 +27,8 @@ class Secrets {
     }
 
     private var MY_ANIME_LIST_CLIENT_ID: String = ""
+    private var ANILIST_CLIENT_ID: String = ""
+    private var ANILIST_CLIENT_SECRET: String = ""
     private var GOOGLE_ID_TOKEN: String = ""
     private var OPENROUTER_API_KEY: String = ""
 
@@ -38,6 +40,8 @@ class Secrets {
             properties.load(inputStream)
 
             MY_ANIME_LIST_CLIENT_ID = properties.getProperty("ANIME_LIST_CLIENT_ID") ?: ""
+            ANILIST_CLIENT_ID = properties.getProperty("ANILIST_CLIENT_ID") ?: ""
+            ANILIST_CLIENT_SECRET = properties.getProperty("ANILIST_CLIENT_SECRET") ?: ""
             GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN") ?: ""
             OPENROUTER_API_KEY = properties.getProperty("OPENROUTER_API_KEY") ?: ""
         } catch (e: IOException) {
@@ -48,6 +52,14 @@ class Secrets {
 
     fun getMyAnimeListClientId(): String {
         return MY_ANIME_LIST_CLIENT_ID
+    }
+
+    fun getAniListClientId(): String {
+        return ANILIST_CLIENT_ID
+    }
+
+    fun getAniListClientSecret(): String {
+        return ANILIST_CLIENT_SECRET
     }
 
     fun getGoogleIdToken(): String {

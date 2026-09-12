@@ -54,6 +54,12 @@
             android:title="@string/menu_statistics" />
 
         <item
+            android:id="@+id/menu_trackers"
+            android:icon="@drawable/ico_tracker"
+            android:orderInCategory="100"
+            android:title="@string/menu_trackers" />
+
+        <item
             android:id="@+id/menu_configuration"
             android:icon="@drawable/ico_settings"
             android:orderInCategory="100"
