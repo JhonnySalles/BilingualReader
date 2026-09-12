@@ -5,10 +5,10 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.TrackStatus
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 @Entity(
     tableName = DataBaseConsts.TRACK.TABLE_NAME,

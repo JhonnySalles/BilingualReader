@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.llm
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.ContextChunkFtsEntity
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.RAGContextDatabase
 import br.com.fenix.bilingualreader.util.helpers.FtsQuerySanitizer

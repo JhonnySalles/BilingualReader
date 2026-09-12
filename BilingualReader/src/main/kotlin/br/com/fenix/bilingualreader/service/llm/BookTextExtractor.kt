@@ -1,9 +1,6 @@
 package br.com.fenix.bilingualreader.service.llm
 
-import android.text.Html
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
-import org.jsoup.Jsoup
-
 import br.com.fenix.bilingualreader.util.helpers.TextPreprocessor
 import br.com.fenix.bilingualreader.util.helpers.TextQualityValidator
 

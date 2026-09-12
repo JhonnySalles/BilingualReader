@@ -101,8 +101,8 @@ import br.com.fenix.bilingualreader.util.helpers.executeWithAnimation
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
-import br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity
 import br.com.fenix.bilingualreader.view.ui.assistant.PopupReadingSummary
+import br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel

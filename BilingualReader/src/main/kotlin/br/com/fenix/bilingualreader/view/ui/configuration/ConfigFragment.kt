@@ -36,6 +36,7 @@ import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.export.DataExportImportManager
+import br.com.fenix.bilingualreader.service.functions.ReadingTimeCalculator
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
@@ -47,11 +48,11 @@ import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.service.update.Releases
 import br.com.fenix.bilingualreader.service.update.UpdateApp
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
@@ -68,7 +69,6 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.Scope
-import br.com.fenix.bilingualreader.service.functions.ReadingTimeCalculator
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider

@@ -58,7 +58,6 @@ import androidx.core.os.BundleCompat
 import androidx.core.util.isNotEmpty
 import androidx.core.util.size
 import androidx.core.view.MenuProvider
-import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -115,6 +114,7 @@ import br.com.fenix.bilingualreader.view.components.manga.ImageViewScrolling
 import br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
 import br.com.fenix.bilingualreader.view.managers.MangaReaderHandler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import coil.transform.Transformation
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton

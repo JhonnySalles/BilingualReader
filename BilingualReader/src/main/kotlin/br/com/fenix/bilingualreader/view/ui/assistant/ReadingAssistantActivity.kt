@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
@@ -21,6 +23,7 @@ import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.llm.AssistantSessionHolder
 import br.com.fenix.bilingualreader.service.llm.ContextSource
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -35,13 +38,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 

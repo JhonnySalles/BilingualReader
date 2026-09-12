@@ -5,10 +5,10 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.LlmUse
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient
-import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterMessage
-import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterTextPart
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterImagePart
 import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterImagePartUrl
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterMessage
+import br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterTextPart
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import kotlinx.coroutines.flow.Flow
 
