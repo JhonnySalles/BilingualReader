@@ -59,6 +59,7 @@ import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
+import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
@@ -1008,6 +1009,9 @@ class HistoryFragment : Fragment() {
                     mViewModel.save(manga)
                     (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(manga)
                 }
+                R.id.menu_item_manga_file_reading_history -> {
+                    PopupReadingHistory(requireContext()).show(manga)
+                }
                 R.id.menu_item_manga_file_clear -> {
                     manga.lastAccess = LocalDateTime.MIN
                     manga.bookMark = 0
@@ -1058,6 +1062,9 @@ class HistoryFragment : Fragment() {
                     book.favorite = !book.favorite
                     mViewModel.save(book)
                     (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(book)
+                }
+                R.id.menu_item_book_file_reading_history -> {
+                    PopupReadingHistory(requireContext()).show(book)
                 }
                 R.id.menu_item_book_file_clear -> {
                     book.lastAccess = LocalDateTime.MIN

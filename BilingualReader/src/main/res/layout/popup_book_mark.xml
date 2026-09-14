@@ -93,12 +93,35 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/popup_book_mark_btn_auto_calc"
+                android:id="@+id/popup_book_mark_btn_history"
                 style="@style/Button.IconOnly"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="@dimen/margin_small"
-                app:icon="@drawable/ico_refresh" />
+                app:icon="@drawable/ico_history" />
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/popup_book_mark_btn_auto_calc"
+                    style="@style/Button.IconOnly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/popup_book_mark_ico_auto_calc"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:src="@drawable/ico_refresh"
+                    app:tint="?attr/colorOnBackground" />
+
+            </FrameLayout>
 
         </LinearLayout>
     </LinearLayout>

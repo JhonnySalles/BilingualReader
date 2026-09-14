@@ -972,6 +972,7 @@
     <string name="popup_book_mark_date">Date</string>
     <string name="popup_book_mark_time">Time</string>
     <string name="popup_book_mark_reading_time">Reading time (HH:MM)</string>
+    <string name="popup_history_title">Reading History</string>
 
     <string name="popup_book_select_date">Select a date</string>
     <string name="popup_book_select_time">Select a time</string>

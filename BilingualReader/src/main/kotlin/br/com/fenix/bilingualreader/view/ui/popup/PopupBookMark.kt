@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import br.com.fenix.bilingualreader.R
@@ -41,6 +42,8 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import br.com.fenix.bilingualreader.model.interfaces.History as Obj
+import android.animation.ObjectAnimator
+import android.view.animation.LinearInterpolator
 
 
 class PopupBookMark(var context: Context, var manager: FragmentManager) {
@@ -65,6 +68,8 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     private lateinit var mReadingDurationEdit: TextInputEditText
     private lateinit var mReadingDuration: TextInputLayout
     private lateinit var mBtnAutoCalc: MaterialButton
+    private lateinit var mIcoAutoCalc: ImageView
+    private lateinit var mBtnHistory: MaterialButton
 
     private var mCurrentObj: Obj? = null
 
@@ -217,6 +222,8 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mReadingDurationEdit = root.findViewById(R.id.popup_book_mark_reading_duration_edit)
         mReadingDuration = root.findViewById(R.id.popup_book_mark_reading_duration)
         mBtnAutoCalc = root.findViewById(R.id.popup_book_mark_btn_auto_calc)
+        mIcoAutoCalc = root.findViewById(R.id.popup_book_mark_ico_auto_calc)
+        mBtnHistory = root.findViewById(R.id.popup_book_mark_btn_history)
 
         mBookMarkDateEdit.setOnClickListener { selectDate(mNewDate) }
         mBookMarkTimeEdit.setOnClickListener { selectTime(mNewDate) }
@@ -229,6 +236,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
             pasteDurationFromClipboard()
         }
         mBtnAutoCalc.setOnClickListener { autoCalculateDuration() }
+        mBtnHistory.setOnClickListener { openHistoryPopup() }
 
         mBookMarkDate.endIconMode = TextInputLayout.END_ICON_NONE
         mBookMarkTime.endIconMode = TextInputLayout.END_ICON_NONE
@@ -313,7 +321,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         val initialMinutes = ((mReadingDurationSeconds % 3600) / 60).toInt().coerceIn(0, 59)
         val initialSeconds = (mReadingDurationSeconds % 60).toInt().coerceIn(0, 59)
 
-        val view = LayoutInflater.from(context).inflate(R.layout.dialog_duration_picker, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.popup_duration_picker, null)
         val hoursPicker = view.findViewById<android.widget.NumberPicker>(R.id.duration_picker_hours)
         val minutesPicker = view.findViewById<android.widget.NumberPicker>(R.id.duration_picker_minutes)
         val secondsPicker = view.findViewById<android.widget.NumberPicker>(R.id.duration_picker_seconds)
@@ -350,9 +358,30 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
     private fun autoCalculateDuration() {
         mIsManualReadingTime = false
+        mBtnAutoCalc.isEnabled = false
+        val animator = ObjectAnimator.ofFloat(mIcoAutoCalc, View.ROTATION, 0f, 360f)
+        animator.duration = 500
+        animator.repeatCount = ObjectAnimator.INFINITE
+        animator.interpolator = LinearInterpolator()
+        animator.start()
+
+        mBtnAutoCalc.postDelayed({
+            if (mCurrentObj != null) {
+                mReadingDurationSeconds = calculatePreviewTime(mCurrentObj!!, mNewBookMark)
+                mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
+            }
+            animator.cancel()
+            mIcoAutoCalc.rotation = 0f
+            mBtnAutoCalc.isEnabled = true
+        }, 500)
+    }
+
+    private fun openHistoryPopup() {
         if (mCurrentObj != null) {
-            mReadingDurationSeconds = calculatePreviewTime(mCurrentObj!!, mNewBookMark)
-            mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
+            val popupHistory = PopupReadingHistory(context)
+            popupHistory.show(mCurrentObj!!) {
+                // Atualiza se houver callback necessário
+            }
         }
     }
 

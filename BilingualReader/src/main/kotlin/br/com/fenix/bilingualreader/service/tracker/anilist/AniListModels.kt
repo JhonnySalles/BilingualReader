@@ -39,16 +39,24 @@ data class AniListMedia(
     val id: Long,
     val title: AniListTitle?,
     val coverImage: AniListCoverImage?,
+    val bannerImage: String? = null,
+    val startDate: AniListFuzzyDate? = null,
+    val endDate: AniListFuzzyDate? = null,
+    val synonyms: List<String>? = null,
+    val genres: List<String>? = null,
+    val staff: AniListStaffConnection? = null,
     val format: String?,
     val status: String?,
     val chapters: Int?,
     val volumes: Int?,
     val averageScore: Int? = null,
     val meanScore: Int? = null,
-    val description: String? = null
+    val description: String? = null,
+    val siteUrl: String? = null
 ) {
     val displayTitle: String
-        get() = title?.english?.takeIf { it.isNotBlank() }
+        get() = title?.userPreferred?.takeIf { it.isNotBlank() }
+            ?: title?.english?.takeIf { it.isNotBlank() }
             ?: title?.romaji?.takeIf { it.isNotBlank() }
             ?: title?.native.orEmpty()
 }
@@ -56,13 +64,38 @@ data class AniListMedia(
 data class AniListTitle(
     val romaji: String?,
     val english: String?,
-    val native: String?
+    val native: String?,
+    val userPreferred: String? = null
 )
 
 data class AniListCoverImage(
     val medium: String?,
     val large: String?,
     val extraLarge: String? = null
+)
+
+data class AniListFuzzyDate(
+    val year: Int?,
+    val month: Int?,
+    val day: Int?
+)
+
+data class AniListStaffConnection(
+    val edges: List<AniListStaffEdge>?
+)
+
+data class AniListStaffEdge(
+    val role: String?,
+    val node: AniListStaffNode?
+)
+
+data class AniListStaffNode(
+    val name: AniListStaffName?
+)
+
+data class AniListStaffName(
+    val full: String?,
+    val native: String?
 )
 
 data class AniListMediaStatusResponse(

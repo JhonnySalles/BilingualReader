@@ -116,6 +116,7 @@ class AniListTracker(private val context: Context) {
     }
 
     // 2 - Busca de mangas e novels por nome, para obter o id, titulo, score, capa
+    // 2 - Busca de mangas e novels por nome, para obter o id, titulo, score, capa e metadados completos
     private val mGraphQLSearchQuery = """
         query (${'$'}search: String, ${'$'}format: MediaFormat) {
           Page(page: 1, perPage: 50) {
@@ -125,11 +126,36 @@ class AniListTracker(private val context: Context) {
                 romaji
                 english
                 native
+                userPreferred
               }
               coverImage {
                 medium
                 large
                 extraLarge
+              }
+              bannerImage
+              startDate {
+                year
+                month
+                day
+              }
+              endDate {
+                year
+                month
+                day
+              }
+              synonyms
+              genres
+              staff {
+                edges {
+                  role
+                  node {
+                    name {
+                      full
+                      native
+                    }
+                  }
+                }
               }
               format
               status
@@ -138,6 +164,7 @@ class AniListTracker(private val context: Context) {
               averageScore
               meanScore
               description(asHtml: false)
+              siteUrl
             }
           }
         }
@@ -152,6 +179,40 @@ class AniListTracker(private val context: Context) {
     }
 
     private fun searchMedia(query: String, format: String?, listener: ApiListener<List<TrackerSearchResult>>) {
+        getMediaList(query, format, object : ApiListener<List<AniListMedia>> {
+            override fun onSuccess(result: List<AniListMedia>) {
+                val results = result.map { media ->
+                    val avgScore = media.averageScore ?: media.meanScore
+                    TrackerSearchResult(
+                        id = media.id,
+                        title = media.displayTitle.ifBlank { "AniList ID ${media.id}" },
+                        coverUrl = media.coverImage?.extraLarge ?: media.coverImage?.large ?: media.coverImage?.medium,
+                        totalVolumes = media.volumes,
+                        totalChapters = media.chapters,
+                        status = media.status,
+                        score = avgScore?.let { it / 10f },
+                        synopsis = media.description,
+                        serviceType = TrackerServiceType.ANILIST
+                    )
+                }
+                listener.onSuccess(results)
+            }
+
+            override fun onFailure(message: String) {
+                listener.onFailure(message)
+            }
+        })
+    }
+
+    fun getMediaListManga(query: String, listener: ApiListener<List<AniListMedia>>) {
+        getMediaList(query, null, listener)
+    }
+
+    fun getMediaListNovel(query: String, listener: ApiListener<List<AniListMedia>>) {
+        getMediaList(query, "NOVEL", listener)
+    }
+
+    fun getMediaList(query: String, format: String?, listener: ApiListener<List<AniListMedia>>) {
         val variables = mutableMapOf<String, Any?>("search" to query)
         if (!format.isNullOrBlank()) {
             variables["format"] = format
@@ -167,21 +228,7 @@ class AniListTracker(private val context: Context) {
             override fun onResponse(call: Call<AniListResponse>, response: Response<AniListResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val mediaList = response.body()?.data?.page?.media.orEmpty()
-                    val results = mediaList.map { media ->
-                        val avgScore = media.averageScore ?: media.meanScore
-                        TrackerSearchResult(
-                            id = media.id,
-                            title = media.displayTitle.ifBlank { "AniList ID ${media.id}" },
-                            coverUrl = media.coverImage?.extraLarge ?: media.coverImage?.large ?: media.coverImage?.medium,
-                            totalVolumes = media.volumes,
-                            totalChapters = media.chapters,
-                            status = media.status,
-                            score = avgScore?.let { it / 10f },
-                            synopsis = media.description,
-                            serviceType = TrackerServiceType.ANILIST
-                        )
-                    }
-                    listener.onSuccess(results)
+                    listener.onSuccess(mediaList)
                 } else {
                     val error = response.errorBody()?.string() ?: response.message()
                     mLOGGER.error("AniList search error: $error")

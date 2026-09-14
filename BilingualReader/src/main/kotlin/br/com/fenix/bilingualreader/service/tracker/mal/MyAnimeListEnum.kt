@@ -34,6 +34,9 @@ enum class MEDIA {
     @SerializedName("novel")
     NOVEL,
 
+    @SerializedName("light_novel")
+    LIGHT_NOVEL,
+
     @SerializedName("one_shot")
     ONE_SHOT,
 

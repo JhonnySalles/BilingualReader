@@ -236,8 +236,6 @@ dependencies {
         exclude group: 'stax', module: 'stax'
     }
 
-    // MANGA INFO
-    //implementation 'com.kttdevelopment:mal4j:2.8.1'
 
     // GOOGLE DRIVE
     implementation('com.google.api-client:google-api-client-android:1.23.0') {

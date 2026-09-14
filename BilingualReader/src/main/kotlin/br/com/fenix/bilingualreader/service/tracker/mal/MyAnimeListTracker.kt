@@ -197,7 +197,7 @@ class MyAnimeListTracker(var mContext: Context) {
                 if (response.isSuccessful && response.body() != null) {
                     val list = response.body()!!.data
                         .map { it.item }
-                        .filter { it.mediaType == MEDIA.NOVEL }
+                        .filter { it.mediaType == MEDIA.NOVEL || it.mediaType == MEDIA.LIGHT_NOVEL }
                         .map { item ->
                             TrackerSearchResult(
                                 id = item.id.toLong(),
@@ -325,7 +325,7 @@ class MyAnimeListTracker(var mContext: Context) {
         call.enqueue(object : Callback<MalMangaList> {
             override fun onResponse(call: Call<MalMangaList>, response: Response<MalMangaList>) {
                 if (response.isSuccessful && response.body() != null) {
-                    listener.onSuccess(MalTransform.getList(response.body()!!.data).filter { it.mediaType == MEDIA.NOVEL })
+                    listener.onSuccess(MalTransform.getList(response.body()!!.data).filter { it.mediaType == MEDIA.NOVEL || it.mediaType == MEDIA.LIGHT_NOVEL })
                 } else {
                     listener.onFailure(response.toString())
                 }

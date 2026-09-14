@@ -4,6 +4,9 @@
         android:id="@+id/menu_item_book_file_favorite"
         android:title="@string/book_library_menu_favorite_add" />
     <item
+        android:id="@+id/menu_item_book_file_reading_history"
+        android:title="@string/popup_history_title" />
+    <item
         android:id="@+id/menu_item_book_file_clear"
         android:title="@string/book_library_menu_clear"/>
     <item

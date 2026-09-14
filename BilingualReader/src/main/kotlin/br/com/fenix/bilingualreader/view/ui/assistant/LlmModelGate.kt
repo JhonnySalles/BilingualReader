@@ -74,7 +74,7 @@ object LlmModelGate {
             return
         }
 
-        val view = LayoutInflater.from(context).inflate(R.layout.dialog_llm_download, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.popup_llm_download, null)
         val progress = view.findViewById<ProgressBar>(R.id.llm_download_progress)
         val status = view.findViewById<TextView>(R.id.llm_download_status)
         status.text = context.getString(R.string.llm_prepare_message)

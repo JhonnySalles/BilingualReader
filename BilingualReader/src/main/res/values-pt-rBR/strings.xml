@@ -972,6 +972,7 @@
     <string name="popup_book_mark_date">Data</string>
     <string name="popup_book_mark_time">Hora</string>
     <string name="popup_book_mark_reading_time">Tempo de leitura (HH:MM)</string>
+    <string name="popup_history_title">Histórico de Movimentos</string>
 
     <string name="popup_book_select_date">Selecione uma data</string>
     <string name="popup_book_select_time">Selecione uma horário</string>
