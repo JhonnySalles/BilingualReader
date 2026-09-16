@@ -155,6 +155,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = mBinding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
+        setupWindowInsets()
+        setupBlurViews()
+        setupTitleBackgrounds()
+
         mFragmentManager = supportFragmentManager
         mFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
@@ -258,10 +262,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
                 }
-
-                setupBlurViews()
-                setupWindowInsets()
-                setupTitleBackgrounds()
             }
         }
     }
@@ -551,6 +551,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onConfigurationChanged(newConfig)
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
         setupTitleBackgrounds()
+        setupWindowInsets()
     }
 
     private fun setupWindowInsets() {
@@ -570,6 +571,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, 0)
             insets
         }
+
+        ViewCompat.requestApplyInsets(mBlurTop)
+        ViewCompat.requestApplyInsets(mainContentRoot)
     }
 
     private fun setupBlurViews() {

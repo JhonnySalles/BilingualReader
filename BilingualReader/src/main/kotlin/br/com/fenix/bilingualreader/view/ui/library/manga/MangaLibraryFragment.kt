@@ -617,7 +617,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun sortList() {
         mViewModel.sorted()
-        notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
+        updateList(mViewModel.listMangas.value ?: mutableListOf())
     }
 
     private fun onChangeLayout(type: LibraryMangaType) {

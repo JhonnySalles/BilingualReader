@@ -64,15 +64,26 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     private var mLoading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean> = mLoading
 
+    private fun loadSavedOrder(): Pair<Order, Boolean> {
+        val orderStr = mPreferences.getString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, Order.Name.toString())
+        val order = try { Order.valueOf(orderStr ?: Order.Name.toString()) } catch (e: Exception) { Order.Name }
+        return Pair(order, false)
+    }
+
+    private fun loadSavedLibraryType(): LibraryMangaType {
+        val typeStr = mPreferences.getString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, LibraryMangaType.LINE.toString())
+        return try { LibraryMangaType.valueOf(typeStr ?: LibraryMangaType.LINE.toString()) } catch (e: Exception) { LibraryMangaType.LINE }
+    }
+
     private var mWordFilter = ""
     val wordFilter: String get() = mWordFilter
 
-    private var mOrder = MutableLiveData(Pair(Order.Name, false))
+    private var mOrder = MutableLiveData(loadSavedOrder())
     val order: LiveData<Pair<Order, Boolean>> = mOrder
     private var mTypeFilter = MutableLiveData(FilterType.None)
     val typeFilter: LiveData<FilterType> = mTypeFilter
 
-    private var mLibraryType = MutableLiveData(LibraryMangaType.GRID_BIG)
+    private var mLibraryType = MutableLiveData(loadSavedLibraryType())
     val libraryType: LiveData<LibraryMangaType> = mLibraryType
 
     private val mFullMap = LinkedHashMap<Long, Manga>()
@@ -436,8 +447,12 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
                 mLoading.value = false
                 if (list != null) {
-                    mListMangas.value = list.toMutableList()
-                    setFullFromList(list)
+                    val order = mOrder.value?.first ?: Order.Name
+                    val isDesc = mOrder.value?.second ?: false
+                    val sortedList = list.toMutableList()
+                    sortList(sortedList, order, isDesc)
+                    rebuildFullMap(sortedList)
+                    mListMangas.value = sortedList
                 } else {
                     mFullMap.clear()
                     mListMangas.value = mutableListOf()

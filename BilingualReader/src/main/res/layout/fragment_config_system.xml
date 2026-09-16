@@ -342,7 +342,9 @@
                         style="@style/Button.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/config_tracker_login" />
+                        android:text="@string/config_tracker_login"
+                        app:strokeColor="@android:color/black"
+                        app:strokeWidth="1dp" />
                 </LinearLayout>
 
                 <TextView
@@ -416,7 +418,9 @@
                         style="@style/Button.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/config_tracker_login" />
+                        android:text="@string/config_tracker_login"
+                        app:strokeColor="@android:color/black"
+                        app:strokeWidth="1dp" />
                 </LinearLayout>
 
                 <TextView

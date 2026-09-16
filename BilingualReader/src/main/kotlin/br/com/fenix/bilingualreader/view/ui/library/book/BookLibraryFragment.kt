@@ -622,8 +622,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun sortList() {
         mViewModel.sorted()
-        val range = (mViewModel.listBook.value?.size ?: 1)
-        notifyDataSet(0, range)
+        updateList(mViewModel.listBook.value ?: mutableListOf())
     }
 
     private fun onChangeLayout(type: LibraryBookType) {
