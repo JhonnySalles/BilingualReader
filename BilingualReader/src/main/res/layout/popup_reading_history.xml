@@ -39,6 +39,8 @@
                 android:layout_weight="1"
                 android:text="@string/popup_book_mark_page"
                 android:textStyle="bold"
+                android:gravity="center"
+                android:textAlignment="center"
                 android:textColor="?attr/colorOnSurface" />
 
             <TextView

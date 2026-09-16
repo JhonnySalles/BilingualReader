@@ -977,7 +977,9 @@
     <string name="popup_book_select_date">Selecione uma data</string>
     <string name="popup_book_select_time">Selecione uma horário</string>
 
-    <string name="popup_book_mark_read">Marcar como lido</string>
+    <string name="popup_book_mark_read">Lido</string>
+    <string name="popup_book_mark_history">Histórico</string>
+    <string name="popup_book_mark_current_date">Data Atual</string>
 
     <string name="popup_book_mark_only_number">Apenas números</string>
     <string name="popup_book_mark_necessary_page">Necessário informar uma página</string>

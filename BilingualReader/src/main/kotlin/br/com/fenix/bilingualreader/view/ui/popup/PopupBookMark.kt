@@ -70,8 +70,12 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     private lateinit var mBtnAutoCalc: MaterialButton
     private lateinit var mIcoAutoCalc: ImageView
     private lateinit var mBtnHistory: MaterialButton
+    private lateinit var mBtnNowDate: MaterialButton
 
     private var mCurrentObj: Obj? = null
+    private var mLastHistory: History? = null
+    private var mIsEditing: Boolean = false
+    private var mForceNewHistoryRecord: Boolean = false
 
     fun getPopupBookMark(obj: Obj, onUpdate: (Obj) -> (Unit), onClose: (Boolean, Obj) -> (Unit)) {
         mCurrentObj = obj
@@ -84,6 +88,10 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
         if (obj.bookMark <= 0)
             mNewBookMark = obj.pages
+
+        mLastHistory = HistoryRepository(context).last(obj.type, obj.fkLibrary ?: 0L, obj.id ?: 0L)
+        mIsEditing = (mLastHistory != null && obj.bookMark > 0)
+        mForceNewHistoryRecord = false
 
         mReadingDurationSeconds = calculatePreviewTime(obj, mNewBookMark)
 
@@ -104,16 +112,32 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
         mPopup.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
             if (validate()) {
-                val pagesRead = maxOf(1, mNewBookMark - obj.bookMark)
+                val startPage = if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) mLastHistory!!.pageStart else obj.bookMark
+                val pagesRead = maxOf(1, mNewBookMark - startPage)
                 val averageTimeByPage = if (pagesRead > 0) mReadingDurationSeconds / pagesRead else mReadingDurationSeconds
 
-                HistoryRepository(context).save(
-                    History(
-                        null, obj.fkLibrary!!, obj.id!!, obj.type, obj.bookMark, mNewBookMark, obj.pages, mNewBookMark == mMax,
-                        obj.volume, 0, mNewDate, mNewDate, mReadingDurationSeconds, averageTimeByPage, useTTS = false, isNotify = false,
-                        wordCount = mWordCount, secondsReadAutomatic = !mIsManualReadingTime
+                val historyRepo = HistoryRepository(context)
+                if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) {
+                    val historyToUpdate = mLastHistory!!.copy(
+                        pageEnd = mNewBookMark,
+                        pages = obj.pages,
+                        completed = mNewBookMark == mMax,
+                        end = mNewDate,
+                        secondsRead = mReadingDurationSeconds,
+                        averageTimeByPage = averageTimeByPage,
+                        wordCount = mWordCount,
+                        secondsReadAutomatic = !mIsManualReadingTime
                     )
-                )
+                    historyRepo.update(historyToUpdate)
+                } else {
+                    historyRepo.save(
+                        History(
+                            null, obj.fkLibrary!!, obj.id!!, obj.type, startPage, mNewBookMark, obj.pages, mNewBookMark == mMax,
+                            obj.volume, 0, mNewDate, mNewDate, mReadingDurationSeconds, averageTimeByPage, useTTS = false, isNotify = false,
+                            wordCount = mWordCount, secondsReadAutomatic = !mIsManualReadingTime
+                        )
+                    )
+                }
 
                 if (obj.type == Type.MANGA) {
                     MangaRepository(context).updateLastAlteration(obj.id!!, LocalDateTime.now())
@@ -130,7 +154,8 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     }
 
     private fun calculatePreviewTime(obj: Obj, targetPage: Int): Long {
-        val pagesRead = maxOf(1, targetPage - obj.bookMark)
+        val startPage = if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) mLastHistory!!.pageStart else obj.bookMark
+        val pagesRead = maxOf(1, targetPage - startPage)
         return if (obj.type == Type.MANGA) {
             mCalculator.calculateMangaReadingTime(pagesRead)
         } else {
@@ -140,6 +165,17 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                 val avgWordsPerPage = 250L
                 mCalculator.calculateBookReadingTime(pagesRead * avgWordsPerPage)
             }
+        }
+    }
+
+    private fun onNowDateClicked() {
+        mNewDate = LocalDateTime.now()
+        mBookMarkDateEdit.setText(GeneralConsts.formatterDate(context, mNewDate))
+        mBookMarkTimeEdit.setText(mNewDate.format(DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.TIME_PATTERN)))
+        mForceNewHistoryRecord = true
+        if (!mIsManualReadingTime && mCurrentObj != null) {
+            mReadingDurationSeconds = calculatePreviewTime(mCurrentObj!!, mNewBookMark)
+            mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
         }
     }
 
@@ -161,7 +197,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                                 mBookMarkPageEdit.setText(mNewBookMark.toString())
                             }
 
-                            val startPage = obj.bookMark
+                            val startPage = if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) mLastHistory!!.pageStart else obj.bookMark
                             val endPage = if (mNewBookMark > 0) mNewBookMark else obj.pages
                             mWordCount = mCalculator.countWordsFromDocument(document!!, startPage, endPage)
 
@@ -224,6 +260,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mBtnAutoCalc = root.findViewById(R.id.popup_book_mark_btn_auto_calc)
         mIcoAutoCalc = root.findViewById(R.id.popup_book_mark_ico_auto_calc)
         mBtnHistory = root.findViewById(R.id.popup_book_mark_btn_history)
+        mBtnNowDate = root.findViewById(R.id.popup_book_mark_btn_now_date)
 
         mBookMarkDateEdit.setOnClickListener { selectDate(mNewDate) }
         mBookMarkTimeEdit.setOnClickListener { selectTime(mNewDate) }
@@ -237,6 +274,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         }
         mBtnAutoCalc.setOnClickListener { autoCalculateDuration() }
         mBtnHistory.setOnClickListener { openHistoryPopup() }
+        mBtnNowDate.setOnClickListener { onNowDateClicked() }
 
         mBookMarkDate.endIconMode = TextInputLayout.END_ICON_NONE
         mBookMarkTime.endIconMode = TextInputLayout.END_ICON_NONE

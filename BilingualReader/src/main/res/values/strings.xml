@@ -1026,7 +1026,9 @@
     <string name="popup_book_select_date">Select a date</string>
     <string name="popup_book_select_time">Select a time</string>
 
-    <string name="popup_book_mark_read">Mark read</string>
+    <string name="popup_book_mark_read">Read</string>
+    <string name="popup_book_mark_history">History</string>
+    <string name="popup_book_mark_current_date">Current Date</string>
 
     <string name="popup_book_mark_only_number">Only numbers</string>
     <string name="popup_book_mark_necessary_page">Necessary inform a page</string>

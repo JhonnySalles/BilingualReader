@@ -92,14 +92,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/popup_book_mark_btn_history"
-                style="@style/Button.IconOnly"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="@dimen/margin_small"
-                app:icon="@drawable/ico_history" />
-
             <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -122,6 +114,36 @@
                     app:tint="?attr/colorOnBackground" />
 
             </FrameLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_book_mark_btn_history"
+                style="@style/Button.LabelStart"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/config_button_size"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:text="@string/popup_book_mark_history"
+                app:icon="@drawable/ico_history" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_book_mark_btn_now_date"
+                style="@style/Button.LabelStart"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/config_button_size"
+                android:layout_weight="1"
+                android:text="@string/popup_book_mark_current_date"
+                app:icon="@drawable/ico_book_mark_date" />
 
         </LinearLayout>
     </LinearLayout>
