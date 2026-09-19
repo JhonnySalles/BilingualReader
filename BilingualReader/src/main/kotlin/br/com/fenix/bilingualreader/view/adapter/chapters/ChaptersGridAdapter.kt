@@ -89,4 +89,11 @@ class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             notifyItemChanged(mChaptersList.indexOf(page))
     }
 
+    fun notifyPageChanged(pageNumber: Int) {
+        val index = mChaptersList.indexOfFirst { !it.isTitle && it.number == pageNumber }
+        if (index in 0 until mChaptersList.size) {
+            notifyItemChanged(index)
+        }
+    }
+
 }

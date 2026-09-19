@@ -2,8 +2,10 @@ package br.com.fenix.bilingualreader.view.ui.reader.manga
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.TypedValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,7 +29,9 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import coil.transform.Transformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -86,8 +90,13 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     fun stopExecutions() {
-        stopLoadChapters = true
+        cancelLoadChapters()
         stopLoadAnnotation = true
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopExecutions()
     }
 
     fun clear() {
@@ -350,15 +359,35 @@ class CoilSepiaTransformation : Transformation {
 
     // --------------------------------------------------------- Chapters ---------------------------------------------------------
     var isLoadChapters = false
-    private var stopLoadChapters = false
+    var stopLoadChapters = false
+    private var mLoadChaptersJob: Job? = null
+
+    fun cancelLoadChapters() {
+        stopLoadChapters = true
+        mLoadChaptersJob?.cancel()
+        mLoadChaptersJob = null
+        isLoadChapters = false
+    }
+
     private fun loadImage(parse: Parse, page: Int, isSmallSize: Boolean = true) : Bitmap? {
         try {
             val stream = parse.getPage(page)
             val image = if (isSmallSize) {
+                val metrics = Resources.getSystem().displayMetrics
+                val targetWidth = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH * ReaderConsts.PAGE.PAGE_CHAPTER_THUMBNAIL_SCALE,
+                    metrics
+                ).toInt()
+                val targetHeight = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT * ReaderConsts.PAGE.PAGE_CHAPTER_THUMBNAIL_SCALE,
+                    metrics
+                ).toInt()
                 ImageUtil.decodeInputStream(
                     stream,
-                    ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH,
-                    ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT
+                    targetWidth,
+                    targetHeight
                 )
             } else
                 ImageUtil.decodeInputStream(stream)
@@ -384,6 +413,7 @@ class CoilSepiaTransformation : Transformation {
         if (SharedData.isProcessed(manga)) {
             SharedData.clearChapters()
             val parse = ParseFactory.create(manga.file) ?: return false
+            cancelLoadChapters()
             isLoadChapters = true
             stopLoadChapters = false
 
@@ -407,40 +437,38 @@ class CoilSepiaTransformation : Transformation {
             }
 
             SharedData.setChapters(manga, list)
-            CoroutineScope(Dispatchers.IO).launch {
+            mLoadChaptersJob = CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val deferred = async {
-                        if (number > 5) {
-                            for (i in (number - 3) until list.size) {
-                                if (stopLoadChapters)
-                                    break
+                    if (number > 5) {
+                        for (i in (number - 3) until list.size) {
+                            if (stopLoadChapters || !isActive)
+                                break
 
-                                val page = list[i]
-                                page.image = loadImage(parse, page.number, false)
-                                withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
-                            }
+                            val page = list[i]
+                            page.image = loadImage(parse, page.number, true)
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
+                        }
 
-                            for (i in (number - 4) downTo 0) {
-                                if (stopLoadChapters)
-                                    break
+                        for (i in (number - 4) downTo 0) {
+                            if (stopLoadChapters || !isActive)
+                                break
 
-                                val page = list[i]
-                                page.image = loadImage(parse, page.number, false)
-                                withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
-                            }
-                        } else
-                            for (page in list) {
-                                if (stopLoadChapters)
-                                    break
+                            val page = list[i]
+                            page.image = loadImage(parse, page.number, true)
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
+                        }
+                    } else {
+                        for (page in list) {
+                            if (stopLoadChapters || !isActive)
+                                break
 
-                                page.image = loadImage(parse, page.number, false)
-                                withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
-                            }
+                            page.image = loadImage(parse, page.number, true)
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
+                        }
                     }
 
-                    deferred.await()
                     withContext(Dispatchers.Main) {
-                        if (!stopLoadChapters)
+                        if (!stopLoadChapters && isActive)
                             SharedData.setChapters(manga, list.toList())
                     }
                     isLoadChapters = false
@@ -456,6 +484,7 @@ class CoilSepiaTransformation : Transformation {
 
     private fun refreshImageChapter(manga: Manga) {
         val parse = ParseFactory.create(manga.file) ?: return
+        cancelLoadChapters()
         isLoadChapters = true
         stopLoadChapters = false
 
@@ -464,22 +493,18 @@ class CoilSepiaTransformation : Transformation {
             (parse as RarParse?)!!.setCacheDirectory(cacheDir)
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        mLoadChaptersJob = CoroutineScope(Dispatchers.IO).launch {
             try {
-                val deferred = async {
-                    for (page in SharedData.chapters.value!!) {
-                        if (stopLoadChapters)
-                            break
+                for (page in SharedData.chapters.value ?: emptyList()) {
+                    if (stopLoadChapters || !isActive)
+                        break
 
-                        if (page.image != null)
-                            continue
+                    if (page.image != null)
+                        continue
 
-                        page.image = loadImage(parse, page.number, false)
-                        withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
-                    }
+                    page.image = loadImage(parse, page.number, true)
+                    withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                 }
-
-                deferred.await()
                 isLoadChapters = false
             } finally {
                 Util.destroyParse(parse)
@@ -571,7 +596,7 @@ class CoilSepiaTransformation : Transformation {
             try {
                 val deferred = async {
                     for (annotation in list.filter { it.image == null && !it.isTitle }) {
-                        annotation.image = loadImage(parse, annotation.page -1, false)
+                        annotation.image = loadImage(parse, annotation.page -1, true)
                         withContext(Dispatchers.Main) { refresh(annotation.page -1) }
                         if (stopLoadAnnotation)
                             break

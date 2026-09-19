@@ -406,7 +406,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
             mBottomSheetTranslate.isDraggable = false
             mBottomSheetTranslate.addBottomSheetCallback(mBottomSheetTranslateCallback)
-            PopupUtils.onPopupTouch(this, mMenuPopupTranslateBottom!!, mBottomSheetTranslate, findViewById<ImageView>(R.id.popup_manga_translate_center_button), navigationColor = false)
+            PopupUtils.onPopupTouch(this, mMenuPopupTranslateBottom!!, mBottomSheetTranslate, findViewById<ImageView>(R.id.popup_manga_translate_center_button), navigationColor = true)
         }
 
         mClockAndBattery = findViewById(R.id.reader_manga_container_clock_battery)
@@ -453,7 +453,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
             mBottomSheetConfigurations.isDraggable = true
             mBottomSheetConfigurations.addBottomSheetCallback(mBottomSheetConfigurationsCallback)
-            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationsBottom!!, mBottomSheetConfigurations, findViewById<ImageView>(R.id.popup_manga_configurations_center_button), navigationColor = false)
+            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationsBottom!!, mBottomSheetConfigurations, findViewById<ImageView>(R.id.popup_manga_configurations_center_button), navigationColor = true)
         } else {
             mLeftSheetConfigurations = SideSheetBehavior.from(mMenuPopupConfigurationsLeft!!)
             findViewById<ImageView>(R.id.popup_manga_configurations_close_button)?.setOnClickListener {
@@ -530,7 +530,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
 
             if (!isOpened)
-                AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
         }
 
         val buttonAnnotations = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_annotations)
@@ -561,7 +561,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
 
                 if (!isOpened)
-                    AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
             }
         }
 
@@ -644,9 +644,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
                 if (layoutTranslate!!.visibility != View.GONE || layoutConfiguration!!.visibility != View.GONE) {
                     if (layoutTranslate.visibility != View.GONE)
-                        AnimationUtil.animatePopupClose(this@MangaReaderActivity, layoutTranslate, mMenuPopupBottomSheet, navigationColor = false)
+                        AnimationUtil.animatePopupClose(this@MangaReaderActivity, layoutTranslate, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                     if (layoutConfiguration!!.visibility != View.GONE)
-                        AnimationUtil.animatePopupClose(this@MangaReaderActivity, layoutConfiguration, mMenuPopupBottomSheet, navigationColor = false)
+                        AnimationUtil.animatePopupClose(this@MangaReaderActivity, layoutConfiguration, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                     return
                 }
 
@@ -1011,6 +1011,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mBottomSheetConfigurations.removeBottomSheetCallback(mBottomSheetConfigurationsCallback)
         }
 
+        SharedData.remListener(this)
+        mViewModel.stopExecutions()
+
         super.onDestroy()
     }
 
@@ -1063,9 +1066,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     else
                         mLeftSheetTranslate.state = SideSheetBehavior.STATE_EXPANDED
 
-                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                 } else
-                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
             }
 
             R.id.menu_item_reader_manga_popup_color -> {
@@ -1081,9 +1084,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     else
                         mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
 
-                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                 } else
-                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
             }
 
             R.id.menu_item_reader_manga_file_link -> openFileLink()
@@ -1234,6 +1237,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
 
         lineAdapter.attachListener(listener)
+        SharedData.addListener(this)
         SharedData.chapters.observe(this) {
             lineAdapter.updateList(it.filter { p -> !p.isTitle })
         }
@@ -1275,16 +1279,16 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     fun openFloatingSubtitle() {
         if (mMenuPopupBottomSheet) {
             if (mMenuPopupConfigurationsBottom!!.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsBottom!!, mMenuPopupBottomSheet, navigationColor = false)
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsBottom!!, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
 
             if (mMenuPopupTranslateBottom!!.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateBottom!!, mMenuPopupBottomSheet, navigationColor = false)
+                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateBottom!!, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
         } else {
             if (mMenuPopupConfigurationsLeft!!.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsLeft!!, mMenuPopupBottomSheet, navigationColor = false)
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsLeft!!, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
 
             if (mMenuPopupTranslateLeft!!.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateLeft!!, mMenuPopupBottomSheet, navigationColor = false)
+                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateLeft!!, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
         }
 
         if (mFloatingSubtitleReader.isShowing)
@@ -1535,6 +1539,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun chapterVisibility(isVisible: Boolean) {
+        if (!isVisible) {
+            mViewModel.cancelLoadChapters()
+        }
+
         val visibility = if (isVisible) View.VISIBLE else View.GONE
         val finalAlpha = if (isVisible) 1.0f else 0.0f
         val initialAlpha = if (isVisible) 0.0f else 1.0f
@@ -1554,6 +1562,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private val chaptersLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        mViewModel.cancelLoadChapters()
         val data = result.data
         if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
             val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
@@ -1768,7 +1777,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     override fun onLoading(page: Int) {
         if (!mChapterList.isComputingLayout)
-            mChapterList.adapter?.notifyItemChanged(page)
+            (mChapterList.adapter as? MangaChaptersCardAdapter)?.notifyPageChanged(page)
     }
 
     override fun setCurrentPage(page: Int) {

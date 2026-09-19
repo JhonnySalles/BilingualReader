@@ -34,4 +34,11 @@ class MangaChaptersCardAdapter : RecyclerView.Adapter<MangaChaptersViewHolder>()
         notifyDataSetChanged()
     }
 
+    fun notifyPageChanged(pageNumber: Int) {
+        val index = mList.indexOfFirst { it.number == pageNumber }
+        if (index in 0 until mList.size) {
+            notifyItemChanged(index)
+        }
+    }
+
 }

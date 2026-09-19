@@ -176,6 +176,9 @@
     <string name="config_data_import_invalid_file">Invalid or empty file selected.</string>
     <string name="config_data_import_select_file">Select JSON data file</string>
 
+    <string name="config_covers_path">Cover cache folder</string>
+    <string name="config_covers_change_title">Change cover folder</string>
+    <string name="config_covers_change_message">Changing the folder will clear the previous cover cache. Do you want to continue?</string>
     <string name="config_covers_delete">Clear cover cache</string>
     <string name="config_covers_delete_title">Clear cover cache</string>
     <string name="config_covers_delete_description">Do you really want to delete the cover cache?</string>

@@ -708,6 +708,25 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_cover" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_covers_path"
+            style="@style/TextInputWithoutDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_covers_path"
+            app:startIconDrawable="@drawable/ico_sd_storage">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_covers_autocomplete_path"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:focusableInTouchMode="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/config_covers_delete"
             style="@style/Button.LabelStart"

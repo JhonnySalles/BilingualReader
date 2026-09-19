@@ -136,6 +136,16 @@ class ConfigFragment : Fragment() {
         mBookLibraryPathAutoComplete.setText(folder)
     }
 
+    private val openCoversFolderLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            val folder = Util.normalizeFilePath(uri.path.toString())
+            if (!Storage.isPermissionGranted(requireContext())) {
+                Storage.takePermission(requireContext(), requireActivity())
+            }
+            showChangeCoverFolderConfirmation(folder)
+        }
+    }
+
     private val configLibrariesLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
         val clear = data?.extras?.getBoolean(GeneralConsts.KEYS.LIBRARY.CLEAR_LIBRARY_LIST) ?: false
@@ -323,6 +333,8 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigUpdateApp: MaterialButton
 
+    private lateinit var mConfigCoversPath: TextInputLayout
+    private lateinit var mConfigCoversPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigCoversDelete: MaterialButton
 
     private lateinit var mConfigStatisticsDelete: MaterialButton
@@ -565,6 +577,8 @@ class ConfigFragment : Fragment() {
         setupTrackerConfig()
 
         mConfigUpdateApp = view.findViewById(R.id.config_update_app)
+        mConfigCoversPath = view.findViewById(R.id.config_covers_path)
+        mConfigCoversPathAutoComplete = view.findViewById(R.id.config_covers_autocomplete_path)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
@@ -993,31 +1007,41 @@ class ConfigFragment : Fragment() {
             })
         }
 
+        mConfigCoversPathAutoComplete.setOnClickListener {
+            openCoversFolderLauncher.launch(null)
+        }
+
         mConfigCoversDelete.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
                 .setTitle(getString(R.string.config_covers_delete_title))
                 .setMessage(getString(R.string.config_covers_delete_description))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    try {
-                        val cacheManga = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
-                        if (cacheManga.exists())
-                            cacheManga.listFiles()?.let {
-                                for (f in it)
-                                    f.delete()
-                            }
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            val cacheManga = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                            if (cacheManga.exists())
+                                cacheManga.listFiles()?.let {
+                                    for (f in it)
+                                        f.delete()
+                                }
 
-                        val cacheBook = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
-                        if (cacheBook.exists())
-                            cacheBook.listFiles()?.let {
-                                for (f in it)
-                                    f.delete()
-                            }
+                            val cacheBook = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                            if (cacheBook.exists())
+                                cacheBook.listFiles()?.let {
+                                    for (f in it)
+                                        f.delete()
+                                }
 
-                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
-                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
-                        Telemetry.recordException(e, "Error delete bitmap to cache: " + e.message)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
+                            }
+                            Telemetry.recordException(e, "Error delete bitmap to cache: " + e.message)
+                        }
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -1793,6 +1817,50 @@ class ConfigFragment : Fragment() {
             View.VISIBLE
         } else
             View.GONE
+
+        val coverCacheFolder = sharedPreferences.getString(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER, "") ?: ""
+        mConfigCoversPathAutoComplete.setText(coverCacheFolder)
+    }
+
+    private fun showChangeCoverFolderConfirmation(newFolder: String) {
+        val currentFolder = mConfigCoversPathAutoComplete.text?.toString() ?: ""
+        if (newFolder.equals(currentFolder, ignoreCase = true)) {
+            return
+        }
+
+        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setTitle(getString(R.string.config_covers_change_title))
+            .setMessage(getString(R.string.config_covers_change_message))
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                val oldCoverDir = GeneralConsts.getCoverDir(requireContext())
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val cacheManga = File(oldCoverDir, GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        if (cacheManga.exists()) {
+                            cacheManga.listFiles()?.forEach { it.delete() }
+                        }
+                        val cacheBook = File(oldCoverDir, GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        if (cacheBook.exists()) {
+                            cacheBook.listFiles()?.forEach { it.delete() }
+                        }
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error clearing old cover cache: ${e.message}", e)
+                        Telemetry.recordException(e, "Error clearing old cover cache: ${e.message}")
+                    }
+
+                    val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                    sharedPreferences.edit()
+                        .putString(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER, newFolder)
+                        .apply()
+
+                    withContext(Dispatchers.Main) {
+                        mConfigCoversPathAutoComplete.setText(newFolder)
+                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .create().show()
     }
 
     private fun updateOpenRouterFieldsVisibility() {

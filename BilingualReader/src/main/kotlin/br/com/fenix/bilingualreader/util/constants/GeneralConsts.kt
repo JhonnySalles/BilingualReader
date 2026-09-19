@@ -24,6 +24,14 @@ import java.util.concurrent.TimeUnit
 class GeneralConsts private constructor() {
     companion object {
         fun getCoverDir(context: Context): File {
+            val preferences = getSharedPreferences(context)
+            val customCoverPath = preferences.getString(KEYS.SYSTEM.COVER_CACHE_FOLDER, null)
+            if (!customCoverPath.isNullOrBlank()) {
+                val customDir = File(customCoverPath)
+                if (customDir.exists() || customDir.mkdirs()) {
+                    return customDir
+                }
+            }
             val caches = context.externalCacheDirs
             return if (!caches.isNullOrEmpty() && caches.last() != null) caches.last()!! else context.cacheDir
         }
@@ -263,6 +271,7 @@ class GeneralConsts private constructor() {
             const val FORMAT_DATA_SMALL = "FORMAT_DATA_SMALL"
             const val SHARE_MARK_ENABLED = "SHARE_MARK_ENABLED"
             const val SHARE_MARK_CLOUD = "SHARE_MARK_CLOUD"
+            const val COVER_CACHE_FOLDER = "COVER_CACHE_FOLDER"
         }
 
         object LLM {

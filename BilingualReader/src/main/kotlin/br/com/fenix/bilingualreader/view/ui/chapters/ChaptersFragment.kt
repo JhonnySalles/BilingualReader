@@ -201,6 +201,11 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             mRecyclerView.scrollToPosition(mPosInitial)
     }
 
+    override fun onDestroyView() {
+        SharedData.remListener(this)
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         SharedData.remListener(this)
 
@@ -218,7 +223,9 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     }
 
     override fun onLoading(page: Int) {
-        (mRecyclerView.adapter as ChaptersGridAdapter).notifyItemChanged(page)
+        if (::mRecyclerView.isInitialized && !mRecyclerView.isComputingLayout) {
+            (mRecyclerView.adapter as? ChaptersGridAdapter)?.notifyPageChanged(page)
+        }
     }
 
     private fun openImageDetail(page: Chapters) {

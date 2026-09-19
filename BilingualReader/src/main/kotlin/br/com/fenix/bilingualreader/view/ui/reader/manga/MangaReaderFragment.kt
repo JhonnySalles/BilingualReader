@@ -1658,10 +1658,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 if (mPopupBottomSheet) {
                     if (mPopupSubtitleBottom!!.visibility != View.GONE)
-                        AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleBottom!!, mPopupBottomSheet, navigationColor = false)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleBottom!!, mPopupBottomSheet, navigationColor = true)
 
                     if (mPopupColorBottom!!.visibility != View.GONE)
-                        AnimationUtil.animatePopupClose(requireActivity(), mPopupColorBottom!!, mPopupBottomSheet, navigationColor = false)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupColorBottom!!, mPopupBottomSheet, navigationColor = true)
                 } else {
                     if (mPopupSubtitleLeft!!.visibility != View.GONE)
                         AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleLeft!!, mPopupBottomSheet, navigationColor = false)

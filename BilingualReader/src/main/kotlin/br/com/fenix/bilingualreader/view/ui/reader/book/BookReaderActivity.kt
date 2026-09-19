@@ -230,7 +230,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
             mBottomSheetConfiguration.isDraggable = false
             mBottomSheetConfiguration.addBottomSheetCallback(mBottomSheetCallback)
-            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = false)
+            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = true)
         }
 
         mPopupReaderFont = PopupBookFont()
@@ -309,7 +309,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             override fun handleOnBackPressed() {
                 val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
                 if (layout!!.visibility != View.GONE) {
-                    AnimationUtil.animatePopupClose(this@BookReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this@BookReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                     return
                 }
 
@@ -532,9 +532,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                         mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
                     else
                         mLeftSheetConfiguration.state = SideSheetBehavior.STATE_EXPANDED
-                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                 } else
-                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
             }
             R.id.menu_item_reader_book_mark_page -> {}
             R.id.menu_item_reader_book_view_touch_screen -> openTouchFunctions()
@@ -570,7 +570,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     override fun configTouchFunctions() {
         val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
         if (layout!!.visibility != View.GONE)
-            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
 
         mFragment?.configTouchFunctions()
     }
@@ -682,7 +682,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     override fun openTouchFunctions() {
         val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
         if (layout!!.visibility != View.GONE)
-            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
 
         mFragment?.setFullscreen(true)
 
