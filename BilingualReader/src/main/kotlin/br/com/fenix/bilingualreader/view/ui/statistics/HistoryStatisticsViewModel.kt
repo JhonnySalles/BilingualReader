@@ -336,12 +336,12 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private fun getSeparatorTitle(order: Order, history: History): String {
         return when (order) {
             Order.Name -> history.title.take(1).uppercase(Locale.getDefault()).ifEmpty { "#" }
-            Order.LastAccess -> GeneralConsts.formatCountDays(app.applicationContext, history.lastAccess)
+            Order.LastAccess -> GeneralConsts.formatDateSeparator(app.applicationContext, history.lastAccess)
             Order.Favorite -> if (history.favorite) mFavoriteLabel else mNotFavoriteLabel
-            Order.Author -> history.author.trim().lowercase(Locale.getDefault())
-            Order.Genre -> history.genre.trim().lowercase(Locale.getDefault())
+            Order.Author -> history.author.trim().ifEmpty { "" }
+            Order.Genre -> history.genre.trim().ifEmpty { "" }
             Order.Series -> history.series.trim().ifEmpty { mSeriesEmptyLabel }
-            else -> GeneralConsts.formatCountDays(app.applicationContext, history.lastAccess)
+            else -> GeneralConsts.formatDateSeparator(app.applicationContext, history.lastAccess)
         }
     }
 

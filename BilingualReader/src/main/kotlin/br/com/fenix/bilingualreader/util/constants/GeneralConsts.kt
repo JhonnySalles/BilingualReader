@@ -132,6 +132,36 @@ class GeneralConsts private constructor() {
             }
         }
 
+        @TargetApi(26)
+        fun formatDateSeparator(context: Context, dateTime: LocalDateTime?): String {
+            if (dateTime == null) return ""
+            val today = LocalDate.now()
+            val date = dateTime.toLocalDate()
+
+            if (date.isEqual(today)) {
+                return context.getString(R.string.date_format_today)
+            }
+
+            val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1)
+            if (!date.isBefore(startOfWeek) || date.isAfter(today.minusDays(7))) {
+                return context.getString(R.string.date_format_this_week)
+            }
+
+            if (date.year == today.year && date.monthValue == today.monthValue) {
+                return context.getString(R.string.date_format_this_month)
+            }
+
+            val months = context.resources.getStringArray(R.array.mouth_descriptions)
+            val monthIndex = date.monthValue - 1
+            val monthName = if (monthIndex in months.indices) months[monthIndex] else date.month.name
+
+            return if (date.year == today.year) {
+                monthName
+            } else {
+                context.getString(R.string.date_format_month_year, monthName, date.year)
+            }
+        }
+
         fun formatCountDays(context: Context, dateTime: Date?): String {
             return if (dateTime == null)
                 ""

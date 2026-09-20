@@ -2263,12 +2263,12 @@ class AdapterUtil {
             val favorite = context.getString(R.string.book_library_separator_favorite)
             val notFavorite = context.getString(R.string.book_library_separator_non_favorite)
             val title = when (order) {
-                Order.Name -> book.title.substring(0, 1).uppercase()
-                Order.Date -> GeneralConsts.formatCountDays(context, book.dateCreate)
-                Order.LastAccess -> GeneralConsts.formatCountDays(context, book.lastAccess)
-                Order.Author -> if (book.author.isEmpty()) "" else book.author.lowercase()
-                Order.Genre -> if (book.genre.isEmpty()) "" else book.genre.lowercase()
-                Order.Series -> if (book.series.isEmpty()) "" else book.series.lowercase()
+                Order.Name -> book.title.take(1).uppercase()
+                Order.Date -> GeneralConsts.formatDateSeparator(context, book.dateCreate)
+                Order.LastAccess -> GeneralConsts.formatDateSeparator(context, book.lastAccess)
+                Order.Author -> book.author.trim()
+                Order.Genre -> book.genre.trim()
+                Order.Series -> book.series.trim()
                 Order.Favorite -> if (book.favorite) favorite else notFavorite
                 else -> ""
             }
@@ -2279,12 +2279,12 @@ class AdapterUtil {
             val favorite = context.getString(R.string.manga_library_separator_favorite)
             val notFavorite = context.getString(R.string.manga_library_separator_non_favorite)
             val title = when (order) {
-                Order.Name -> manga.title.substring(0, 1).uppercase()
-                Order.Date -> GeneralConsts.formatCountDays(context, manga.dateCreate)
-                Order.LastAccess -> GeneralConsts.formatCountDays(context, manga.lastAccess)
-                Order.Author -> if (manga.author.isEmpty()) "" else manga.author.lowercase()
-                Order.Genre -> if (manga.genre.isEmpty()) "" else manga.genre.lowercase()
-                Order.Series -> if (manga.series.isEmpty()) "" else manga.series.lowercase()
+                Order.Name -> manga.title.take(1).uppercase()
+                Order.Date -> GeneralConsts.formatDateSeparator(context, manga.dateCreate)
+                Order.LastAccess -> GeneralConsts.formatDateSeparator(context, manga.lastAccess)
+                Order.Author -> manga.author.trim()
+                Order.Genre -> manga.genre.trim()
+                Order.Series -> manga.series.trim()
                 Order.Favorite -> if (manga.favorite) favorite else notFavorite
                 else -> ""
             }

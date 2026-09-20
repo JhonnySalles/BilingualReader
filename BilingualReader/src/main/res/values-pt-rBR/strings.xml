@@ -26,6 +26,9 @@
     <string name="date_format_today">Hoje</string>
     <string name="date_format_yesterday">Ontem</string>
     <string name="date_format_day_ago">%s dias atrás.</string>
+    <string name="date_format_this_week">Esta semana</string>
+    <string name="date_format_this_month">Este mês</string>
+    <string name="date_format_month_year">%1$s de %2$d</string>
 
     <string-array name="mouth_descriptions">
         <item>Janeiro</item>
