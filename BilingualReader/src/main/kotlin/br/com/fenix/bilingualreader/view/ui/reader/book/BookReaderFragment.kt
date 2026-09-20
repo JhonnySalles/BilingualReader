@@ -731,9 +731,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                                 mViewPager.post {
                                     mViewPager.requestLayout()
                                     (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
+                                    if (::mPagerAdapter.isInitialized) {
+                                        mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
+                                    }
                                 }
                                 mViewRecycler.post {
                                     mViewRecycler.requestLayout()
+                                    mViewRecycler.adapter?.notifyDataSetChanged()
                                 }
 
                                 val preferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -2139,6 +2143,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
         refreshReaderBlur()
+        if (::mViewPager.isInitialized && ::mPagerAdapter.isInitialized && mViewPager.isVisible) {
+            mViewPager.post {
+                mViewPager.requestLayout()
+                (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
+                mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
+            }
+        } else if (::mViewRecycler.isInitialized && mViewRecycler.isVisible) {
+            mViewRecycler.post {
+                mViewRecycler.requestLayout()
+                mViewRecycler.adapter?.notifyDataSetChanged()
+            }
+        }
     }
 
     override fun onHiddenChanged(hidden: Boolean) {

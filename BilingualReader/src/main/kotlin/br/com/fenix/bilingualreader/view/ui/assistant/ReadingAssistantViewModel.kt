@@ -34,8 +34,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 
 class ReadingAssistantViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val mLOGGER = LoggerFactory.getLogger(ReadingAssistantViewModel::class.java)
 
     companion object {
         private const val PREVIEW_MAX_CHARS = 8000
@@ -284,7 +287,11 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
 
                 backend.generateStreaming(request)
                     .catch { e ->
-                        Telemetry.recordException(e, "LlmBackend generateStreaming error")
+                        if (e is br.com.fenix.bilingualreader.service.llm.LlmExpectedException) {
+                            mLOGGER.warn("LlmBackend expected stream error: ${e.message}")
+                        } else {
+                            Telemetry.recordException(e, "LlmBackend generateStreaming error")
+                        }
                         val errorText = resolveError(e)
                         replaceLastAssistant(errorText, notifyImmediately = true)
                         persistMessage(AssistantMessageRole.ASSISTANT, errorText)
@@ -312,7 +319,11 @@ class ReadingAssistantViewModel(application: Application) : AndroidViewModel(app
                     }
             } catch (e: Throwable) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                Telemetry.recordException(e, "ReadingAssistantViewModel ask error")
+                if (e is br.com.fenix.bilingualreader.service.llm.LlmExpectedException) {
+                    mLOGGER.warn("ReadingAssistantViewModel expected ask error: ${e.message}")
+                } else {
+                    Telemetry.recordException(e, "ReadingAssistantViewModel ask error")
+                }
                 val errorText = resolveError(e)
                 replaceLastAssistant(errorText, notifyImmediately = true)
                 persistMessage(AssistantMessageRole.ASSISTANT, errorText)

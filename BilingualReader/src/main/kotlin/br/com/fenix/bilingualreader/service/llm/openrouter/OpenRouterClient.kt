@@ -57,18 +57,18 @@ class OpenRouterClient(private val context: Context) {
         val call = client.newCall(request)
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                close(IllegalStateException(context.getString(R.string.llm_error_openrouter_network), e))
+                close(br.com.fenix.bilingualreader.service.llm.OpenRouterNetworkException(context.getString(R.string.llm_error_openrouter_network), e))
             }
 
             override fun onResponse(call: Call, response: Response) {
                 response.use { resp ->
                     if (!resp.isSuccessful) {
-                        close(IllegalStateException(mapHttpError(resp.code)))
+                        close(createHttpException(resp.code))
                         return
                     }
                     val source = resp.body?.source()
                     if (source == null) {
-                        close(IllegalStateException(context.getString(R.string.llm_error_openrouter_network)))
+                        close(br.com.fenix.bilingualreader.service.llm.OpenRouterNetworkException(context.getString(R.string.llm_error_openrouter_network)))
                         return
                     }
 
@@ -92,8 +92,27 @@ class OpenRouterClient(private val context: Context) {
                                 mLOGGER.warn("OpenRouter SSE parse skip: ${e.message}")
                                 continue
                             }
-                            chunk.error?.message?.let { msg ->
-                                close(IllegalStateException(msg))
+                            chunk.error?.let { err ->
+                                val msg = err.message ?: context.getString(R.string.llm_assistant_error)
+                                val code = err.code ?: 0
+                                val exception = when (code) {
+                                    401, 403 -> br.com.fenix.bilingualreader.service.llm.OpenRouterAuthException(msg)
+                                    402 -> br.com.fenix.bilingualreader.service.llm.OpenRouterQuotaExceededException(msg)
+                                    429 -> br.com.fenix.bilingualreader.service.llm.OpenRouterRateLimitException(msg)
+                                    503 -> br.com.fenix.bilingualreader.service.llm.OpenRouterServiceUnavailableException(msg)
+                                    else -> {
+                                        if (msg.contains("rate limit", ignoreCase = true) || msg.contains("429")) {
+                                            br.com.fenix.bilingualreader.service.llm.OpenRouterRateLimitException(msg)
+                                        } else if (msg.contains("credit", ignoreCase = true) || msg.contains("quota", ignoreCase = true) || msg.contains("balance", ignoreCase = true)) {
+                                            br.com.fenix.bilingualreader.service.llm.OpenRouterQuotaExceededException(msg)
+                                        } else if (msg.contains("key", ignoreCase = true) || msg.contains("auth", ignoreCase = true) || msg.contains("unauthorized", ignoreCase = true)) {
+                                            br.com.fenix.bilingualreader.service.llm.OpenRouterAuthException(msg)
+                                        } else {
+                                            IllegalStateException(msg)
+                                        }
+                                    }
+                                }
+                                close(exception)
                                 return
                             }
                             val delta = chunk.choices?.firstOrNull()?.delta?.content.orEmpty()
@@ -106,7 +125,7 @@ class OpenRouterClient(private val context: Context) {
                         close()
                     } catch (e: Exception) {
                         if (e is kotlinx.coroutines.CancellationException) throw e
-                        close(IllegalStateException(context.getString(R.string.llm_error_openrouter_network), e))
+                        close(br.com.fenix.bilingualreader.service.llm.OpenRouterNetworkException(context.getString(R.string.llm_error_openrouter_network), e))
                     }
                 }
             }
@@ -171,12 +190,13 @@ class OpenRouterClient(private val context: Context) {
         return prompt == 0.0 && completion == 0.0
     }
 
-    private fun mapHttpError(code: Int): String {
+    private fun createHttpException(code: Int): Exception {
         return when (code) {
-            401, 403 -> context.getString(R.string.llm_error_openrouter_unauthorized)
-            402 -> context.getString(R.string.llm_error_openrouter_payment)
-            429 -> context.getString(R.string.llm_error_openrouter_rate_limit)
-            else -> context.getString(R.string.llm_error_openrouter_http, code)
+            401, 403 -> br.com.fenix.bilingualreader.service.llm.OpenRouterAuthException(context.getString(R.string.llm_error_openrouter_unauthorized))
+            402 -> br.com.fenix.bilingualreader.service.llm.OpenRouterQuotaExceededException(context.getString(R.string.llm_error_openrouter_payment))
+            429 -> br.com.fenix.bilingualreader.service.llm.OpenRouterRateLimitException(context.getString(R.string.llm_error_openrouter_rate_limit))
+            503 -> br.com.fenix.bilingualreader.service.llm.OpenRouterServiceUnavailableException(context.getString(R.string.llm_error_openrouter_http, code))
+            else -> IllegalStateException(context.getString(R.string.llm_error_openrouter_http, code))
         }
     }
 

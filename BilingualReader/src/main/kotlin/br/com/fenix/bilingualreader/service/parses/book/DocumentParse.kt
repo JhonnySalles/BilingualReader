@@ -34,8 +34,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
-    private var mWidth: Int = (if (isVertical) Resources.getSystem().displayMetrics.heightPixels else Resources.getSystem().displayMetrics.widthPixels) - Dips.dpToPx(5)
-    private var mHeight: Int = (if (isVertical) Resources.getSystem().displayMetrics.widthPixels else Resources.getSystem().displayMetrics.heightPixels) - Dips.dpToPx(5)
+    private var mWidth: Int = (if (isVertical) (Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(2)) else (Resources.getSystem().displayMetrics.widthPixels - Dips.dpToPx(10)))
+    private var mHeight: Int = (if (isVertical) (Resources.getSystem().displayMetrics.widthPixels - Dips.dpToPx(10)) else (Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(2)))
 
     init {
         NativeLibLoader.loadLibrary("mypdf")

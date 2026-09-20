@@ -179,6 +179,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (isGlass) {
                     mBlurTop.blurOnceDeferred(mHandler, 100)
                 }
+
+                f.view?.let { ViewCompat.requestApplyInsets(it) }
             }
         }, false)
 

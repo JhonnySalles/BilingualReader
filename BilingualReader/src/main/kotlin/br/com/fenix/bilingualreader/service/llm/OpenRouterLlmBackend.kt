@@ -25,14 +25,14 @@ class OpenRouterLlmBackend(
 
     override suspend fun ensureReady() {
         if (LlmSettings.resolveApiKey(context).isBlank()) {
-            throw IllegalStateException(context.getString(R.string.llm_error_openrouter_key_missing))
+            throw OpenRouterAuthException(context.getString(R.string.llm_error_openrouter_key_missing))
         }
     }
 
     override fun generateStreaming(request: LlmChatRequest): Flow<Pair<String, Boolean>> {
         val apiKey = LlmSettings.resolveApiKey(context)
         if (apiKey.isBlank()) {
-            throw IllegalStateException(context.getString(R.string.llm_error_openrouter_key_missing))
+            throw OpenRouterAuthException(context.getString(R.string.llm_error_openrouter_key_missing))
         }
         val model = customModel?.ifBlank { null } ?: LlmSettings.openRouterModelFor(context, use, type)
         val temperature = LlmSettings.temperature(context)
