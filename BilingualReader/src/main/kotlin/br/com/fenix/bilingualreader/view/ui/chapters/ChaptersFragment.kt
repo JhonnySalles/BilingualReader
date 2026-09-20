@@ -302,7 +302,7 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             return
 
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(requireContext())
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)

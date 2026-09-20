@@ -1661,6 +1661,11 @@ class ThemeUtil {
             return typedValue.data
         }
 
+        fun getBlurFrameClearDrawable(context: Context): Drawable {
+            val bgColor = context.getColorFromAttr(R.attr.background)
+            return ColorDrawable(bgColor)
+        }
+
         fun statusBarTransparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -2066,7 +2071,7 @@ class PopupUtil {
 
                 if (isGlass) {
                     val decorView = activity.window.decorView
-                    val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                    val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(activity)
                     val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
                     val rootView = customRootView ?: decorView.findViewById<ViewGroup>(android.R.id.content)
                     GlassSetup.setupGlass(bg, rootView, blurAlgorithm)

@@ -581,10 +581,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
 
         val decorView = window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-        // Prefer the fragment container so the blur pass skips the app bar / drawer chrome
-        val rootView = (findViewById<ViewGroup>(R.id.main_content_root)
-            ?: decorView.findViewById(android.R.id.content)) as ViewGroup
+        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+            ?: (findViewById<ViewGroup>(R.id.main_content_root) as ViewGroup)
 
         eightbitlab.com.blurview.GlassSetup.setupGlass(mBlurTop, rootView, eightbitlab.com.blurview.RenderEffectBlur())
                 .setFrameClearDrawable(background)
@@ -593,7 +592,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val headerView = mNavigationView.getHeaderView(0)
         val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
-            // Drawer header still needs the broader content root (includes main chrome behind the drawer)
             val navRoot = decorView.findViewById<ViewGroup>(android.R.id.content)
             eightbitlab.com.blurview.GlassSetup.setupGlass(navigatorBlur, navRoot, eightbitlab.com.blurview.RenderEffectBlur())
                 .setFrameClearDrawable(background)

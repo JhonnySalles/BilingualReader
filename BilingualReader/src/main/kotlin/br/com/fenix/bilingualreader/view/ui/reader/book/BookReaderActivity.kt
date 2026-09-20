@@ -665,7 +665,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             if (isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val decorView = window.decorView
                 val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
                 GlassSetup.setupGlass(bv, rootView, RenderEffectBlur())
                     .setFrameClearDrawable(background)
                     .setBlurRadius(15f)

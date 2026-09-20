@@ -711,7 +711,7 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
             return
         val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
@@ -724,7 +724,7 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
             return
         val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mMenuPopupLibraryBackground, rootView, blurAlgorithm)

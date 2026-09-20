@@ -104,6 +104,7 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
@@ -2241,7 +2242,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             return
 
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(requireContext())
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
         GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())

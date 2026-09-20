@@ -1179,7 +1179,7 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
             return
         val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
@@ -1193,16 +1193,5 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         val barLayout = view?.findViewById<View>(R.id.pages_link_content)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
-
-        val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
-        val isNight = resources.getBoolean(R.bool.isNight)
-        val alpha = if (isNight) 0xD9 else 0x73
-        val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-
-        val topBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(translucentColor)
-        }
-        mBlurTop.background = topBg
     }
 }
