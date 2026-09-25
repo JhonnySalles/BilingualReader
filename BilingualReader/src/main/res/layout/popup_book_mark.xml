@@ -100,6 +100,52 @@
                 android:layout_marginEnd="@dimen/margin_small">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/popup_book_mark_btn_copy_duration"
+                    style="@style/Button.IconOnly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/popup_book_mark_ico_copy_duration"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:src="@drawable/ico_copy"
+                    app:tint="?attr/colorOnBackground" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/popup_book_mark_btn_paste_duration"
+                    style="@style/Button.IconOnly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/popup_book_mark_ico_paste_duration"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:src="@drawable/ico_paste"
+                    app:tint="?attr/colorOnBackground" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small">
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/popup_book_mark_btn_auto_calc"
                     style="@style/Button.IconOnly"
                     android:layout_width="match_parent"

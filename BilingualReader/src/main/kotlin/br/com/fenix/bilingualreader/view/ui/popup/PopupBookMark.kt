@@ -67,10 +67,14 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     private lateinit var mBookMarkTime: TextInputLayout
     private lateinit var mReadingDurationEdit: TextInputEditText
     private lateinit var mReadingDuration: TextInputLayout
+    private lateinit var mBtnCopyDuration: MaterialButton
+    private lateinit var mBtnPasteDuration: MaterialButton
     private lateinit var mBtnAutoCalc: MaterialButton
     private lateinit var mIcoAutoCalc: ImageView
     private lateinit var mBtnHistory: MaterialButton
     private lateinit var mBtnNowDate: MaterialButton
+
+    private var mLastClickTime: Long = 0L
 
     private var mCurrentObj: Obj? = null
     private var mLastHistory: History? = null
@@ -257,6 +261,8 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mBookMarkTime = root.findViewById(R.id.popup_book_mark_time)
         mReadingDurationEdit = root.findViewById(R.id.popup_book_mark_reading_duration_edit)
         mReadingDuration = root.findViewById(R.id.popup_book_mark_reading_duration)
+        mBtnCopyDuration = root.findViewById(R.id.popup_book_mark_btn_copy_duration)
+        mBtnPasteDuration = root.findViewById(R.id.popup_book_mark_btn_paste_duration)
         mBtnAutoCalc = root.findViewById(R.id.popup_book_mark_btn_auto_calc)
         mIcoAutoCalc = root.findViewById(R.id.popup_book_mark_ico_auto_calc)
         mBtnHistory = root.findViewById(R.id.popup_book_mark_btn_history)
@@ -264,14 +270,32 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
         mBookMarkDateEdit.setOnClickListener { selectDate(mNewDate) }
         mBookMarkTimeEdit.setOnClickListener { selectTime(mNewDate) }
-        mReadingDurationEdit.setOnClickListener { selectDuration() }
+
+        val onDurationClickListener = View.OnClickListener {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - mLastClickTime < 300) {
+                // Duplo clique: colar
+                pasteDurationFromClipboard()
+            } else {
+                // Clique simples: abrir seleção de duração
+                selectDuration()
+            }
+            mLastClickTime = currentTime
+        }
+
+        mReadingDurationEdit.setOnClickListener(onDurationClickListener)
         mReadingDurationEdit.setOnLongClickListener {
-            pasteDurationFromClipboard()
+            copyDurationToClipboard()
+            true
         }
-        mReadingDuration.setOnClickListener { selectDuration() }
+        mReadingDuration.setOnClickListener(onDurationClickListener)
         mReadingDuration.setOnLongClickListener {
-            pasteDurationFromClipboard()
+            copyDurationToClipboard()
+            true
         }
+
+        mBtnCopyDuration.setOnClickListener { copyDurationToClipboard() }
+        mBtnPasteDuration.setOnClickListener { pasteDurationFromClipboard() }
         mBtnAutoCalc.setOnClickListener { autoCalculateDuration() }
         mBtnHistory.setOnClickListener { openHistoryPopup() }
         mBtnNowDate.setOnClickListener { onNowDateClicked() }
@@ -333,6 +357,19 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         }
     }
 
+    private fun copyDurationToClipboard(): Boolean {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+        val formatted = formatDuration(mReadingDurationSeconds)
+        val clip = android.content.ClipData.newPlainText("reading_duration", formatted)
+        clipboard?.setPrimaryClip(clip)
+        android.widget.Toast.makeText(
+            context,
+            context.getString(R.string.action_copy, formatted),
+            android.widget.Toast.LENGTH_SHORT
+        ).show()
+        return true
+    }
+
     private fun pasteDurationFromClipboard(): Boolean {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
         val clip = clipboard?.primaryClip
@@ -345,7 +382,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                 mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
                 android.widget.Toast.makeText(
                     context,
-                    context.getString(R.string.action_copy, formatDuration(mReadingDurationSeconds)),
+                    context.getString(R.string.action_paste, formatDuration(mReadingDurationSeconds)),
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
                 return true

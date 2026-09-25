@@ -728,6 +728,18 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_covers_restore_default"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_covers_restore_default"
+            android:visibility="gone"
+            app:icon="@drawable/ico_covers_delete" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_covers_delete"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"

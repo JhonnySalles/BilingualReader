@@ -142,6 +142,14 @@ class ConfigFragment : Fragment() {
             if (!Storage.isPermissionGranted(requireContext())) {
                 Storage.takePermission(requireContext(), requireActivity())
             }
+            val dir = File(folder)
+            if (dir.exists()) {
+                val files = dir.listFiles()
+                if (!files.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.config_covers_folder_not_empty_error), Toast.LENGTH_LONG).show()
+                    return@registerForActivityResult
+                }
+            }
             showChangeCoverFolderConfirmation(folder)
         }
     }
@@ -335,6 +343,7 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigCoversPath: TextInputLayout
     private lateinit var mConfigCoversPathAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigCoversRestoreDefault: MaterialButton
     private lateinit var mConfigCoversDelete: MaterialButton
 
     private lateinit var mConfigStatisticsDelete: MaterialButton
@@ -579,6 +588,7 @@ class ConfigFragment : Fragment() {
         mConfigUpdateApp = view.findViewById(R.id.config_update_app)
         mConfigCoversPath = view.findViewById(R.id.config_covers_path)
         mConfigCoversPathAutoComplete = view.findViewById(R.id.config_covers_autocomplete_path)
+        mConfigCoversRestoreDefault = view.findViewById(R.id.config_covers_restore_default)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
@@ -1009,6 +1019,10 @@ class ConfigFragment : Fragment() {
 
         mConfigCoversPathAutoComplete.setOnClickListener {
             openCoversFolderLauncher.launch(null)
+        }
+
+        mConfigCoversRestoreDefault.setOnClickListener {
+            showRestoreDefaultCoverFolderConfirmation()
         }
 
         mConfigCoversDelete.setOnClickListener {
@@ -1462,6 +1476,12 @@ class ConfigFragment : Fragment() {
                 mConfigSystemThemeSelect.toString()
             )
 
+            val coverCacheFolder = mConfigCoversPathAutoComplete.text?.toString()?.trim().orEmpty()
+            this.putString(
+                GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER,
+                coverCacheFolder
+            )
+
             this.apply()
         }
 
@@ -1820,6 +1840,44 @@ class ConfigFragment : Fragment() {
 
         val coverCacheFolder = sharedPreferences.getString(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER, "") ?: ""
         mConfigCoversPathAutoComplete.setText(coverCacheFolder)
+        mConfigCoversRestoreDefault.visibility = if (coverCacheFolder.isNotEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun showRestoreDefaultCoverFolderConfirmation() {
+        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setTitle(getString(R.string.config_covers_restore_default_title))
+            .setMessage(getString(R.string.config_covers_restore_default_message))
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                val customCoverDir = GeneralConsts.getCoverDir(requireContext())
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val cacheManga = File(customCoverDir, GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        if (cacheManga.exists()) {
+                            cacheManga.listFiles()?.forEach { it.delete() }
+                        }
+                        val cacheBook = File(customCoverDir, GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        if (cacheBook.exists()) {
+                            cacheBook.listFiles()?.forEach { it.delete() }
+                        }
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error clearing external cover cache: ${e.message}", e)
+                        Telemetry.recordException(e, "Error clearing external cover cache: ${e.message}")
+                    }
+
+                    val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                    sharedPreferences.edit()
+                        .remove(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER)
+                        .apply()
+
+                    withContext(Dispatchers.Main) {
+                        mConfigCoversPathAutoComplete.setText("")
+                        mConfigCoversRestoreDefault.visibility = View.GONE
+                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .create().show()
     }
 
     private fun showChangeCoverFolderConfirmation(newFolder: String) {
@@ -1855,6 +1913,7 @@ class ConfigFragment : Fragment() {
 
                     withContext(Dispatchers.Main) {
                         mConfigCoversPathAutoComplete.setText(newFolder)
+                        mConfigCoversRestoreDefault.visibility = if (newFolder.isNotEmpty()) View.VISIBLE else View.GONE
                         Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
                     }
                 }

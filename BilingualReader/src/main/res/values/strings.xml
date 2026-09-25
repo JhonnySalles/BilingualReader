@@ -179,6 +179,13 @@
     <string name="config_data_import_invalid_file">Invalid or empty file selected.</string>
     <string name="config_data_import_select_file">Select JSON data file</string>
 
+    <string name="action_paste">Pasted: %s</string>
+    <string name="action_copy_only">Copy</string>
+    <string name="action_paste_only">Paste</string>
+    <string name="config_covers_restore_default">Restore default cover folder</string>
+    <string name="config_covers_restore_default_title">Restore default cover folder</string>
+    <string name="config_covers_restore_default_message">Restoring to the default internal folder will clear the cache from the current folder. Do you want to continue?</string>
+    <string name="config_covers_folder_not_empty_error">The selected folder must be completely empty.</string>
     <string name="config_covers_path">Cover cache folder</string>
     <string name="config_covers_change_title">Change cover folder</string>
     <string name="config_covers_change_message">Changing the folder will clear the previous cover cache. Do you want to continue?</string>

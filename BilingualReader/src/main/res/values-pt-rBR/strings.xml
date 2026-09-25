@@ -177,6 +177,13 @@
     <string name="config_data_import_invalid_file">Arquivo selecionado inválido ou vazio.</string>
     <string name="config_data_import_select_file">Selecione o arquivo de dados JSON</string>
 
+    <string name="action_paste">Colado: %s</string>
+    <string name="action_copy_only">Copiar</string>
+    <string name="action_paste_only">Colar</string>
+    <string name="config_covers_restore_default">Restaurar pasta padrão</string>
+    <string name="config_covers_restore_default_title">Restaurar pasta padrão de capas</string>
+    <string name="config_covers_restore_default_message">Restaurar a pasta padrão interna irá limpar as capas na pasta externa atual. Deseja continuar?</string>
+    <string name="config_covers_folder_not_empty_error">A pasta selecionada deve estar completamente vazia.</string>
     <string name="config_covers_path">Pasta do cache de capas</string>
     <string name="config_covers_change_title">Alterar pasta de capas</string>
     <string name="config_covers_change_message">A alteração da pasta irá limpar o cache da pasta anterior. Deseja continuar?</string>
