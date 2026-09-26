@@ -131,6 +131,12 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PAGES)
     override var pages: Int = pages
+        set(value) {
+            field = value
+            if (value > 0 && bookMark >= value) {
+                this.completed = true
+            }
+        }
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.VOLUME)
     override var volume: String = volume
@@ -145,7 +151,7 @@ class Book(
     override var bookMark: Int = bookMark
         set(value) {
             field = value
-            this.completed = value >= pages
+            this.completed = (pages > 0 && value >= pages)
         }
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.COMPLETED)

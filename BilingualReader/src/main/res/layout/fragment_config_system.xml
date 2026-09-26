@@ -251,6 +251,28 @@
             android:text="@string/config_database_restore"
             app:icon="@drawable/ico_database_restore" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_system_data_export"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_data_export"
+            app:icon="@drawable/ico_data_export" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_system_data_import"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_data_import"
+            app:icon="@drawable/ico_data_import" />
+
         <TextView
             android:id="@+id/config_system_last_backup"
             style="@style/TextNormal.Config"
@@ -259,6 +281,387 @@
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center|start" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_trackers" />
+
+        <!-- Card MyAnimeList -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/config_tracker_mal_card"
+            style="@style/Widget.Material3.CardView.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:cardCornerRadius="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ico_tracker"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="@string/config_tracker_mal"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/config_tracker_mal_btn_login"
+                        style="@style/Button.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/config_tracker_login"
+                        app:strokeColor="@android:color/black"
+                        app:strokeWidth="1dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/config_tracker_mal_status"
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/config_tracker_not_logged_in"
+                    android:textColor="?attr/colorOutline" />
+
+                <TextView
+                    android:id="@+id/config_tracker_mal_last_sync"
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/config_tracker_sync_never"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/config_tracker_info_mal"
+                    android:textColor="?attr/colorOutline" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Card AniList -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/config_tracker_anilist_card"
+            style="@style/Widget.Material3.CardView.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:cardCornerRadius="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ico_tracker"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Material3.TitleMedium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="@string/config_tracker_anilist"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/config_tracker_anilist_btn_login"
+                        style="@style/Button.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/config_tracker_login"
+                        app:strokeColor="@android:color/black"
+                        app:strokeWidth="1dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/config_tracker_anilist_status"
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/config_tracker_not_logged_in"
+                    android:textColor="?attr/colorOutline" />
+
+                <TextView
+                    android:id="@+id/config_tracker_anilist_last_sync"
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/config_tracker_sync_never"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/config_tracker_info_anilist"
+                    android:textColor="?attr/colorOutline" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_sector_ai" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_ai_enable"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/config_ai_enable" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_provider"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_provider"
+            app:startIconDrawable="@drawable/ico_ai_provider">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_ai_provider_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_openrouter_key"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_openrouter_key"
+            app:startIconDrawable="@drawable/ico_openrouter_key">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_openrouter_key_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_ai_openrouter_model"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_ai_openrouter_model"
+            android:visibility="gone"
+            app:startIconDrawable="@drawable/ico_openrouter_model">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_book_ai_openrouter_model_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_ai_openrouter_model_summary"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_ai_openrouter_model_summary"
+            android:visibility="gone"
+            app:startIconDrawable="@drawable/ico_openrouter_model">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_book_ai_openrouter_model_summary_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_manga_ai_openrouter_model"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_ai_openrouter_model"
+            android:visibility="gone"
+            app:startIconDrawable="@drawable/ico_openrouter_model">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_manga_ai_openrouter_model_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/config_ai_model_status"
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_ai_model_missing" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_ai_delete"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_ai_delete"
+            app:icon="@drawable/ico_covers_delete" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_max_context"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_max_context"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_max_context_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_max_book_chapters"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_max_book_chapters"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_max_book_chapters_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_max_manga_pages"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_max_manga_pages"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_max_manga_pages_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_ai_temperature"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_ai_temperature"
+            app:startIconDrawable="@drawable/ico_ai_context">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/config_ai_temperature_value"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/config_ai_temperature_hint"
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_ai_temperature_hint" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -304,6 +707,37 @@
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_cover" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_covers_path"
+            style="@style/TextInputWithoutDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_covers_path"
+            app:startIconDrawable="@drawable/ico_sd_storage">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_covers_autocomplete_path"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:focusableInTouchMode="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_covers_restore_default"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_button_size"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_covers_restore_default"
+            android:visibility="gone"
+            app:icon="@drawable/ico_covers_delete" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/config_covers_delete"

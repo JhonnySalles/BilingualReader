@@ -334,6 +334,23 @@
                             app:iconSize="@dimen/book_detail_icon_size"
                             app:cornerRadius="@dimen/book_detail_icon_rounded"/>
 
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/book_detail_button_tracker"
+                            style="@style/Button.Detail"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:minWidth="@dimen/book_detail_button_min_width_medium"
+                            android:layout_marginStart="@dimen/margin_small"
+                            android:contentDescription="@string/tracker_title"
+                            android:text="@string/tracker_title"
+                            android:singleLine="true"
+                            app:iconPadding="@dimen/book_detail_icon_padding"
+                            app:iconGravity="textTop"
+                            app:icon="@drawable/ico_tracker"
+                            app:iconSize="@dimen/book_detail_icon_size"
+                            app:cornerRadius="@dimen/book_detail_icon_rounded"/>
+
                     </LinearLayout>
 
                 </HorizontalScrollView>

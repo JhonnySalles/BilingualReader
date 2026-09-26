@@ -29,13 +29,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
@@ -368,8 +368,8 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, book.library)
                             bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
 
-                            if ((annotation as BookAnnotation).page >= 0 && annotation.page < book.pages)
-                                bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, annotation.page +1)
+                            if ((annotation as BookAnnotation).page > 0 && annotation.page <= book.pages)
+                                bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, annotation.page)
                             else
                                 bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
 
@@ -396,7 +396,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, manga.library)
                             bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
 
-                            if ((annotation as MangaAnnotation).page >= 0 && annotation.page < manga.pages)
+                            if ((annotation as MangaAnnotation).page > 0 && annotation.page <= manga.pages)
                                 bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, annotation.page)
                             else
                                 bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)

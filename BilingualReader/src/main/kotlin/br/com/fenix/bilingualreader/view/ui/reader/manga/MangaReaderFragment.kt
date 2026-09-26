@@ -48,11 +48,13 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.BundleCompat
 import androidx.core.util.isNotEmpty
 import androidx.core.util.size
 import androidx.core.view.MenuProvider
@@ -62,8 +64,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -101,6 +101,7 @@ import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -114,6 +115,8 @@ import br.com.fenix.bilingualreader.view.components.manga.ImageViewScrolling
 import br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
 import br.com.fenix.bilingualreader.view.managers.MangaReaderHandler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
+import coil.transform.Transformation
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -121,7 +124,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
-import coil.transform.Transformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -415,7 +417,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mManga = mStorage.findMangaByName(file.name)
 
                 if (mManga != null) {
-                    mLocalCurrentPage = mManga!!.bookMark - 1
+                    mLocalCurrentPage = if (mManga!!.bookMark > 0) mManga!!.bookMark - 1 else 0
                     mStorage.updateLastAccess(mManga!!)
                 }
             }
@@ -751,6 +753,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         true
                     }
 
+                    R.id.menu_item_reader_manga_tracker -> {
+                        openTracker()
+                        true
+                    }
+
                     else -> false
                 }
             }
@@ -759,6 +766,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     fun syncMangaFavorite(favorite: Boolean) {
         mManga?.favorite = favorite
+    }
+
+    private fun openTracker() {
+        val manga = mManga ?: return
+        TrackerLibraryPopup.show(
+            context = requireContext(),
+            libraryId = manga.fkLibrary ?: 0L,
+            fileName = manga.file.name,
+            comicInfo = mParse?.getComicInfo()
+        )
     }
 
     private fun setupMangaChaptersDots(parse: Parse) {
@@ -1642,10 +1659,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 if (mPopupBottomSheet) {
                     if (mPopupSubtitleBottom!!.visibility != View.GONE)
-                        AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleBottom!!, mPopupBottomSheet, navigationColor = false)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleBottom!!, mPopupBottomSheet, navigationColor = true)
 
                     if (mPopupColorBottom!!.visibility != View.GONE)
-                        AnimationUtil.animatePopupClose(requireActivity(), mPopupColorBottom!!, mPopupBottomSheet, navigationColor = false)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupColorBottom!!, mPopupBottomSheet, navigationColor = true)
                 } else {
                     if (mPopupSubtitleLeft!!.visibility != View.GONE)
                         AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleLeft!!, mPopupBottomSheet, navigationColor = false)
@@ -1790,8 +1807,38 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     fun hitEnding() {
         if (mManga != null) {
+            checkTrackerOnEnding()
             val c: Manga? = mStorage.getNextManga(mLibrary, mManga!!)
             confirmSwitch(c, R.string.switch_next_comic)
+        }
+    }
+
+    private fun checkTrackerOnEnding() {
+        if (mManga == null) return
+        try {
+            val trackRepository = br.com.fenix.bilingualreader.service.repository.TrackRepository(requireContext())
+            val existingTracks = trackRepository.listByLibrary(mManga!!.fkLibrary ?: mLibrary.id ?: 0L)
+            val comicInfo = mParse?.getComicInfo()
+            val matchedTrack = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.matchTrack(
+                existingTracks,
+                comicInfo,
+                mManga!!.fileName
+            )
+
+            if (matchedTrack != null) {
+                val parsed = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.parseFileName(mManga!!.fileName)
+                val inferredVol = parsed.volume ?: comicInfo?.volume
+                val inferredChap = parsed.chapter?.toInt() ?: comicInfo?.number?.toInt()
+
+                br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.showReadingConfirmation(
+                    context = requireContext(),
+                    track = matchedTrack,
+                    inferredVolume = inferredVol,
+                    inferredChapter = inferredChap
+                ) { _, _ -> }
+            }
+        } catch (e: Exception) {
+            mLOGGER.error("Error on tracker ending check: ${e.message}", e)
         }
     }
 
@@ -2277,7 +2324,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             return
 
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(requireContext())
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
         GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())

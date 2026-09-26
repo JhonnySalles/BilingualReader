@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.text.Html
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.core.app.ActivityCompat

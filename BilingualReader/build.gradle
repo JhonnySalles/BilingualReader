@@ -24,9 +24,9 @@ android {
         applicationId 'br.com.fenix'
         minSdk 26
         targetSdk 34
-        versionCode 10
+        versionCode 12
         versionName '1.0.'
-        versionNameSuffix '10'
+        versionNameSuffix '12'
 
         testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
@@ -66,8 +66,12 @@ android {
     buildFeatures {
         viewBinding true
         dataBinding true
+        buildConfig true
     }
-    packagingOptions {
+    androidResources {
+        noCompress 'task'
+    }
+    packaging {
         resources {
             excludes += [
                 'META-INF/CONTRIBUTORS.md',
@@ -79,7 +83,6 @@ android {
             ]
         }
     }
-    buildToolsVersion '33.0.0'
     namespace 'br.com.fenix.bilingualreader'
 
     sourceSets {
@@ -119,7 +122,18 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Keep Sentry AsmClassesTransform off; tasks-genai 0.10.27 is Java 21 bytecode.
+sentry {
+    tracingInstrumentation {
+        enabled = false
+    }
+    autoInstallation {
+        enabled = false
+    }
+}
+
 configurations {
+    kxml2
     all*.exclude group: 'xpp3', module: 'xpp3'
     configurations.all {
         if (name.contains("Test") || name.contains("androidTest")) {
@@ -128,10 +142,27 @@ configurations {
     }
 }
 
+tasks.register('createKxml2AndroidJar', Jar) {
+    from({
+        zipTree(configurations.kxml2.singleFile)
+    }) {
+        exclude 'org/xmlpull/**'
+        exclude 'META-INF/services/org.xmlpull.v1.XmlPullParserFactory'
+    }
+    archiveFileName = 'kxml2-android.jar'
+    destinationDirectory = layout.buildDirectory.dir('libs')
+}
+
+tasks.named('preBuild').configure { dependsOn('createKxml2AndroidJar') }
+
 dependencies {
+    kxml2 'net.sf.kxml:kxml2:2.3.0'
+
     // ** MANGA - COMIC **
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.activity:activity-ktx:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-ktx:1.13.1'
@@ -162,7 +193,9 @@ dependencies {
     implementation 'com.github.junrar:junrar:7.5.5' // Only > Android O
     //implementation 'com.github.junrar:junrar:7.4.1' // Only < Android O
     implementation 'org.jsoup:jsoup:1.12.2'
-    implementation 'net.sf.kxml:kxml2:2.3.0'
+    // kxml2 ships org.xmlpull.* which clash with the Android framework under R8;
+    // use a stripped jar that keeps only org.kxml2.* (see createKxml2AndroidJar).
+    implementation files(tasks.named('createKxml2AndroidJar', Jar).flatMap { it.archiveFile })
 
     implementation 'org.apache.commons:commons-compress:1.22'
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -183,19 +216,26 @@ dependencies {
     //Horizontal list view
     implementation 'org.lucasr.twowayview:twowayview:0.1.4'
 
-    // OCR
+    // OCR / Translate / Language ID
     implementation 'cz.adaptech:tesseract4android:4.1.1'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.0'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition-japanese:16.0.0'
     implementation 'com.google.mlkit:translate:17.0.1'
+    implementation 'com.google.mlkit:language-id:17.0.6'
+
+    // On-device LLM (MediaPipe) — 0.10.27 required for Gemma-3 1B .task
+    implementation 'com.google.mediapipe:tasks-genai:0.10.27'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 
     // API CONECTION
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-simplexml:2.9.0'
+    implementation('com.squareup.retrofit2:converter-simplexml:2.9.0') {
+        exclude group: 'xpp3', module: 'xpp3'
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'stax', module: 'stax'
+    }
 
-    // MANGA INFO
-    //implementation 'com.kttdevelopment:mal4j:2.8.1'
 
     // GOOGLE DRIVE
     implementation('com.google.api-client:google-api-client-android:1.23.0') {

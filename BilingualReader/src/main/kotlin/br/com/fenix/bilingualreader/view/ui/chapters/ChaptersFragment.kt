@@ -201,6 +201,11 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             mRecyclerView.scrollToPosition(mPosInitial)
     }
 
+    override fun onDestroyView() {
+        SharedData.remListener(this)
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         SharedData.remListener(this)
 
@@ -218,7 +223,9 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     }
 
     override fun onLoading(page: Int) {
-        (mRecyclerView.adapter as ChaptersGridAdapter).notifyItemChanged(page)
+        if (::mRecyclerView.isInitialized && !mRecyclerView.isComputingLayout) {
+            (mRecyclerView.adapter as? ChaptersGridAdapter)?.notifyPageChanged(page)
+        }
     }
 
     private fun openImageDetail(page: Chapters) {
@@ -295,7 +302,7 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             return
 
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(requireContext())
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
             .setFrameClearDrawable(background)

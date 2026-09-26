@@ -2,15 +2,17 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/frame_popup_tts_root"
+    style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/margin_small"
+    android:paddingBottom="@dimen/margin_small">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical">
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/popup_book_mark_page"
             style="@style/TextInputEditText"
@@ -53,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/popup_book_mark_date"
+            android:hint="@string/popup_book_mark_time"
             app:startIconDrawable="@drawable/ico_book_mark_time">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -65,5 +67,132 @@
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/popup_book_mark_reading_duration"
+                style="@style/TextInputEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_small"
+                android:layout_weight="1"
+                android:hint="@string/popup_book_mark_reading_time"
+                app:startIconDrawable="@drawable/ico_statistics_time">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/popup_book_mark_reading_duration_edit"
+                    android:clickable="true"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/popup_book_mark_btn_copy_duration"
+                    style="@style/Button.IconOnly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/popup_book_mark_ico_copy_duration"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:src="@drawable/ico_copy"
+                    app:tint="?attr/colorOnBackground" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/popup_book_mark_btn_paste_duration"
+                    style="@style/Button.IconOnly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/popup_book_mark_ico_paste_duration"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:src="@drawable/ico_paste"
+                    app:tint="?attr/colorOnBackground" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="@dimen/margin_small">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/popup_book_mark_btn_auto_calc"
+                    style="@style/Button.IconOnly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/popup_book_mark_ico_auto_calc"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:src="@drawable/ico_refresh"
+                    app:tint="?attr/colorOnBackground" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_book_mark_btn_history"
+                style="@style/Button.LabelStart"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/config_button_size"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:text="@string/popup_book_mark_history"
+                app:icon="@drawable/ico_history" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_book_mark_btn_now_date"
+                style="@style/Button.LabelStart"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/config_button_size"
+                android:layout_weight="1"
+                android:text="@string/popup_book_mark_current_date"
+                app:icon="@drawable/ico_book_mark_date" />
+
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

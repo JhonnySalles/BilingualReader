@@ -24,19 +24,19 @@ import android.widget.ProgressBar
 import android.widget.TextClock
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.BundleCompat
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.BundleCompat
 import androidx.core.view.isGone
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -230,7 +230,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
             mBottomSheetConfiguration.isDraggable = false
             mBottomSheetConfiguration.addBottomSheetCallback(mBottomSheetCallback)
-            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = false)
+            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = true)
         }
 
         mPopupReaderFont = PopupBookFont()
@@ -309,7 +309,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             override fun handleOnBackPressed() {
                 val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
                 if (layout!!.visibility != View.GONE) {
-                    AnimationUtil.animatePopupClose(this@BookReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this@BookReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                     return
                 }
 
@@ -353,7 +353,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     fun changePageDescription(chapter: Int, description: String, page: Int, pages: Int) {
-        mToolBarBottomProgressTitle.text = if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
+        val displayPage = if (page > 0) page else if (mBook != null && mBook!!.bookMark > 0) mBook!!.bookMark else 1
+        val displayPages = if (pages > 0) pages else (mBook?.pages ?: 1)
+        mToolBarBottomProgressTitle.text = getString(R.string.reading_book_title_position, displayPage, displayPages, Util.formatDecimal(displayPage.toFloat() / displayPages * 100))
         val title = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
 
         if (mToolBarChapter != null) {
@@ -365,18 +367,18 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             mToolBarTop.subtitle = title
         }
 
-        mBackgroundProgress.progress = page
-        mBackgroundProgress.max = pages
+        mBackgroundProgress.progress = displayPage
+        mBackgroundProgress.max = displayPages
 
         if (description.isNotEmpty()) {
             mBackgroundTitle.gravity = Gravity.START
-            mBackgroundTitle.text = getString(R.string.book_chapter, page, pages, description)
+            mBackgroundTitle.text = getString(R.string.book_chapter, displayPage, displayPages, description)
         } else {
             mBackgroundTitle.gravity = Gravity.CENTER
-            mBackgroundTitle.text = getString(R.string.progress, page, pages)
+            mBackgroundTitle.text = getString(R.string.progress, displayPage, displayPages)
         }
 
-        SharedData.selectPage(page)
+        SharedData.selectPage(displayPage)
     }
 
     fun updateSeekBar(type: ScrollingType) {
@@ -389,7 +391,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private fun setBook(book: Book) {
         mViewModel.stopLoadChapters = true
         SharedData.clearChapters()
-        changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
+        changePageDescription(book.chapter, book.chapterDescription, if (book.bookMark > 0) book.bookMark else 1, book.pages)
         mBook = book
         mRepository.updateLastAccess(book)
 
@@ -530,9 +532,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                         mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
                     else
                         mLeftSheetConfiguration.state = SideSheetBehavior.STATE_EXPANDED
-                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
                 } else
-                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
             }
             R.id.menu_item_reader_book_mark_page -> {}
             R.id.menu_item_reader_book_view_touch_screen -> openTouchFunctions()
@@ -568,7 +570,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     override fun configTouchFunctions() {
         val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
         if (layout!!.visibility != View.GONE)
-            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
 
         mFragment?.configTouchFunctions()
     }
@@ -663,7 +665,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             if (isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val decorView = window.decorView
                 val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
                 GlassSetup.setupGlass(bv, rootView, RenderEffectBlur())
                     .setFrameClearDrawable(background)
                     .setBlurRadius(15f)
@@ -680,7 +682,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     override fun openTouchFunctions() {
         val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
         if (layout!!.visibility != View.GONE)
-            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = mMenuPopupBottomSheet)
 
         mFragment?.setFullscreen(true)
 

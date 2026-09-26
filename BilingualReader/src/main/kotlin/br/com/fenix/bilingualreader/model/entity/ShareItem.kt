@@ -100,7 +100,8 @@ data class ShareItem(
 
     constructor(firebase: Map<String, *>) : this(
         firebase[FIELD_FILE] as String, (firebase[FIELD_BOOKMARK] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(),
-        if (firebase.containsKey(FIELD_COMPLETED)) (firebase[FIELD_COMPLETED] as Boolean) else ((firebase[FIELD_BOOKMARK] as Long).toInt() >= (firebase[FIELD_PAGES] as Long).toInt()),
+        (if (firebase.containsKey(FIELD_COMPLETED)) (firebase[FIELD_COMPLETED] as Boolean) else false) ||
+                ((firebase[FIELD_PAGES] as Long).toInt() > 0 && (firebase[FIELD_BOOKMARK] as Long).toInt() >= (firebase[FIELD_PAGES] as Long).toInt()),
         firebase[FIELD_FAVORITE] as Boolean, Date(), Date()
     ) {
         this.lastAccess = (firebase[FIELD_LASTACCESS] as Timestamp).toDate()
@@ -132,7 +133,7 @@ data class ShareItem(
         return result
     }
 
-    constructor(manga: Manga, list: List<History>, annotations: List<MangaAnnotation>) : this(manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {
+    constructor(manga: Manga, list: List<History>, annotations: List<MangaAnnotation>) : this(manga.name, manga.bookMark, manga.pages, manga.completed || (manga.pages > 0 && manga.bookMark >= manga.pages), manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {
         alter = true
         processed = true
         id = manga.id ?: 0
@@ -145,7 +146,7 @@ data class ShareItem(
             this.annotation?.set(annotation.created.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareAnnotation(annotation))
     }
 
-    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {
+    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(book.name, book.bookMark, book.pages, book.completed || (book.pages > 0 && book.bookMark >= book.pages), book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {
         alter = true
         processed = true
         id = book.id ?: 0
@@ -181,7 +182,7 @@ data class ShareItem(
     fun merge(manga: Manga) {
         this.bookMark = manga.bookMark
         this.pages = manga.pages
-        this.completed = manga.completed
+        this.completed = manga.completed || (manga.pages > 0 && manga.bookMark >= manga.pages)
         this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)
         this.favorite = manga.favorite
         this.alter = true
@@ -191,7 +192,7 @@ data class ShareItem(
     fun merge(book: Book) {
         this.bookMark = book.bookMark
         this.pages = book.pages
-        this.completed = book.completed
+        this.completed = book.completed || (book.pages > 0 && book.bookMark >= book.pages)
         this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)
         this.favorite = book.favorite
         this.alter = true

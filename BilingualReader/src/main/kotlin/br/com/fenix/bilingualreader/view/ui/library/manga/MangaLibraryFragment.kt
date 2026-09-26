@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
+
 import android.Manifest
 import android.app.ActivityOptions
 import android.app.SearchManager
@@ -50,8 +51,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -63,6 +62,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Import
@@ -97,6 +98,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
+import br.com.fenix.bilingualreader.view.managers.MangaLibraryHandler
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -114,9 +116,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-
-
-import br.com.fenix.bilingualreader.view.managers.MangaLibraryHandler
 
 
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, MangaLibraryHandler.Listener {
@@ -519,6 +518,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun onOpenMenuLibrary(select: Int = 0) {
+        mPopupLibraryView.setCurrentItem(select, false)
         mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(select))
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
         AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupLibrary)
@@ -617,7 +617,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun sortList() {
         mViewModel.sorted()
-        notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
+        updateList(mViewModel.listMangas.value ?: mutableListOf())
     }
 
     private fun onChangeLayout(type: LibraryMangaType) {
@@ -895,6 +895,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
                         R.id.menu_manga_config_delete -> deleteManga(manga, position)
                         R.id.menu_manga_config_detail -> goMangaDetail(manga, root, position)
+                        R.id.menu_manga_config_tracker -> {
+                            br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.show(
+                                context = requireContext(),
+                                libraryId = manga.fkLibrary ?: mViewModel.getLibrary().id ?: 0L,
+                                fileName = manga.fileName
+                            )
+                        }
                         R.id.menu_manga_config_book_mark -> {
                             val onUpdate: (History) -> (Unit) = {
                                 mViewModel.save(it as Manga)

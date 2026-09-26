@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.ui.configuration
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +25,7 @@ import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.LlmProvider
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
@@ -35,6 +35,8 @@ import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.export.DataExportImportManager
+import br.com.fenix.bilingualreader.service.functions.ReadingTimeCalculator
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
@@ -50,10 +52,11 @@ import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.secrets.Secrets
@@ -71,6 +74,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
 import com.google.firebase.auth.FirebaseAuth
@@ -130,6 +134,24 @@ class ConfigFragment : Fragment() {
         }
 
         mBookLibraryPathAutoComplete.setText(folder)
+    }
+
+    private val openCoversFolderLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            val folder = Util.normalizeFilePath(uri.path.toString())
+            if (!Storage.isPermissionGranted(requireContext())) {
+                Storage.takePermission(requireContext(), requireActivity())
+            }
+            val dir = File(folder)
+            if (dir.exists()) {
+                val files = dir.listFiles()
+                if (!files.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.config_covers_folder_not_empty_error), Toast.LENGTH_LONG).show()
+                    return@registerForActivityResult
+                }
+            }
+            showChangeCoverFolderConfirmation(folder)
+        }
     }
 
     private val configLibrariesLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -215,6 +237,56 @@ class ConfigFragment : Fragment() {
         }
     }
 
+    private val exportDataLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val fileUri: Uri? = result.data?.data
+            fileUri?.let { uri ->
+                lifecycleScope.launch {
+                    try {
+                        val count = DataExportImportManager(requireContext()).exportData(uri)
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.config_data_export_success) + " ($count itens)",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } catch (e: Exception) {
+                        mLOGGER.error("Export data failed", e)
+                        MsgUtil.error(
+                            requireContext(),
+                            getString(R.string.config_data_export),
+                            getString(R.string.config_data_export_error)
+                        ) { _, _ -> }
+                    }
+                }
+            }
+        }
+    }
+
+    private val importDataLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val fileUri: Uri? = result.data?.data
+            fileUri?.let { uri ->
+                lifecycleScope.launch {
+                    try {
+                        val count = DataExportImportManager(requireContext()).importData(uri)
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.config_data_import_success, count),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } catch (e: Exception) {
+                        mLOGGER.error("Import data failed", e)
+                        MsgUtil.error(
+                            requireContext(),
+                            getString(R.string.config_data_import),
+                            getString(R.string.config_data_import_error)
+                        ) { _, _ -> }
+                    }
+                }
+            }
+        }
+    }
+
     private val driveAuthorizeLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             try {
@@ -263,13 +335,45 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigSystemBackup: MaterialButton
     private lateinit var mConfigSystemRestore: MaterialButton
+    private lateinit var mConfigSystemDataExport: MaterialButton
+    private lateinit var mConfigSystemDataImport: MaterialButton
     private lateinit var mConfigSystemLastBackup: TextView
 
     private lateinit var mConfigUpdateApp: MaterialButton
 
+    private lateinit var mConfigCoversPath: TextInputLayout
+    private lateinit var mConfigCoversPathAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigCoversRestoreDefault: MaterialButton
     private lateinit var mConfigCoversDelete: MaterialButton
 
     private lateinit var mConfigStatisticsDelete: MaterialButton
+
+    private lateinit var mConfigAiEnable: SwitchMaterial
+    private lateinit var mConfigAiModelStatus: TextView
+    private lateinit var mConfigAiProviderAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigAiOpenRouterKeyLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigAiOpenRouterKeyValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigBookAiOpenRouterModelLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigBookAiOpenRouterModelAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigBookAiOpenRouterModelSummaryLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigBookAiOpenRouterModelSummaryAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigMangaAiOpenRouterModelLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var mConfigMangaAiOpenRouterModelAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mConfigAiDelete: MaterialButton
+    private lateinit var mConfigAiMaxContextValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiMaxBookChaptersValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiMaxMangaPagesValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiTemperatureValue: com.google.android.material.textfield.TextInputEditText
+    private lateinit var mConfigAiProviderMap: HashMap<String, LlmProvider>
+    private var mConfigAiProviderSelect: LlmProvider = LlmProvider.AUTO
+    private var mConfigBookAiOpenRouterModelMap: LinkedHashMap<String, String> = linkedMapOf()
+    private var mConfigMangaAiOpenRouterModelMap: LinkedHashMap<String, String> = linkedMapOf()
+    private var mConfigBookAiOpenRouterModelSelect: String =
+        GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+    private var mConfigBookAiOpenRouterModelSummarySelect: String =
+        GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+    private var mConfigMangaAiOpenRouterModelSelect: String =
+        GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
@@ -280,6 +384,15 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigSystemShareMarkCloudMap: HashMap<String, ShareMarkCloud>
     private var mConfigSystemShareMarkCloudSelect = ShareMarkCloud.GOOGLE_DRIVE
+
+    // --------------------------------------------------------- Trackers ---------------------------------------------------------
+    private lateinit var mConfigTrackerMalBtnLogin: MaterialButton
+    private lateinit var mConfigTrackerMalStatus: TextView
+    private lateinit var mConfigTrackerMalLastSync: TextView
+
+    private lateinit var mConfigTrackerAniListBtnLogin: MaterialButton
+    private lateinit var mConfigTrackerAniListStatus: TextView
+    private lateinit var mConfigTrackerAniListLastSync: TextView
 
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
     private lateinit var mMangaLibraryPath: TextInputLayout
@@ -308,6 +421,10 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mMangaUseDualPageCalculate: SwitchMaterial
     private lateinit var mMangaUsePathNameForLinked: SwitchMaterial
+    private lateinit var mMangaAvgTimePerPage: TextInputLayout
+    private lateinit var mMangaAvgTimePerPageEdit: TextInputEditText
+    private lateinit var mMangaBtnRecalculateAll: MaterialButton
+    private lateinit var mMangaBtnRecalculateNew: MaterialButton
 
     private var mMangaDefaultSubtitleLanguageSelect: Languages = Languages.JAPANESE
     private var mMangaDefaultSubtitleTranslateSelect: Languages = Languages.PORTUGUESE
@@ -351,6 +468,11 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookReaderProcessJapaneseText: SwitchMaterial
     private lateinit var mBookReaderTextWithFurigana: SwitchMaterial
     private lateinit var mBookReaderProcessVocabulary: SwitchMaterial
+
+    private lateinit var mBookAvgWordsPerMinute: TextInputLayout
+    private lateinit var mBookAvgWordsPerMinuteEdit: TextInputEditText
+    private lateinit var mBookBtnRecalculateAll: MaterialButton
+    private lateinit var mBookBtnRecalculateNew: MaterialButton
 
     private var mBookOrderSelect: Order = Order.Name
     private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
@@ -432,13 +554,110 @@ class ConfigFragment : Fragment() {
         mMangaUseDualPageCalculate = view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
         mMangaUsePathNameForLinked = view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
 
+        mMangaAvgTimePerPage = view.findViewById(R.id.config_manga_avg_time_per_page)
+        mMangaAvgTimePerPageEdit = view.findViewById(R.id.config_manga_avg_time_per_page_edit)
+        mMangaBtnRecalculateAll = view.findViewById(R.id.config_manga_btn_recalculate_all)
+        mMangaBtnRecalculateNew = view.findViewById(R.id.config_manga_btn_recalculate_new)
+
+        mBookAvgWordsPerMinute = view.findViewById(R.id.config_book_avg_words_per_minute)
+        mBookAvgWordsPerMinuteEdit = view.findViewById(R.id.config_book_avg_words_per_minute_edit)
+        mBookBtnRecalculateAll = view.findViewById(R.id.config_book_btn_recalculate_all)
+        mBookBtnRecalculateNew = view.findViewById(R.id.config_book_btn_recalculate_new)
+
+        mMangaBtnRecalculateAll.setOnClickListener { confirmRecalculate(Type.MANGA, onlyNew = false) }
+        mMangaBtnRecalculateNew.setOnClickListener { confirmRecalculate(Type.MANGA, onlyNew = true) }
+        mBookBtnRecalculateAll.setOnClickListener { confirmRecalculate(Type.BOOK, onlyNew = false) }
+        mBookBtnRecalculateNew.setOnClickListener { confirmRecalculate(Type.BOOK, onlyNew = true) }
+
         mConfigSystemBackup = view.findViewById(R.id.config_system_backup)
         mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
+        mConfigSystemDataExport = view.findViewById(R.id.config_system_data_export)
+        mConfigSystemDataImport = view.findViewById(R.id.config_system_data_import)
         mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
 
+        mConfigTrackerMalBtnLogin = view.findViewById(R.id.config_tracker_mal_btn_login)
+        mConfigTrackerMalStatus = view.findViewById(R.id.config_tracker_mal_status)
+        mConfigTrackerMalLastSync = view.findViewById(R.id.config_tracker_mal_last_sync)
+
+        mConfigTrackerAniListBtnLogin = view.findViewById(R.id.config_tracker_anilist_btn_login)
+        mConfigTrackerAniListStatus = view.findViewById(R.id.config_tracker_anilist_status)
+        mConfigTrackerAniListLastSync = view.findViewById(R.id.config_tracker_anilist_last_sync)
+
+        setupTrackerConfig()
+
         mConfigUpdateApp = view.findViewById(R.id.config_update_app)
+        mConfigCoversPath = view.findViewById(R.id.config_covers_path)
+        mConfigCoversPathAutoComplete = view.findViewById(R.id.config_covers_autocomplete_path)
+        mConfigCoversRestoreDefault = view.findViewById(R.id.config_covers_restore_default)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
+
+        mConfigAiEnable = view.findViewById(R.id.config_ai_enable)
+        mConfigAiModelStatus = view.findViewById(R.id.config_ai_model_status)
+        mConfigAiProviderAutoComplete = view.findViewById(R.id.config_ai_provider_value)
+        mConfigAiOpenRouterKeyLayout = view.findViewById(R.id.config_ai_openrouter_key)
+        mConfigAiOpenRouterKeyValue = view.findViewById(R.id.config_ai_openrouter_key_value)
+        mConfigBookAiOpenRouterModelLayout = view.findViewById(R.id.config_book_ai_openrouter_model)
+        mConfigBookAiOpenRouterModelAutoComplete = view.findViewById(R.id.config_book_ai_openrouter_model_value)
+        mConfigBookAiOpenRouterModelSummaryLayout = view.findViewById(R.id.config_book_ai_openrouter_model_summary)
+        mConfigBookAiOpenRouterModelSummaryAutoComplete = view.findViewById(R.id.config_book_ai_openrouter_model_summary_value)
+        mConfigMangaAiOpenRouterModelLayout = view.findViewById(R.id.config_manga_ai_openrouter_model)
+        mConfigMangaAiOpenRouterModelAutoComplete = view.findViewById(R.id.config_manga_ai_openrouter_model_value)
+        mConfigAiDelete = view.findViewById(R.id.config_ai_delete)
+        mConfigAiMaxContextValue = view.findViewById(R.id.config_ai_max_context_value)
+        mConfigAiMaxBookChaptersValue = view.findViewById(R.id.config_ai_max_book_chapters_value)
+        mConfigAiMaxMangaPagesValue = view.findViewById(R.id.config_ai_max_manga_pages_value)
+        mConfigAiTemperatureValue = view.findViewById(R.id.config_ai_temperature_value)
+
+        mConfigAiProviderMap = linkedMapOf(
+            getString(R.string.config_ai_provider_auto) to LlmProvider.AUTO,
+            getString(R.string.config_ai_provider_on_device) to LlmProvider.ON_DEVICE,
+            getString(R.string.config_ai_provider_openrouter) to LlmProvider.OPENROUTER
+        )
+        val adapterAiProvider = ArrayAdapter(
+            requireContext(),
+            R.layout.list_item,
+            mConfigAiProviderMap.keys.toTypedArray()
+        )
+        mConfigAiProviderAutoComplete.setAdapter(adapterAiProvider)
+        mConfigAiProviderAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val key = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigAiProviderSelect = if (key.isNotEmpty() && mConfigAiProviderMap.containsKey(key)) {
+                    mConfigAiProviderMap[key]!!
+                } else {
+                    LlmProvider.AUTO
+                }
+                val limit = LlmSettings.maxContextLimit(requireContext(), mConfigAiProviderSelect)
+                val currentVal = mConfigAiMaxContextValue.text?.toString()?.toIntOrNull() ?: limit
+                if (currentVal > limit) {
+                    mConfigAiMaxContextValue.setText(limit.toString())
+                }
+                updateOpenRouterFieldsVisibility()
+                refreshAiModelStatus()
+            }
+
+        mConfigBookAiOpenRouterModelAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val label = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigBookAiOpenRouterModelSelect =
+                    mConfigBookAiOpenRouterModelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                refreshAiModelStatus()
+            }
+
+        mConfigBookAiOpenRouterModelSummaryAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val label = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigBookAiOpenRouterModelSummarySelect =
+                    mConfigBookAiOpenRouterModelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+            }
+
+        mConfigMangaAiOpenRouterModelAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val label = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mConfigMangaAiOpenRouterModelSelect =
+                    mConfigMangaAiOpenRouterModelMap[label] ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+            }
 
         mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
         mConfigSystemThemeGlassmorphism.setOnCheckedChangeListener { _, isChecked ->
@@ -745,6 +964,32 @@ class ConfigFragment : Fragment() {
 
         mConfigSystemRestore.setOnClickListener { choiceBackup() }
 
+        mConfigSystemDataExport.setOnClickListener {
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/json"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "text/plain"))
+
+                val fileName: String = "BilingualReader_Data_" + SimpleDateFormat(
+                    GeneralConsts.PATTERNS.BACKUP_DATE_PATTERN,
+                    Locale.getDefault()
+                ).format(
+                    Date()
+                ) + ".json"
+                putExtra(Intent.EXTRA_TITLE, fileName)
+            }
+            exportDataLauncher.launch(intent)
+        }
+
+        mConfigSystemDataImport.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "text/plain", "application/octet-stream"))
+            }
+            importDataLauncher.launch(Intent.createChooser(intent, getString(R.string.config_data_import_select_file)))
+        }
+
         mConfigUpdateApp.setOnClickListener {
             mConfigUpdateApp.isEnabled = false
             val update = UpdateApp(requireContext())
@@ -772,35 +1017,56 @@ class ConfigFragment : Fragment() {
             })
         }
 
+        mConfigCoversPathAutoComplete.setOnClickListener {
+            openCoversFolderLauncher.launch(null)
+        }
+
+        mConfigCoversRestoreDefault.setOnClickListener {
+            showRestoreDefaultCoverFolderConfirmation()
+        }
+
         mConfigCoversDelete.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
                 .setTitle(getString(R.string.config_covers_delete_title))
                 .setMessage(getString(R.string.config_covers_delete_description))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    try {
-                        val cacheManga = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
-                        if (cacheManga.exists())
-                            cacheManga.listFiles()?.let {
-                                for (f in it)
-                                    f.delete()
-                            }
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            val cacheManga = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                            if (cacheManga.exists())
+                                cacheManga.listFiles()?.let {
+                                    for (f in it)
+                                        f.delete()
+                                }
 
-                        val cacheBook = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
-                        if (cacheBook.exists())
-                            cacheBook.listFiles()?.let {
-                                for (f in it)
-                                    f.delete()
-                            }
+                            val cacheBook = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                            if (cacheBook.exists())
+                                cacheBook.listFiles()?.let {
+                                    for (f in it)
+                                        f.delete()
+                                }
 
-                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
-                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
-                        Telemetry.recordException(e, "Error delete bitmap to cache: " + e.message)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
+                            }
+                            Telemetry.recordException(e, "Error delete bitmap to cache: " + e.message)
+                        }
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .create().show()
+        }
+
+        mConfigAiDelete.setOnClickListener {
+            br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext()).deleteModel()
+            br.com.fenix.bilingualreader.service.llm.OcrPageCache.getInstance(requireContext()).clearAll()
+            Toast.makeText(requireContext(), getString(R.string.pref_clear_ocr_cache_success), Toast.LENGTH_SHORT).show()
+            refreshAiModelStatus()
         }
 
         mConfigStatisticsDelete.setOnClickListener {
@@ -1058,6 +1324,59 @@ class ConfigFragment : Fragment() {
                 mMangaUsePathNameForLinked.isChecked
             )
 
+            this.putBoolean(
+                GeneralConsts.KEYS.LLM.ENABLED,
+                mConfigAiEnable.isChecked
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.PROVIDER,
+                mConfigAiProviderSelect.prefValue
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.OPENROUTER_API_KEY,
+                mConfigAiOpenRouterKeyValue.text?.toString()?.trim().orEmpty()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.BOOK_OPENROUTER_MODEL,
+                mConfigBookAiOpenRouterModelSelect.ifBlank {
+                    GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                }
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.BOOK_OPENROUTER_MODEL_SUMMARY,
+                mConfigBookAiOpenRouterModelSummarySelect.ifBlank {
+                    GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                }
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LLM.MANGA_OPENROUTER_MODEL,
+                mConfigMangaAiOpenRouterModelSelect.ifBlank {
+                    GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                }
+            )
+
+            val limit = LlmSettings.maxContextLimit(requireContext(), mConfigAiProviderSelect)
+            val maxContext = (mConfigAiMaxContextValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS).coerceIn(500, limit)
+            this.putInt(GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS, maxContext)
+
+            val maxChapters = mConfigAiMaxBookChaptersValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_BOOK_CHAPTERS
+            this.putInt(GeneralConsts.KEYS.LLM.MAX_BOOK_CHAPTERS, maxChapters.coerceIn(1, 20))
+
+            val maxPages = mConfigAiMaxMangaPagesValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_MAX_MANGA_PAGES
+            this.putInt(GeneralConsts.KEYS.LLM.MAX_MANGA_PAGES, maxPages.coerceIn(1, 50))
+
+            val temperature = mConfigAiTemperatureValue.text?.toString()?.toIntOrNull()
+                ?: GeneralConsts.KEYS.LLM.DEFAULT_TEMPERATURE
+            this.putInt(GeneralConsts.KEYS.LLM.TEMPERATURE, temperature.coerceIn(0, 100))
+
             this.putString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
                 mBookOrderSelect.toString()
@@ -1087,6 +1406,14 @@ class ConfigFragment : Fragment() {
                 GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED,
                 mBookReadingSpeed.value
             )
+
+            val mangaAvgTime = mMangaAvgTimePerPageEdit.text?.toString()?.toFloatOrNull()
+                ?: GeneralConsts.KEYS.READER.MANGA_AVG_TIME_PER_PAGE_DEFAULT
+            this.putFloat(GeneralConsts.KEYS.READER.MANGA_AVG_TIME_PER_PAGE, mangaAvgTime)
+
+            val bookWpm = mBookAvgWordsPerMinuteEdit.text?.toString()?.toFloatOrNull()
+                ?: GeneralConsts.KEYS.READER.BOOK_AVG_WORDS_PER_MINUTE_DEFAULT
+            this.putFloat(GeneralConsts.KEYS.READER.BOOK_AVG_WORDS_PER_MINUTE, bookWpm)
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
@@ -1147,6 +1474,12 @@ class ConfigFragment : Fragment() {
             this.putString(
                 GeneralConsts.KEYS.THEME.THEME_USED,
                 mConfigSystemThemeSelect.toString()
+            )
+
+            val coverCacheFolder = mConfigCoversPathAutoComplete.text?.toString()?.trim().orEmpty()
+            this.putString(
+                GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER,
+                coverCacheFolder
             )
 
             this.apply()
@@ -1243,6 +1576,53 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
+
+        mConfigAiEnable.isChecked = sharedPreferences.getBoolean(GeneralConsts.KEYS.LLM.ENABLED, true)
+        mConfigAiProviderSelect = LlmSettings.getProvider(requireContext())
+        mConfigAiProviderAutoComplete.setText(
+            mConfigAiProviderMap.entries.first { it.value == mConfigAiProviderSelect }.key,
+            false
+        )
+        val storedKey = sharedPreferences.getString(GeneralConsts.KEYS.LLM.OPENROUTER_API_KEY, "") ?: ""
+        mConfigAiOpenRouterKeyValue.setText(storedKey)
+        mConfigBookAiOpenRouterModelSelect = sharedPreferences.getString(
+            GeneralConsts.KEYS.LLM.BOOK_OPENROUTER_MODEL,
+            GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        mConfigBookAiOpenRouterModelSummarySelect = sharedPreferences.getString(
+            GeneralConsts.KEYS.LLM.BOOK_OPENROUTER_MODEL_SUMMARY,
+            GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        mConfigMangaAiOpenRouterModelSelect = sharedPreferences.getString(
+            GeneralConsts.KEYS.LLM.MANGA_OPENROUTER_MODEL,
+            GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        ) ?: GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+        mConfigAiMaxContextValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.MAX_CONTEXT_CHARS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_CONTEXT_CHARS
+            ).toString()
+        )
+        mConfigAiMaxBookChaptersValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.MAX_BOOK_CHAPTERS,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_BOOK_CHAPTERS
+            ).toString()
+        )
+        mConfigAiMaxMangaPagesValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.MAX_MANGA_PAGES,
+                GeneralConsts.KEYS.LLM.DEFAULT_MAX_MANGA_PAGES
+            ).toString()
+        )
+        mConfigAiTemperatureValue.setText(
+            sharedPreferences.getInt(
+                GeneralConsts.KEYS.LLM.TEMPERATURE,
+                GeneralConsts.KEYS.LLM.DEFAULT_TEMPERATURE
+            ).toString()
+        )
+        updateOpenRouterFieldsVisibility()
+        refreshAiModelStatus()
         mMangaReaderUseMagnifierType.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
             false
@@ -1263,6 +1643,18 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
             false
         )
+
+        val mangaAvgSecs = sharedPreferences.getFloat(
+            GeneralConsts.KEYS.READER.MANGA_AVG_TIME_PER_PAGE,
+            GeneralConsts.KEYS.READER.MANGA_AVG_TIME_PER_PAGE_DEFAULT
+        )
+        mMangaAvgTimePerPageEdit.setText(if (mangaAvgSecs % 1.0f == 0.0f) mangaAvgSecs.toInt().toString() else mangaAvgSecs.toString())
+
+        val bookWpm = sharedPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_AVG_WORDS_PER_MINUTE,
+            GeneralConsts.KEYS.READER.BOOK_AVG_WORDS_PER_MINUTE_DEFAULT
+        )
+        mBookAvgWordsPerMinuteEdit.setText(if (bookWpm % 1.0f == 0.0f) bookWpm.toInt().toString() else bookWpm.toString())
 
         mBookFontSize.value = sharedPreferences.getFloat(
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
@@ -1445,6 +1837,204 @@ class ConfigFragment : Fragment() {
             View.VISIBLE
         } else
             View.GONE
+
+        val coverCacheFolder = sharedPreferences.getString(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER, "") ?: ""
+        mConfigCoversPathAutoComplete.setText(coverCacheFolder)
+        mConfigCoversRestoreDefault.visibility = if (coverCacheFolder.isNotEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun showRestoreDefaultCoverFolderConfirmation() {
+        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setTitle(getString(R.string.config_covers_restore_default_title))
+            .setMessage(getString(R.string.config_covers_restore_default_message))
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                val customCoverDir = GeneralConsts.getCoverDir(requireContext())
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val cacheManga = File(customCoverDir, GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        if (cacheManga.exists()) {
+                            cacheManga.listFiles()?.forEach { it.delete() }
+                        }
+                        val cacheBook = File(customCoverDir, GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        if (cacheBook.exists()) {
+                            cacheBook.listFiles()?.forEach { it.delete() }
+                        }
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error clearing external cover cache: ${e.message}", e)
+                        Telemetry.recordException(e, "Error clearing external cover cache: ${e.message}")
+                    }
+
+                    val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                    sharedPreferences.edit()
+                        .remove(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER)
+                        .apply()
+
+                    withContext(Dispatchers.Main) {
+                        mConfigCoversPathAutoComplete.setText("")
+                        mConfigCoversRestoreDefault.visibility = View.GONE
+                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .create().show()
+    }
+
+    private fun showChangeCoverFolderConfirmation(newFolder: String) {
+        val currentFolder = mConfigCoversPathAutoComplete.text?.toString() ?: ""
+        if (newFolder.equals(currentFolder, ignoreCase = true)) {
+            return
+        }
+
+        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setTitle(getString(R.string.config_covers_change_title))
+            .setMessage(getString(R.string.config_covers_change_message))
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                val oldCoverDir = GeneralConsts.getCoverDir(requireContext())
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val cacheManga = File(oldCoverDir, GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        if (cacheManga.exists()) {
+                            cacheManga.listFiles()?.forEach { it.delete() }
+                        }
+                        val cacheBook = File(oldCoverDir, GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        if (cacheBook.exists()) {
+                            cacheBook.listFiles()?.forEach { it.delete() }
+                        }
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error clearing old cover cache: ${e.message}", e)
+                        Telemetry.recordException(e, "Error clearing old cover cache: ${e.message}")
+                    }
+
+                    val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                    sharedPreferences.edit()
+                        .putString(GeneralConsts.KEYS.SYSTEM.COVER_CACHE_FOLDER, newFolder)
+                        .apply()
+
+                    withContext(Dispatchers.Main) {
+                        mConfigCoversPathAutoComplete.setText(newFolder)
+                        mConfigCoversRestoreDefault.visibility = if (newFolder.isNotEmpty()) View.VISIBLE else View.GONE
+                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .create().show()
+    }
+
+    private fun updateOpenRouterFieldsVisibility() {
+        if (!::mConfigBookAiOpenRouterModelLayout.isInitialized) return
+        val showCloud = mConfigAiProviderSelect != LlmProvider.ON_DEVICE
+        val visibility = if (showCloud) View.VISIBLE else View.GONE
+        mConfigAiOpenRouterKeyLayout.visibility = visibility
+        mConfigBookAiOpenRouterModelLayout.visibility = visibility
+        mConfigBookAiOpenRouterModelSummaryLayout.visibility = visibility
+        mConfigMangaAiOpenRouterModelLayout.visibility = visibility
+        if (showCloud) {
+            loadOpenRouterFreeModels()
+        }
+    }
+
+    private fun loadOpenRouterFreeModels() {
+        if (!::mConfigBookAiOpenRouterModelAutoComplete.isInitialized) return
+        mConfigBookAiOpenRouterModelAutoComplete.setText(getString(R.string.config_ai_openrouter_model_loading), false)
+        mConfigBookAiOpenRouterModelSummaryAutoComplete.setText(getString(R.string.config_ai_openrouter_model_loading), false)
+        mConfigMangaAiOpenRouterModelAutoComplete.setText(getString(R.string.config_ai_openrouter_model_loading), false)
+        lifecycleScope.launch {
+            val models = withContext(Dispatchers.IO) {
+                br.com.fenix.bilingualreader.service.llm.openrouter.OpenRouterClient(requireContext())
+                    .listFreeModels()
+            }
+            if (!isAdded) return@launch
+
+            mConfigBookAiOpenRouterModelMap = linkedMapOf()
+            models.forEach { info ->
+                mConfigBookAiOpenRouterModelMap[info.label()] = info.id
+            }
+            if (mConfigBookAiOpenRouterModelMap.isEmpty()) {
+                val fallbackId = GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                mConfigBookAiOpenRouterModelMap[fallbackId] = fallbackId
+            }
+
+            mConfigMangaAiOpenRouterModelMap = linkedMapOf()
+            models.filter { it.hasVision }.forEach { info ->
+                mConfigMangaAiOpenRouterModelMap[info.label()] = info.id
+            }
+            if (mConfigMangaAiOpenRouterModelMap.isEmpty()) {
+                val fallbackId = GeneralConsts.KEYS.LLM.DEFAULT_OPENROUTER_MODEL
+                mConfigMangaAiOpenRouterModelMap[fallbackId] = fallbackId
+            }
+
+            val bookLabels = mConfigBookAiOpenRouterModelMap.keys.toTypedArray()
+            mConfigBookAiOpenRouterModelAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, bookLabels))
+            mConfigBookAiOpenRouterModelSummaryAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, bookLabels))
+
+            val mangaLabels = mConfigMangaAiOpenRouterModelMap.keys.toTypedArray()
+            mConfigMangaAiOpenRouterModelAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, mangaLabels))
+
+            val bookSelectedLabel = mConfigBookAiOpenRouterModelMap.entries
+                .firstOrNull { it.value == mConfigBookAiOpenRouterModelSelect }
+                ?.key
+            if (bookSelectedLabel != null) {
+                mConfigBookAiOpenRouterModelAutoComplete.setText(bookSelectedLabel, false)
+            } else {
+                mConfigBookAiOpenRouterModelSelect = ""
+                mConfigBookAiOpenRouterModelAutoComplete.setText("", false)
+            }
+
+            val summarySelectedLabel = mConfigBookAiOpenRouterModelMap.entries
+                .firstOrNull { it.value == mConfigBookAiOpenRouterModelSummarySelect }
+                ?.key
+            if (summarySelectedLabel != null) {
+                mConfigBookAiOpenRouterModelSummaryAutoComplete.setText(summarySelectedLabel, false)
+            } else {
+                mConfigBookAiOpenRouterModelSummarySelect = ""
+                mConfigBookAiOpenRouterModelSummaryAutoComplete.setText("", false)
+            }
+
+            val mangaSelectedLabel = mConfigMangaAiOpenRouterModelMap.entries
+                .firstOrNull { it.value == mConfigMangaAiOpenRouterModelSelect }
+                ?.key
+            if (mangaSelectedLabel != null) {
+                mConfigMangaAiOpenRouterModelAutoComplete.setText(mangaSelectedLabel, false)
+            } else {
+                mConfigMangaAiOpenRouterModelSelect = ""
+                mConfigMangaAiOpenRouterModelAutoComplete.setText("", false)
+            }
+
+            refreshAiModelStatus()
+        }
+    }
+
+    private fun refreshAiModelStatus() {
+        if (!::mConfigAiModelStatus.isInitialized) return
+        val statusProvider = if (mConfigAiProviderSelect == LlmProvider.AUTO) {
+            LlmSettings.effectiveProvider(requireContext())
+        } else {
+            mConfigAiProviderSelect
+        }
+
+        when (statusProvider) {
+            LlmProvider.OPENROUTER -> {
+                val typedKey = mConfigAiOpenRouterKeyValue.text?.toString()?.trim().orEmpty()
+                val hasKey = typedKey.isNotBlank() || LlmSettings.resolveApiKey(requireContext()).isNotBlank()
+                mConfigAiModelStatus.text = if (hasKey) {
+                    val activeModel = mConfigBookAiOpenRouterModelSelect.ifBlank { mConfigMangaAiOpenRouterModelSelect }
+                    getString(R.string.config_ai_model_openrouter, activeModel)
+                } else {
+                    getString(R.string.config_ai_model_openrouter_no_key)
+                }
+            }
+            else -> {
+                val manager = br.com.fenix.bilingualreader.service.llm.LlmModelManager.getInstance(requireContext())
+                if (manager.isModelReady()) {
+                    val sizeMb = manager.getModelSizeBytes() / (1024.0 * 1024.0)
+                    mConfigAiModelStatus.text = getString(R.string.config_ai_model_ready, String.format("%.0f MB", sizeMb))
+                } else {
+                    mConfigAiModelStatus.text = getString(R.string.config_ai_model_missing)
+                }
+            }
+        }
     }
 
     private fun openLibraries(type: Type) {
@@ -1672,6 +2262,148 @@ class ConfigFragment : Fragment() {
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         touchConfigurationLauncher.launch(intent)
+    }
+
+    private fun confirmRecalculate(type: Type, onlyNew: Boolean) {
+        val typeName = getString(if (type == Type.MANGA) R.string.menu_manga else R.string.menu_books)
+        val message = getString(
+            if (onlyNew) R.string.config_recalculate_new_confirm
+            else R.string.config_recalculate_confirm,
+            typeName
+        )
+        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setTitle(R.string.config_recalculate_reading_time)
+            .setMessage(message)
+            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                saveConfig()
+                ReadingTimeCalculator(requireContext()).recalculateBatch(type, onlyNew)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun setupTrackerConfig() {
+        refreshTrackerConfigUI()
+
+        mConfigTrackerMalBtnLogin.setOnClickListener {
+            val preferences = GeneralConsts.getSharedPreferences(requireContext())
+            val currentToken = preferences.getString(GeneralConsts.KEYS.TRACKER.MAL_TOKEN, null)
+            if (!currentToken.isNullOrBlank()) {
+                MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                    .setTitle(R.string.config_tracker_logout)
+                    .setMessage(getString(R.string.config_tracker_logout) + "?")
+                    .setPositiveButton(R.string.config_tracker_logout) { _, _ ->
+                        preferences.edit()
+                            .remove(GeneralConsts.KEYS.TRACKER.MAL_TOKEN)
+                            .remove(GeneralConsts.KEYS.TRACKER.MAL_USER)
+                            .apply()
+                        refreshTrackerConfigUI()
+                    }
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show()
+            } else {
+                val inputLayout = TextInputLayout(requireContext(), null, R.attr.textInputStyle).apply {
+                    hint = "Username"
+                    setPadding(40, 16, 40, 0)
+                }
+                val input = TextInputEditText(inputLayout.context)
+                inputLayout.addView(input)
+
+                MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                    .setTitle(getString(R.string.config_tracker_login) + " - " + getString(R.string.config_tracker_mal))
+                    .setView(inputLayout)
+                    .setPositiveButton(R.string.config_tracker_login) { _, _ ->
+                        val user = input.text?.toString()?.trim().orEmpty()
+                        if (user.isNotEmpty()) {
+                            preferences.edit()
+                                .putString(GeneralConsts.KEYS.TRACKER.MAL_USER, user)
+                                .putString(GeneralConsts.KEYS.TRACKER.MAL_TOKEN, "active")
+                                .putString(GeneralConsts.KEYS.TRACKER.MAL_LAST_SYNC, GeneralConsts.formatterDateTime(requireContext(), java.util.Date()))
+                                .apply()
+                            refreshTrackerConfigUI()
+                        }
+                    }
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show()
+            }
+        }
+
+        mConfigTrackerAniListBtnLogin.setOnClickListener {
+            val preferences = GeneralConsts.getSharedPreferences(requireContext())
+            val currentToken = preferences.getString(GeneralConsts.KEYS.TRACKER.ANILIST_TOKEN, null)
+            if (!currentToken.isNullOrBlank()) {
+                MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                    .setTitle(R.string.config_tracker_logout)
+                    .setMessage(getString(R.string.config_tracker_logout) + "?")
+                    .setPositiveButton(R.string.config_tracker_logout) { _, _ ->
+                        preferences.edit()
+                            .remove(GeneralConsts.KEYS.TRACKER.ANILIST_TOKEN)
+                            .remove(GeneralConsts.KEYS.TRACKER.ANILIST_USER)
+                            .apply()
+                        refreshTrackerConfigUI()
+                    }
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show()
+            } else {
+                val inputLayout = TextInputLayout(requireContext(), null, R.attr.textInputStyle).apply {
+                    hint = "Username"
+                    setPadding(40, 16, 40, 0)
+                }
+                val input = TextInputEditText(inputLayout.context)
+                inputLayout.addView(input)
+
+                MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                    .setTitle(getString(R.string.config_tracker_login) + " - " + getString(R.string.config_tracker_anilist))
+                    .setView(inputLayout)
+                    .setPositiveButton(R.string.config_tracker_login) { _, _ ->
+                        val user = input.text?.toString()?.trim().orEmpty()
+                        if (user.isNotEmpty()) {
+                            preferences.edit()
+                                .putString(GeneralConsts.KEYS.TRACKER.ANILIST_USER, user)
+                                .putString(GeneralConsts.KEYS.TRACKER.ANILIST_TOKEN, "active")
+                                .putString(GeneralConsts.KEYS.TRACKER.ANILIST_LAST_SYNC, GeneralConsts.formatterDateTime(requireContext(), java.util.Date()))
+                                .apply()
+                            refreshTrackerConfigUI()
+                        }
+                    }
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun refreshTrackerConfigUI() {
+        val preferences = GeneralConsts.getSharedPreferences(requireContext())
+
+        val malUser = preferences.getString(GeneralConsts.KEYS.TRACKER.MAL_USER, null)
+        val malSync = preferences.getString(GeneralConsts.KEYS.TRACKER.MAL_LAST_SYNC, null)
+        if (!malUser.isNullOrBlank()) {
+            mConfigTrackerMalStatus.text = getString(R.string.config_tracker_logged_in, malUser)
+            mConfigTrackerMalBtnLogin.text = getString(R.string.config_tracker_logout)
+        } else {
+            mConfigTrackerMalStatus.text = getString(R.string.config_tracker_not_logged_in)
+            mConfigTrackerMalBtnLogin.text = getString(R.string.config_tracker_login)
+        }
+        mConfigTrackerMalLastSync.text = if (!malSync.isNullOrBlank()) {
+            getString(R.string.config_tracker_last_sync, malSync)
+        } else {
+            getString(R.string.config_tracker_sync_never)
+        }
+
+        val aniUser = preferences.getString(GeneralConsts.KEYS.TRACKER.ANILIST_USER, null)
+        val aniSync = preferences.getString(GeneralConsts.KEYS.TRACKER.ANILIST_LAST_SYNC, null)
+        if (!aniUser.isNullOrBlank()) {
+            mConfigTrackerAniListStatus.text = getString(R.string.config_tracker_logged_in, aniUser)
+            mConfigTrackerAniListBtnLogin.text = getString(R.string.config_tracker_logout)
+        } else {
+            mConfigTrackerAniListStatus.text = getString(R.string.config_tracker_not_logged_in)
+            mConfigTrackerAniListBtnLogin.text = getString(R.string.config_tracker_login)
+        }
+        mConfigTrackerAniListLastSync.text = if (!aniSync.isNullOrBlank()) {
+            getString(R.string.config_tracker_last_sync, aniSync)
+        } else {
+            getString(R.string.config_tracker_sync_never)
+        }
     }
 
 }

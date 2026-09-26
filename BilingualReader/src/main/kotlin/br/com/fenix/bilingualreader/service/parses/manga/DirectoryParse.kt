@@ -4,7 +4,6 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory

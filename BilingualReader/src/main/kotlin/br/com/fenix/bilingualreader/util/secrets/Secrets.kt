@@ -27,7 +27,10 @@ class Secrets {
     }
 
     private var MY_ANIME_LIST_CLIENT_ID: String = ""
+    private var ANILIST_CLIENT_ID: String = ""
+    private var ANILIST_CLIENT_SECRET: String = ""
     private var GOOGLE_ID_TOKEN: String = ""
+    private var OPENROUTER_API_KEY: String = ""
 
     init {
         try {
@@ -37,7 +40,10 @@ class Secrets {
             properties.load(inputStream)
 
             MY_ANIME_LIST_CLIENT_ID = properties.getProperty("ANIME_LIST_CLIENT_ID") ?: ""
+            ANILIST_CLIENT_ID = properties.getProperty("ANILIST_CLIENT_ID") ?: ""
+            ANILIST_CLIENT_SECRET = properties.getProperty("ANILIST_CLIENT_SECRET") ?: ""
             GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN") ?: ""
+            OPENROUTER_API_KEY = properties.getProperty("OPENROUTER_API_KEY") ?: ""
         } catch (e: IOException) {
             mLOGGER.error("Error to read secrets: " + e.message, e)
             Telemetry.recordException(e, "Error to read secrets: " + e.message)
@@ -48,8 +54,20 @@ class Secrets {
         return MY_ANIME_LIST_CLIENT_ID
     }
 
+    fun getAniListClientId(): String {
+        return ANILIST_CLIENT_ID
+    }
+
+    fun getAniListClientSecret(): String {
+        return ANILIST_CLIENT_SECRET
+    }
+
     fun getGoogleIdToken(): String {
         return GOOGLE_ID_TOKEN
+    }
+
+    fun getOpenRouterApiKey(): String {
+        return OPENROUTER_API_KEY
     }
 
 }

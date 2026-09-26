@@ -59,9 +59,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
-import androidx.lifecycle.Lifecycle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
@@ -103,6 +104,7 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
@@ -122,6 +124,7 @@ import br.com.fenix.bilingualreader.view.components.book.ZoomPageTransform
 import br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerLibraryPopup
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -284,7 +287,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 if (mBook != null) {
                     mFileName = file.name
-                    mLocalCurrentPage = mBook!!.bookMark - 1
+                    mLocalCurrentPage = if (mBook!!.bookMark > 0) mBook!!.bookMark - 1 else 0
                 }
             } else {
                 mLOGGER.info("File not founded.")
@@ -507,6 +510,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
                 miPaginationMode = menu.findItem(R.id.menu_item_reader_book_pagination_type)
 
+                miReaderTTS.setShowAsAction(
+                    if (resources.configuration.screenWidthDp >= 400)
+                        MenuItem.SHOW_AS_ACTION_ALWAYS
+                    else
+                        MenuItem.SHOW_AS_ACTION_NEVER
+                )
+
                 val isLoaded = mParse != null
                 miChapter.isVisible = isLoaded
                 miAnnotation.isVisible = isLoaded
@@ -518,6 +528,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 miPaginationMode.isVisible = isLoaded
                 menu.findItem(R.id.menu_item_reader_book_view_touch_screen)?.isVisible = isLoaded
                 menu.findItem(R.id.menu_item_reader_book_config_touch_screen)?.isVisible = isLoaded
+                menu.findItem(R.id.menu_item_reader_book_tracker)?.isVisible = isLoaded
 
                 if (isLoaded) {
                     when (mViewModel.scrollingMode.value) {
@@ -589,8 +600,23 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         true
                     }
 
+                    R.id.menu_item_reader_book_summary -> {
+                        openChapterSummary()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_assistant -> {
+                        openReadingAssistant()
+                        true
+                    }
+
                     R.id.menu_item_reader_book_config_touch_screen -> {
                         configTouchFunctions()
+                        true
+                    }
+
+                    R.id.menu_item_reader_book_tracker -> {
+                        openTracker()
                         true
                     }
 
@@ -705,9 +731,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                                 mViewPager.post {
                                     mViewPager.requestLayout()
                                     (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
+                                    if (::mPagerAdapter.isInitialized) {
+                                        mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
+                                    }
                                 }
                                 mViewRecycler.post {
                                     mViewRecycler.requestLayout()
+                                    mViewRecycler.adapter?.notifyDataSetChanged()
                                 }
 
                                 val preferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -1340,8 +1370,49 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     fun hitEnding() {
         if (mBook != null) {
+            checkTrackerProgress()
             val c: Book? = mStorage.getNextBook(mLibrary, mBook!!)
             confirmSwitch(c, R.string.switch_next_book)
+        }
+    }
+
+    private fun openTracker() {
+        val book = mBook ?: return
+        val libraryId = book.fkLibrary ?: mLibrary.id ?: 0L
+        val fileName = book.file?.name ?: book.fileName
+        TrackerLibraryPopup.show(
+            context = requireContext(),
+            libraryId = libraryId,
+            fileName = fileName,
+            comicInfo = null
+        )
+    }
+
+    private fun checkTrackerProgress() {
+        if (mBook == null) return
+        try {
+            val trackRepository = br.com.fenix.bilingualreader.service.repository.TrackRepository(requireContext())
+            val existingTracks = trackRepository.listByLibrary(mBook!!.fkLibrary ?: mLibrary.id ?: 0L)
+            val matchedTrack = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.matchTrack(
+                existingTracks,
+                null,
+                mBook!!.fileName
+            )
+
+            if (matchedTrack != null) {
+                val parsed = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.parseFileName(mBook!!.fileName)
+                val inferredVol = parsed.volume ?: mBook!!.volume.toIntOrNull()
+                val inferredChap = parsed.chapter?.toInt() ?: mBook!!.chapter
+
+                br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.showReadingConfirmation(
+                    context = requireContext(),
+                    track = matchedTrack,
+                    inferredVolume = inferredVol,
+                    inferredChapter = inferredChap
+                ) { _, _ -> }
+            }
+        } catch (e: Exception) {
+            mLOGGER.error("Error on tracker ending check: ${e.message}", e)
         }
     }
 
@@ -1405,11 +1476,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 if (annotation.fontSize != mViewModel.fontSize.value!!) {
                     mViewModel.changeFontSize(annotation.fontSize)
                     mHandler.postDelayed({
-                        setCurrentPage(annotation.page + 1, isAnimated = false)
-                        mPagerAdapter.notifyItemChanged(annotation.page)
+                        setCurrentPage(annotation.page, isAnimated = false)
+                        mPagerAdapter.notifyItemChanged(annotation.page - 1)
                     }, 1000)
                 } else if (annotation.page > 0)
-                    setCurrentPage(annotation.page + 1, isAnimated = false)
+                    setCurrentPage(annotation.page, isAnimated = false)
             }
         }
 
@@ -1457,6 +1528,36 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         bookAnnotationLauncher.launch(intent)
+    }
+
+    private fun openChapterSummary() {
+        val book = mBook ?: return
+        val parse = mParse ?: return
+        if (mTextToSpeech != null) mTextToSpeech?.stop()
+        val page0 = (getCurrentPage() - 1).coerceAtLeast(0)
+        br.com.fenix.bilingualreader.view.ui.assistant.PopupChapterSummary.show(
+            requireContext(),
+            lifecycleScope,
+            book,
+            parse,
+            page0
+        )
+    }
+
+    private fun openReadingAssistant() {
+        val book = mBook ?: return
+        val parse = mParse ?: return
+        if (mTextToSpeech != null) mTextToSpeech?.stop()
+        val page0 = (getCurrentPage() - 1).coerceAtLeast(0)
+        br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity.prepareBook(
+            title = book.title.ifBlank { book.name },
+            page = page0,
+            chapter = book.chapter,
+            bookId = book.id,
+            parse = parse,
+            language = book.language
+        )
+        startActivity(Intent(requireContext(), br.com.fenix.bilingualreader.view.ui.assistant.ReadingAssistantActivity::class.java))
     }
 
     fun configTouchFunctions() {
@@ -1607,7 +1708,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSelectReadingFrom(page: Int, text: String) = executeTTS(page, text)
 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
-        val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
+        val chapter = mParse!!.getChapter(if (page > 0) page - 1 else 0) ?: Pair(0, "")
         val annotation = BookAnnotation(
             mBook!!.id!!, page, mParse!!.pageCount, mViewModel.fontSize.value!!, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
@@ -1635,15 +1736,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
         if (refresh) {
             mViewModel.refreshAnnotations(mBook)
-            mViewPager.adapter!!.notifyItemChanged(page)
+            mViewPager.adapter!!.notifyItemChanged(if (page > 0) page - 1 else 0)
         }
     }
 
-    override fun textSelectRemoveMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(annotation.page)
+    override fun textSelectRemoveMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(if (annotation.page > 0) annotation.page - 1 else 0)
 
-    override fun textSelectChangeMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(annotation.page)
+    override fun textSelectChangeMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(if (annotation.page > 0) annotation.page - 1 else 0)
 
-    override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page + 1))
+    override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page))
 
 
     fun markCurrentPage() {
@@ -2042,6 +2143,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
         refreshReaderBlur()
+        if (::mViewPager.isInitialized && ::mPagerAdapter.isInitialized && mViewPager.isVisible) {
+            mViewPager.post {
+                mViewPager.requestLayout()
+                (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
+                mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
+            }
+        } else if (::mViewRecycler.isInitialized && mViewRecycler.isVisible) {
+            mViewRecycler.post {
+                mViewRecycler.requestLayout()
+                mViewRecycler.adapter?.notifyDataSetChanged()
+            }
+        }
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -2145,7 +2258,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             return
 
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(requireContext())
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
         GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())

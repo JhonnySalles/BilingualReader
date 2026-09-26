@@ -81,6 +81,25 @@ class Migrations {
             override fun migrate(db: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 3 - 4...")
 
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS " + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME + " (" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + " INTEGER NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE + " TEXT NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.ROLE + " TEXT NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.MESSAGE + " TEXT NOT NULL, " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.DATE + " TEXT NOT NULL)"
+                )
+
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME + "_" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + "_" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE +
+                            " ON " + DataBaseConsts.ASSISTANT_HISTORY.TABLE_NAME + "(" +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.FK_ID_REFERENCE + ", " +
+                            DataBaseConsts.ASSISTANT_HISTORY.COLUMNS.TYPE + ")"
+                )
+
                 mLOGGER.info("Completed migration 3 - 4.")
             }
         }
@@ -89,6 +108,73 @@ class Migrations {
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 4 - 5...")
+
+                try {
+                    db.execSQL(
+                        "ALTER TABLE " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME +
+                                " ADD COLUMN " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CFI_RANGE + " TEXT DEFAULT NULL"
+                    )
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to alter table and create column cfi_range: " + e.message, e)
+                }
+
+                try {
+                    db.execSQL(
+                        "ALTER TABLE " + DataBaseConsts.HISTORY.TABLE_NAME +
+                                " ADD COLUMN " + DataBaseConsts.HISTORY.COLUMNS.WORD_COUNT + " INTEGER DEFAULT 0 NOT NULL"
+                    )
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to alter table History and create column word_count: " + e.message, e)
+                }
+
+                try {
+                    db.execSQL(
+                        "ALTER TABLE " + DataBaseConsts.HISTORY.TABLE_NAME +
+                                " ADD COLUMN " + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ_AUTOMATIC + " INTEGER DEFAULT 0 NOT NULL"
+                    )
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to alter table History and create column seconds_read_automatic: " + e.message, e)
+                }
+
+                try {
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS " + DataBaseConsts.TRACK.TABLE_NAME + " (" +
+                                DataBaseConsts.TRACK.COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                                DataBaseConsts.TRACK.COLUMNS.MAL_ID + " INTEGER DEFAULT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.ANI_ID + " INTEGER DEFAULT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY + " INTEGER NOT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.TITLE + " TEXT NOT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.TITLE_REGEX + " TEXT NOT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.TOTAL_VOLUMES + " INTEGER DEFAULT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.TOTAL_CHAPTERS + " INTEGER DEFAULT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.STATUS + " TEXT NOT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.SCORE + " REAL DEFAULT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.SCORE_DATE + " TEXT DEFAULT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.CHAPTERS_READ + " INTEGER NOT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.VOLUMES_READ + " INTEGER NOT NULL, " +
+                                DataBaseConsts.TRACK.COLUMNS.LAST_SYNC_DATE + " TEXT DEFAULT NULL)"
+                    )
+
+                    db.execSQL(
+                        "CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.TRACK.TABLE_NAME + "_" +
+                                DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY +
+                                " ON " + DataBaseConsts.TRACK.TABLE_NAME + "(" + DataBaseConsts.TRACK.COLUMNS.FK_ID_LIBRARY + ")"
+                    )
+
+                    db.execSQL(
+                        "CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.TRACK.TABLE_NAME + "_" +
+                                DataBaseConsts.TRACK.COLUMNS.MAL_ID +
+                                " ON " + DataBaseConsts.TRACK.TABLE_NAME + "(" + DataBaseConsts.TRACK.COLUMNS.MAL_ID + ")"
+                    )
+
+                    db.execSQL(
+                        "CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.TRACK.TABLE_NAME + "_" +
+                                DataBaseConsts.TRACK.COLUMNS.ANI_ID +
+                                " ON " + DataBaseConsts.TRACK.TABLE_NAME + "(" + DataBaseConsts.TRACK.COLUMNS.ANI_ID + ")"
+                    )
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to create table Track: " + e.message, e)
+                }
 
                 mLOGGER.info("Completed migration 4 - 5.")
             }

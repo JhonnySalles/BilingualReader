@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.model.entity
 import android.content.Context
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.service.tracker.anilist.AniListMedia
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MalTransform
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -14,10 +15,15 @@ import java.time.LocalDate
 class Information() {
     companion object {
         const val MY_ANIME_LIST = "MyAnimeList"
+        const val ANILIST = "AniList"
         const val COMIC_INFO = "ComicInfo"
     }
 
     constructor(context: Context, manga: MalMangaDetail) : this() {
+        setManga(context, manga)
+    }
+
+    constructor(context: Context, manga: AniListMedia) : this() {
         setManga(context, manga)
     }
 
@@ -145,6 +151,100 @@ class Information() {
             ""
 
         this.origin = MY_ANIME_LIST
+    }
+
+    private fun setManga(context: Context, manga: AniListMedia) {
+        this.link = manga.siteUrl ?: "https://anilist.co/manga/${manga.id}"
+        this.imageLink = manga.coverImage?.extraLarge ?: manga.coverImage?.large ?: manga.coverImage?.medium ?: ""
+        this.title = manga.displayTitle
+        this.alternativeTitles = ""
+
+        manga.title?.let {
+            val en = it.english
+            if (!en.isNullOrEmpty() && !en.equals(this.title, ignoreCase = true))
+                this.alternativeTitles += en + ", "
+            val ro = it.romaji
+            if (!ro.isNullOrEmpty() && !ro.equals(this.title, ignoreCase = true))
+                this.alternativeTitles += ro + ", "
+            val ja = it.native
+            if (!ja.isNullOrEmpty() && !ja.equals(this.title, ignoreCase = true))
+                this.alternativeTitles += ja + ", "
+        }
+
+        manga.synonyms?.let { syns ->
+            if (syns.isNotEmpty()) {
+                this.alternativeTitles += syns.filter { it.isNotBlank() }.joinToString() + ", "
+                this.synonyms = syns.toString()
+            }
+        }
+
+        if (this.alternativeTitles.isNotEmpty()) {
+            this.alternativeTitles = context.getString(
+                R.string.manga_detail_web_information_alternative_titles,
+                this.alternativeTitles.substringBeforeLast(",").plus(".")
+            )
+        }
+
+        manga.description?.let { this.synopsis = it }
+        this.volumes = if (manga.volumes != null && manga.volumes > 0) {
+            context.getString(R.string.manga_detail_web_information_volumes, manga.volumes.toString())
+        } else ""
+        this.chapters = if (manga.chapters != null && manga.chapters > 0) {
+            context.getString(R.string.manga_detail_web_information_chapters, manga.chapters.toString())
+        } else ""
+        manga.status?.let {
+            this.status = context.getString(R.string.manga_detail_web_information_status, it)
+        }
+
+        val start = if (manga.startDate?.year != null) {
+            try {
+                LocalDate.of(manga.startDate.year, manga.startDate.month ?: 1, manga.startDate.day ?: 1)
+            } catch (e: Exception) { null }
+        } else null
+
+        val end = if (manga.endDate?.year != null) {
+            try {
+                LocalDate.of(manga.endDate.year, manga.endDate.month ?: 1, manga.endDate.day ?: 1)
+            } catch (e: Exception) { null }
+        } else null
+
+        this.release = if (start != null && end != null)
+            context.getString(
+                R.string.manga_detail_web_information_publish_from_to,
+                GeneralConsts.formatterDate(context, start),
+                GeneralConsts.formatterDate(context, end)
+            )
+        else if (start != null)
+            context.getString(
+                R.string.manga_detail_web_information_publish,
+                GeneralConsts.formatterDate(context, start)
+            )
+        else
+            ""
+
+        this.genres = if (!manga.genres.isNullOrEmpty())
+            context.getString(
+                R.string.manga_detail_web_information_genre,
+                manga.genres.joinToString()
+            )
+        else
+            ""
+
+        this.authors = if (manga.staff?.edges != null && manga.staff.edges.isNotEmpty())
+            context.getString(
+                R.string.manga_detail_web_information_authors,
+                manga.staff.edges.mapNotNull {
+                    val name = it.node?.name?.full ?: it.node?.name?.native
+                    val role = it.role
+                    if (name != null) {
+                        if (!role.isNullOrEmpty()) "$name ($role)" else name
+                    } else null
+                }.joinToString()
+            )
+        else
+            ""
+
+        this.origin = ANILIST
     }
 
     private fun setManga(context: Context, manga: ComicInfo) {

@@ -30,6 +30,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.Choreographer
@@ -74,8 +75,8 @@ import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.HistoryType
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -89,6 +90,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
@@ -96,8 +98,6 @@ import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
-import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
-import android.os.ParcelFileDescriptor
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -1661,6 +1661,11 @@ class ThemeUtil {
             return typedValue.data
         }
 
+        fun getBlurFrameClearDrawable(context: Context): Drawable {
+            val bgColor = context.getColorFromAttr(R.attr.background)
+            return ColorDrawable(bgColor)
+        }
+
         fun statusBarTransparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -2066,7 +2071,7 @@ class PopupUtil {
 
                 if (isGlass) {
                     val decorView = activity.window.decorView
-                    val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                    val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(activity)
                     val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
                     val rootView = customRootView ?: decorView.findViewById<ViewGroup>(android.R.id.content)
                     GlassSetup.setupGlass(bg, rootView, blurAlgorithm)
@@ -2088,6 +2093,15 @@ class PopupUtil {
                 }
             }
             view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        }
+
+        /** Runs [runnable] immediately when [view] is already laid out; otherwise waits for the next layout. */
+        fun whenLaidOut(view: View, runnable: Runnable) {
+            if (view.isLaidOut && !view.isLayoutRequested) {
+                runnable.run()
+            } else {
+                onGlobalLayout(view, runnable)
+            }
         }
 
         fun googleTranslate(context: Context, text: String) {
@@ -2247,15 +2261,16 @@ class AdapterUtil {
 
         fun getBookSeparator(context: Context, order: Order, book: Book): Separator {
             val favorite = context.getString(R.string.book_library_separator_favorite)
-            val notFavorite = context.getString(R.string.book_library_separator_non_favorite)
+            val others = context.getString(R.string.library_separator_others)
+            val unread = context.getString(R.string.library_separator_unread)
             val title = when (order) {
-                Order.Name -> book.title.substring(0, 1).uppercase()
-                Order.Date -> GeneralConsts.formatCountDays(context, book.dateCreate)
-                Order.LastAccess -> GeneralConsts.formatCountDays(context, book.lastAccess)
-                Order.Author -> if (book.author.isEmpty()) "" else book.author.lowercase()
-                Order.Genre -> if (book.genre.isEmpty()) "" else book.genre.lowercase()
-                Order.Series -> if (book.series.isEmpty()) "" else book.series.lowercase()
-                Order.Favorite -> if (book.favorite) favorite else notFavorite
+                Order.Name -> book.title.trim().take(1).uppercase().ifBlank { others }
+                Order.Date -> book.dateCreate?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { others } ?: others
+                Order.LastAccess -> book.lastAccess?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { unread } ?: unread
+                Order.Author -> book.author.trim().ifBlank { others }
+                Order.Genre -> book.genre.trim().ifBlank { others }
+                Order.Series -> book.series.trim().ifBlank { others }
+                Order.Favorite -> if (book.favorite) favorite else others
                 else -> ""
             }
             return Separator(title)
@@ -2263,15 +2278,16 @@ class AdapterUtil {
 
         fun getMangaSeparator(context: Context, order: Order, manga: Manga): Separator {
             val favorite = context.getString(R.string.manga_library_separator_favorite)
-            val notFavorite = context.getString(R.string.manga_library_separator_non_favorite)
+            val others = context.getString(R.string.library_separator_others)
+            val unread = context.getString(R.string.library_separator_unread)
             val title = when (order) {
-                Order.Name -> manga.title.substring(0, 1).uppercase()
-                Order.Date -> GeneralConsts.formatCountDays(context, manga.dateCreate)
-                Order.LastAccess -> GeneralConsts.formatCountDays(context, manga.lastAccess)
-                Order.Author -> if (manga.author.isEmpty()) "" else manga.author.lowercase()
-                Order.Genre -> if (manga.genre.isEmpty()) "" else manga.genre.lowercase()
-                Order.Series -> if (manga.series.isEmpty()) "" else manga.series.lowercase()
-                Order.Favorite -> if (manga.favorite) favorite else notFavorite
+                Order.Name -> manga.title.trim().take(1).uppercase().ifBlank { others }
+                Order.Date -> manga.dateCreate?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { others } ?: others
+                Order.LastAccess -> manga.lastAccess?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { unread } ?: unread
+                Order.Author -> manga.author.trim().ifBlank { others }
+                Order.Genre -> manga.genre.trim().ifBlank { others }
+                Order.Series -> manga.series.trim().ifBlank { others }
+                Order.Favorite -> if (manga.favorite) favorite else others
                 else -> ""
             }
             return Separator(title)

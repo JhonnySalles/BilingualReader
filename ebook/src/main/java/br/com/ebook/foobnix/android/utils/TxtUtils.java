@@ -242,6 +242,31 @@ public class TxtUtils {
         }
         name = name.trim();
 
+        if (name.contains(",") || name.contains(";")) {
+            String[] authors = name.split("[,;]");
+            StringBuilder res = new StringBuilder();
+            for (String author : authors) {
+                String single = author.trim();
+                if (TxtUtils.isNotEmpty(single)) {
+                    String formatted = replaceSingleLastFirstName(single);
+                    if (res.length() > 0) {
+                        res.append(", ");
+                    }
+                    res.append(formatted);
+                }
+            }
+            return res.toString();
+        }
+
+        return replaceSingleLastFirstName(name);
+    }
+
+    public static String replaceSingleLastFirstName(String name) {
+        if (TxtUtils.isEmpty(name)) {
+            return "";
+        }
+        name = name.trim();
+
         if (!name.contains(" ") || name.endsWith(".")) {
             return name;
         }
@@ -253,7 +278,6 @@ public class TxtUtils {
             res.append(split[i]);
         }
         return res.toString();
-
     }
 
     public static String space() {

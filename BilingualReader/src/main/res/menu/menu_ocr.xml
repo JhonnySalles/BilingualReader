@@ -6,4 +6,7 @@
     <item android:id="@+id/menu_popup_ocr_google_vision"
         android:icon="@drawable/ico_ocr_google_vision"
         android:title="Google Vision OCR" />
+    <item android:id="@+id/menu_popup_ocr_translate"
+        android:icon="@drawable/ico_ocr_google_vision"
+        android:title="@string/menu_popup_ocr_translate" />
 </menu>

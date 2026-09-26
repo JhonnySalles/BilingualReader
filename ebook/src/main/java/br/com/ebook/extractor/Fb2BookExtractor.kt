@@ -86,6 +86,10 @@ object Fb2BookExtractor : BookExtractor {
         var isbn = ""
         var publisher = ""
         var releaseDate: LocalDate? = null
+        var authors = mutableListOf<String>()
+        var currentAuthorFirst = ""
+        var currentAuthorLast = ""
+        var inAuthorTag = false
         var titleInfo = false
 
         FileInputStream(path).use { fis ->
@@ -99,10 +103,29 @@ object Fb2BookExtractor : BookExtractor {
                     }
                     if (titleInfo) {
                         when (xpp.name) {
+                            "author" -> {
+                                inAuthorTag = true
+                                currentAuthorFirst = ""
+                                currentAuthorLast = ""
+                            }
                             "book-title" -> bookTitle = xpp.nextText() ?: ""
                             "lang" -> lang = xpp.nextText() ?: ""
-                            "first-name" -> if (firstName.isEmpty()) firstName = xpp.nextText() ?: ""
-                            "last-name" -> if (lastName.isEmpty()) lastName = xpp.nextText() ?: ""
+                            "first-name" -> {
+                                val fn = xpp.nextText() ?: ""
+                                if (inAuthorTag) {
+                                    currentAuthorFirst = fn
+                                } else if (firstName.isEmpty()) {
+                                    firstName = fn
+                                }
+                            }
+                            "last-name" -> {
+                                val ln = xpp.nextText() ?: ""
+                                if (inAuthorTag) {
+                                    currentAuthorLast = ln
+                                } else if (lastName.isEmpty()) {
+                                    lastName = ln
+                                }
+                            }
                             "genre" -> {
                                 val gen = xpp.nextText() ?: ""
                                 genre = if (genre.isEmpty()) gen else "$genre,$gen"
@@ -126,20 +149,37 @@ object Fb2BookExtractor : BookExtractor {
                         break
                     }
                 }
-                if (eventType == XmlPullParser.END_TAG && xpp.name == "title-info") {
-                    titleInfo = false
+                if (eventType == XmlPullParser.END_TAG) {
+                    if (xpp.name == "author" && inAuthorTag) {
+                        inAuthorTag = false
+                        val fn = currentAuthorFirst.trim()
+                        val ln = currentAuthorLast.trim()
+                        val formatted = if (EbookSettings.isFirstSurname) {
+                            if (fn.isNotEmpty() && ln.isNotEmpty()) "$ln $fn" else ln + fn
+                        } else {
+                            if (fn.isNotEmpty() && ln.isNotEmpty()) "$fn $ln" else fn + ln
+                        }
+                        if (formatted.isNotEmpty() && !authors.contains(formatted)) {
+                            authors.add(formatted)
+                        }
+                    } else if (xpp.name == "title-info") {
+                        titleInfo = false
+                    }
                 }
                 eventType = xpp.next()
             }
         }
 
-        lastName = lastName.trim()
-        firstName = firstName.trim()
-
-        var author = if (EbookSettings.isFirstSurname) {
-            if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$lastName $firstName" else lastName + firstName
+        var author = if (authors.isNotEmpty()) {
+            authors.joinToString(", ")
         } else {
-            if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$firstName $lastName" else firstName + lastName
+            lastName = lastName.trim()
+            firstName = firstName.trim()
+            if (EbookSettings.isFirstSurname) {
+                if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$lastName $firstName" else lastName + firstName
+            } else {
+                if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$firstName $lastName" else firstName + lastName
+            }
         }
 
         val sIndex = try {

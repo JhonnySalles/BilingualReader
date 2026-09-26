@@ -217,6 +217,7 @@ class DataBaseConsts private constructor() {
             const val RANGE = "range"
             const val ALTERATION = "alteration"
             const val CREATED = "created"
+            const val CFI_RANGE = "cfi_range"
         }
     }
 
@@ -334,6 +335,21 @@ class DataBaseConsts private constructor() {
             const val USE_TTS = "use_tts"
             const val AVERAGE_TIME_PAGE = "average_time_page"
             const val NOTIFIED = "notified"
+            const val WORD_COUNT = "word_count"
+            const val SECONDS_READ_AUTOMATIC = "seconds_read_automatic"
+        }
+    }
+
+    object ASSISTANT_HISTORY {
+        const val TABLE_NAME = "AssistantHistory"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_REFERENCE = "id_reference"
+            const val TYPE = "type"
+            const val ROLE = "role"
+            const val MESSAGE = "message"
+            const val DATE = "date"
         }
     }
 
@@ -356,6 +372,27 @@ class DataBaseConsts private constructor() {
 
             const val DATE_TIME = "date_time"
             const val TYPE = "type"
+        }
+    }
+
+    object TRACK {
+        const val TABLE_NAME = "Track"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val MAL_ID = "mal_id"
+            const val ANI_ID = "ani_id"
+            const val FK_ID_LIBRARY = "id_library"
+            const val TITLE = "title"
+            const val TITLE_REGEX = "title_regex"
+            const val TOTAL_VOLUMES = "total_volumes"
+            const val TOTAL_CHAPTERS = "total_chapters"
+            const val STATUS = "status"
+            const val SCORE = "score"
+            const val SCORE_DATE = "score_date"
+            const val CHAPTERS_READ = "chapters_read"
+            const val VOLUMES_READ = "volumes_read"
+            const val LAST_SYNC_DATE = "last_sync_date"
         }
     }
 

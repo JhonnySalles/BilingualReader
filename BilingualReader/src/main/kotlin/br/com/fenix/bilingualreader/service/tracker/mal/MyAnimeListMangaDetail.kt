@@ -40,7 +40,7 @@ data class MalMangaDetail(
     @SerializedName("status")
     val status: STATUS?,
     @SerializedName("my_list_status")
-    val myListStatus: List<MalStatus>?,
+    val myListStatus: MalStatus?,
     @SerializedName("num_volumes")
     val volumes: Int = 0,
     @SerializedName("num_chapters")
@@ -93,29 +93,29 @@ data class Author(
 
 data class MalStatus(
     @SerializedName("status")
-    val status: String?,
+    val status: String? = null,
     @SerializedName("score")
-    val score: Int,
+    val score: Int = 0,
     @SerializedName("num_volumes_read")
-    val numVolumesRead: Int,
+    val numVolumesRead: Int = 0,
     @SerializedName("num_chapters_read")
-    val numChaptersRead: Int,
+    val numChaptersRead: Int = 0,
     @SerializedName("is_rereading")
-    val isRereading: Boolean,
+    val isRereading: Boolean = false,
     @SerializedName("start_date")
-    val startDate: String?,
+    val startDate: String? = null,
     @SerializedName("finish_date")
-    val finishDate: String?,
+    val finishDate: String? = null,
     @SerializedName("priority")
-    val priority: Int,
+    val priority: Int = 0,
     @SerializedName("num_times_reread")
-    val numTimesReread: Int,
+    val numTimesReread: Int = 0,
     @SerializedName("reread_value")
-    val reread_value: Int,
+    val rereadValue: Int = 0,
     @SerializedName("tags")
-    val tags: List<String>,
+    val tags: List<String>? = null,
     @SerializedName("comments")
-    val comments: String,
+    val comments: String? = null,
     @SerializedName("updated_at")
-    val updatedAt: String
+    val updatedAt: String? = null
 )

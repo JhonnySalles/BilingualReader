@@ -74,11 +74,18 @@ object CalibreBookExtractor {
                         when (xpp.name) {
                             "dc:title" -> title = xpp.nextText() ?: ""
                             "dc:creator" -> {
-                                var creatorVal = xpp.nextText() ?: ""
-                                if (EbookSettings.isFirstSurname) {
-                                    creatorVal = TxtUtils.replaceLastFirstName(creatorVal) ?: ""
+                                var creatorVal = (xpp.nextText() ?: "").trim()
+                                if (creatorVal.isNotEmpty()) {
+                                    if (EbookSettings.isFirstSurname) {
+                                        creatorVal = TxtUtils.replaceLastFirstName(creatorVal) ?: ""
+                                    }
+                                    if (creatorVal.isNotEmpty()) {
+                                        val currentAuthors = author.split(",").map { a -> a.trim() }
+                                        if (!currentAuthors.contains(creatorVal)) {
+                                            author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"
+                                        }
+                                    }
                                 }
-                                author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"
                             }
                             "dc:description" -> annotation = xpp.nextText() ?: ""
                             "dc:identifier" -> {

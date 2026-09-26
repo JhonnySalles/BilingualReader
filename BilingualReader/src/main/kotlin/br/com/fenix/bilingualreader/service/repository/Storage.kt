@@ -159,7 +159,7 @@ class Storage(context: Context) {
         var prev = if (idx > 0) books[idx - 1] else null
 
         if (prev == null) {
-            books = mBookRepository.listOrderByPath(library)
+            books = mBookRepository.listOrderByTitle(library)
             idx = books!!.indexOf(book)
             prev = if (idx > 0) books[idx - 1] else null
         }
@@ -173,7 +173,7 @@ class Storage(context: Context) {
         var next = if (idx != books.size - 1) books[idx + 1] else null
 
         if (next == null) {
-            books = mBookRepository.listOrderByPath(library)
+            books = mBookRepository.listOrderByTitle(library)
             idx = books!!.indexOf(book)
             next = if (idx != books.size - 1) books[idx + 1] else null
         }

@@ -18,9 +18,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
-import br.com.fenix.bilingualreader.service.tracker.ParseInformation
-import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
-import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
+import br.com.fenix.bilingualreader.service.tracker.TrackerSearchService
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.CoroutineScope
@@ -75,7 +73,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
     private var mFullCoverBitmap = MutableLiveData<Bitmap?>(null)
     val fullCoverBitmap: LiveData<Bitmap?> = mFullCoverBitmap
 
-    private val mTracker = MyAnimeListTracker(app.applicationContext)
+    private val mTrackerSearch = TrackerSearchService(app.applicationContext)
 
     fun setManga(manga: Manga) {
         mManga.value = manga
@@ -156,37 +154,34 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     fun getInformation() {
-        var name = mManga.value?.title ?: ""
-
-        if (name.isEmpty())
+        val rawTitle = mManga.value?.title ?: ""
+        if (rawTitle.isEmpty())
             return
 
-        name = Util.getNameFromMangaTitle(name).replace(" ", "%")
-        mTracker.getListManga(name, object : ApiListener<List<MalMangaDetail>> {
-            override fun onSuccess(result: List<MalMangaDetail>) {
+        val name = Util.getNameFromMangaTitle(rawTitle)
+        mTrackerSearch.searchMangaInformation(name, object : ApiListener<List<Information>> {
+            override fun onSuccess(result: List<Information>) {
                 setInformation(result)
             }
 
             override fun onFailure(message: String) {
-                mLOGGER.warn("Error to search manga info", message)
+                mLOGGER.warn("Error to search manga info: $message")
             }
         })
-
     }
 
     private val PATTERN = Regex("[^\\w\\s]")
-    fun <T> setInformation(mangas: List<T>) {
-        val list = ParseInformation.getInformation(app.applicationContext, mangas)
-
+    fun setInformation(list: List<Information>) {
+        val mutableList = list.toMutableList()
         val name = Util.getNameFromMangaTitle(mManga.value?.title ?: "").replace(PATTERN, "")
 
-        mWebInformation.value = list.find {
+        mWebInformation.value = mutableList.find {
             it.title.replace(PATTERN, "").trim().equals(name, true) || it.alternativeTitles.contains(name, true)
         }
         if (mWebInformation.value != null)
-            list.remove(mWebInformation.value)
+            mutableList.remove(mWebInformation.value)
 
-        mWebInformationRelations.value = list
+        mWebInformationRelations.value = mutableList
     }
 
     fun getPage(folder: String): Int {

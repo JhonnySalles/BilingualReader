@@ -373,8 +373,18 @@ object EpubBookExtractor : BookExtractor {
                                 when (cleanTagName) {
                                     "title" -> title = xpp.nextText() ?: ""
                                     "creator" -> {
-                                        val creatorVal = xpp.nextText() ?: ""
-                                        author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"
+                                        var creatorVal = (xpp.nextText() ?: "").trim()
+                                        if (creatorVal.isNotEmpty()) {
+                                            if (EbookSettings.isFirstSurname) {
+                                                creatorVal = TxtUtils.replaceLastFirstName(creatorVal) ?: ""
+                                            }
+                                            if (creatorVal.isNotEmpty()) {
+                                                val currentAuthors = author.split(",").map { a -> a.trim() }
+                                                if (!currentAuthors.contains(creatorVal)) {
+                                                    author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"
+                                                }
+                                            }
+                                        }
                                     }
                                     "subject" -> {
                                         val subVal = xpp.nextText() ?: ""
@@ -420,8 +430,10 @@ object EpubBookExtractor : BookExtractor {
             }
         }
 
-        if (EbookSettings.isFirstSurname) {
-            author = TxtUtils.replaceLastFirstName(author) ?: ""
+        if (author.isNotEmpty()) {
+            if (EbookSettings.isFirstSurname) {
+                author = TxtUtils.replaceLastFirstName(author) ?: ""
+            }
         }
 
         val sIndex = try {

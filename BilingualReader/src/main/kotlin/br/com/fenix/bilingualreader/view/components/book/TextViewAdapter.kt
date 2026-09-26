@@ -5,6 +5,7 @@ import android.graphics.Path
 import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.ColorDrawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.view.Gravity
@@ -14,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.PopupWindow
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -37,7 +37,6 @@ import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null, textSelectCallback: TextSelectCallbackListener? = null) : RecyclerView.Adapter<TextViewAdapter.TextViewPagerHolder>(), TTSListener {
 
@@ -98,6 +97,12 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             holder.popupTextSelect.contentView = inflater.inflate(R.layout.popup_text_select, null)
             holder.popupTextSelect.width = FrameLayout.LayoutParams.WRAP_CONTENT
             holder.popupTextSelect.height = FrameLayout.LayoutParams.WRAP_CONTENT
+            holder.popupTextSelect.isFocusable = false
+            holder.popupTextSelect.isOutsideTouchable = false
+            holder.popupTextSelect.isClippingEnabled = true
+            holder.popupTextSelect.elevation = context.resources.getDimension(R.dimen.reader_elevation)
+            // Non-null background is required for touch dispatch / clipping on several API levels.
+            holder.popupTextSelect.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
 
             holder.scrollView.setScrollChangeListener(holder)
             holder.textView.setSelectionChangeListener(holder)
@@ -218,22 +223,14 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
         var style: String = ""
 
         val popupTextSelect: PopupWindow = PopupWindow()
-        private val mCurrentLocation = Point()
-        private val mStartLocation = Point()
-        private val mBounds = Rect()
-
-        private val mDefaultWidth = -1
-        private val mDefaultHeight = -1
+        private val mPopupMargin = itemView.resources.getDimensionPixelSize(R.dimen.margin_small)
 
         override fun onScrollChanged() {
             if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
                 return
 
-            if (popupTextSelect.isShowing) {
-                val location = calculatePopupLocation()
-                popupTextSelect.update(location.x, location.y, mDefaultWidth, mDefaultHeight)
-            } else
-                textView.clearFocus()
+            if (popupTextSelect.isShowing)
+                updatePopupLocation()
         }
 
         override fun isShowingPopup(): Boolean = popupTextSelect.isShowing
@@ -242,33 +239,14 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
                 return
 
-            val popupContent: View = popupTextSelect.contentView
+            if (popupTextSelect.contentView == null || textView.layout == null || !textView.hasSelection())
+                return
+
             if (popupTextSelect.isShowing) {
-                val location = calculatePopupLocation()
-                popupTextSelect.update(location.x, location.y, mDefaultWidth, mDefaultHeight)
+                updatePopupLocation()
             } else {
-                // Add the popup to the Window and position it relative to the selected text bounds
-                PopupUtil.onGlobalLayout(textView) {
-                    popupTextSelect.showAtLocation(textView, Gravity.TOP, 0, 0)
-                    // Wait for the popup content to be laid out
-                    PopupUtil.onGlobalLayout(popupContent) {
-                        val cframe = Rect()
-                        val cloc = IntArray(2)
-                        popupContent.getLocationOnScreen(cloc)
-                        popupContent.getLocalVisibleRect(mBounds)
-                        popupContent.getWindowVisibleDisplayFrame(cframe)
-
-                        val scrollY = (textView.parent as View).scrollY
-                        val tloc = IntArray(2)
-                        textView.getLocationInWindow(tloc)
-
-                        val startX = cloc[0] + mBounds.centerX()
-                        val startY = cloc[1] + mBounds.centerY() - (tloc[1] - cframe.top) - scrollY
-                        mStartLocation.set(startX, startY)
-
-                        val ploc: Point = calculatePopupLocation()
-                        popupTextSelect.update(ploc.x, ploc.y, mDefaultWidth, mDefaultHeight)
-                    }
+                PopupUtil.whenLaidOut(textView) {
+                    showPopupAtSelection()
                 }
             }
         }
@@ -278,36 +256,71 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
                 popupTextSelect.dismiss()
         }
 
-        private fun calculatePopupLocation(): Point {
-            val parent = textView.parent as ScrollView
+        private fun showPopupAtSelection() {
+            val content = popupTextSelect.contentView ?: return
+            if (!textView.hasSelection() || textView.layout == null)
+                return
 
-            // Calculate the selection start and end offset
-            val selStart: Int = textView.selectionStart
-            val selEnd: Int = textView.selectionEnd
-            val min = max(0, min(selStart, selEnd))
-            val max = max(0, max(selStart, selEnd))
+            ensurePopupMeasured(content)
+            val location = calculatePopupLocation() ?: return
+            if (popupTextSelect.isShowing) {
+                popupTextSelect.update(location.x, location.y, -1, -1)
+            } else {
+                popupTextSelect.showAtLocation(textView, Gravity.NO_GRAVITY, location.x, location.y)
+            }
+        }
 
-            // Calculate the selection bounds
+        private fun updatePopupLocation() {
+            val location = calculatePopupLocation() ?: return
+            if (popupTextSelect.isShowing)
+                popupTextSelect.update(location.x, location.y, -1, -1)
+        }
+
+        private fun ensurePopupMeasured(content: View) {
+            if (content.width > 0 && content.height > 0)
+                return
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            content.measure(widthSpec, heightSpec)
+        }
+
+        private fun calculatePopupLocation(): Point? {
+            val layout = textView.layout ?: return null
+            val content = popupTextSelect.contentView ?: return null
+
+            val selStart = textView.selectionStart
+            val selEnd = textView.selectionEnd
+            if (selStart < 0 || selEnd < 0 || selStart == selEnd)
+                return null
+
+            val selMin = max(0, min(selStart, selEnd))
+            val selMax = max(0, max(selStart, selEnd))
+
             val selBounds = RectF()
             val selection = Path()
-            textView.layout.getSelectionPath(min, max, selection)
+            layout.getSelectionPath(selMin, selMax, selection)
             selection.computeBounds(selBounds, true)
 
-            // Retrieve the center x/y of the popup content
-            val cx = mStartLocation.x.toFloat()
+            ensurePopupMeasured(content)
+            val popupWidth = if (content.width > 0) content.width else content.measuredWidth
+            val popupHeight = if (content.height > 0) content.height else content.measuredHeight
+            if (popupWidth <= 0 || popupHeight <= 0)
+                return null
 
-            // Calculate the top and bottom offset of the popup relative to the selection bounds
-            val popupHeight = mBounds.height()
-            val textPadding: Int = textView.paddingLeft
-            val topOffset = (selBounds.top - popupHeight)
-            val btmOffset = (selBounds.bottom + popupHeight)
+            val textLoc = IntArray(2)
+            textView.getLocationInWindow(textLoc)
 
-            // Calculate the x/y coordinates for the popup relative to the selection bounds
-            val scrollY = parent.scrollY
-            val x = (selBounds.centerX() + (textPadding - cx).toFloat()).roundToInt()
-            val y = (if (selBounds.top - scrollY < popupHeight) btmOffset else topOffset).roundToInt()
-            mCurrentLocation.set(x, y - scrollY)
-            return mCurrentLocation
+            val displayFrame = Rect()
+            textView.getWindowVisibleDisplayFrame(displayFrame)
+
+            return TextSelectPopupPositioner.calculate(
+                selectionBounds = selBounds,
+                textViewLocationInWindow = textLoc,
+                popupWidth = popupWidth,
+                popupHeight = popupHeight,
+                visibleDisplayFrame = displayFrame,
+                margin = mPopupMargin
+            )
         }
     }
 

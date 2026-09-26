@@ -35,8 +35,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -45,6 +43,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -67,6 +67,7 @@ import br.com.fenix.bilingualreader.view.adapter.history.HistoryLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -1008,6 +1009,9 @@ class HistoryFragment : Fragment() {
                     mViewModel.save(manga)
                     (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(manga)
                 }
+                R.id.menu_item_manga_file_reading_history -> {
+                    PopupReadingHistory(requireContext()).show(manga)
+                }
                 R.id.menu_item_manga_file_clear -> {
                     manga.lastAccess = LocalDateTime.MIN
                     manga.bookMark = 0
@@ -1058,6 +1062,9 @@ class HistoryFragment : Fragment() {
                     book.favorite = !book.favorite
                     mViewModel.save(book)
                     (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(book)
+                }
+                R.id.menu_item_book_file_reading_history -> {
+                    PopupReadingHistory(requireContext()).show(book)
                 }
                 R.id.menu_item_book_file_clear -> {
                     book.lastAccess = LocalDateTime.MIN

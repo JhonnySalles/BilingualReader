@@ -5,13 +5,14 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/margin_bottom"
+    android:layout_margin="@dimen/margin"
+    android:fillViewport="true"
     tools:context=".view.ui.reader.manga.PopupMangaColorFilterFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_small">
+        android:padding="@dimen/margin_small">
 
         <!-- Color filter -->
 

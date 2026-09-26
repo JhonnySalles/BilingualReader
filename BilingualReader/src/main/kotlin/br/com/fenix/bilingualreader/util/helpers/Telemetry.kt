@@ -16,6 +16,11 @@ object Telemetry {
         //if (BuildConfig.DEBUG)
           //  return
 
+        if (isLlmExpectedException(e)) {
+            mLOGGER.warn("Telemetry: ignoring expected LLM exception (${e.javaClass.simpleName}): ${e.message}")
+            return
+        }
+
         if (!isEnabled) {
             mLOGGER.warn("Telemetry disabled. Exception ignored: ${e.message}")
             return
@@ -42,5 +47,16 @@ object Telemetry {
         } catch (ex: Throwable) {
             mLOGGER.error("Telemetry: Failed to set custom key: ${ex.message}")
         }
+    }
+
+    private fun isLlmExpectedException(throwable: Throwable): Boolean {
+        var current: Throwable? = throwable
+        while (current != null) {
+            if (current is br.com.fenix.bilingualreader.service.llm.LlmExpectedException) {
+                return true
+            }
+            current = current.cause
+        }
+        return false
     }
 }

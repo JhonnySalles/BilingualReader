@@ -8,7 +8,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
@@ -30,26 +29,25 @@ import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.model.enums.ImageLoadType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.interfaces.BaseImageView
+import br.com.fenix.bilingualreader.service.ocr.OcrFacade
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.SubTitleRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
+import br.com.fenix.bilingualreader.service.translate.MlKitTranslator
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil.ColorsUtils.isDark
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.UserLanguageHelper
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.gson.Gson
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -774,42 +772,61 @@ class SubTitleController private constructor(private val context: Context) {
                 }
                 ImageLoadType.OCR,
                 ImageLoadType.TRANSLATE -> {
-                    val newBitmap = bitmap.copy(bitmap.config, true)
-                    val options = if (mOcrLang == Languages.JAPANESE) JapaneseTextRecognizerOptions.Builder().build() else TextRecognizerOptions.DEFAULT_OPTIONS
-                    val recognizer = TextRecognition.getClient(options)
-                    val input = InputImage.fromBitmap(newBitmap, 0)
+                    val newBitmap = bitmap.copy(bitmap.config ?: Bitmap.Config.ARGB_8888, true)
+                    val shouldTranslate = type == ImageLoadType.TRANSLATE
+                    Toast.makeText(
+                        context,
+                        context.resources.getString(
+                            if (shouldTranslate) R.string.ocr_translate_processing
+                            else R.string.ocr_google_vision_get_request
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-                    Toast.makeText(context, context.resources.getString(R.string.ocr_google_vision_get_request), Toast.LENGTH_SHORT).show()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val ocrResult = OcrFacade.getInstance().recognize(newBitmap, mOcrLang)
+                            if (ocrResult.blocks.isEmpty()) {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        context.resources.getString(R.string.ocr_google_vision_not_detected),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                return@launch
+                            }
 
-                    recognizer.process(input)
-                        .addOnSuccessListener {txts ->
-                            if (txts.textBlocks.size == 0 )
-                                Toast.makeText(context, context.resources.getString(R.string.ocr_google_vision_not_detected), Toast.LENGTH_SHORT).show()
-                            else {
-                                val canvas = Canvas(newBitmap)
-                                val paint = Paint()
-                                paint.strokeWidth = 3f
-                                paint.textSize = 12f
+                            val translator = MlKitTranslator.getInstance(context)
+                            val userLang = UserLanguageHelper.getUserLanguage(context)
+                            val canvas = Canvas(newBitmap)
+                            val paint = Paint()
+                            paint.strokeWidth = 3f
+                            paint.textSize = 12f
 
-                                txts.textBlocks.forEach { block ->
-                                    block.lines.forEach { line ->
-                                        line.elements.forEach { element ->
-                                            val pos = element.boundingBox!!
-                                            paint.color = ColorUtil.getColorPalette(bitmap, pos)
-                                            paint.style = Paint.Style.FILL_AND_STROKE
-                                            canvas.drawRect(pos, paint)
-
-                                            if (paint.color.isDark())
-                                                paint.color = Color.WHITE
-                                            else
-                                                paint.color = Color.BLACK
-
-                                            paint.style = Paint.Style.FILL
-                                            canvas.drawText(element.text, pos.left.toFloat(), pos.centerY().toFloat(), paint)
-                                        }
-                                    }
+                            for (block in ocrResult.blocks) {
+                                val pos = block.boundingBox ?: continue
+                                val drawText = if (shouldTranslate) {
+                                    val (translated, _) = translator.translateIfNeeded(block.text, mOcrLang, userLang)
+                                    translated
+                                } else {
+                                    block.text
                                 }
 
+                                paint.color = ColorUtil.getColorPalette(bitmap, pos)
+                                paint.style = Paint.Style.FILL_AND_STROKE
+                                canvas.drawRect(pos, paint)
+
+                                if (paint.color.isDark())
+                                    paint.color = Color.WHITE
+                                else
+                                    paint.color = Color.BLACK
+
+                                paint.style = Paint.Style.FILL
+                                canvas.drawText(drawText, pos.left.toFloat(), pos.centerY().toFloat(), paint)
+                            }
+
+                            withContext(Dispatchers.Main) {
                                 mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
                                 if (isKeepScroll && imageView.isApplyPercent) {
                                     val percentScroll = imageView.getScrollPercent()
@@ -817,13 +834,27 @@ class SubTitleController private constructor(private val context: Context) {
                                     imageView.setScrollPercent(percentScroll)
                                 } else
                                     (imageView as ImageView).setImageBitmap(newBitmap)
+
+                                if (shouldTranslate) {
+                                    Toast.makeText(
+                                        context,
+                                        context.resources.getString(R.string.ocr_translate_done),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
-                        .addOnFailureListener { e ->
+                        } catch (e: Exception) {
                             mLOGGER.error("Error process ocr image: " + e.message, e)
-                            Toast.makeText(context, (context.resources.getString(R.string.ocr_google_vision_error) + " " + e.message).trim(), Toast.LENGTH_SHORT).show()
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    context,
+                                    (context.resources.getString(R.string.ocr_google_vision_error) + " " + e.message).trim(),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             Telemetry.recordException(e, "Error process ocr image: " + e.message)
                         }
+                    }
                 }
                 else -> {
                     mImageBackup[MangaReaderFragment.mCurrentPage] = (imageView as ImageView).drawable.toBitmap()
@@ -1009,6 +1040,46 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     fun getLanguage() : Languages = selectedSubtitle.value?.language ?: Languages.PORTUGUESE
+
+    fun collectNearbySubtitleTexts(radius: Int = 2): List<Pair<String, String>> {
+        val pages = mPagesKeys.value ?: return emptyList()
+        if (pages.isEmpty()) return emptyList()
+        val currentKey = mSelectedSubTitle.value?.pageKey
+        val currentIndex = if (!currentKey.isNullOrBlank() && pages.contains(currentKey))
+            pages.indexOf(currentKey)
+        else
+            pages.indexOfFirst { mListPages[it]?.number == MangaReaderFragment.mCurrentPage }
+                .coerceAtLeast(0)
+
+        val from = (currentIndex - radius).coerceAtLeast(0)
+        val to = (currentIndex + radius).coerceAtMost(pages.lastIndex)
+        val selected = (from..to).mapNotNull { i ->
+            mListPages[pages[i]]?.number
+        }
+        return collectSubtitleTextsForPages(selected)
+    }
+
+    /**
+     * Collects subtitle text for the given page numbers (same numbering as [SubTitlePage.number] /
+     * [MangaReaderFragment.mCurrentPage], typically 0-based).
+     */
+    fun collectSubtitleTextsForPages(pageNumbers: Collection<Int>): List<Pair<String, String>> {
+        if (pageNumbers.isEmpty()) return emptyList()
+        val wanted = pageNumbers.toSet()
+        val result = mutableListOf<Pair<String, String>>()
+        for (page in mListPages.values) {
+            if (page.number !in wanted) continue
+            val text = page.subTitleTexts.joinToString("\n") { it.text }.trim()
+            if (text.isNotEmpty())
+                result.add("Page ${page.number + 1}" to text)
+        }
+        return result.sortedBy { pair ->
+            pair.first.removePrefix("Page ").toIntOrNull() ?: Int.MAX_VALUE
+        }
+    }
+
+    fun hasSubtitleTexts(): Boolean =
+        collectNearbySubtitleTexts(2).isNotEmpty()
 
     private var mOriginalSize: FloatArray? = null
     fun selectTextByCoordinate(coord: FloatArray) {

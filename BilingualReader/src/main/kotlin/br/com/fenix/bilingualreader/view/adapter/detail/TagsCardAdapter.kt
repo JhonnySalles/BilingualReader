@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.ViewCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import com.google.android.material.shape.CornerFamily

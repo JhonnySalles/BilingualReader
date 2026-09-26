@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
 import androidx.room.TypeConverter
+import br.com.fenix.bilingualreader.model.enums.AssistantMessageRole
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import com.google.gson.Gson
@@ -125,6 +126,16 @@ class Converters {
     }
 
     @TypeConverter
+    fun fromAssistantMessageRole(value: String?): AssistantMessageRole? {
+        return value?.let { AssistantMessageRole.valueOf(it) }
+    }
+
+    @TypeConverter
+    fun assistantMessageRoleToString(role: AssistantMessageRole?): String? {
+        return role?.name
+    }
+
+    @TypeConverter
     fun fromLibraries(value: String?): Libraries? {
         return value?.let { Libraries.valueOf(it) }
     }
@@ -132,6 +143,16 @@ class Converters {
     @TypeConverter
     fun librariesToString(libraries: Libraries?): String? {
         return libraries?.name
+    }
+
+    @TypeConverter
+    fun fromTrackStatus(value: String?): br.com.fenix.bilingualreader.model.enums.TrackStatus? {
+        return value?.let { br.com.fenix.bilingualreader.model.enums.TrackStatus.fromString(it) }
+    }
+
+    @TypeConverter
+    fun trackStatusToString(status: br.com.fenix.bilingualreader.model.enums.TrackStatus?): String? {
+        return status?.name
     }
 
 }

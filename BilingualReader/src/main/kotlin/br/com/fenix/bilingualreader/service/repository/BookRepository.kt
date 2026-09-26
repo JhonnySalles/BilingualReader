@@ -43,6 +43,10 @@ class BookRepository(private val context: Context) {
             mDataBase.update(obj)
     }
 
+    fun updateLastAlteration(id: Long, lastAlteration: LocalDateTime = LocalDateTime.now()) {
+        mDataBase.updateLastAlteration(id, lastAlteration)
+    }
+
     fun delete(obj: Book) {
         obj.lastAlteration = LocalDateTime.now()
         if (obj.id != null)
@@ -53,6 +57,16 @@ class BookRepository(private val context: Context) {
         obj.lastAlteration = LocalDateTime.now()
         if (obj.id != null)
             mDataBase.delete(obj)
+    }
+
+    fun findAll(): List<Book> {
+        return try {
+            loadLibrary(mDataBase.findAll())
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find all Book: " + e.message, e)
+            Telemetry.recordException(e, "Error when find all Book: " + e.message)
+            listOf()
+        }
     }
 
     fun list(library: Library): List<Book> {
@@ -177,9 +191,9 @@ class BookRepository(private val context: Context) {
         }
     }
 
-    fun listOrderByPath(library: Library): List<Book>? {
+    fun listOrderByTitle(library: Library): List<Book>? {
         return try {
-            loadLibrary(mDataBase.listOrderByPath(library.id))
+            loadLibrary(mDataBase.listOrderByTitle(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             Telemetry.recordException(e, "Error when find Book by file folder: " + e.message)

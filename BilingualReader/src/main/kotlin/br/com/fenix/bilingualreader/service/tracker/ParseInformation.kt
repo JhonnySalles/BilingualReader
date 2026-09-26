@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.tracker
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Information
+import br.com.fenix.bilingualreader.service.tracker.anilist.AniListMedia
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 
 class ParseInformation {
@@ -21,11 +22,16 @@ class ParseInformation {
         fun <T> getInformation(context: Context, item: T): Information {
             return when (item) {
                 is MalMangaDetail -> Information(context, item as MalMangaDetail)
+                is AniListMedia -> Information(context, item as AniListMedia)
                 else -> Information()
             }
         }
 
         fun getInformation(context: Context, item: MalMangaDetail): Information {
+            return Information(context, item)
+        }
+
+        fun getInformation(context: Context, item: AniListMedia): Information {
             return Information(context, item)
         }
     }

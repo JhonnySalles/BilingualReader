@@ -37,8 +37,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -47,6 +45,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
@@ -71,6 +71,7 @@ import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapte
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -972,6 +973,9 @@ class HistoryStatisticsFragment : Fragment() {
                     mViewModel.save(manga)
                     mRecyclerView.adapter?.notifyItemChanged(position)
                 }
+                R.id.menu_item_manga_file_reading_history -> {
+                    PopupReadingHistory(requireContext()).show(manga)
+                }
                 R.id.menu_item_manga_file_clear -> {
                     val item = (mRecyclerView.adapter as? HistoryBaseAdapter)?.getItem(position) ?: manga
                     manga.lastAccess = LocalDateTime.MIN
@@ -1022,6 +1026,9 @@ class HistoryStatisticsFragment : Fragment() {
                     book.favorite = !book.favorite
                     mViewModel.save(book)
                     mRecyclerView.adapter?.notifyItemChanged(position)
+                }
+                R.id.menu_item_book_file_reading_history -> {
+                    PopupReadingHistory(requireContext()).show(book)
                 }
                 R.id.menu_item_book_file_clear -> {
                     val item = (mRecyclerView.adapter as? HistoryBaseAdapter)?.getItem(position) ?: book
@@ -1304,7 +1311,7 @@ class HistoryStatisticsFragment : Fragment() {
 
         val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)

@@ -55,6 +55,8 @@ import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerFragment
+import br.com.fenix.bilingualreader.view.ui.tracker.TrackerListFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
 import eightbitlab.com.blurview.BlurView
@@ -153,6 +155,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = mBinding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
+        setupWindowInsets()
+        setupBlurViews()
+        setupTitleBackgrounds()
+
         mFragmentManager = supportFragmentManager
         mFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
@@ -161,6 +167,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     is HistoryFragment -> mToolBar.title = getString(R.string.menu_history)
                     is VocabularyFragment -> mToolBar.title = getString(R.string.menu_vocabulary)
                     is StatisticsFragment -> mToolBar.title = getString(R.string.menu_statistics)
+                    is TrackerListFragment -> mToolBar.title = getString(R.string.menu_trackers)
+                    is TrackerFragment -> mToolBar.title = getString(R.string.tracker_title)
                     is ConfigFragment -> mToolBar.title = getString(R.string.menu_config)
                     is HelpFragment -> mToolBar.title = getString(R.string.menu_help)
                     is AboutFragment -> mToolBar.title = getString(R.string.menu_about)
@@ -171,9 +179,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (isGlass) {
                     mBlurTop.blurOnceDeferred(mHandler, 100)
                 }
+
+                f.view?.let { ViewCompat.requestApplyInsets(it) }
             }
         }, false)
 
+        val isColdStart = savedInstanceState == null
         lifecycleScope.launch(Dispatchers.IO) {
             val defaultManga = LibraryUtil.getDefault(this@MainActivity, Type.MANGA)
             val defaultBook = LibraryUtil.getDefault(this@MainActivity, Type.BOOK)
@@ -195,7 +206,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     setLibraries(loadedLibraries)
                 }
 
-                var fragment: Fragment
                 if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
                     mPreferences.edit(commit = true) {
                         this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
@@ -203,7 +213,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     mMangaLibraryModel.isLoading = false
                     mBookLibraryModel.isLoading = false
-                    fragment = ConfigFragment()
+                    if (isColdStart) {
+                        mFragmentManager.beginTransaction()
+                            .replace(R.id.main_content_root, ConfigFragment())
+                            .commit()
+                    }
                 } else {
                     val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
                     val library = loadedLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
@@ -211,36 +225,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     else
                         defaultManga
 
-                    fragment = when (library.type) {
-                        Type.MANGA -> {
+                    val deepLink = intent.dataString
+                    when {
+                        deepLink == "history" -> {
+                            mMangaLibraryModel.isLoading = false
+                            mBookLibraryModel.isLoading = false
+                            if (isColdStart) {
+                                mFragmentManager.beginTransaction()
+                                    .replace(R.id.main_content_root, HistoryFragment())
+                                    .commit()
+                            }
+                        }
+                        library.type == Type.MANGA -> {
                             mMangaLibraryModel.setLibrary(library)
                             mBookLibraryModel.isLoading = false
-                            MangaLibraryFragment()
+                            if (isColdStart) {
+                                mFragmentManager.beginTransaction()
+                                    .replace(R.id.main_content_root, MangaLibraryFragment())
+                                    .commit()
+                            } else {
+                                mMangaLibraryModel.list {
+                                    mMangaLibraryModel.isLoading = false
+                                }
+                            }
                         }
-
-                        Type.BOOK -> {
+                        else -> {
                             mBookLibraryModel.setLibrary(library)
                             mMangaLibraryModel.isLoading = false
-                            BookLibraryFragment()
-                        }
-                    }
-
-                    intent.dataString?.let {
-                        mMangaLibraryModel.isLoading = false
-                        mBookLibraryModel.isLoading = false
-                        fragment = when (it) {
-                            "history" -> HistoryFragment()
-                            else -> fragment
+                            if (isColdStart) {
+                                mFragmentManager.beginTransaction()
+                                    .replace(R.id.main_content_root, BookLibraryFragment())
+                                    .commit()
+                            } else {
+                                mBookLibraryModel.list {
+                                    mBookLibraryModel.isLoading = false
+                                }
+                            }
                         }
                     }
                 }
-
-                // content_fragment use for receive fragments layout
-                mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
-
-                setupBlurViews()
-                setupWindowInsets()
-                setupTitleBackgrounds()
             }
         }
     }
@@ -301,6 +324,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_statistics -> StatisticsFragment()
+            R.id.menu_trackers -> TrackerListFragment()
             R.id.menu_annotations -> AnnotationFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
@@ -529,6 +553,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onConfigurationChanged(newConfig)
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
         setupTitleBackgrounds()
+        setupWindowInsets()
     }
 
     private fun setupWindowInsets() {
@@ -548,6 +573,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, 0)
             insets
         }
+
+        ViewCompat.requestApplyInsets(mBlurTop)
+        ViewCompat.requestApplyInsets(mainContentRoot)
     }
 
     private fun setupBlurViews() {
@@ -555,10 +583,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
 
         val decorView = window.decorView
-        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-        // Prefer the fragment container so the blur pass skips the app bar / drawer chrome
-        val rootView = (findViewById<ViewGroup>(R.id.main_content_root)
-            ?: decorView.findViewById(android.R.id.content)) as ViewGroup
+        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+            ?: (findViewById<ViewGroup>(R.id.main_content_root) as ViewGroup)
 
         eightbitlab.com.blurview.GlassSetup.setupGlass(mBlurTop, rootView, eightbitlab.com.blurview.RenderEffectBlur())
                 .setFrameClearDrawable(background)
@@ -567,7 +594,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val headerView = mNavigationView.getHeaderView(0)
         val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
-            // Drawer header still needs the broader content root (includes main chrome behind the drawer)
             val navRoot = decorView.findViewById<ViewGroup>(android.R.id.content)
             eightbitlab.com.blurview.GlassSetup.setupGlass(navigatorBlur, navRoot, eightbitlab.com.blurview.RenderEffectBlur())
                 .setFrameClearDrawable(background)

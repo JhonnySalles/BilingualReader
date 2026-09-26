@@ -49,15 +49,26 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mLoading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean> = mLoading
 
+    private fun loadSavedOrder(): Pair<Order, Boolean> {
+        val orderStr = mPreferences.getString(GeneralConsts.KEYS.LIBRARY.BOOK_ORDER, Order.Name.toString())
+        val order = try { Order.valueOf(orderStr ?: Order.Name.toString()) } catch (e: Exception) { Order.Name }
+        return Pair(order, false)
+    }
+
+    private fun loadSavedLibraryType(): LibraryBookType {
+        val typeStr = mPreferences.getString(GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE, LibraryBookType.LINE.toString())
+        return try { LibraryBookType.valueOf(typeStr ?: LibraryBookType.LINE.toString()) } catch (e: Exception) { LibraryBookType.LINE }
+    }
+
     private var mWordFilter = ""
     val wordFilter: String get() = mWordFilter
 
-    private var mOrder = MutableLiveData(Pair(Order.Name, false))
+    private var mOrder = MutableLiveData(loadSavedOrder())
     val order: LiveData<Pair<Order, Boolean>> = mOrder
     private var mTypeFilter = MutableLiveData(FilterType.None)
     val typeFilter: LiveData<FilterType> = mTypeFilter
 
-    private var mLibraryType = MutableLiveData(LibraryBookType.GRID_BIG)
+    private var mLibraryType = MutableLiveData(loadSavedLibraryType())
     val libraryType: LiveData<LibraryBookType> = mLibraryType
 
     private val mFullMap = LinkedHashMap<Long, Book>()
@@ -329,6 +340,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     }
 
     fun addList(Book: Book): Int {
+        if (Book.fkLibrary != mLibrary.id)
+            return -1
+
         var index = -1
         if (!containsInFull(Book)) {
             index = mListBook.value!!.size
@@ -398,18 +412,26 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
         mLoading.value = true
+        val requested = mLibrary
         viewModelScope.launch(Dispatchers.IO) {
-            val list = mBookRepository.list(mLibrary)
+            val list = mBookRepository.list(requested)
             withContext(Dispatchers.Main) {
+                if (mLibrary.id != requested.id)
+                    return@withContext
+
                 mLoading.value = false
-
-                if (mFullMap.isEmpty()) {
-                    mListBook.value = list.toMutableList()
-                    setFullFromList(list)
-                    setSuggestionsFromFull()
-                } else
-                    update(list)
-
+                if (list != null) {
+                    val order = mOrder.value?.first ?: Order.Name
+                    val isDesc = mOrder.value?.second ?: false
+                    val sortedList = list.toMutableList()
+                    sortList(sortedList, order, isDesc)
+                    rebuildFullMap(sortedList)
+                    mListBook.value = sortedList
+                } else {
+                    mFullMap.clear()
+                    mListBook.value = mutableListOf()
+                }
+                setSuggestionsFromFull()
                 refreshComplete(mListBook.value!!.isNotEmpty())
             }
         }

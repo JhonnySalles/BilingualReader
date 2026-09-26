@@ -184,16 +184,39 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 share.forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
-                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
-                            if (list.isNotEmpty())
-                                for (shared in list)
+                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)
+                            for (shared in h.values) {
+                                val existing = histories.find { s -> shared.start.compareTo(GeneralConsts.dateTimeToDate(s.start)) == 0 }
+                                if (existing == null) {
                                     repositoryHistory.save(
                                         History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
-                                            shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
+                                            shared.secondsRead, shared.averageTimeByPage, shared.useTTS, isNotify = false
                                         )
                                     )
+                                } else {
+                                    val end = GeneralConsts.dateToDateTime(shared.end)
+                                    if (existing.getPageEnd() != shared.pageEnd ||
+                                        existing.getPages() != shared.pages ||
+                                        existing.getSecondsRead() != shared.secondsRead ||
+                                        existing.averageTimeByPage != shared.averageTimeByPage ||
+                                        existing.completed != shared.completed ||
+                                        existing.chaptersRead != shared.chaptersRead ||
+                                        existing.getEnd().compareTo(end) != 0) {
+
+                                        existing.setEnd(end)
+                                        existing.setPages(shared.pages)
+                                        existing.setPageEnd(shared.pageEnd)
+                                        existing.setSecondsRead(shared.secondsRead)
+                                        existing.completed = shared.completed
+                                        existing.averageTimeByPage = shared.averageTimeByPage
+                                        existing.chaptersRead = shared.chaptersRead
+                                        existing.useTTS = shared.useTTS
+                                        existing.isNotify = false
+                                        repositoryHistory.update(existing)
+                                    }
+                                }
+                            }
                         }
 
                         it.annotation?.let { a ->
@@ -354,16 +377,39 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 share.forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { hist -> GeneralConsts.dateTimeToDate(hist.start) }
-                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
-                            if (list.isNotEmpty())
-                                for (shared in list)
+                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!)
+                            for (shared in h.values) {
+                                val existing = histories.find { s -> shared.start.compareTo(GeneralConsts.dateTimeToDate(s.start)) == 0 }
+                                if (existing == null) {
                                     repositoryHistory.save(
                                         History(null, book.fkLibrary!!, book.id!!, book.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
-                                            shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
+                                            shared.secondsRead, shared.averageTimeByPage, shared.useTTS, isNotify = false
                                         )
                                     )
+                                } else {
+                                    val end = GeneralConsts.dateToDateTime(shared.end)
+                                    if (existing.getPageEnd() != shared.pageEnd ||
+                                        existing.getPages() != shared.pages ||
+                                        existing.getSecondsRead() != shared.secondsRead ||
+                                        existing.averageTimeByPage != shared.averageTimeByPage ||
+                                        existing.completed != shared.completed ||
+                                        existing.chaptersRead != shared.chaptersRead ||
+                                        existing.getEnd().compareTo(end) != 0) {
+
+                                        existing.setEnd(end)
+                                        existing.setPages(shared.pages)
+                                        existing.setPageEnd(shared.pageEnd)
+                                        existing.setSecondsRead(shared.secondsRead)
+                                        existing.completed = shared.completed
+                                        existing.averageTimeByPage = shared.averageTimeByPage
+                                        existing.chaptersRead = shared.chaptersRead
+                                        existing.useTTS = shared.useTTS
+                                        existing.isNotify = false
+                                        repositoryHistory.update(existing)
+                                    }
+                                }
+                            }
                         }
 
                         it.annotation?.let { a ->
@@ -381,12 +427,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     annotation.range = Util.stringToIntArray(shared.range)
                                     annotation.favorite = shared.favorite
                                     annotation.color = Color.valueOf(shared.color)
+                                    annotation.cfiRange = shared.cfiRange
                                     repositoryAnnotation.update(annotation)
                                 } else
                                     repositoryAnnotation.save(
                                         BookAnnotation(null, book.id!!, shared.page, shared.pages, shared.fontSize, MarkType.valueOf(shared.type), shared.chapterNumber,
                                             shared.chapter, shared.text, Util.stringToIntArray(shared.range), shared.annotation, shared.favorite, Color.valueOf(shared.color),
-                                            LocalDateTime.now(), created
+                                            LocalDateTime.now(), created, shared.cfiRange
                                         )
                                     )
                             }

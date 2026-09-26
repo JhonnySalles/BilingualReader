@@ -87,18 +87,12 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
     }
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-        when (holder.itemViewType) {
-            HEADER -> { }
-            else -> LibraryCardAnimator.clear(holder)
-        }
+        LibraryCardAnimator.clear(holder)
         super.onViewDetachedFromWindow(holder)
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
-        when (holder.itemViewType) {
-            HEADER -> { }
-            else -> LibraryCardAnimator.clear(holder)
-        }
+        LibraryCardAnimator.clear(holder)
         super.onViewRecycled(holder)
     }
 

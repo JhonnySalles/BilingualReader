@@ -17,6 +17,13 @@
         <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>
     </style>
 
+    <!-- Multi-choice: colorAccent must contrast with dialog background or checked marks vanish. -->
+    <style name="AppCompatAlertDialogMultiChoice" parent="AppCompatAlertDialogStyle">
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorControlNormal">?attr/colorOnBackground</item>
+    </style>
+
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">?attr/colorOnBackground</item>
     </style>

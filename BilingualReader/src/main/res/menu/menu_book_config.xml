@@ -16,6 +16,9 @@
         android:id="@+id/menu_book_config_clear_progress"
         android:title="@string/menu_book_config_clear_progress"/>
     <item
+        android:id="@+id/menu_book_config_tracker"
+        android:title="@string/menu_configure_tracker"/>
+    <item
         android:id="@+id/menu_book_config_delete"
         android:title="@string/menu_book_config_delete"/>
 </menu>

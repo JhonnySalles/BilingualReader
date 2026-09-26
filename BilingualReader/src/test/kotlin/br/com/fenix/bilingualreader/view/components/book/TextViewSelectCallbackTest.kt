@@ -118,8 +118,15 @@ class TextViewSelectCallbackTest {
     }
 
     @Test
-    fun `onDestroyActionMode dismisses popup`() {
+    fun `onDestroyActionMode dismisses popup when no selection`() {
         callback.onDestroyActionMode(actionMode)
         verify { popupWindow.dismiss() }
+    }
+
+    @Test
+    fun `onDestroyActionMode keeps popup when selection is active`() {
+        Selection.setSelection(textView.text as SpannableString, 0, 5)
+        callback.onDestroyActionMode(actionMode)
+        verify(exactly = 0) { popupWindow.dismiss() }
     }
 }

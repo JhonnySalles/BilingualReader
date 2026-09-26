@@ -64,6 +64,16 @@ class MangaCoverCardAdapter(private val listener: MangaCardListener) :
         LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
     }
 
+    override fun onViewDetachedFromWindow(holder: MangaCoverViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: MangaCoverViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
+    }
+
     override fun getItemCount(): Int = mList.size
 
     fun updateList(list: List<Manga>, order: Order = Order.Series) {

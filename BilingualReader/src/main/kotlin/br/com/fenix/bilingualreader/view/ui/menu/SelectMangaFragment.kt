@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.ui.menu
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -434,6 +433,7 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
     }
 
     private fun onOpenMenuLibrary(select: Int = 0) {
+        mPopupLibraryView.setCurrentItem(select, false)
         mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(select))
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
         AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupLibrary)
@@ -710,7 +710,7 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
             return
         val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
@@ -723,7 +723,7 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
             return
         val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ColorDrawable(android.graphics.Color.BLACK)
+        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
         GlassSetup.setupGlass(mMenuPopupLibraryBackground, rootView, blurAlgorithm)

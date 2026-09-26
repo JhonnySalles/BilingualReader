@@ -98,7 +98,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/vocabulary_manga_button"
-                style="@style/Button"
+                style="@style/Button.Manga"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/vocabulary_buttons_height"
                 android:layout_weight="1"
@@ -111,7 +111,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/vocabulary_book_button"
-                style="@style/Button"
+                style="@style/Button.Book"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/vocabulary_buttons_height"
                 android:layout_marginStart="@dimen/margin_small"

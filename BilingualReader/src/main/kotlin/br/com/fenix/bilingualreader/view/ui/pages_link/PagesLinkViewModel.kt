@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.pages_link
 
 import android.app.Application
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Message
 import android.os.Process

@@ -24,6 +24,14 @@ import java.util.concurrent.TimeUnit
 class GeneralConsts private constructor() {
     companion object {
         fun getCoverDir(context: Context): File {
+            val preferences = getSharedPreferences(context)
+            val customCoverPath = preferences.getString(KEYS.SYSTEM.COVER_CACHE_FOLDER, null)
+            if (!customCoverPath.isNullOrBlank()) {
+                val customDir = File(customCoverPath)
+                if (customDir.exists() || customDir.mkdirs()) {
+                    return customDir
+                }
+            }
             val caches = context.externalCacheDirs
             return if (!caches.isNullOrEmpty() && caches.last() != null) caches.last()!! else context.cacheDir
         }
@@ -121,6 +129,36 @@ class GeneralConsts private constructor() {
                     )
                 else
                     formatterDate(context, dateTime)
+            }
+        }
+
+        @TargetApi(26)
+        fun formatDateSeparator(context: Context, dateTime: LocalDateTime?): String {
+            if (dateTime == null) return ""
+            val today = LocalDate.now()
+            val date = dateTime.toLocalDate()
+
+            if (date.isEqual(today)) {
+                return context.getString(R.string.date_format_today)
+            }
+
+            val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1)
+            if (!date.isBefore(startOfWeek) || date.isAfter(today.minusDays(7))) {
+                return context.getString(R.string.date_format_this_week)
+            }
+
+            if (date.year == today.year && date.monthValue == today.monthValue) {
+                return context.getString(R.string.date_format_this_month)
+            }
+
+            val months = context.resources.getStringArray(R.array.mouth_descriptions)
+            val monthIndex = date.monthValue - 1
+            val monthName = if (monthIndex in months.indices) months[monthIndex] else date.month.name
+
+            return if (date.year == today.year) {
+                monthName
+            } else {
+                context.getString(R.string.date_format_month_year, monthName, date.year)
             }
         }
 
@@ -228,6 +266,10 @@ class GeneralConsts private constructor() {
             const val BOOK_READER_TTS_VOICE_JAPANESE = "BOOK_READER_TTS_VOICE_JAPANESE"
             const val BOOK_READER_TTS_SPEED = "BOOK_READER_TTS_SPEED"
             const val BOOK_READER_TTS_SPEED_DEFAULT = 0f
+            const val MANGA_AVG_TIME_PER_PAGE = "MANGA_AVG_TIME_PER_PAGE"
+            const val MANGA_AVG_TIME_PER_PAGE_DEFAULT = 120f
+            const val BOOK_AVG_WORDS_PER_MINUTE = "BOOK_AVG_WORDS_PER_MINUTE"
+            const val BOOK_AVG_WORDS_PER_MINUTE_DEFAULT = 250f
         }
 
         object TOUCH {
@@ -259,6 +301,48 @@ class GeneralConsts private constructor() {
             const val FORMAT_DATA_SMALL = "FORMAT_DATA_SMALL"
             const val SHARE_MARK_ENABLED = "SHARE_MARK_ENABLED"
             const val SHARE_MARK_CLOUD = "SHARE_MARK_CLOUD"
+            const val COVER_CACHE_FOLDER = "COVER_CACHE_FOLDER"
+        }
+
+        object LLM {
+            const val ENABLED = "LLM_ENABLED"
+            const val MODEL_VERSION = "LLM_MODEL_VERSION"
+            const val MODEL_PATH = "LLM_MODEL_PATH"
+            const val MODEL_EXTRACTED = "LLM_MODEL_EXTRACTED"
+            const val MAX_CONTEXT_CHARS = "LLM_MAX_CONTEXT_CHARS"
+            const val MAX_HISTORY_CHARS = "LLM_MAX_HISTORY_CHARS"
+            const val MAX_BOOK_CHAPTERS = "LLM_MAX_BOOK_CHAPTERS"
+            const val MAX_MANGA_PAGES = "LLM_MAX_MANGA_PAGES"
+            const val TEMPERATURE = "LLM_TEMPERATURE"
+            const val SUMMARY_CACHE_PREFIX = "LLM_SUMMARY_CACHE_"
+            const val SELECTION_PREFIX = "LLM_ASSISTANT_SELECTION_"
+            const val PROVIDER = "LLM_PROVIDER"
+            const val OPENROUTER_API_KEY = "LLM_OPENROUTER_API_KEY"
+            const val BOOK_OPENROUTER_MODEL = "LLM_BOOK_OPENROUTER_MODEL"
+            const val BOOK_OPENROUTER_MODEL_SUMMARY = "LLM_BOOK_OPENROUTER_MODEL_SUMMARY"
+            const val MANGA_OPENROUTER_MODEL = "LLM_MANGA_OPENROUTER_MODEL"
+            const val DEFAULT_MAX_CONTEXT_CHARS = 12000
+            const val DEFAULT_MAX_HISTORY_CHARS = 600
+            const val DEFAULT_MAX_BOOK_CHAPTERS = 5
+            const val DEFAULT_MAX_MANGA_PAGES = 10
+            const val DEFAULT_BOOK_CHAPTERS = 3
+            const val DEFAULT_MANGA_RADIUS = 2
+            const val DEFAULT_TEMPERATURE = 80
+            const val DEFAULT_MODEL_VERSION = "gemma3-1b-it-int4"
+            const val DEFAULT_MODEL_FILENAME = "gemma3-1b-it-int4.task"
+            const val ASSET_MODEL_PATH = "llm/gemma3-1b-it-int4.task"
+            const val DEFAULT_PROVIDER = "auto"
+            const val DEFAULT_OPENROUTER_MODEL = "openrouter/free"
+        }
+
+        object ASSISTANT {
+            const val TYPE = "ASSISTANT_TYPE"
+            const val TITLE = "ASSISTANT_TITLE"
+            const val PAGE = "ASSISTANT_PAGE"
+            const val CHAPTER = "ASSISTANT_CHAPTER"
+            const val LANGUAGE = "ASSISTANT_LANGUAGE"
+            const val PRELOAD_SUMMARY = "ASSISTANT_PRELOAD_SUMMARY"
+            const val CONTEXT_SOURCE = "ASSISTANT_CONTEXT_SOURCE"
         }
 
         object MANGA {
@@ -344,6 +428,14 @@ class GeneralConsts private constructor() {
             const val LAST_SYNC_MANGA = "SHARE_MARKS_LAST_SYNC_MANGA"
             const val LAST_SYNC_BOOK = "SHARE_MARKS_LAST_SYNC_BOOK"
         }
+        object TRACKER {
+            const val MAL_TOKEN = "TRACKER_MAL_TOKEN"
+            const val MAL_USER = "TRACKER_MAL_USER"
+            const val MAL_LAST_SYNC = "TRACKER_MAL_LAST_SYNC"
+            const val ANILIST_TOKEN = "TRACKER_ANILIST_TOKEN"
+            const val ANILIST_USER = "TRACKER_ANILIST_USER"
+            const val ANILIST_LAST_SYNC = "TRACKER_ANILIST_LAST_SYNC"
+        }
     }
 
     object TAG {
@@ -373,6 +465,7 @@ class GeneralConsts private constructor() {
         const val IMAGE = "Image"
         const val AUDIO = "Audio"
         const val THREAD = "Thread"
+        const val LLM = "llm"
         const val A = "a"
         const val B = "b"
         const val C = "c"
