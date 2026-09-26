@@ -678,6 +678,9 @@
     <string name="manga_library_default">Padrão</string>
     <string name="manga_library_menu_copy">Copiado</string>
 
+    <string name="library_separator_unread">Não lido</string>
+    <string name="library_separator_others">Outros</string>
+
     <string name="manga_library_separator_favorite">Favoritos</string>
     <string name="manga_library_separator_non_favorite">Outros</string>
 

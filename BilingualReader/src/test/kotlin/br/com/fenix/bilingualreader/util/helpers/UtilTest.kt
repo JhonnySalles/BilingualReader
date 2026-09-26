@@ -175,4 +175,63 @@ class UtilTest {
         assertEquals("1.0 KB", FileUtil.formatSize(1024))
         assertEquals("1.0 MB", FileUtil.formatSize(1024 * 1024))
     }
+
+    @Test
+    fun testGetMangaSeparatorUnreadAndOthers() {
+        every { context.getString(R.string.manga_library_separator_favorite) } returns "Favoritos"
+        every { context.getString(R.string.library_separator_others) } returns "Outros"
+        every { context.getString(R.string.library_separator_unread) } returns "Não lido"
+
+        val manga = mockk<br.com.fenix.bilingualreader.model.entity.Manga>(relaxed = true)
+        every { manga.lastAccess } returns null
+        every { manga.author } returns "   "
+        every { manga.genre } returns ""
+        every { manga.series } returns ""
+        every { manga.title } returns " "
+
+        // Order.LastAccess with null date should return "Não lido"
+        val sepLastAccess = AdapterUtil.AdapterUtils.getMangaSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.LastAccess, manga)
+        assertEquals("Não lido", sepLastAccess.title)
+
+        // Order.Author with blank string should return "Outros"
+        val sepAuthor = AdapterUtil.AdapterUtils.getMangaSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Author, manga)
+        assertEquals("Outros", sepAuthor.title)
+
+        // Order.Genre with blank string should return "Outros"
+        val sepGenre = AdapterUtil.AdapterUtils.getMangaSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Genre, manga)
+        assertEquals("Outros", sepGenre.title)
+
+        // Order.Series with blank string should return "Outros"
+        val sepSeries = AdapterUtil.AdapterUtils.getMangaSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Series, manga)
+        assertEquals("Outros", sepSeries.title)
+
+        // Order.Name with blank title should return "Outros"
+        val sepName = AdapterUtil.AdapterUtils.getMangaSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Name, manga)
+        assertEquals("Outros", sepName.title)
+    }
+
+    @Test
+    fun testGetBookSeparatorUnreadAndOthers() {
+        every { context.getString(R.string.book_library_separator_favorite) } returns "Favoritos"
+        every { context.getString(R.string.library_separator_others) } returns "Outros"
+        every { context.getString(R.string.library_separator_unread) } returns "Não lido"
+
+        val book = mockk<br.com.fenix.bilingualreader.model.entity.Book>(relaxed = true)
+        every { book.lastAccess } returns null
+        every { book.author } returns ""
+        every { book.genre } returns "  "
+        every { book.series } returns ""
+
+        val sepLastAccess = AdapterUtil.AdapterUtils.getBookSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.LastAccess, book)
+        assertEquals("Não lido", sepLastAccess.title)
+
+        val sepAuthor = AdapterUtil.AdapterUtils.getBookSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Author, book)
+        assertEquals("Outros", sepAuthor.title)
+
+        val sepGenre = AdapterUtil.AdapterUtils.getBookSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Genre, book)
+        assertEquals("Outros", sepGenre.title)
+
+        val sepSeries = AdapterUtil.AdapterUtils.getBookSeparator(context, br.com.fenix.bilingualreader.model.enums.Order.Series, book)
+        assertEquals("Outros", sepSeries.title)
+    }
 }

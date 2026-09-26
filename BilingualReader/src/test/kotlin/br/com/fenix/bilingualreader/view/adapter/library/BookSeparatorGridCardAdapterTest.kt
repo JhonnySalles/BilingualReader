@@ -90,4 +90,30 @@ class BookSeparatorGridCardAdapterTest {
         assertEquals(1, adapter.itemCount)
         assertEquals(0, adapter.getItemViewType(0))
     }
+
+    @Test
+    fun `updateList with Order LastAccess when null should group under Unread separator`() {
+        val book = mockk<Book>(relaxed = true)
+        every { book.lastAccess } returns null
+
+        val list = mutableListOf(book)
+        adapter.updateList(Order.LastAccess, list)
+
+        assertEquals(2, adapter.itemCount)
+        assertEquals(1, adapter.getItemViewType(0)) // Separator Unread
+        assertEquals(0, adapter.getItemViewType(1)) // Content
+    }
+
+    @Test
+    fun `updateList with Order Genre when empty should group under Others separator`() {
+        val book = mockk<Book>(relaxed = true)
+        every { book.genre } returns "   "
+
+        val list = mutableListOf(book)
+        adapter.updateList(Order.Genre, list)
+
+        assertEquals(2, adapter.itemCount)
+        assertEquals(1, adapter.getItemViewType(0)) // Separator Others
+        assertEquals(0, adapter.getItemViewType(1)) // Content
+    }
 }

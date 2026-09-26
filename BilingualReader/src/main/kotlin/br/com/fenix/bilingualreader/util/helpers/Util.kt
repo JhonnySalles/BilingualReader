@@ -2261,15 +2261,16 @@ class AdapterUtil {
 
         fun getBookSeparator(context: Context, order: Order, book: Book): Separator {
             val favorite = context.getString(R.string.book_library_separator_favorite)
-            val notFavorite = context.getString(R.string.book_library_separator_non_favorite)
+            val others = context.getString(R.string.library_separator_others)
+            val unread = context.getString(R.string.library_separator_unread)
             val title = when (order) {
-                Order.Name -> book.title.take(1).uppercase()
-                Order.Date -> GeneralConsts.formatDateSeparator(context, book.dateCreate)
-                Order.LastAccess -> GeneralConsts.formatDateSeparator(context, book.lastAccess)
-                Order.Author -> book.author.trim()
-                Order.Genre -> book.genre.trim()
-                Order.Series -> book.series.trim()
-                Order.Favorite -> if (book.favorite) favorite else notFavorite
+                Order.Name -> book.title.trim().take(1).uppercase().ifBlank { others }
+                Order.Date -> book.dateCreate?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { others } ?: others
+                Order.LastAccess -> book.lastAccess?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { unread } ?: unread
+                Order.Author -> book.author.trim().ifBlank { others }
+                Order.Genre -> book.genre.trim().ifBlank { others }
+                Order.Series -> book.series.trim().ifBlank { others }
+                Order.Favorite -> if (book.favorite) favorite else others
                 else -> ""
             }
             return Separator(title)
@@ -2277,15 +2278,16 @@ class AdapterUtil {
 
         fun getMangaSeparator(context: Context, order: Order, manga: Manga): Separator {
             val favorite = context.getString(R.string.manga_library_separator_favorite)
-            val notFavorite = context.getString(R.string.manga_library_separator_non_favorite)
+            val others = context.getString(R.string.library_separator_others)
+            val unread = context.getString(R.string.library_separator_unread)
             val title = when (order) {
-                Order.Name -> manga.title.take(1).uppercase()
-                Order.Date -> GeneralConsts.formatDateSeparator(context, manga.dateCreate)
-                Order.LastAccess -> GeneralConsts.formatDateSeparator(context, manga.lastAccess)
-                Order.Author -> manga.author.trim()
-                Order.Genre -> manga.genre.trim()
-                Order.Series -> manga.series.trim()
-                Order.Favorite -> if (manga.favorite) favorite else notFavorite
+                Order.Name -> manga.title.trim().take(1).uppercase().ifBlank { others }
+                Order.Date -> manga.dateCreate?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { others } ?: others
+                Order.LastAccess -> manga.lastAccess?.let { GeneralConsts.formatDateSeparator(context, it) }?.ifBlank { unread } ?: unread
+                Order.Author -> manga.author.trim().ifBlank { others }
+                Order.Genre -> manga.genre.trim().ifBlank { others }
+                Order.Series -> manga.series.trim().ifBlank { others }
+                Order.Favorite -> if (manga.favorite) favorite else others
                 else -> ""
             }
             return Separator(title)
