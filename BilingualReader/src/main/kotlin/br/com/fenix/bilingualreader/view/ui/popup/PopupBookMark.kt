@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.popup
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
@@ -7,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
@@ -42,8 +44,6 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import br.com.fenix.bilingualreader.model.interfaces.History as Obj
-import android.animation.ObjectAnimator
-import android.view.animation.LinearInterpolator
 
 
 class PopupBookMark(var context: Context, var manager: FragmentManager) {
