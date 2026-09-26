@@ -60,6 +60,8 @@ import br.com.fenix.bilingualreader.view.ui.tracker.TrackerListFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
+import eightbitlab.com.blurview.RenderEffectBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -587,7 +589,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
             ?: (findViewById<ViewGroup>(R.id.main_content_root) as ViewGroup)
 
-        eightbitlab.com.blurview.GlassSetup.setupGlass(mBlurTop, rootView, eightbitlab.com.blurview.RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
 
@@ -595,7 +597,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
             val navRoot = decorView.findViewById<ViewGroup>(android.R.id.content)
-            eightbitlab.com.blurview.GlassSetup.setupGlass(navigatorBlur, navRoot, eightbitlab.com.blurview.RenderEffectBlur())
+            GlassSetup.setupGlass(navigatorBlur, navRoot, RenderEffectBlur())
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
         }

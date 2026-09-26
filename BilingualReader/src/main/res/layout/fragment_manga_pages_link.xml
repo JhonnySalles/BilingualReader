@@ -93,6 +93,8 @@
             android:paddingTop="@dimen/default_navigator_header_margin_top"
             android:layout_marginStart="@dimen/reader_title_margin_negative"
             android:layout_marginEnd="@dimen/reader_title_margin_negative"
+            android:paddingStart="@dimen/reader_title_margin_positive"
+            android:paddingEnd="@dimen/reader_title_margin_positive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -101,9 +103,7 @@
                 android:id="@+id/pages_link_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="@dimen/reader_title_margin_positive"
-                android:paddingEnd="@dimen/reader_title_margin_positive">
+                android:orientation="vertical">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar_manga_pages_link"

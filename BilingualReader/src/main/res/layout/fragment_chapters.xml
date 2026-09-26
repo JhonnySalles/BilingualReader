@@ -43,8 +43,6 @@
             android:fitsSystemWindows="false"
             android:theme="@style/MainToolbarContentTheme"
             android:background="@android:color/transparent"
-            android:layout_marginStart="@dimen/reader_title_margin_negative"
-            android:layout_marginEnd="@dimen/reader_title_margin_negative"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -52,7 +50,9 @@
             <eightbitlab.com.blurview.BlurView
                 android:id="@+id/chapter_blur_top"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/reader_title_margin_negative"
+                android:layout_marginEnd="@dimen/reader_title_margin_negative">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar_chapter"
