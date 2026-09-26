@@ -107,7 +107,7 @@
 
         <ProgressBar
             android:id="@+id/book_grid_progress"
-            style="@style/ProgressBar"
+            style="@style/ProgressBar.Book"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:transitionName="transition_progress_bar"
@@ -125,7 +125,7 @@
         android:gravity="start">
         <ImageView
             android:id="@+id/book_grid_favorite_icon"
-            style="@style/IconFavorite"
+            style="@style/IconFavorite.Book"
             android:layout_width="@dimen/book_grid_favorite_big"
             android:layout_height="@dimen/book_grid_favorite_big"
             android:layout_marginStart="5dp"
@@ -142,7 +142,7 @@
         android:gravity="end">
         <ImageView
             android:id="@+id/book_grid_config_icon"
-            style="@style/IconConfig"
+            style="@style/IconConfig.Book"
             android:layout_width="@dimen/book_grid_config_small"
             android:layout_height="@dimen/book_grid_config_small"
             android:layout_marginEnd="5dp"

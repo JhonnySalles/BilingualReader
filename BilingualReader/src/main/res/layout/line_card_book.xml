@@ -51,7 +51,7 @@
 
         <TextView
             android:id="@+id/book_line_title"
-            style="@style/TextTitle.Line.Title"
+            style="@style/TextTitle.Line.Title.Book"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -133,7 +133,7 @@
 
                 <ProgressBar
                     android:id="@+id/book_line_progress"
-                    style="@style/ProgressBar"
+                    style="@style/ProgressBar.Book"
                     android:layout_width="match_parent"
                     android:layout_height="5dp"
                     android:progress="50"
@@ -152,7 +152,7 @@
                     android:gravity="center">
                     <ImageView
                         android:id="@+id/book_line_favorite_icon"
-                        style="@style/IconFavorite"
+                        style="@style/IconFavorite.Book"
                         android:layout_width="@dimen/book_grid_favorite_big"
                         android:layout_height="@dimen/book_grid_favorite_big"
                         android:background="@drawable/ico_favorite_mark_border"
@@ -166,7 +166,7 @@
                     android:gravity="center">
                     <ImageView
                         android:id="@+id/book_line_config_icon"
-                        style="@style/IconConfig"
+                        style="@style/IconConfig.Book"
                         android:layout_width="@dimen/book_grid_config_big"
                         android:layout_height="@dimen/book_grid_config_big"
                         android:background="@drawable/ico_config_border"

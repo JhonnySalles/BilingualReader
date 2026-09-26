@@ -61,6 +61,7 @@ class HistorySeparatorGridViewHolder(
         val cardView = itemView.findViewById<MaterialCardView>(R.id.history_grid_card)
         val historyProgress = itemView.findViewById<ProgressBar>(R.id.history_grid_progress)
         val favorite = itemView.findViewById<LinearLayout>(R.id.history_grid_favorite)
+        val favoriteIcon = itemView.findViewById<ImageView>(R.id.history_grid_favorite_icon)
 
         val isLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val cardSize = AdapterUtils.getHistoryCardSize(itemView.context, type, isLandscape)
@@ -71,6 +72,13 @@ class HistorySeparatorGridViewHolder(
             listener.onClickLong(history, itemView, layoutPosition)
             true
         }
+
+        val themeColor = when (history.type) {
+            br.com.fenix.bilingualreader.model.enums.Type.MANGA -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_manga_indigo_base)
+            br.com.fenix.bilingualreader.model.enums.Type.BOOK -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
+        }
+        historyTitle.setTextColor(themeColor)
+        favoriteIcon.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
 
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE
 
@@ -103,6 +111,14 @@ class HistorySeparatorGridViewHolder(
         val isSmall = history.lastAccess != null && history.bookMark > 0 && type != HistoryType.SEPARATOR_BIG
         historyLastAccess.text = if (history.lastAccess == null) ""
         else GeneralConsts.formatterDate(itemView.context, history.lastAccess!!, isSmall)
+
+        val progressDrawableRes = when (history.type) {
+            br.com.fenix.bilingualreader.model.enums.Type.MANGA -> R.drawable.progress_bar_manga
+            br.com.fenix.bilingualreader.model.enums.Type.BOOK -> R.drawable.progress_bar_book
+        }
+        historyProgress.progressTintList = null
+        historyProgress.progressBackgroundTintList = null
+        historyProgress.progressDrawable = androidx.core.content.ContextCompat.getDrawable(itemView.context, progressDrawableRes)
 
         historyProgress.max = history.pages.coerceAtLeast(1)
         historyProgress.setProgress(history.bookMark, false)

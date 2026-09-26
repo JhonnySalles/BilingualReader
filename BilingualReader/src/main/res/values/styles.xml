@@ -234,6 +234,20 @@
         <item name="strokeWidth">1dp</item>
     </style>
 
+    <style name="Button.Manga" parent="Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="iconTint">@android:color/white</item>
+        <item name="backgroundTint">@color/card_manga_indigo_base</item>
+        <item name="strokeColor">@color/card_manga_indigo_base</item>
+    </style>
+
+    <style name="Button.Book" parent="Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="iconTint">@android:color/white</item>
+        <item name="backgroundTint">@color/card_book_amber_base</item>
+        <item name="strokeColor">@color/card_book_amber_base</item>
+    </style>
+
     <style name="ButtonRounded" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
         <item name="shapeAppearanceOverlay">@style/ButtonRoundedShapeAppearance</item>
         <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
@@ -584,6 +598,14 @@
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 
+    <style name="TextTitle.Line.Title.Manga" parent="TextTitle.Line.Title">
+        <item name="android:textColor">@color/card_manga_indigo_base</item>
+    </style>
+
+    <style name="TextTitle.Line.Title.Book" parent="TextTitle.Line.Title">
+        <item name="android:textColor">@color/card_book_amber_base</item>
+    </style>
+
     <style name="TextNormal.Library" parent="TextNormal">
         <item name="android:ellipsize">end</item>
         <item name="android:padding">5dp</item>
@@ -733,6 +755,24 @@
         <item name="android:min" tools:targetApi="o">0</item>
     </style>
 
+    <style name="ProgressBar.Manga">
+        <item name="android:progressDrawable">@drawable/progress_bar_manga</item>
+        <item name="android:indeterminateTint">@color/card_manga_indigo_base</item>
+        <item name="android:progressTint">@null</item>
+        <item name="android:progressBackgroundTint">@null</item>
+        <item name="android:max">100</item>
+        <item name="android:min" tools:targetApi="o">0</item>
+    </style>
+
+    <style name="ProgressBar.Book">
+        <item name="android:progressDrawable">@drawable/progress_bar_book</item>
+        <item name="android:indeterminateTint">@color/card_book_amber_base</item>
+        <item name="android:progressTint">@null</item>
+        <item name="android:progressBackgroundTint">@null</item>
+        <item name="android:max">100</item>
+        <item name="android:min" tools:targetApi="o">0</item>
+    </style>
+
     <style name="RoundedProgressBar" >
         <item name="android:layout_centerInParent">true</item>
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
@@ -792,6 +832,22 @@
         <item name="android:backgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:padding">1dp</item>
         <item name="tint">?attr/colorPrimaryContainer</item>
+    </style>
+
+    <style name="IconFavorite.Manga" parent="IconFavorite">
+        <item name="tint">@color/card_manga_indigo_base</item>
+    </style>
+
+    <style name="IconConfig.Manga" parent="IconConfig">
+        <item name="tint">@color/card_manga_indigo_base</item>
+    </style>
+
+    <style name="IconFavorite.Book" parent="IconFavorite">
+        <item name="tint">@color/card_book_amber_base</item>
+    </style>
+
+    <style name="IconConfig.Book" parent="IconConfig">
+        <item name="tint">@color/card_book_amber_base</item>
     </style>
 
     <style name="IconPageBroken" >

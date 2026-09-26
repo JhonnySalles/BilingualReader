@@ -48,7 +48,7 @@ class ParseInformationTest {
         updatedAt = "2023-01-01",
         mediaType = MEDIA.MANGA,
         status = STATUS.FINISHED,
-        myListStatus = listOf(),
+        myListStatus = null,
         volumes = 10,
         chapters = 100,
         authors = listOf(),

@@ -69,6 +69,12 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         }
 
         title.text = history.title
+        val themeColor = when (history.type) {
+            Type.MANGA -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_manga_indigo_base)
+            Type.BOOK -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
+        }
+        title.setTextColor(themeColor)
+        favorite.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
 
         lastAccess.text = if (history.lastAccess != null) GeneralConsts.formatterDate(itemView.context, history.lastAccess!!) else ""
         fileType.text = history.fileType.acronym
@@ -106,6 +112,14 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
             publisher.text = mDescriptionPublisher + publisherText
             View.VISIBLE
         } else View.GONE
+
+        val progressDrawableRes = when (history.type) {
+            Type.MANGA -> R.drawable.progress_bar_manga
+            Type.BOOK -> R.drawable.progress_bar_book
+        }
+        progress.progressTintList = null
+        progress.progressBackgroundTintList = null
+        progress.progressDrawable = androidx.core.content.ContextCompat.getDrawable(itemView.context, progressDrawableRes)
 
         progress.max = history.pages
         progress.setProgress(history.bookMark, false)

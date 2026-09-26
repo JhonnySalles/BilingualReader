@@ -102,6 +102,8 @@
             style="@style/ProgressBar"
             android:layout_width="match_parent"
             android:layout_height="5dp"
+            android:progressTint="@null"
+            android:progressBackgroundTint="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

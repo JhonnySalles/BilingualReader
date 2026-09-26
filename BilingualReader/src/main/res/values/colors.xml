@@ -98,6 +98,18 @@
     <color name="skeleton">#E0E0E0</color>
     <color name="shimmer">#F5F5F5</color>
 
+    <!-- Manga Card Fixed Colors (Indigo) -->
+    <color name="card_manga_indigo_base">#6366F1</color>
+    <color name="card_manga_indigo_light">#818CF8</color>
+    <color name="card_manga_indigo_badge_text">#A5B4FC</color>
+    <color name="card_manga_progress_background">#4D6366F1</color>
+
+    <!-- Book Card Fixed Colors (Amber / Orange) -->
+    <color name="card_book_amber_base">#F59E0B</color>
+    <color name="card_book_orange_light">#F97316</color>
+    <color name="card_book_amber_badge_text">#FCD34D</color>
+    <color name="card_book_progress_background">#4DF59E0B</color>
+
     <!--
        colorPrimary, colorOnPrimary = Buttons
 
