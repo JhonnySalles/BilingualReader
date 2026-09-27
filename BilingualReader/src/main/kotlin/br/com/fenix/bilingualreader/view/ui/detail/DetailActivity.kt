@@ -88,6 +88,7 @@ class DetailActivity : AppCompatActivity() {
             addTransition(android.transition.ChangeClipBounds())
             addTransition(android.transition.ChangeImageTransform())
             addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition())
+            addTransition(br.com.fenix.bilingualreader.view.animation.ProgressColorTransition())
             duration = 350L
             interpolator = android.view.animation.AnimationUtils.loadInterpolator(this@DetailActivity, android.R.interpolator.fast_out_slow_in)
         }

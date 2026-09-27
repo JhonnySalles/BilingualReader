@@ -1012,29 +1012,52 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         intent.putExtras(bundle)
 
-        val type = mViewModel.libraryType.value
-        if (type == LibraryBookType.SEPARATOR_CAROUSEL) {
+        val isCarousel = mGridType == LibraryBookType.SEPARATOR_CAROUSEL
+        val isLine = mGridType == LibraryBookType.LINE || mGridType == LibraryBookType.SEPARATOR_LINE
+        val idText = when {
+            isCarousel -> R.id.book_cover_title
+            isLine -> R.id.book_line_title
+            else -> R.id.book_grid_title
+        }
+        val idAuthor = when {
+            isCarousel -> null
+            isLine -> R.id.book_line_author
+            else -> R.id.book_grid_sub_title
+        }
+        val idProgress = when {
+            isCarousel -> R.id.book_cover_progress
+            isLine -> R.id.book_line_progress
+            else -> R.id.book_grid_progress
+        }
+        val idCover = when {
+            isCarousel -> R.id.book_cover_image
+            isLine -> R.id.book_line_image_cover
+            else -> R.id.book_grid_image_cover
+        }
+
+        val coverView = view.findViewById<ImageView>(idCover)
+        val titleView = view.findViewById<TextView>(idText)
+        val progressView = view.findViewById<ProgressBar>(idProgress)
+        val authorView = idAuthor?.let { view.findViewById<TextView>(it) }
+
+        if (coverView != null && titleView != null && progressView != null) {
+            val pairs = mutableListOf<androidx.core.util.Pair<View, String>>()
+            pairs.add(androidx.core.util.Pair.create(coverView as View, "transition_book_cover"))
+            pairs.add(androidx.core.util.Pair.create(titleView as View, "transition_book_title"))
+            pairs.add(androidx.core.util.Pair.create(progressView as View, "transition_progress_bar"))
+            if (authorView != null) {
+                pairs.add(androidx.core.util.Pair.create(authorView as View, "transition_book_author"))
+            }
+
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *pairs.toTypedArray())
+            GlassRenderScheduler.suspendFor(400L, "activityTransition")
+            requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            bookDetailLauncher.launch(intent, options)
+        } else {
             GlassRenderScheduler.suspendFor(400L, "activityTransition")
             requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
             bookDetailLauncher.launch(intent)
-            return
         }
-
-        val isLine = type == LibraryBookType.LINE || type == LibraryBookType.SEPARATOR_LINE
-        val idText = if (isLine) R.id.book_line_title else R.id.book_grid_title
-        val idAuthor = if (isLine) R.id.book_line_author else R.id.book_grid_sub_title
-        val idProgress = if (isLine) R.id.book_line_progress else R.id.book_grid_progress
-        val idCover = if (isLine) R.id.book_line_image_cover else R.id.book_grid_image_cover
-
-        val pImageCover = androidx.core.util.Pair.create(view.findViewById<ImageView>(idCover) as View, "transition_book_cover")
-        val pTitle = androidx.core.util.Pair.create(view.findViewById<TextView>(idText) as View, "transition_book_title")
-        val pAuthor = androidx.core.util.Pair.create(view.findViewById<TextView>(idAuthor) as View, "transition_book_author")
-        val pProgress = androidx.core.util.Pair.create(view.findViewById<ProgressBar>(idProgress) as View, "transition_progress_bar")
-
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), pImageCover, pTitle, pAuthor, pProgress)
-        GlassRenderScheduler.suspendFor(400L, "activityTransition")
-        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        bookDetailLauncher.launch(intent, options)
     }
 
     private fun loadConfig() {

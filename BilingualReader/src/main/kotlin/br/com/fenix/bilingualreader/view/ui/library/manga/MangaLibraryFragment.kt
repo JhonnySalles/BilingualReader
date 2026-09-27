@@ -1023,27 +1023,42 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent.putExtras(bundle)
 
-        val type = mViewModel.libraryType.value
-        if (type == LibraryMangaType.SEPARATOR_CAROUSEL) {
+        val isCarousel = mGridType == LibraryMangaType.SEPARATOR_CAROUSEL
+        val isLine = mGridType == LibraryMangaType.LINE || mGridType == LibraryMangaType.SEPARATOR_LINE
+        val idText = when {
+            isCarousel -> R.id.manga_cover_title
+            isLine -> R.id.manga_line_text_title
+            else -> R.id.manga_grid_text_title
+        }
+        val idProgress = when {
+            isCarousel -> R.id.manga_cover_progress
+            isLine -> R.id.manga_line_progress
+            else -> R.id.manga_grid_progress
+        }
+        val idCover = when {
+            isCarousel -> R.id.manga_cover_image
+            isLine -> R.id.manga_line_image_cover
+            else -> R.id.manga_grid_image_cover
+        }
+
+        val coverView = view.findViewById<ImageView>(idCover)
+        val titleView = view.findViewById<TextView>(idText)
+        val progressView = view.findViewById<ProgressBar>(idProgress)
+
+        if (coverView != null && titleView != null && progressView != null) {
+            val pImageCover = androidx.core.util.Pair.create(coverView as View, "transition_manga_cover")
+            val pTitle = androidx.core.util.Pair.create(titleView as View, "transition_manga_title")
+            val pProgress = androidx.core.util.Pair.create(progressView as View, "transition_progress_bar")
+
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), pImageCover, pTitle, pProgress)
+            GlassRenderScheduler.suspendFor(400L, "activityTransition")
+            requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            mangaDetailLauncher.launch(intent, options)
+        } else {
             GlassRenderScheduler.suspendFor(400L, "activityTransition")
             requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
             mangaDetailLauncher.launch(intent)
-            return
         }
-
-        val isLine = type == LibraryMangaType.LINE || type == LibraryMangaType.SEPARATOR_LINE
-        val idText = if (isLine) R.id.manga_line_text_title else R.id.manga_grid_text_title
-        val idProgress = if (isLine) R.id.manga_line_progress else R.id.manga_grid_progress
-        val idCover = if (isLine) R.id.manga_line_image_cover else R.id.manga_grid_image_cover
-
-        val pImageCover = androidx.core.util.Pair.create(view.findViewById<ImageView>(idCover) as View, "transition_manga_cover")
-        val pTitle = androidx.core.util.Pair.create(view.findViewById<TextView>(idText) as View, "transition_manga_title")
-        val pProgress = androidx.core.util.Pair.create(view.findViewById<ProgressBar>(idProgress) as View, "transition_progress_bar")
-
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), pImageCover, pTitle, pProgress)
-        GlassRenderScheduler.suspendFor(400L, "activityTransition")
-        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        mangaDetailLauncher.launch(intent, options)
     }
 
     private fun loadConfig() {
