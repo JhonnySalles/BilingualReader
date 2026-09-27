@@ -94,10 +94,9 @@ import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -1449,30 +1448,16 @@ class MenuUtil {
             val alpha = if (isNight) 0xA9 else 0x73
             val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
             val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
-            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
-
             val topBg = if (isGlass) {
                 GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
                     setColor(translucentColor)
-                    cornerRadii = floatArrayOf(
-                        0f, 0f,
-                        0f, 0f,
-                        cornerRadius, cornerRadius,
-                        cornerRadius, cornerRadius
-                    )
                 }
             } else {
                 val middleColor = ((themeColor and 0x00FFFFFF) or (0xB3 shl 24)).toInt() // 70% opacity
                 val transparentColor = (themeColor and 0x00FFFFFF).toInt() // 0% opacity
                 GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, middleColor, transparentColor)).apply {
                     shape = GradientDrawable.RECTANGLE
-                    cornerRadii = floatArrayOf(
-                        0f, 0f,
-                        0f, 0f,
-                        cornerRadius, cornerRadius,
-                        cornerRadius, cornerRadius
-                    )
                 }
             }
             blurTop?.background = topBg
@@ -1662,8 +1647,14 @@ class ThemeUtil {
         }
 
         fun getBlurFrameClearDrawable(context: Context): Drawable {
+            val isNight = context.resources.getBoolean(R.bool.isNight)
             val bgColor = context.getColorFromAttr(R.attr.background)
-            return ColorDrawable(bgColor)
+            val finalColor = if (isNight && (bgColor == android.graphics.Color.WHITE || bgColor == -1)) {
+                context.getColorFromAttr(R.attr.colorSurface)
+            } else {
+                bgColor
+            }
+            return ColorDrawable(finalColor)
         }
 
         fun statusBarTransparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
@@ -1835,11 +1826,28 @@ class TextUtil {
 class AnimationUtil {
     companion object AnimationUtils {
         const val PROPERTY_NO_ANIMATION = "NO_ANIMATION"
-
         const val duration = 200L
+
+        private fun findBlurViews(view: View): List<BlurView> {
+            val result = mutableListOf<BlurView>()
+            if (view is BlurView) {
+                result.add(view)
+            } else if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    result.addAll(findBlurViews(view.getChildAt(i)))
+                }
+            }
+            return result
+        }
+
         fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
             GlassRenderScheduler.suspendFor(duration + 50L, "popupOpen")
             frame.visibility = View.VISIBLE
+            val blurs = findBlurViews(frame)
+            blurs.forEach {
+                it.setBlurEnabled(true)
+                it.setBlurAutoUpdate(true)
+            }
             if (isVertical) {
                 if (navigationColor)
                     PopupUtil.updateNavigationBarColor(activity, true)
@@ -1852,6 +1860,7 @@ class AnimationUtil {
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
+                            blurs.forEach { it.setBlurAutoUpdate(false) }
                             GlassRenderScheduler.requestUpdateAll()
                             ending()
                         }
@@ -1865,6 +1874,7 @@ class AnimationUtil {
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
+                            blurs.forEach { it.setBlurAutoUpdate(false) }
                             GlassRenderScheduler.requestUpdateAll()
                             ending()
                         }
@@ -1874,6 +1884,10 @@ class AnimationUtil {
 
         fun animatePopupClose(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
             GlassRenderScheduler.suspendFor(duration + 50L, "popupClose")
+            val blurs = findBlurViews(frame)
+            blurs.forEach {
+                it.setBlurAutoUpdate(true)
+            }
             if (isVertical) {
                 val positionInitial = frame.translationY
                 frame.animate()
@@ -1884,6 +1898,10 @@ class AnimationUtil {
                             super.onAnimationEnd(animation)
                             frame.visibility = View.GONE
                             frame.translationY = positionInitial
+                            blurs.forEach {
+                                it.setBlurAutoUpdate(false)
+                                it.setBlurEnabled(false)
+                            }
                             GlassRenderScheduler.requestUpdateAll()
 
                             if (navigationColor)
@@ -1900,12 +1918,15 @@ class AnimationUtil {
                             super.onAnimationEnd(animation)
                             frame.visibility = View.GONE
                             frame.translationX = positionInitial
+                            blurs.forEach {
+                                it.setBlurAutoUpdate(false)
+                                it.setBlurEnabled(false)
+                            }
                             GlassRenderScheduler.requestUpdateAll()
                         }
                     })
             }
         }
-
     }
 }
 
@@ -2005,7 +2026,7 @@ class PopupUtil {
             }
         }
 
-        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupBackground: BlurView?, customRootView: ViewGroup? = null) {
+        fun setupPopupBackgrounds(activity: Activity, popupBottom: View?, popupBackground: BlurView?, customRootView: ViewGroup? = null) {
             val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
             val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
@@ -2031,12 +2052,8 @@ class PopupUtil {
                         0f, 0f
                     )
                 }
-                if (!isGlass) {
-                    val topInset = activity.resources.getDimensionPixelSize(R.dimen.popup_background_size)
-                    pb.background = android.graphics.drawable.InsetDrawable(bottomSheetBg, 0, topInset, 0, 0)
-                } else {
-                    pb.background = bottomSheetBg
-                }
+                val topInset = activity.resources.getDimensionPixelSize(R.dimen.popup_background_size)
+                pb.background = android.graphics.drawable.InsetDrawable(bottomSheetBg, 0, topInset, 0, 0)
                 
                 pb.clipToOutline = true
                 pb.outlineProvider = object : ViewOutlineProvider() {
@@ -2057,7 +2074,13 @@ class PopupUtil {
 
                 val headerBg = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
+                    val headerColor = if (isGlass) {
+                        val alpha = if (isNight) 0xA9 else 0x73
+                        (themeColor and 0x00FFFFFF) or (alpha shl 24)
+                    } else {
+                        (themeColor and 0x00FFFFFF) or (0x80 shl 24)
+                    }
+                    setColor(headerColor)
                     cornerRadii = floatArrayOf(cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f, 0f, 0f)
                 }
                 bg.background = headerBg
@@ -2070,11 +2093,13 @@ class PopupUtil {
                 }
 
                 if (isGlass) {
-                    val decorView = activity.window.decorView
-                    val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(activity)
-                    val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
-                    val rootView = customRootView ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-                    GlassSetup.setupGlass(bg, rootView, blurAlgorithm)
+                    val rootView = customRootView
+                        ?: (popupBottom?.parent as? ViewGroup)
+                        ?: activity.findViewById<ViewGroup>(R.id.main_root_layout)
+                        ?: (activity.window.decorView as ViewGroup)
+                    val background = ThemeUtil.getBlurFrameClearDrawable(activity)
+                    // Uses dedicated BlurAlgorithm instance internally to prevent RenderNode / buffer collision with top menu
+                    GlassSetup.setupGlass(bg, rootView)
                         .setFrameClearDrawable(background)
                         .setBlurRadius(15f)
                     bg.setBlurEnabled(true)
@@ -2083,6 +2108,45 @@ class PopupUtil {
                     bg.setBlurEnabled(false)
                 }
             }
+        }
+
+        fun attachBlurToBottomSheet(
+            sheet: BottomSheetBehavior<*>,
+            blurView: BlurView?,
+            onStateChangedExtra: ((newState: Int) -> Unit)? = null
+        ): BottomSheetBehavior.BottomSheetCallback {
+            val callback = object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    when (newState) {
+                        BottomSheetBehavior.STATE_HIDDEN -> {
+                            blurView?.setBlurAutoUpdate(false)
+                            blurView?.setBlurEnabled(false)
+                        }
+                        BottomSheetBehavior.STATE_DRAGGING,
+                        BottomSheetBehavior.STATE_SETTLING -> {
+                            blurView?.setBlurEnabled(true)
+                            blurView?.setBlurAutoUpdate(true)
+                        }
+                        BottomSheetBehavior.STATE_EXPANDED,
+                        BottomSheetBehavior.STATE_COLLAPSED -> {
+                            blurView?.setBlurEnabled(true)
+                            blurView?.setBlurAutoUpdate(false)
+                            blurView?.let { GlassRenderScheduler.requestUpdate(it) }
+                        }
+                    }
+                    onStateChangedExtra?.invoke(newState)
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    if (blurView != null && slideOffset > 0f) {
+                        if (!blurView.isAttachedToWindow) return
+                        blurView.setBlurEnabled(true)
+                        blurView.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+            sheet.addBottomSheetCallback(callback)
+            return callback
         }
 
         fun onGlobalLayout(view: View, runnable: Runnable) {

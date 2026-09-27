@@ -52,27 +52,27 @@
             android:layout_alignParentStart="true"
             android:visibility="gone"/>
 
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/reader_manga_blur_top"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/reader_manga_toolbar_reader_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/reader_title_margin_negative"
             android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            android:paddingStart="@dimen/reader_title_margin_positive"
-            android:paddingEnd="@dimen/reader_title_margin_positive">
+            android:background="@android:color/transparent"
+            android:theme="@style/MainToolbarContentTheme"
+            app:elevation="0dp">
 
-            <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/reader_manga_toolbar_reader_top"
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/reader_manga_blur_top"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:theme="@style/MainToolbarContentTheme"
-                app:elevation="0dp">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/reader_manga_toolbar_reader"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_navigator_header_size"
+                    android:paddingStart="@dimen/reader_title_margin_positive"
+                    android:paddingEnd="@dimen/reader_title_margin_positive"
                     app:popupTheme="@style/MainToolbarStyle"
                     style="@style/MainToolbarThemeWithShadow"/>
 
@@ -95,8 +95,8 @@
                         android:textColor="?attr/toolbarTitleAccents"
                         android:textSize="@dimen/floating_ocr_language_text_size" />
                 </LinearLayout>
-            </com.google.android.material.appbar.AppBarLayout>
-        </eightbitlab.com.blurview.BlurView>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <eightbitlab.com.blurview.BlurView
             android:id="@+id/reader_manga_blur_progress"

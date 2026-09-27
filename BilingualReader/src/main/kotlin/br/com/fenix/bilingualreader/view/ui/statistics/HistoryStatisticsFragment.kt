@@ -62,6 +62,7 @@ import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
@@ -79,10 +80,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -1310,12 +1310,9 @@ class HistoryStatisticsFragment : Fragment() {
             return
 
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
-        val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val background = (fragmentRoot as? ViewGroup)?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: (fragmentRoot as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

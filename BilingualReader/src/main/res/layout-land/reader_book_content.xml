@@ -29,42 +29,48 @@
             android:layout_alignParentStart="true"
             android:visibility="gone"/>
 
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/reader_book_blur_top"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/reader_book_toolbar_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/reader_title_margin_negative"
             android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            android:paddingStart="@dimen/reader_title_margin_positive"
-            android:paddingEnd="@dimen/reader_title_margin_positive">
+            android:background="@drawable/app_reader_toolbar_background"
+            android:paddingBottom="5dp"
+            android:theme="@style/MainToolbarContentTheme"
+            app:elevation="0dp">
 
-            <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/reader_book_toolbar_top"
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/reader_book_blur_top"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/app_reader_toolbar_background"
-                android:paddingBottom="5dp"
-                android:theme="@style/MainToolbarContentTheme"
-                app:elevation="0dp">
+                android:layout_height="wrap_content">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"/>
-
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/toolbar_book_reader"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    app:popupTheme="@style/MainToolbarStyle"
-                    style="@style/MainToolbarThemeWithShadow"
-                    android:contentInsetStart="0dp"
-                    android:contentInsetLeft="0dp"
-                    app:contentInsetLeft="0dp"
-                    app:contentInsetStart="0dp"/>
-            </com.google.android.material.appbar.AppBarLayout>
-        </eightbitlab.com.blurview.BlurView>
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/reader_title_margin_positive"
+                    android:paddingEnd="@dimen/reader_title_margin_positive">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"/>
+
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/toolbar_book_reader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        app:popupTheme="@style/MainToolbarStyle"
+                        style="@style/MainToolbarThemeWithShadow"
+                        android:contentInsetStart="0dp"
+                        android:contentInsetLeft="0dp"
+                        app:contentInsetLeft="0dp"
+                        app:contentInsetStart="0dp"/>
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <eightbitlab.com.blurview.BlurView
             android:id="@+id/reader_book_blur_bottom"

@@ -116,9 +116,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -1398,14 +1398,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 }
             }
 
-            bv.setBlurEnabled(isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            if (isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val decorView = window.decorView
-                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-                val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
-                GlassSetup.setupGlass(bv, rootView, RenderEffectBlur())
-                    .setFrameClearDrawable(background)
-                    .setBlurRadius(15f)
+            val rootView = findViewById<ViewGroup>(R.id.root_activity_manga_reader) ?: (window.decorView as ViewGroup)
+            val background = ThemeUtil.getBlurFrameClearDrawable(this)
+            GlassSetup.setupGlass(bv, rootView)
+                .setFrameClearDrawable(background)
+                .setBlurRadius(15f)
+
+            bv.setBlurEnabled(isGlass)
+            if (isGlass) {
                 bv.setBlurAutoUpdate(true)
                 mHandler.postDelayed({
                     bv.setBlurAutoUpdate(false)

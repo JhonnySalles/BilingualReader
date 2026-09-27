@@ -59,9 +59,9 @@ import br.com.fenix.bilingualreader.view.ui.tracker.TrackerFragment
 import br.com.fenix.bilingualreader.view.ui.tracker.TrackerListFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -581,24 +581,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupBlurViews() {
-        if (!::mBlurTop.isInitialized || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+        if (!::mBlurTop.isInitialized)
             return
 
-        val decorView = window.decorView
-        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-            ?: (findViewById<ViewGroup>(R.id.main_content_root) as ViewGroup)
+        val rootLayout = findViewById<ViewGroup>(R.id.main_root_layout) ?: window.decorView.findViewById<ViewGroup>(android.R.id.content)
+        val background = rootLayout.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
 
-        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurTop, rootLayout)
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
 
         val headerView = mNavigationView.getHeaderView(0)
         val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
-            val navRoot = decorView.findViewById<ViewGroup>(android.R.id.content)
-            GlassSetup.setupGlass(navigatorBlur, navRoot, RenderEffectBlur())
-                .setFrameClearDrawable(background)
+            val navHeaderRoot = (headerView as? ViewGroup) ?: rootLayout
+            val clearBg = ThemeUtil.getBlurFrameClearDrawable(this)
+            GlassSetup.setupGlass(navigatorBlur, navHeaderRoot)
+                .setFrameClearDrawable(clearBg)
                 .setBlurRadius(15f)
         }
     }

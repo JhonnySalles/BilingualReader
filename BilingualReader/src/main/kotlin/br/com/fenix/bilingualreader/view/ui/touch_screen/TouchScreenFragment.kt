@@ -29,15 +29,15 @@ import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
@@ -367,11 +367,10 @@ class TouchScreenFragment : Fragment() {
 
             blurView.setBlurEnabled(isGlass)
             if (isGlass) {
-                val decorView = requireActivity().window.decorView
-                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(requireContext())
-                GlassSetup.setupGlass(blurView, rootView, blurAlgorithm)
+                val context = requireContext()
+                val rootView = (view as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+                val background = ThemeUtil.getBlurFrameClearDrawable(context)
+                GlassSetup.setupGlass(blurView, rootView)
                     .setFrameClearDrawable(background)
                     .setBlurRadius(15f)
                 blurView.setBlurAutoUpdate(true)
@@ -456,12 +455,9 @@ class TouchScreenFragment : Fragment() {
             return
 
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val rootView = (root as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = ThemeUtil.getBlurFrameClearDrawable(context)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

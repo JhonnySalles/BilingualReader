@@ -33,6 +33,7 @@ import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
@@ -44,10 +45,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -182,15 +182,10 @@ class StatisticsFragment : Fragment() {
         mRepository = StatisticsRepository(requireContext())
         mDefaultAllLibraries = requireContext().getString(R.string.statistics_chart_library_all)
 
-        val background = android.graphics.drawable.ColorDrawable(requireContext().getColorFromAttr(R.attr.background))
-
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            RenderEffectBlur()
-        } else {
-            RenderScriptBlur(requireContext())
-        }
+        val context = requireContext()
+        val background = ThemeUtil.getBlurFrameClearDrawable(context)
         val contentScroll = mRoot.findViewById<ViewGroup>(R.id.statistics_scroll_view) ?: mRoot
-        GlassSetup.setupGlass(mProgress, contentScroll, blurAlgorithm)
+        GlassSetup.setupGlass(mProgress, contentScroll)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true

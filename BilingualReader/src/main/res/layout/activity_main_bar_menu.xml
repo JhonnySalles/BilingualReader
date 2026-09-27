@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_root_layout"
     style="@style/AppBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +13,6 @@
     tools:context=".MainActivity">
 
     <View
-        android:id="@+id/manga_background"
         style="@style/AppBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,6 +30,8 @@
         style="@style/AppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/reader_title_margin_negative"
+        android:layout_marginEnd="@dimen/reader_title_margin_negative"
         android:theme="@style/MainToolbarContentTheme"
         android:background="@android:color/transparent"
         app:elevation="0dp">
@@ -37,16 +39,14 @@
         <eightbitlab.com.blurview.BlurView
             android:id="@+id/main_blur_top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/reader_title_margin_negative"
-            android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            android:paddingStart="@dimen/reader_title_margin_positive"
-            android:paddingEnd="@dimen/reader_title_margin_positive">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/main_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_navigator_header_size"
+                android:paddingStart="@dimen/reader_title_margin_positive"
+                android:paddingEnd="@dimen/reader_title_margin_positive"
                 android:background="@android:color/transparent"
                 app:popupTheme="@style/MainToolbarStyle"
                 style="@style/MainToolbarThemeWithShadow"/>

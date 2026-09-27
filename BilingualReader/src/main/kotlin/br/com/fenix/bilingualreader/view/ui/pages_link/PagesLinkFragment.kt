@@ -55,6 +55,7 @@ import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
@@ -75,10 +76,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 
 
@@ -1176,11 +1176,10 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         if (!::mBlurTop.isInitialized)
             return
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val fragmentRoot = view as? ViewGroup
+        val rootView = fragmentRoot ?: requireActivity().findViewById<ViewGroup>(R.id.pages_link_content) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = fragmentRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

@@ -51,6 +51,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
@@ -66,10 +67,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 
 class BookAnnotationFragment : Fragment(), AnnotationListener {
@@ -674,13 +674,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
             return
 
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
-        val rootView: ViewGroup = fragmentRoot.findViewById(R.id.book_annotation_content)
-            ?: decorView.findViewById(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val background = ThemeUtil.getBlurFrameClearDrawable(context)
+        val rootView: ViewGroup = fragmentRoot.findViewById(R.id.book_annotation_content) ?: (fragmentRoot as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

@@ -121,9 +121,9 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -2320,30 +2320,30 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun setupBlurViews() {
         if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
             return
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-            return
 
+        val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(requireContext())
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        val fragmentRoot = view as? ViewGroup
+        val rootView = fragmentRoot ?: decorView.findViewById<ViewGroup>(android.R.id.content)
+        val background = fragmentRoot?.background ?: decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
 
-        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurBottom, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurBottom, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurProgress, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurProgress, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurNavPrevious, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurNavPrevious, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurNavNext, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurNavNext, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

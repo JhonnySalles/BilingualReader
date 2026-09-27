@@ -24,6 +24,7 @@ class DetailActivity : AppCompatActivity() {
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
+        setupSharedElementTransitions()
         setContentView(R.layout.activity_detail)
 
         ThemeUtil.statusBarTransparentTheme(window, !resources.getBoolean(R.bool.isNight))
@@ -79,6 +80,21 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSharedElementTransitions() {
+        val transition = android.transition.TransitionSet().apply {
+            ordering = android.transition.TransitionSet.ORDERING_TOGETHER
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.ChangeTransform())
+            addTransition(android.transition.ChangeClipBounds())
+            addTransition(android.transition.ChangeImageTransform())
+            addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition())
+            duration = 350L
+            interpolator = android.view.animation.AnimationUtils.loadInterpolator(this@DetailActivity, android.R.interpolator.fast_out_slow_in)
+        }
+        window.sharedElementEnterTransition = transition
+        window.sharedElementReturnTransition = transition
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -91,3 +107,4 @@ class DetailActivity : AppCompatActivity() {
     }
 
 }
+

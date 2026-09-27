@@ -1,5 +1,6 @@
 package eightbitlab.com.blurview;
 
+import android.os.Build;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,20 @@ import androidx.annotation.NonNull;
 public final class GlassSetup {
 
     private GlassSetup() {
+    }
+
+    /**
+     * Installs GlassBlurController with a dedicated BlurAlgorithm instance (and dedicated
+     * RenderNode / Allocation) specifically for this BlurView, preventing cross-component
+     * buffer contamination and skip-frame clobbering.
+     */
+    @NonNull
+    public static BlurViewFacade setupGlass(@NonNull BlurView view,
+                                            @NonNull ViewGroup rootView) {
+        BlurAlgorithm algorithm = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                ? new RenderEffectBlur()
+                : new RenderScriptBlur(view.getContext());
+        return setupGlass(view, rootView, algorithm);
     }
 
     @NonNull

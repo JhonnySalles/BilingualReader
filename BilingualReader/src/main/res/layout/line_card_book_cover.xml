@@ -48,6 +48,7 @@
         style="@style/TextNormal.Line"
         android:layout_width="@dimen/history_cover_width"
         android:layout_height="wrap_content"
+        android:textColor="@color/card_book_amber_base"
         android:ellipsize="end"
         android:gravity="center_horizontal"
         android:maxLines="4"
