@@ -25,6 +25,7 @@ class DetailActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setupSharedElementTransitions()
+        supportPostponeEnterTransition()
         setContentView(R.layout.activity_detail)
 
         ThemeUtil.statusBarTransparentTheme(window, !resources.getBoolean(R.bool.isNight))
@@ -81,19 +82,36 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setupSharedElementTransitions() {
-        val transition = android.transition.TransitionSet().apply {
+        val bundle = intent.extras
+        val explicitTextColor = if (bundle?.containsKey(GeneralConsts.KEYS.SHARED_ELEMENT_TEXT_COLOR) == true) bundle.getInt(GeneralConsts.KEYS.SHARED_ELEMENT_TEXT_COLOR) else null
+        val explicitProgressColor = if (bundle?.containsKey(GeneralConsts.KEYS.SHARED_ELEMENT_PROGRESS_COLOR) == true) bundle.getInt(GeneralConsts.KEYS.SHARED_ELEMENT_PROGRESS_COLOR) else null
+
+        val enterTransition = android.transition.TransitionSet().apply {
             ordering = android.transition.TransitionSet.ORDERING_TOGETHER
             addTransition(android.transition.ChangeBounds())
             addTransition(android.transition.ChangeTransform())
             addTransition(android.transition.ChangeClipBounds())
             addTransition(android.transition.ChangeImageTransform())
-            addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition())
-            addTransition(br.com.fenix.bilingualreader.view.animation.ProgressColorTransition())
+            addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition(explicitTextColor))
+            addTransition(br.com.fenix.bilingualreader.view.animation.ProgressColorTransition(explicitProgressColor))
             duration = 350L
             interpolator = android.view.animation.AnimationUtils.loadInterpolator(this@DetailActivity, android.R.interpolator.fast_out_slow_in)
         }
-        window.sharedElementEnterTransition = transition
-        window.sharedElementReturnTransition = transition
+
+        val returnTransition = android.transition.TransitionSet().apply {
+            ordering = android.transition.TransitionSet.ORDERING_TOGETHER
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.ChangeTransform())
+            addTransition(android.transition.ChangeClipBounds())
+            addTransition(android.transition.ChangeImageTransform())
+            addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition(explicitEndColor = explicitTextColor))
+            addTransition(br.com.fenix.bilingualreader.view.animation.ProgressColorTransition(explicitEndColor = explicitProgressColor))
+            duration = 350L
+            interpolator = android.view.animation.AnimationUtils.loadInterpolator(this@DetailActivity, android.R.interpolator.fast_out_slow_in)
+        }
+
+        window.sharedElementEnterTransition = enterTransition
+        window.sharedElementReturnTransition = returnTransition
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

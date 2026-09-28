@@ -11,7 +11,10 @@ import android.widget.TextView
  * Custom shared element Transition that smoothly interpolates TextView text color (ARGB)
  * during Activity and Fragment transitions, preventing abrupt color changes.
  */
-class TextColorTransition : Transition() {
+class TextColorTransition(
+    private val explicitStartColor: Int? = null,
+    private val explicitEndColor: Int? = null
+) : Transition() {
 
     companion object {
         private const val PROPNAME_TEXT_COLOR = "bilingualreader:textColor:color"
@@ -28,11 +31,19 @@ class TextColorTransition : Transition() {
     }
 
     override fun captureStartValues(transitionValues: TransitionValues) {
-        captureValues(transitionValues)
+        if (explicitStartColor != null) {
+            transitionValues.values[PROPNAME_TEXT_COLOR] = explicitStartColor
+        } else {
+            captureValues(transitionValues)
+        }
     }
 
     override fun captureEndValues(transitionValues: TransitionValues) {
-        captureValues(transitionValues)
+        if (explicitEndColor != null) {
+            transitionValues.values[PROPNAME_TEXT_COLOR] = explicitEndColor
+        } else {
+            captureValues(transitionValues)
+        }
     }
 
     override fun createAnimator(

@@ -16,7 +16,10 @@ import android.widget.ProgressBar
  * Custom shared element Transition that smoothly interpolates ProgressBar colors (ARGB)
  * during Activity and Fragment transitions, preventing abrupt color jumps.
  */
-class ProgressColorTransition : Transition() {
+class ProgressColorTransition(
+    private val explicitStartColor: Int? = null,
+    private val explicitEndColor: Int? = null
+) : Transition() {
 
     companion object {
         private const val PROPNAME_PROGRESS_COLOR = "bilingualreader:progressColor:color"
@@ -62,11 +65,19 @@ class ProgressColorTransition : Transition() {
     }
 
     override fun captureStartValues(transitionValues: TransitionValues) {
-        captureValues(transitionValues)
+        if (explicitStartColor != null) {
+            transitionValues.values[PROPNAME_PROGRESS_COLOR] = explicitStartColor
+        } else {
+            captureValues(transitionValues)
+        }
     }
 
     override fun captureEndValues(transitionValues: TransitionValues) {
-        captureValues(transitionValues)
+        if (explicitEndColor != null) {
+            transitionValues.values[PROPNAME_PROGRESS_COLOR] = explicitEndColor
+        } else {
+            captureValues(transitionValues)
+        }
     }
 
     override fun createAnimator(

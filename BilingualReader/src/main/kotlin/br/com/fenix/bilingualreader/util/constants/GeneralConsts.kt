@@ -206,6 +206,8 @@ class GeneralConsts private constructor() {
 
     object KEYS {
         const val PREFERENCE_NAME = "SHARED_PREFS"
+        const val SHARED_ELEMENT_TEXT_COLOR = "SHARED_ELEMENT_TEXT_COLOR"
+        const val SHARED_ELEMENT_PROGRESS_COLOR = "SHARED_ELEMENT_PROGRESS_COLOR"
 
         object LIBRARY {
             const val DEFAULT_MANGA = -1L

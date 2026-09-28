@@ -114,6 +114,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
+        setupSharedElementTransitions()
 
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
 
@@ -605,5 +606,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun setupTitleBackgrounds() {
         val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
         MenuUtil.setupToolbar(this, mToolBar, mBlurTop, mainBarLayout)
+    }
+
+    private fun setupSharedElementTransitions() {
+        val transition = android.transition.TransitionSet().apply {
+            ordering = android.transition.TransitionSet.ORDERING_TOGETHER
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.ChangeTransform())
+            addTransition(android.transition.ChangeClipBounds())
+            addTransition(android.transition.ChangeImageTransform())
+            addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition())
+            addTransition(br.com.fenix.bilingualreader.view.animation.ProgressColorTransition())
+            duration = 350L
+            interpolator = android.view.animation.AnimationUtils.loadInterpolator(this@MainActivity, android.R.interpolator.fast_out_slow_in)
+        }
+        window.sharedElementExitTransition = transition
+        window.sharedElementReenterTransition = transition
     }
 }

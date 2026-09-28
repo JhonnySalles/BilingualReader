@@ -1021,7 +1021,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val bundle = Bundle()
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
-        intent.putExtras(bundle)
 
         val isCarousel = mGridType == LibraryMangaType.SEPARATOR_CAROUSEL
         val isLine = mGridType == LibraryMangaType.LINE || mGridType == LibraryMangaType.SEPARATOR_LINE
@@ -1044,6 +1043,17 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val coverView = view.findViewById<ImageView>(idCover)
         val titleView = view.findViewById<TextView>(idText)
         val progressView = view.findViewById<ProgressBar>(idProgress)
+
+        if (titleView != null) {
+            bundle.putInt(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.SHARED_ELEMENT_TEXT_COLOR, titleView.currentTextColor)
+        }
+        if (progressView != null) {
+            val progressColor = br.com.fenix.bilingualreader.view.animation.ProgressColorTransition.extractProgressColor(progressView)
+            if (progressColor != null) {
+                bundle.putInt(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.SHARED_ELEMENT_PROGRESS_COLOR, progressColor)
+            }
+        }
+        intent.putExtras(bundle)
 
         if (coverView != null && titleView != null && progressView != null) {
             val pImageCover = androidx.core.util.Pair.create(coverView as View, "transition_manga_cover")

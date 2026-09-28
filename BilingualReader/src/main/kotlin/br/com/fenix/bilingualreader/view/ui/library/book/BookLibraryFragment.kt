@@ -1010,8 +1010,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val bundle = Bundle()
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
-        intent.putExtras(bundle)
-
         val isCarousel = mGridType == LibraryBookType.SEPARATOR_CAROUSEL
         val isLine = mGridType == LibraryBookType.LINE || mGridType == LibraryBookType.SEPARATOR_LINE
         val idText = when {
@@ -1039,6 +1037,17 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val titleView = view.findViewById<TextView>(idText)
         val progressView = view.findViewById<ProgressBar>(idProgress)
         val authorView = idAuthor?.let { view.findViewById<TextView>(it) }
+
+        if (titleView != null) {
+            bundle.putInt(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.SHARED_ELEMENT_TEXT_COLOR, titleView.currentTextColor)
+        }
+        if (progressView != null) {
+            val progressColor = br.com.fenix.bilingualreader.view.animation.ProgressColorTransition.extractProgressColor(progressView)
+            if (progressColor != null) {
+                bundle.putInt(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.SHARED_ELEMENT_PROGRESS_COLOR, progressColor)
+            }
+        }
+        intent.putExtras(bundle)
 
         if (coverView != null && titleView != null && progressView != null) {
             val pairs = mutableListOf<androidx.core.util.Pair<View, String>>()
