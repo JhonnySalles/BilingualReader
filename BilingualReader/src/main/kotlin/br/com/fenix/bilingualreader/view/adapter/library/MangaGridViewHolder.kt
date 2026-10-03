@@ -31,35 +31,41 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         lateinit var mDefaultImageCover3: Bitmap
         lateinit var mDefaultImageCover4: Bitmap
         lateinit var mDefaultImageCover5: Bitmap
+        private var mDefaultsLoaded = false
+
+        private fun ensureDefaults(itemView: View) {
+            if (mDefaultsLoaded) return
+            mMangaImageSmall = itemView.resources.getDimension(R.dimen.manga_grid_card_image_small).toInt()
+            mMangaImage = itemView.resources.getDimension(R.dimen.manga_grid_card_image).toInt()
+            mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
+            mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+            mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
+            mDefaultImageCover4 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
+            mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
+            mDefaultsLoaded = true
+        }
     }
 
-    init {
-        mMangaImageSmall = itemView.resources.getDimension(R.dimen.manga_grid_card_image_small).toInt()
-        mMangaImage = itemView.resources.getDimension(R.dimen.manga_grid_card_image).toInt()
+    private val mangaImage: ImageView = itemView.findViewById(R.id.manga_grid_image_cover)
+    private val mangaTitle: TextViewWithBorder = itemView.findViewById(R.id.manga_grid_text_title)
+    private val mangaFileType: TextViewWithBorder = itemView.findViewById(R.id.manga_grid_file_type)
+    private val mangaPagesRead: TextViewWithBorder = itemView.findViewById(R.id.manga_grid_pages)
+    private val mangaLastAccess: TextViewWithBorder = itemView.findViewById(R.id.manga_grid_last_access)
+    private val mangaProgress: ProgressBar = itemView.findViewById(R.id.manga_grid_progress)
+    private val cardView: MaterialCardView = itemView.findViewById(R.id.manga_grid_card)
+    private val favorite: LinearLayout = itemView.findViewById(R.id.manga_grid_favorite)
+    private val favoriteIcon: ImageView = itemView.findViewById(R.id.manga_grid_favorite_icon)
+    private val config: LinearLayout = itemView.findViewById(R.id.manga_grid_config)
+    private val configIcon: ImageView = itemView.findViewById(R.id.manga_grid_config_icon)
+    private val subtitle: ImageView = itemView.findViewById(R.id.manga_grid_has_subtitle)
 
-        mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
-        mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
-        mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
-        mDefaultImageCover4 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
-        mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
+    init {
+        ensureDefaults(itemView)
     }
 
     @SuppressLint("SetTextI18n")
     fun bind(manga: Manga) {
-        val mangaImage = itemView.findViewById<ImageView>(R.id.manga_grid_image_cover)
-        val mangaTitle = itemView.findViewById<TextViewWithBorder>(R.id.manga_grid_text_title)
-        val mangaFileType = itemView.findViewById<TextViewWithBorder>(R.id.manga_grid_file_type)
-        val mangaPagesRead = itemView.findViewById<TextViewWithBorder>(R.id.manga_grid_pages)
-        val mangaLastAccess = itemView.findViewById<TextViewWithBorder>(R.id.manga_grid_last_access)
-        val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_grid_progress)
-        val cardView = itemView.findViewById<MaterialCardView>(R.id.manga_grid_card)
-        val favorite = itemView.findViewById<LinearLayout>(R.id.manga_grid_favorite)
-        val favoriteIcon = itemView.findViewById<ImageView>(R.id.manga_grid_favorite_icon)
-        val config = itemView.findViewById<LinearLayout>(R.id.manga_grid_config)
-        val configIcon = itemView.findViewById<ImageView>(R.id.manga_grid_config_icon)
-        val subtitle = itemView.findViewById<ImageView>(R.id.manga_grid_has_subtitle)
-
-        subtitle.visibility  = if (manga.hasSubtitle) {
+        subtitle.visibility = if (manga.hasSubtitle) {
             if (manga.lastVocabImport != null)
                 subtitle.setImageResource(R.drawable.ico_subtitles_imported)
             else
@@ -96,7 +102,6 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
             else -> mDefaultImageCover5
         }
 
-        mangaImage.setImageBitmap(null)
         MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage, image)
 
         val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG && type != LibraryMangaType.SEPARATOR_BIG
@@ -108,7 +113,7 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
             val percent: Float = (manga.bookMark.toFloat() / manga.pages) * 100
             "${Util.formatDecimal(percent)} %"
         } else
-             "${manga.bookMark} / ${manga.pages}"
+            "${manga.bookMark} / ${manga.pages}"
 
         mangaProgress.max = manga.pages
         mangaProgress.setProgress(manga.bookMark, false)

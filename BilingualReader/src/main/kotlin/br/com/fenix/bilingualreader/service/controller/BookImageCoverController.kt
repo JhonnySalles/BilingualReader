@@ -154,7 +154,9 @@ class BookImageCoverController private constructor() {
     fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true) {
         imageView.load(book) {
             allowHardware(false)
-            crossfade(true)
+            // Crossfade invalidates the view for several frames and wakes BlurView's
+            // software root capture; library scroll needs an instant placeholder swap.
+            crossfade(false)
             if (notLocate != null) {
                 placeholder(BitmapDrawable(context.resources, notLocate))
                 error(BitmapDrawable(context.resources, notLocate))
@@ -175,7 +177,7 @@ class BookImageCoverController private constructor() {
     fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
         imageView.load(book) {
             allowHardware(false)
-            crossfade(true)
+            crossfade(false)
             if (notLocate != null) {
                 placeholder(BitmapDrawable(context.resources, notLocate))
                 error(BitmapDrawable(context.resources, notLocate))

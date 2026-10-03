@@ -3,39 +3,32 @@ package br.com.fenix.bilingualreader.view.components
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 
+/**
+ * Text with a dark outline drawn via [android.graphics.Paint.setShadowLayer] in a
+ * single [onDraw] pass. Prefer this over a double [super.onDraw] stroke/fill so
+ * BlurView's software root capture does not pay for the text twice.
+ */
 class TextViewWithBorder : AppCompatTextView {
-    constructor(context: Context) : super(context)
+    constructor(context: Context) : super(context) {
+        applyBorder()
+    }
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        applyBorder()
+    }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        applyBorder()
+    }
 
-    private val strokeColorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+    private fun applyBorder() {
+        paint.setShadowLayer(1.5f, 0f, 0f, Color.BLACK)
+    }
 
     public override fun onDraw(canvas: Canvas) {
-        val originalStyle = paint.style
-        val originalStrokeWidth = paint.strokeWidth
-        val originalColorFilter = paint.colorFilter
-
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.strokeJoin = Paint.Join.ROUND
-        paint.strokeMiter = 10f
-        paint.colorFilter = strokeColorFilter
         super.onDraw(canvas)
-
-        paint.style = Paint.Style.FILL
-        paint.strokeWidth = 0f
-        paint.colorFilter = originalColorFilter
-        super.onDraw(canvas)
-
-        paint.style = originalStyle
-        paint.strokeWidth = originalStrokeWidth
     }
 }

@@ -26,7 +26,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -210,6 +209,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
+    private var mSwipeBlurActive = false
 
     companion object {
         var mSortType: Order = Order.Name
@@ -739,7 +739,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
         mBottomSheet.isDraggable = true
 
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupLibrary, mBottomSheet, root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch))
@@ -766,26 +765,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
-
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
-                    if (isGlass) {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
-                        GlassRenderScheduler.requestUpdate(mMenuPopupLibraryBackground)
-                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(50)
-                    }
+                    setAnimationRecycler(true)
+                    // Keep continuous blur while a delete-swipe is in progress / recovering.
+                    if (!mSwipeBlurActive)
+                        setLibraryBlurContinuous(false)
                 } else {
-                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
-                    if (isGlass && isPopupVisible) {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
-                    }
-                    if (isGlass) {
-                        GlassRenderScheduler.setScrollRateCap(mMenuPopupLibraryBackground, true)
-                    }
+                    setAnimationRecycler(true)
+                    setLibraryBlurContinuous(true)
                 }
             }
         })
@@ -1153,6 +1140,29 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mLibraryAdapter?.isAnimation = isAnimate
     }
 
+    private fun setLibraryBlurContinuous(active: Boolean) {
+        val ctx = context ?: return
+        val isGlass = GeneralConsts.getSharedPreferences(ctx)
+            .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (!isGlass) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+            return
+        }
+        if (active) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+            val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+            if (isPopupVisible) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+            }
+            GlassRenderScheduler.setScrollRateCap(mMenuPopupLibraryBackground, true)
+        } else if (!mSwipeBlurActive && mRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            GlassRenderScheduler.requestUpdate(mMenuPopupLibraryBackground)
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(50)
+        }
+    }
+
     private fun removeList(book: Book) {
         mLibraryAdapter?.removeList(book)
     }
@@ -1344,10 +1354,19 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE)
-                mRefreshLayout.setEnabled(false)
-            else
-                mRefreshLayout.setEnabled(true)
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                mRefreshLayout.isEnabled = false
+                mSwipeBlurActive = true
+                setLibraryBlurContinuous(true)
+            } else {
+                mRefreshLayout.isEnabled = true
+            }
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            mSwipeBlurActive = false
+            setLibraryBlurContinuous(false)
         }
     }
 

@@ -13,6 +13,8 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 object LibraryCardAnimator {
 
     const val DURATION_MS = 200L
+    /** Cap slide distance so entry animation invalidates fewer pixels under continuous blur. */
+    private const val GRID_SLIDE_DP = 40f
     private val interpolator = DecelerateInterpolator()
 
     enum class Style {
@@ -47,13 +49,14 @@ object LibraryCardAnimator {
                 start()
             }
             Style.GRID, Style.SEPARATOR_TITLE_RIGHT -> {
-                // Vem da Direita
+                // Vem da Direita (deslocamento limitado para manter o scroll fluido com glass)
                 view.alpha = 0f
                 view.scaleX = 1f
                 view.scaleY = 1f
                 view.translationY = 0f
                 val start = {
-                    val dx = if (view.width > 0) view.width.toFloat() else view.resources.displayMetrics.widthPixels.toFloat()
+                    val maxDx = GRID_SLIDE_DP * view.resources.displayMetrics.density
+                    val dx = if (view.width > 0) minOf(view.width.toFloat(), maxDx) else maxDx
                     view.translationX = dx
                     view.animate()
                         .alpha(1f)
