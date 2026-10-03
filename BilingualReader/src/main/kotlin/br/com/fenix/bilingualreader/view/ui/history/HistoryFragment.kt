@@ -22,7 +22,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -67,6 +66,7 @@ import br.com.fenix.bilingualreader.view.adapter.history.HistoryLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -155,6 +155,7 @@ class HistoryFragment : Fragment() {
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
+    private var mSwipeBlurActive = false
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -544,6 +545,20 @@ class HistoryFragment : Fragment() {
                     dialog.show()
                 }
             }
+
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    mSwipeBlurActive = true
+                    setHistoryBlurContinuous(true)
+                }
+            }
+
+            override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                super.clearView(recyclerView, viewHolder)
+                mSwipeBlurActive = false
+                setHistoryBlurContinuous(false)
+            }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -590,22 +605,13 @@ class HistoryFragment : Fragment() {
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
-
-                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
-                    if (isGlass) {
-                        mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
-                    }
+                    setAnimationRecycler(true)
+                    if (!mSwipeBlurActive)
+                        setHistoryBlurContinuous(false)
                 } else {
-                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
-                    if (isGlass && isPopupVisible) {
-                        mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
-                    }
+                    setAnimationRecycler(true)
+                    setHistoryBlurContinuous(true)
                 }
             }
         })
@@ -725,6 +731,29 @@ class HistoryFragment : Fragment() {
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
         (mRecyclerView.adapter as? HistoryBaseAdapter)?.isAnimation = isAnimate
+    }
+
+    private fun setHistoryBlurContinuous(active: Boolean) {
+        val ctx = context ?: return
+        val isGlass = GeneralConsts.getSharedPreferences(ctx)
+            .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (!isGlass) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+            return
+        }
+        if (active) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+            val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+            if (isPopupVisible) {
+                mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
+            }
+            GlassRenderScheduler.setScrollRateCap(mMenuPopupHistoryBackground, true)
+        } else if (!mSwipeBlurActive && mRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+            mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+            GlassRenderScheduler.requestUpdate(mMenuPopupHistoryBackground)
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(50)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

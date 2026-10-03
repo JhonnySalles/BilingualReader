@@ -48,21 +48,23 @@ class HistorySeparatorGridViewHolder(
         }
     }
 
+    private val historyImage: ImageView = itemView.findViewById(R.id.history_grid_image_cover)
+    private val historyTitle: TextView = itemView.findViewById(R.id.history_grid_title)
+    private val historySubTitle: TextView = itemView.findViewById(R.id.history_grid_sub_title)
+    private val historyType: TextView = itemView.findViewById(R.id.history_grid_file_type)
+    private val historyPagesRead: TextView = itemView.findViewById(R.id.history_grid_pages)
+    private val historyLastAccess: TextView = itemView.findViewById(R.id.history_grid_last_access)
+    private val cardView: MaterialCardView = itemView.findViewById(R.id.history_grid_card)
+    private val historyProgress: ProgressBar = itemView.findViewById(R.id.history_grid_progress)
+    private val favorite: LinearLayout = itemView.findViewById(R.id.history_grid_favorite)
+    private val favoriteIcon: ImageView = itemView.findViewById(R.id.history_grid_favorite_icon)
+
+    init {
+        ensureDefaults(itemView)
+    }
+
     @SuppressLint("SetTextI18n")
     fun bind(history: History) {
-        ensureDefaults(itemView)
-
-        val historyImage = itemView.findViewById<ImageView>(R.id.history_grid_image_cover)
-        val historyTitle = itemView.findViewById<TextView>(R.id.history_grid_title)
-        val historySubTitle = itemView.findViewById<TextView>(R.id.history_grid_sub_title)
-        val historyType = itemView.findViewById<TextView>(R.id.history_grid_file_type)
-        val historyPagesRead = itemView.findViewById<TextView>(R.id.history_grid_pages)
-        val historyLastAccess = itemView.findViewById<TextView>(R.id.history_grid_last_access)
-        val cardView = itemView.findViewById<MaterialCardView>(R.id.history_grid_card)
-        val historyProgress = itemView.findViewById<ProgressBar>(R.id.history_grid_progress)
-        val favorite = itemView.findViewById<LinearLayout>(R.id.history_grid_favorite)
-        val favoriteIcon = itemView.findViewById<ImageView>(R.id.history_grid_favorite_icon)
-
         val isLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val cardSize = AdapterUtils.getHistoryCardSize(itemView.context, type, isLandscape)
         cardView.layoutParams.width = cardSize.first
@@ -90,7 +92,6 @@ class HistorySeparatorGridViewHolder(
             else -> mDefaultImageCover5
         }
 
-        historyImage.setImageBitmap(null)
         val coverSource = if (history is br.com.fenix.bilingualreader.model.entity.HistoryStatistics) history.base else history
         when (coverSource) {
             is Manga -> MangaImageCoverController.instance.setImageCoverAsync(itemView.context, coverSource, historyImage, image)

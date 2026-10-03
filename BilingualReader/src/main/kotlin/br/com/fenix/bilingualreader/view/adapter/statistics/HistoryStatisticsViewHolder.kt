@@ -28,41 +28,46 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         var mDescriptionAuthor: String = ""
         var mDescriptionSeries: String = ""
         var mDescriptionPublisher: String = ""
+        private var mDefaultsLoaded = false
+
+        private fun ensureDefaults(itemView: View) {
+            if (mDefaultsLoaded) return
+            mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+            mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
+            mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
+            mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
+            mDefaultsLoaded = true
+        }
     }
 
+    private val status: View = itemView.findViewById(R.id.history_status)
+    private val image: ImageView = itemView.findViewById(R.id.history_image_cover)
+    private val title: TextView = itemView.findViewById(R.id.history_text_title)
+    private val lastAccess: TextView = itemView.findViewById(R.id.history_line_last_access)
+    private val pagesReadOverall: TextView = itemView.findViewById(R.id.history_line_pages)
+    private val pagesReadDaily: TextView = itemView.findViewById(R.id.history_line_pages_read)
+    private val timeReadDaily: TextView = itemView.findViewById(R.id.history_line_time_read)
+    private val library: TextView = itemView.findViewById(R.id.history_library)
+    private val type: TextView = itemView.findViewById(R.id.history_type)
+    private val favorite: ImageView = itemView.findViewById(R.id.history_favorite)
+    private val subtitle: ImageView = itemView.findViewById(R.id.history_has_subtitle)
+    private val cardView: LinearLayout = itemView.findViewById(R.id.history_card)
+    private val series: TextView = itemView.findViewById(R.id.history_line_series)
+    private val author: TextView = itemView.findViewById(R.id.history_line_author)
+    private val publisher: TextView = itemView.findViewById(R.id.history_line_publisher)
+    private val progress: ProgressBar = itemView.findViewById(R.id.history_line_progress)
+
     init {
-        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
-        mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
-        mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
-        mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
+        ensureDefaults(itemView)
     }
 
     fun bind(history: History) {
-        val status = itemView.findViewById<View>(R.id.history_status)
-        val image = itemView.findViewById<ImageView>(R.id.history_image_cover)
-        val title = itemView.findViewById<TextView>(R.id.history_text_title)
-        val lastAccess = itemView.findViewById<TextView>(R.id.history_line_last_access)
-        val pagesReadOverall = itemView.findViewById<TextView>(R.id.history_line_pages)
-        val pagesReadDaily = itemView.findViewById<TextView>(R.id.history_line_pages_read)
-        val timeReadDaily = itemView.findViewById<TextView>(R.id.history_line_time_read)
-        val library = itemView.findViewById<TextView>(R.id.history_library)
-        val type = itemView.findViewById<TextView>(R.id.history_type)
-        val favorite = itemView.findViewById<ImageView>(R.id.history_favorite)
-        val subtitle = itemView.findViewById<ImageView>(R.id.history_has_subtitle)
-        val cardView = itemView.findViewById<LinearLayout>(R.id.history_card)
-
-        val series = itemView.findViewById<TextView>(R.id.history_line_series)
-        val author = itemView.findViewById<TextView>(R.id.history_line_author)
-        val publisher = itemView.findViewById<TextView>(R.id.history_line_publisher)
-        val progress = itemView.findViewById<ProgressBar>(R.id.history_line_progress)
-
         cardView.setOnClickListener { listener.onClick(history) }
         cardView.setOnLongClickListener {
             listener.onClickLong(history, it, layoutPosition)
             true
         }
 
-        image.setImageBitmap(null)
         val base = if (history is HistoryStatistics) history.base else history
         when (base) {
             is Manga -> MangaImageCoverController.instance.setImageCoverAsync(itemView.context, base, image, mDefaultImageCover)
@@ -77,7 +82,6 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         title.setTextColor(themeColor)
         favorite.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
 
-        // Format exact session time (hour and minute) or fallback
         lastAccess.text = if (history.lastAccess != null) {
             history.lastAccess!!.format(DateTimeFormatter.ofPattern("HH:mm"))
         } else {
@@ -132,8 +136,8 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         } else View.GONE
 
         val progressDrawableRes = when (history.type) {
-            br.com.fenix.bilingualreader.model.enums.Type.MANGA -> R.drawable.progress_bar_manga
-            br.com.fenix.bilingualreader.model.enums.Type.BOOK -> R.drawable.progress_bar_book
+            Type.MANGA -> R.drawable.progress_bar_manga
+            Type.BOOK -> R.drawable.progress_bar_book
         }
         progress.progressTintList = null
         progress.progressBackgroundTintList = null
@@ -147,13 +151,13 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         else
             history.library.title.uppercase()
 
-        type.text = when(history.type) {
+        type.text = when (history.type) {
             Type.BOOK -> itemView.context.getString(R.string.history_book)
             Type.MANGA -> itemView.context.getString(R.string.history_manga)
         }
 
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE
-        subtitle.visibility  = if (base is Manga && base.hasSubtitle) {
+        subtitle.visibility = if (base is Manga && base.hasSubtitle) {
             if (base.lastVocabImport != null)
                 subtitle.setImageResource(R.drawable.ico_subtitles_imported)
             else

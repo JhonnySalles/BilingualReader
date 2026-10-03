@@ -22,7 +22,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -71,6 +70,7 @@ import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorGridCar
 import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
@@ -160,6 +160,7 @@ class HistoryStatisticsFragment : Fragment() {
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
+    private var mSwipeBlurActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -558,6 +559,20 @@ class HistoryStatisticsFragment : Fragment() {
                 dialog.show()
             }
         }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                mSwipeBlurActive = true
+                setHistoryBlurContinuous(true)
+            }
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            mSwipeBlurActive = false
+            setHistoryBlurContinuous(false)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -605,21 +620,13 @@ class HistoryStatisticsFragment : Fragment() {
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
-
-                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    mBlurTop.setBlurAutoUpdate(false)
-                    if (isGlass) {
-                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-                    }
+                    setAnimationRecycler(true)
+                    if (!mSwipeBlurActive)
+                        setHistoryBlurContinuous(false)
                 } else {
-                    mBlurTop.setBlurAutoUpdate(true)
-                    if (isGlass && isPopupVisible) {
-                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
-                    }
+                    setAnimationRecycler(true)
+                    setHistoryBlurContinuous(true)
                 }
             }
         })
@@ -738,6 +745,37 @@ class HistoryStatisticsFragment : Fragment() {
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
         (mRecyclerView.adapter as? HistoryBaseAdapter)?.isAnimation = isAnimate
+    }
+
+    private fun setHistoryBlurContinuous(active: Boolean) {
+        val ctx = context ?: return
+        val isGlass = GeneralConsts.getSharedPreferences(ctx)
+            .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (!isGlass) {
+            if (::mBlurTop.isInitialized)
+                mBlurTop.setBlurAutoUpdate(false)
+            return
+        }
+        if (active) {
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.setBlurAutoUpdate(true)
+                GlassRenderScheduler.setScrollRateCap(mBlurTop, true)
+            }
+            val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+            if (isPopupVisible) {
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
+            }
+            GlassRenderScheduler.setScrollRateCap(mMenuPopupHistoryStatisticsBackground, true)
+        } else if (!mSwipeBlurActive && mRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.setBlurAutoUpdate(false)
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 50)
+            }
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+            GlassRenderScheduler.requestUpdate(mMenuPopupHistoryStatisticsBackground)
+            mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 50)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
