@@ -297,7 +297,15 @@ class Manga(
         if (author.contains(","))
             author = author.substringBeforeLast(", ") + "."
 
-        val release = if (comic.year != null) LocalDate.of(comic.year!!, comic.month ?: 1, comic.day ?: 1) else null
+        val month = if (comic.month != null && comic.month!! in 1..12) comic.month!! else 1
+        val day = if (comic.day != null && comic.day!! in 1..31) comic.day!! else 1
+        val release = if (comic.year != null && comic.year!! > 0) {
+            try {
+                LocalDate.of(comic.year!!, month, day)
+            } catch (e: Exception) {
+                null
+            }
+        } else null
 
         val updated = this.author != author || this.series != comic.series .toString()|| this.publisher != comic.publisher.toString() ||
                 this.genre != comic.genre.toString() || this.volume != comic.volume.toString() || this.release != release

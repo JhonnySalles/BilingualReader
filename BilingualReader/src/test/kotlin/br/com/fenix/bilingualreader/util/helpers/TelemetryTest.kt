@@ -15,19 +15,21 @@ class TelemetryTest {
 
     @Before
     fun setUp() {
-        Telemetry.isEnabled = true
+        Telemetry.isEnabled = false
     }
 
     @After
     fun tearDown() {
-        Telemetry.isEnabled = true
+        Telemetry.isEnabled = false
     }
 
     @Test
     fun testIsEnabledToggle() {
-        assertTrue(Telemetry.isEnabled)
         Telemetry.isEnabled = false
         assertFalse(Telemetry.isEnabled)
+        Telemetry.isEnabled = true
+        assertTrue(Telemetry.isEnabled)
+        Telemetry.isEnabled = false
     }
 
     @Test
@@ -45,6 +47,7 @@ class TelemetryTest {
         // Should execute try block and safely handle missing firebase instance via catch
         Telemetry.recordException(exception, "Custom message")
         assertTrue(Telemetry.isEnabled)
+        Telemetry.isEnabled = false
     }
 
     @Test

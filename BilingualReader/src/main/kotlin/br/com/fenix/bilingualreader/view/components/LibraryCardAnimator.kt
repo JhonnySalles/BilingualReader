@@ -89,7 +89,6 @@ object LibraryCardAnimator {
     }
 
     fun clear(view: View) {
-        view.animate().cancel()
         view.alpha = 1f
         view.translationX = 0f
         view.translationY = 0f

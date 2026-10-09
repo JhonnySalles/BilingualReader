@@ -60,6 +60,7 @@ class ScannerBookTest {
         every { anyConstructed<Storage>().listBookDeleted(any()) } returns emptyList()
         every { anyConstructed<Storage>().findBookByPath(any()) } returns null
         every { anyConstructed<Storage>().save(book = any<Book>(), lastAlteration = any()) } returns 1L
+        every { anyConstructed<Storage>().delete(any<Book>()) } returns Unit
 
         val tempDirFile = tempFolder.root
         library = Library(id = 2L, title = "Book Library", path = tempDirFile.absolutePath)

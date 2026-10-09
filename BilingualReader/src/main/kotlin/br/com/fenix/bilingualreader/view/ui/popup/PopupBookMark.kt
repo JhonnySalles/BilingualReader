@@ -203,12 +203,16 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
                             val startPage = if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) mLastHistory!!.pageStart else obj.bookMark
                             val endPage = if (mNewBookMark > 0) mNewBookMark else obj.pages
-                            mWordCount = mCalculator.countWordsFromDocument(document!!, startPage, endPage)
 
-                            if (!mIsManualReadingTime) {
-                                mReadingDurationSeconds = mCalculator.calculateBookReadingTime(mWordCount)
-                                mReadingDurationEdit.post {
-                                    mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
+                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                                mWordCount = mCalculator.countWordsFromDocument(document!!, startPage, endPage)
+                                document?.recycle()
+
+                                if (!mIsManualReadingTime) {
+                                    mReadingDurationSeconds = mCalculator.calculateBookReadingTime(mWordCount)
+                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                        mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
+                                    }
                                 }
                             }
                         }

@@ -55,6 +55,7 @@ class ScannerMangaTest {
         every { anyConstructed<Storage>().listDeleted(any()) } returns emptyList()
         every { anyConstructed<Storage>().findMangaByPath(any()) } returns null
         every { anyConstructed<Storage>().save(manga = any<Manga>(), lastAlteration = any()) } returns 1L
+        every { anyConstructed<Storage>().delete(any<Manga>()) } returns Unit
         
         // Mock Firebase
         mockkStatic(FirebaseApp::class)

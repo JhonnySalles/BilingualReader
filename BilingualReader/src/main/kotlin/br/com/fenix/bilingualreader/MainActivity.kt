@@ -219,7 +219,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (isColdStart) {
                         mFragmentManager.beginTransaction()
                             .replace(R.id.main_content_root, ConfigFragment())
-                            .commit()
+                            .commitAllowingStateLoss()
                     }
                 } else {
                     val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
@@ -236,7 +236,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             if (isColdStart) {
                                 mFragmentManager.beginTransaction()
                                     .replace(R.id.main_content_root, HistoryFragment())
-                                    .commit()
+                                    .commitAllowingStateLoss()
                             }
                         }
                         library.type == Type.MANGA -> {
@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             if (isColdStart) {
                                 mFragmentManager.beginTransaction()
                                     .replace(R.id.main_content_root, MangaLibraryFragment())
-                                    .commit()
+                                    .commitAllowingStateLoss()
                             } else {
                                 mMangaLibraryModel.list {
                                     mMangaLibraryModel.isLoading = false
@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             if (isColdStart) {
                                 mFragmentManager.beginTransaction()
                                     .replace(R.id.main_content_root, BookLibraryFragment())
-                                    .commit()
+                                    .commitAllowingStateLoss()
                             } else {
                                 mBookLibraryModel.list {
                                     mBookLibraryModel.isLoading = false
@@ -400,7 +400,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.anim.slide_fragment_remove_enter, R.anim.slide_fragment_remove_exit)
             .replace(R.id.main_content_root, fragment)
             .addToBackStack(null)
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     private var mLibraries: List<Library> = listOf()
