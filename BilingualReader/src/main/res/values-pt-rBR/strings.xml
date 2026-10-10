@@ -1312,4 +1312,7 @@
     <string name="time_unit_hours">Horas</string>
     <string name="time_unit_minutes">Minutos</string>
     <string name="time_unit_seconds">Segundos</string>
+    <string name="menu_history_filter">Filtro</string>
+    <string name="popup_history_tab_filter">Filtros</string>
+    <string name="popup_history_filter_grouped">Agrupar (Livro/Mangá)</string>
 </resources>

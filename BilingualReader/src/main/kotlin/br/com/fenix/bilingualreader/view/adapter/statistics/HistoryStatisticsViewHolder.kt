@@ -18,6 +18,7 @@ import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.time.format.DateTimeFormatter
 
@@ -44,9 +45,12 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
     private val image: ImageView = itemView.findViewById(R.id.history_image_cover)
     private val title: TextView = itemView.findViewById(R.id.history_text_title)
     private val lastAccess: TextView = itemView.findViewById(R.id.history_line_last_access)
+    private val fileSize: TextView = itemView.findViewById(R.id.history_line_file_size)
+    private val fileType: TextView = itemView.findViewById(R.id.history_line_file_type)
     private val pagesReadOverall: TextView = itemView.findViewById(R.id.history_line_pages)
     private val pagesReadDaily: TextView = itemView.findViewById(R.id.history_line_pages_read)
     private val timeReadDaily: TextView = itemView.findViewById(R.id.history_line_time_read)
+    private val totalPages: TextView = itemView.findViewById(R.id.history_line_total_pages)
     private val library: TextView = itemView.findViewById(R.id.history_library)
     private val type: TextView = itemView.findViewById(R.id.history_type)
     private val favorite: ImageView = itemView.findViewById(R.id.history_favorite)
@@ -75,6 +79,7 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         }
 
         title.text = history.title
+        totalPages.text = "${history.pages} pág."
         val themeColor = when (history.type) {
             Type.MANGA -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_manga_indigo_base)
             Type.BOOK -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
@@ -82,11 +87,9 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         title.setTextColor(themeColor)
         favorite.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
 
-        lastAccess.text = if (history.lastAccess != null) {
-            history.lastAccess!!.format(DateTimeFormatter.ofPattern("HH:mm"))
-        } else {
-            ""
-        }
+        lastAccess.text = if (history.lastAccess != null) GeneralConsts.formatterDate(itemView.context, history.lastAccess!!) else ""
+        fileType.text = history.fileType.acronym
+        fileSize.text = FileUtil.formatSize(history.fileSize)
 
         val percent: Float = if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100) else 0f
         pagesReadOverall.text = "${history.bookMark} / ${history.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""

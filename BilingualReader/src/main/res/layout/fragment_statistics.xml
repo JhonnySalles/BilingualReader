@@ -32,6 +32,30 @@
                 android:layout_marginBottom="@dimen/margin_bottom"
                 android:orientation="vertical">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
+                    android:orientation="vertical">
+                    
+                    <TextView
+                        style="@style/TextTitle.Statistics.Sector"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="@string/statistics_heatmap" />
+
+                    <br.com.fenix.bilingualreader.view.components.ReadingHeatmapView
+                        android:id="@+id/statistics_heatmap"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center" />
+                        
+                </LinearLayout>
+
                 <include
                     layout="@layout/fragment_statistics_manga"
                     android:layout_width="match_parent"

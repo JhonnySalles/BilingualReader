@@ -36,6 +36,7 @@ import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
+import br.com.fenix.bilingualreader.view.components.ReadingHeatmapView
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -76,6 +77,7 @@ class StatisticsFragment : Fragment() {
     private var mContent: ConstraintLayout by autoCleared()
     private var mProgress: BlurView by autoCleared()
     private lateinit var mDefaultAllLibraries: String
+    private var mReadingHeatmap: ReadingHeatmapView by autoCleared()
 
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
     private var mMangaReading: TextView by autoCleared()
@@ -86,12 +88,16 @@ class StatisticsFragment : Fragment() {
     private var mMangaCompletePages: TextView by autoCleared()
     private var mMangaCompleteTimes: TextView by autoCleared()
 
+    private var mMangaMonthPages: TextView by autoCleared()
+    private var mMangaMonthTimes: TextView by autoCleared()
+
     private var mMangaCurrentPages: TextView by autoCleared()
     private var mMangaCurrentTimes: TextView by autoCleared()
 
     private var mMangaTotalPages: TextView by autoCleared()
     private var mMangaTotalTime: TextView by autoCleared()
     private var mMangaReadingAverage: TextView by autoCleared()
+    private var mMangaTotalReadMonth: TextView by autoCleared()
 
     private var mMangaYear: TextInputLayout by autoCleared()
     private var mMangaYearAutoComplete: MaterialAutoCompleteTextView by autoCleared()
@@ -112,12 +118,16 @@ class StatisticsFragment : Fragment() {
     private var mBookCompletePages: TextView by autoCleared()
     private var mBookCompleteTimes: TextView by autoCleared()
 
+    private var mBookMonthPages: TextView by autoCleared()
+    private var mBookMonthTimes: TextView by autoCleared()
+
     private var mBookCurrentPages: TextView by autoCleared()
     private var mBookCurrentTimes: TextView by autoCleared()
 
     private var mBookTotalPages: TextView by autoCleared()
     private var mBookTotalTime: TextView by autoCleared()
     private var mBookReadingAverage: TextView by autoCleared()
+    private var mBookTotalReadMonth: TextView by autoCleared()
 
     private var mBookYear: TextInputLayout by autoCleared()
     private var mBookYearAutoComplete: MaterialAutoCompleteTextView by autoCleared()
@@ -141,6 +151,7 @@ class StatisticsFragment : Fragment() {
         mRoot = view.findViewById(R.id.frame_statistics_root)
         mContent = view.findViewById(R.id.frame_statistics_content)
         mProgress = view.findViewById(R.id.statistics_progress)
+        mReadingHeatmap = view.findViewById(R.id.statistics_heatmap)
 
         mBookReading = view.findViewById(R.id.statistics_book_reading)
         mBookToRead = view.findViewById(R.id.statistics_book_to_read)
@@ -148,11 +159,14 @@ class StatisticsFragment : Fragment() {
         mBookRead = view.findViewById(R.id.statistics_book_read)
         mBookCompletePages = view.findViewById(R.id.statistics_book_completed_pages)
         mBookCompleteTimes = view.findViewById(R.id.statistics_book_completed_time)
+        mBookMonthPages = view.findViewById(R.id.statistics_book_month_pages)
+        mBookMonthTimes = view.findViewById(R.id.statistics_book_month_time)
         mBookCurrentPages = view.findViewById(R.id.statistics_book_current_pages)
         mBookCurrentTimes = view.findViewById(R.id.statistics_book_current_time)
         mBookTotalPages = view.findViewById(R.id.statistics_book_total_read_pages)
         mBookTotalTime = view.findViewById(R.id.statistics_book_total_read_times)
         mBookReadingAverage = view.findViewById(R.id.statistics_book_total_read_average)
+        mBookTotalReadMonth = view.findViewById(R.id.statistics_book_total_read_month)
         mBookYear = view.findViewById(R.id.statistics_book_chart_year)
         mBookYearAutoComplete = view.findViewById(R.id.statistics_book_chart_year_auto_complete)
         mBookChartLibrary = view.findViewById(R.id.statistics_book_chart_library)
@@ -165,11 +179,14 @@ class StatisticsFragment : Fragment() {
         mMangaRead = view.findViewById(R.id.statistics_manga_read)
         mMangaCompletePages = view.findViewById(R.id.statistics_manga_completed_pages)
         mMangaCompleteTimes = view.findViewById(R.id.statistics_manga_completed_time)
+        mMangaMonthPages = view.findViewById(R.id.statistics_manga_month_pages)
+        mMangaMonthTimes = view.findViewById(R.id.statistics_manga_month_time)
         mMangaCurrentPages = view.findViewById(R.id.statistics_manga_current_pages)
         mMangaCurrentTimes = view.findViewById(R.id.statistics_manga_current_time)
         mMangaTotalPages = view.findViewById(R.id.statistics_manga_total_read_pages)
         mMangaTotalTime = view.findViewById(R.id.statistics_manga_total_read_times)
         mMangaReadingAverage = view.findViewById(R.id.statistics_manga_total_read_average)
+        mMangaTotalReadMonth = view.findViewById(R.id.statistics_manga_total_read_month)
         mMangaYear = view.findViewById(R.id.statistics_manga_chart_year)
         mMangaYearAutoComplete = view.findViewById(R.id.statistics_manga_chart_year_auto_complete)
         mMangaChartLibrary = view.findViewById(R.id.statistics_manga_chart_library)
@@ -202,10 +219,10 @@ class StatisticsFragment : Fragment() {
             mProgress.setBlurAutoUpdate(it)
         }
 
-        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, null) }
+        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
         view.findViewById<View>(R.id.statistics_manga_btn_history).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
 
-        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, null) }
+        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
         view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
 
         val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
@@ -244,6 +261,17 @@ class StatisticsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val statistics = withContext(Dispatchers.IO) { mRepository.statistics() }
+                
+                val heatmapMangaData = withContext(Dispatchers.IO) { mRepository.getReadingHeatmapData(Type.MANGA) }
+                val heatmapBookData = withContext(Dispatchers.IO) { mRepository.getReadingHeatmapData(Type.BOOK) }
+                
+                val mergedHeatmapData = mutableMapOf<java.time.LocalDate, Int>()
+                heatmapMangaData.forEach { (date, count) -> mergedHeatmapData[date] = count }
+                heatmapBookData.forEach { (date, count) -> 
+                    mergedHeatmapData[date] = mergedHeatmapData.getOrDefault(date, 0) + count 
+                }
+                
+                mReadingHeatmap.setData(mergedHeatmapData)
 
                 for (statistic in statistics) {
                     when (statistic.type) {
@@ -254,10 +282,13 @@ class StatisticsFragment : Fragment() {
                             mMangaRead.text = statistic.read.toString()
                             mMangaCompletePages.text = statistic.completeReadingPages.toString()
                             mMangaCompleteTimes.text = generateSeconds(statistic.completeReadingSeconds)
+                            mMangaMonthPages.text = statistic.currentMonthReadingPages.toString()
+                            mMangaMonthTimes.text = generateSeconds(statistic.currentMonthReadingSeconds)
                             mMangaCurrentPages.text = statistic.currentReadingPages.toString()
                             mMangaCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
                             mMangaTotalPages.text = statistic.totalReadPages.toString()
                             mMangaTotalTime.text = generateSeconds(statistic.totalReadSeconds)
+                            mMangaTotalReadMonth.text = statistic.totalReadMonthWorks.toString()
                             mMangaReadingAverage.text = getString(
                                 R.string.statistics_average,
                                 round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
@@ -271,10 +302,13 @@ class StatisticsFragment : Fragment() {
                             mBookRead.text = statistic.read.toString()
                             mBookCompletePages.text = statistic.completeReadingPages.toString()
                             mBookCompleteTimes.text = generateSeconds(statistic.completeReadingSeconds)
+                            mBookMonthPages.text = statistic.currentMonthReadingPages.toString()
+                            mBookMonthTimes.text = generateSeconds(statistic.currentMonthReadingSeconds)
                             mBookCurrentPages.text = statistic.currentReadingPages.toString()
                             mBookCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
                             mBookTotalPages.text = statistic.totalReadPages.toString()
                             mBookTotalTime.text = generateSeconds(statistic.totalReadSeconds)
+                            mBookTotalReadMonth.text = statistic.totalReadMonthWorks.toString()
                             mBookReadingAverage.text = getString(
                                 R.string.statistics_average,
                                 round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()

@@ -65,10 +65,10 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistoryCoverCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorGridCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
+import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsCoverCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsSeparatorGridCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
@@ -198,19 +198,6 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         miFilterYear = menu.findItem(R.id.menu_history_year)
-        miFilterYear.subMenu?.clear()
-        miFilterYear.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
-            filterYear(null)
-            true
-        }
-
-        val availableYears = (mViewModel.years.value ?: emptyList()).sortedDescending()
-        for (year in availableYears) {
-            miFilterYear.subMenu?.add(year.toString())?.setOnMenuItemClickListener { _: MenuItem? ->
-                filterYear(year)
-                true
-            }
-        }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
             onOpenMenuHistoryStatistics(2)
@@ -218,6 +205,10 @@ class HistoryStatisticsFragment : Fragment() {
 
         MenuUtil.longClick(requireActivity(), R.id.menu_history_year) {
             onOpenMenuHistoryStatistics(3)
+        }
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_filter) {
+            onOpenMenuHistoryStatistics(4)
         }
 
         miGridOrder = menu.findItem(R.id.menu_history_list_order)
@@ -341,6 +332,38 @@ class HistoryStatisticsFragment : Fragment() {
         mViewModel.filterYear(year)
     }
 
+    private fun showYearMenu(anchor: View, menuItem: MenuItem) {
+        val popup = PopupMenu(ContextThemeWrapper(requireContext(), R.style.MainToolbarStyle), anchor)
+        popup.menu.add(Menu.NONE, Menu.NONE, 0, requireContext().getString(R.string.history_menu_choice_all)).setOnMenuItemClickListener {
+            filterYear(null)
+            (menuItem.icon as? AnimatedVectorDrawable)?.start()
+            true
+        }
+        val availableYears = (mViewModel.years.value ?: emptyList()).sortedDescending()
+        availableYears.forEachIndexed { index, year ->
+            popup.menu.add(Menu.NONE, Menu.NONE, index + 1, year.toString()).setOnMenuItemClickListener {
+                filterYear(year)
+                (menuItem.icon as? AnimatedVectorDrawable)?.start()
+                true
+            }
+        }
+        popup.show()
+    }
+
+    private fun showFilterMenu(anchor: View, menuItem: MenuItem) {
+        val popup = PopupMenu(ContextThemeWrapper(requireContext(), R.style.MainToolbarStyle), anchor)
+        val isGrouped = mViewModel.groupedFilter.value ?: false
+        val itemGroup = popup.menu.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped))
+        itemGroup.isCheckable = true
+        itemGroup.isChecked = isGrouped
+        itemGroup.setOnMenuItemClickListener {
+            mViewModel.setGrouped(!isGrouped)
+            (menuItem.icon as? AnimatedVectorDrawable)?.start()
+            true
+        }
+        popup.show()
+    }
+
     private fun updateTitleAndSubtitle() {
         val activity = activity as? AppCompatActivity ?: return
         val typeTitle = when (mViewModel.mTypeFilter) {
@@ -356,6 +379,8 @@ class HistoryStatisticsFragment : Fragment() {
         activity.supportActionBar?.title = typeTitle
         activity.supportActionBar?.subtitle = "${getString(R.string.menu_history)} - $yearSubtitle"
     }
+
+    private lateinit var mPopupFilterFragment: HistoryStatisticsPopupFilter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryStatisticsViewModel::class.java]
@@ -398,6 +423,7 @@ class HistoryStatisticsFragment : Fragment() {
         mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
         mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
         mPopupTypeFragment = HistoryStatisticsPopupType()
+        mPopupFilterFragment = HistoryStatisticsPopupFilter()
         mPopupLibrariesFragment = HistoryStatisticsPopupLibraries()
         mPopupYearsFragment = HistoryStatisticsPopupYears()
         mPopupOrderFragment = HistoryStatisticsPopupOrder()
@@ -428,6 +454,10 @@ class HistoryStatisticsFragment : Fragment() {
         viewFilterOrderPagerAdapter.addFragment(
             mPopupYearsFragment,
             resources.getString(R.string.popup_history_tab_year)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupFilterFragment,
+            resources.getString(R.string.popup_history_tab_filter)
         )
         mPopupHistoryStatisticsView.adapter = viewFilterOrderPagerAdapter
         TabLayoutMediator(mPopupHistoryStatisticsTab, mPopupHistoryStatisticsView) { tab, position ->
@@ -484,6 +514,9 @@ class HistoryStatisticsFragment : Fragment() {
         }
         MenuUtil.longClick(requireActivity(), R.id.menu_history_year) {
             onOpenMenuHistoryStatistics(3)
+        }
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_filter) {
+            onOpenMenuHistoryStatistics(4)
         }
         if (mHistoryType == HistoryType.SEPARATOR_BIG || mHistoryType == HistoryType.SEPARATOR_MEDIUM)
             generateLayout(mHistoryType)
@@ -591,6 +624,22 @@ class HistoryStatisticsFragment : Fragment() {
                     }
                     R.id.menu_history_type_layout -> {
                         mViewModel.changeHistoryType()
+                        true
+                    }
+                    R.id.menu_history_year -> {
+                        (menuItem.icon as? AnimatedVectorDrawable)?.start()
+                        val anchor = mToolbar.findViewById<View>(R.id.menu_history_year) ?: mToolbar
+                        mHandler.postDelayed({
+                            showYearMenu(anchor, menuItem)
+                        }, 200)
+                        true
+                    }
+                    R.id.menu_history_filter -> {
+                        (menuItem.icon as? AnimatedVectorDrawable)?.start()
+                        val anchor = mToolbar.findViewById<View>(R.id.menu_history_filter) ?: mToolbar
+                        mHandler.postDelayed({
+                            showFilterMenu(anchor, menuItem)
+                        }, 200)
                         true
                     }
                     else -> false
@@ -706,13 +755,13 @@ class HistoryStatisticsFragment : Fragment() {
     private fun generateLayout(type: HistoryType) {
         mHistoryType = type
         val adapter: HistoryBaseAdapter = when (type) {
-            HistoryType.SEPARATOR_CAROUSEL -> HistorySeriesCardAdapter()
+            HistoryType.SEPARATOR_CAROUSEL -> HistoryStatisticsSeriesCardAdapter()
             HistoryType.SEPARATOR_BIG,
-            HistoryType.SEPARATOR_MEDIUM -> HistorySeparatorGridCardAdapter(type)
+            HistoryType.SEPARATOR_MEDIUM -> HistoryStatisticsSeparatorGridCardAdapter(type)
             else -> HistoryStatisticsAdapter()
         }
         adapter.attachListener(mListener)
-        if (adapter is HistorySeriesCardAdapter)
+        if (adapter is HistoryStatisticsSeriesCardAdapter)
             adapter.setOrder(mViewModel.order.value?.first ?: Order.LastAccess)
         mRecyclerView.adapter = adapter as RecyclerView.Adapter<*>
         mRecyclerView.layoutManager = when (type) {
@@ -811,7 +860,7 @@ class HistoryStatisticsFragment : Fragment() {
 
     private fun updateList(list: ArrayList<Any>) {
         val adapter = mRecyclerView.adapter as? HistoryBaseAdapter ?: return
-        if (adapter is HistorySeriesCardAdapter)
+        if (adapter is HistoryStatisticsSeriesCardAdapter)
             adapter.setOrder(mViewModel.order.value?.first ?: Order.LastAccess)
         adapter.updateList(list)
     }
@@ -1262,7 +1311,7 @@ class HistoryStatisticsFragment : Fragment() {
 
     override fun onDestroyView() {
         mViewModel.clearFilter()
-        HistoryCoverCardAdapter.clearCoverCache()
+        HistoryStatisticsCoverCardAdapter.clearCoverCache()
         mHandler.removeCallbacksAndMessages(null)
         _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
         _mBottomSheet = null

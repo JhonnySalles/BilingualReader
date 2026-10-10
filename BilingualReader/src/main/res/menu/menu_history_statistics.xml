@@ -35,9 +35,13 @@
 
     <item android:id="@+id/menu_history_year"
         android:title="@string/statistics_chart_year"
-        android:icon="@drawable/ico_statistics_chart_year"
+        android:icon="@drawable/ico_animated_statistics_chart_year"
         android:orderInCategory="104"
-        app:showAsAction="always">
-        <menu/>
-    </item>
+        app:showAsAction="always" />
+
+    <item android:id="@+id/menu_history_filter"
+        android:title="@string/menu_history_filter"
+        android:icon="@drawable/ico_animated_filter"
+        android:orderInCategory="105"
+        app:showAsAction="always" />
 </menu>

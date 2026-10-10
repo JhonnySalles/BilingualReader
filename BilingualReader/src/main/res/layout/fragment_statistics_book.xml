@@ -260,6 +260,91 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
                 android:layout_marginTop="@dimen/margin_small"
+                android:text="@string/statistics_title_current_month" />
+
+            <com.google.android.material.divider.MaterialDivider
+                style="@style/MaterialDivider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="@string/statistics_title_pages" />
+
+                    <TextView
+                        android:id="@+id/statistics_book_month_pages"
+                        style="@style/TextNormal.Statistics.Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <com.google.android.material.divider.MaterialDivider
+                    style="@style/MaterialDivider"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="@string/statistics_title_time" />
+
+                    <TextView
+                        android:id="@+id/statistics_book_month_time"
+                        style="@style/TextNormal.Statistics.Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_small"
+            android:background="@drawable/statistics_content_big_rounded_background"
+            android:layout_margin="@dimen/margin"
+            android:orientation="vertical">
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin_small"
                 android:text="@string/statistics_title_current" />
 
             <com.google.android.material.divider.MaterialDivider
@@ -414,6 +499,34 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
                 android:textAlignment="textEnd"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="@dimen/statistics_icon_size"
+                android:layout_height="@dimen/statistics_icon_size"
+                android:src="@drawable/ico_book_mark_date" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="@string/statistics_title_month" />
+
+            <TextView
+                android:id="@+id/statistics_book_total_read_month"
+                style="@style/TextTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:textAlignment="textEnd" />
         </LinearLayout>
 
         <LinearLayout

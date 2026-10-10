@@ -1307,4 +1307,7 @@
     <string name="time_unit_hours">Hours</string>
     <string name="time_unit_minutes">Minutes</string>
     <string name="time_unit_seconds">Seconds</string>
+    <string name="menu_history_filter">Filter</string>
+    <string name="popup_history_tab_filter">Filters</string>
+    <string name="popup_history_filter_grouped">Group (Book/Manga)</string>
 </resources>
