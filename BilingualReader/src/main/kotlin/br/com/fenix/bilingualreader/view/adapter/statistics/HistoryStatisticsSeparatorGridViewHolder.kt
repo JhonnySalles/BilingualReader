@@ -108,6 +108,8 @@ class HistoryStatisticsSeparatorGridViewHolder(
         historySubTitle.visibility = if (history.author.isEmpty()) View.GONE else View.VISIBLE
 
         historyType.text = history.fileType.acronym
+        historyType.setTextColor(themeColor)
+
         if (history is HistoryStatistics) {
             historyPagesRead.text = "+${history.pagesRead} pág."
             historyPagesRead.visibility = View.VISIBLE

@@ -79,16 +79,18 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         }
 
         title.text = history.title
-        totalPages.text = "${history.pages} pág."
         val themeColor = when (history.type) {
             Type.MANGA -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_manga_indigo_base)
             Type.BOOK -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
         }
         title.setTextColor(themeColor)
+        totalPages.text = "${history.pages} pág."
+        totalPages.setTextColor(themeColor)
         favorite.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
 
         lastAccess.text = if (history.lastAccess != null) GeneralConsts.formatterDate(itemView.context, history.lastAccess!!) else ""
         fileType.text = history.fileType.acronym
+        fileType.setTextColor(themeColor)
         fileSize.text = FileUtil.formatSize(history.fileSize)
 
         val percent: Float = if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100) else 0f
@@ -96,6 +98,7 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
 
         if (history is HistoryStatistics) {
             pagesReadDaily.text = "+${history.pagesRead} pág."
+            pagesReadDaily.setTextColor(themeColor)
             pagesReadDaily.visibility = View.VISIBLE
             timeReadDaily.text = formatTime(history.timeRead)
             timeReadDaily.visibility = View.VISIBLE

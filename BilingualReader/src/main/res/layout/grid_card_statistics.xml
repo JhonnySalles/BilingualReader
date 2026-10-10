@@ -130,7 +130,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/history_grid_total_pages_container"
+        android:id="@+id/history_grid_pages_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
@@ -139,15 +139,9 @@
         android:paddingTop="5dp">
         <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
             android:id="@+id/history_grid_pages_read"
-            style="@style/TextNormal.Card.Title"
-            android:layout_width="0dp"
+            style="@style/TextNormal.Card.NumberPage"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1.2"
-            android:gravity="start|center_vertical"
-            android:ellipsize="end"
-            android:lines="1"
-            android:maxLines="1"
-            android:singleLine="true"
             android:textSize="@dimen/history_grid_sub_title" />
     </LinearLayout>
 

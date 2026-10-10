@@ -48,6 +48,15 @@
                         android:gravity="center"
                         android:text="@string/statistics_heatmap" />
 
+                    <com.google.android.material.divider.MaterialDivider
+                        style="@style/MaterialDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/margin"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginRight="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin" />
+
                     <br.com.fenix.bilingualreader.view.components.ReadingHeatmapView
                         android:id="@+id/statistics_heatmap"
                         android:layout_width="match_parent"

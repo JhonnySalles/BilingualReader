@@ -111,7 +111,9 @@ class HistoryStatisticsCoverCardAdapter(private val listener: HistoryCardListene
             else if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100)
             else 0f
             percentView.text = Util.formatDecimal(percent)
+
             totalPages.text = "${history.pages} pág."
+            totalPages.setTextColor(themeColor)
 
             if (history is HistoryStatistics) {
                 pagesRead.text = "+${history.pagesRead} pág."

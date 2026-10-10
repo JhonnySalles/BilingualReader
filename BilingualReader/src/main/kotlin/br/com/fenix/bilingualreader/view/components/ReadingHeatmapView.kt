@@ -10,7 +10,10 @@ import android.util.TypedValue
 import android.view.View
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 class ReadingHeatmapView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -22,10 +25,15 @@ class ReadingHeatmapView @JvmOverloads constructor(
     private val mEmptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
+    private val mTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+    }
 
     private val mSquareSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 13f, resources.displayMetrics)
     private val mSquareMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, resources.displayMetrics)
     private val mCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2.5f, resources.displayMetrics)
+    private val mDayLabelWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics)
+    private val mMonthLabelHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18f, resources.displayMetrics)
 
     private val mBaseColor: Int
     private val mEmptyColor: Int
@@ -40,6 +48,9 @@ class ReadingHeatmapView @JvmOverloads constructor(
         mBaseColor = context.getColorFromAttr(androidx.appcompat.R.attr.colorPrimary)
         mEmptyColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
         mEmptyPaint.color = mEmptyColor
+
+        mTextPaint.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9f, resources.displayMetrics)
+        mTextPaint.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
     }
 
     fun setData(data: Map<LocalDate, Int>) {
@@ -51,9 +62,10 @@ class ReadingHeatmapView @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
         
-        mCols = ((width + mSquareMargin) / (mSquareSize + mSquareMargin)).toInt()
+        val availableWidth = (width - mDayLabelWidth).coerceAtLeast(0f)
+        mCols = ((availableWidth + mSquareMargin) / (mSquareSize + mSquareMargin)).toInt().coerceAtLeast(1)
         
-        val desiredHeight = (mSquareSize * mRows) + (mSquareMargin * (mRows - 1))
+        val desiredHeight = mMonthLabelHeight + (mSquareSize * mRows) + (mSquareMargin * (mRows - 1))
         
         setMeasuredDimension(width, desiredHeight.toInt())
     }
@@ -64,14 +76,51 @@ class ReadingHeatmapView @JvmOverloads constructor(
 
         val today = LocalDate.now()
         
-        // Em um mapa do github, a coluna mais a direita é a semana atual.
-        // O último quadradinho do canto inferior direito seria hoje, ou o dia de hoje.
-        val todayRow = today.dayOfWeek.value % 7 // 0=Sunday..6=Saturday if we use standard android week, but LocalDate is 1=Monday..7=Sunday. Let's use 0=Monday..6=Sunday.
-        val daysFromLastColEnd = 6 - (today.dayOfWeek.value - 1)
+        val todayRow = today.dayOfWeek.value - 1 // 0=Monday..6=Sunday
+        val daysFromLastColEnd = 6 - todayRow
         val totalDaysToDraw = (mCols * mRows) - daysFromLastColEnd
         
         val startDate = today.minusDays(totalDaysToDraw.toLong() - 1)
 
+        // Draw Day of Week labels on the left (Row 0 = Mon, Row 1 = Tue, ..., Row 6 = Sun)
+        val locale = Locale.getDefault()
+        for (row in 0 until mRows) {
+            val top = mMonthLabelHeight + row * (mSquareSize + mSquareMargin)
+            val centerY = top + mSquareSize / 2f
+            val baselineY = centerY - (mTextPaint.descent() + mTextPaint.ascent()) / 2f
+            val dayInitial = DayOfWeek.of(row + 1).getDisplayName(TextStyle.NARROW, locale).uppercase(locale)
+            canvas.drawText(dayInitial, mDayLabelWidth / 2f, baselineY, mTextPaint)
+        }
+
+        // Draw Month labels on top centered above each month's columns
+        data class MonthSpan(val name: String, var startCol: Int, var endCol: Int)
+        val monthSpans = mutableListOf<MonthSpan>()
+
+        for (col in 0 until mCols) {
+            val date = startDate.plusDays((col * mRows).toLong())
+            val monthName = date.month.getDisplayName(TextStyle.SHORT, locale)
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+                .replace(".", "")
+
+            if (monthSpans.isEmpty() || monthSpans.last().name != monthName) {
+                monthSpans.add(MonthSpan(monthName, col, col))
+            } else {
+                monthSpans.last().endCol = col
+            }
+        }
+
+        for (span in monthSpans) {
+            val startX = mDayLabelWidth + span.startCol * (mSquareSize + mSquareMargin)
+            val endX = mDayLabelWidth + span.endCol * (mSquareSize + mSquareMargin) + mSquareSize
+            val centerX = (startX + endX) / 2f
+            val textWidth = mTextPaint.measureText(span.name)
+            if ((endX - startX) >= textWidth * 0.7f) {
+                val baselineY = (mMonthLabelHeight / 2f) - ((mTextPaint.descent() + mTextPaint.ascent()) / 2f)
+                canvas.drawText(span.name, centerX, baselineY, mTextPaint)
+            }
+        }
+
+        // Draw Heatmap squares
         val rect = RectF()
         
         for (col in 0 until mCols) {
@@ -81,8 +130,8 @@ class ReadingHeatmapView @JvmOverloads constructor(
 
                 if (date.isAfter(today)) continue
 
-                val left = col * (mSquareSize + mSquareMargin)
-                val top = row * (mSquareSize + mSquareMargin)
+                val left = mDayLabelWidth + col * (mSquareSize + mSquareMargin)
+                val top = mMonthLabelHeight + row * (mSquareSize + mSquareMargin)
                 
                 rect.set(left, top, left + mSquareSize, top + mSquareSize)
 
