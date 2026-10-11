@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -307,8 +308,14 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mBtnCopyDuration.setOnClickListener { copyDurationToClipboard() }
         mBtnPasteDuration.setOnClickListener { pasteDurationFromClipboard() }
         mBtnAutoCalc.setOnClickListener { autoCalculateDuration() }
-        mBtnHistory.setOnClickListener { openHistoryPopup() }
-        mBtnNowDate.setOnClickListener { onNowDateClicked() }
+        mBtnHistory.setOnClickListener {
+            (mBtnHistory.icon as AnimatedVectorDrawable).start()
+            openHistoryPopup()
+        }
+        mBtnNowDate.setOnClickListener {
+            (mBtnNowDate.icon as AnimatedVectorDrawable).start()
+            onNowDateClicked()
+        }
 
         mBookMarkDate.endIconMode = TextInputLayout.END_ICON_NONE
         mBookMarkTime.endIconMode = TextInputLayout.END_ICON_NONE

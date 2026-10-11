@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.statistics
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
@@ -44,6 +45,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurAlgorithm
@@ -104,6 +106,7 @@ class StatisticsFragment : Fragment() {
     private var mMangaChartLibrary: TextInputLayout by autoCleared()
     private var mMangaChartLibraryAutoComplete: MaterialAutoCompleteTextView by autoCleared()
     private var mMangaChart: LineChart by autoCleared()
+    private var mMangaHistory: MaterialButton by autoCleared()
 
     private var mMangaSelectYear = 0
     private lateinit var mMangaSelectLibrary:Library
@@ -134,6 +137,7 @@ class StatisticsFragment : Fragment() {
     private var mBookChartLibrary: TextInputLayout by autoCleared()
     private var mBookChartLibraryAutoComplete: MaterialAutoCompleteTextView by autoCleared()
     private var mBookChart: LineChart by autoCleared()
+    private var mBookHistory: MaterialButton by autoCleared()
 
     private var mLoading = MutableLiveData(false)
     private val mHandler = Handler(Looper.getMainLooper())
@@ -172,6 +176,7 @@ class StatisticsFragment : Fragment() {
         mBookChartLibrary = view.findViewById(R.id.statistics_book_chart_library)
         mBookChartLibraryAutoComplete = view.findViewById(R.id.statistics_book_chart_library_auto_complete)
         mBookChart = view.findViewById(R.id.statistics_book_chart)
+        mBookHistory = view.findViewById(R.id.statistics_book_btn_history)
 
         mMangaReading = view.findViewById(R.id.statistics_manga_reading)
         mMangaToRead = view.findViewById(R.id.statistics_manga_to_read)
@@ -192,6 +197,7 @@ class StatisticsFragment : Fragment() {
         mMangaChartLibrary = view.findViewById(R.id.statistics_manga_chart_library)
         mMangaChartLibraryAutoComplete = view.findViewById(R.id.statistics_manga_chart_library_auto_complete)
         mMangaChart = view.findViewById(R.id.statistics_manga_chart)
+        mMangaHistory = view.findViewById(R.id.statistics_manga_btn_history)
 
         view.findViewById<TextView>(R.id.statistics_manga_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_manga))
         view.findViewById<TextView>(R.id.statistics_book_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_book))
@@ -220,10 +226,16 @@ class StatisticsFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
-        view.findViewById<View>(R.id.statistics_manga_btn_history).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
+        mMangaHistory.setOnClickListener {
+            (mMangaHistory.icon as AnimatedVectorDrawable).start()
+            openHistory(Type.MANGA, mMangaSelectYear)
+        }
 
         view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
-        view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
+        mBookHistory.setOnClickListener {
+            (mBookHistory.icon as AnimatedVectorDrawable).start()
+            openHistory(Type.BOOK, mBookSelectYear)
+        }
 
         val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())

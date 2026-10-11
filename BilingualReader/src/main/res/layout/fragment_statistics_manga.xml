@@ -452,7 +452,7 @@
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ico_statistics_time" />
+                android:src="@drawable/ico_animated_clock" />
 
             <TextView
                 style="@style/TextNormal"
@@ -480,7 +480,7 @@
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ico_statistics_average" />
+                android:src="@drawable/ico_animated_statistics_average" />
 
             <TextView
                 style="@style/TextNormal"
@@ -508,7 +508,7 @@
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ico_book_mark_date" />
+                android:src="@drawable/ico_animated_calendar" />
 
             <TextView
                 style="@style/TextNormal"
@@ -599,7 +599,7 @@
                 android:layout_height="@dimen/statistics_button_size"
                 android:layout_margin="@dimen/margin_small"
                 android:text="@string/menu_history"
-                app:icon="@drawable/ico_history" />
+                app:icon="@drawable/ico_animated_clock" />
         </LinearLayout>
 
     </LinearLayout>
