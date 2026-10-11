@@ -124,12 +124,14 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                 val pagesRead = maxOf(1, mNewBookMark - startPage)
                 val averageTimeByPage = if (pagesRead > 0) mReadingDurationSeconds / pagesRead else mReadingDurationSeconds
 
+                val historyStart = if (mReadingDurationSeconds > 0) mNewDate.minusSeconds(mReadingDurationSeconds) else mNewDate
                 val historyRepo = HistoryRepository(context)
                 if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) {
                     val historyToUpdate = mLastHistory!!.copy(
                         pageEnd = mNewBookMark,
                         pages = obj.pages,
                         completed = mNewBookMark == mMax,
+                        start = historyStart,
                         end = mNewDate,
                         secondsRead = mReadingDurationSeconds,
                         averageTimeByPage = averageTimeByPage,
@@ -141,7 +143,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                     historyRepo.save(
                         History(
                             null, obj.fkLibrary!!, obj.id!!, obj.type, startPage, mNewBookMark, obj.pages, mNewBookMark == mMax,
-                            obj.volume, 0, mNewDate, mNewDate, mReadingDurationSeconds, averageTimeByPage, useTTS = false, isNotify = false,
+                            obj.volume, 0, historyStart, mNewDate, mReadingDurationSeconds, averageTimeByPage, useTTS = false, isNotify = false,
                             wordCount = mWordCount, secondsReadAutomatic = !mIsManualReadingTime
                         )
                     )

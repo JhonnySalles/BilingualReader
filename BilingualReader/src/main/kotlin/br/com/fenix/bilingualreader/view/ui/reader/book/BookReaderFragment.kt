@@ -684,9 +684,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
 
         mViewModel.history?.let {
-            it.setPageEnd(getCurrentPage())
-            it.setEnd(LocalDateTime.now())
-            it.id = mHistoryRepository.save(it)
+            if (it.id != null || getCurrentPage() != it.pageStart) {
+                it.setPageEnd(getCurrentPage())
+                it.setEnd(LocalDateTime.now())
+                it.id = mHistoryRepository.save(it)
+            }
         }
 
         setBlurAutoUpdate(false)

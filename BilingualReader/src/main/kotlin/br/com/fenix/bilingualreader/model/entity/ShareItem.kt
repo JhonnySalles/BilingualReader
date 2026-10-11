@@ -180,6 +180,8 @@ data class ShareItem(
     }
 
     fun merge(manga: Manga) {
+        this.id = manga.id ?: 0
+        this.idLibrary = manga.fkLibrary ?: 0
         this.bookMark = manga.bookMark
         this.pages = manga.pages
         this.completed = manga.completed || (manga.pages > 0 && manga.bookMark >= manga.pages)
@@ -190,6 +192,8 @@ data class ShareItem(
     }
 
     fun merge(book: Book) {
+        this.id = book.id ?: 0
+        this.idLibrary = book.fkLibrary ?: 0
         this.bookMark = book.bookMark
         this.pages = book.pages
         this.completed = book.completed || (book.pages > 0 && book.bookMark >= book.pages)

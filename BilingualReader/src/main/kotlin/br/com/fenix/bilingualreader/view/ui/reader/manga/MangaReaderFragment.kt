@@ -1062,9 +1062,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mStorage.updateBookMark(mManga!!)
         }
         mViewModel.history?.let {
-            it.setPageEnd(getCurrentPage())
-            it.setEnd(LocalDateTime.now())
-            it.id = mViewModel.save(it)
+            if (it.id != null || getCurrentPage() != it.pageStart) {
+                it.setPageEnd(getCurrentPage())
+                it.setEnd(LocalDateTime.now())
+                it.id = mViewModel.save(it)
+            }
         }
         setBlurAutoUpdate(false)
         super.onPause()
