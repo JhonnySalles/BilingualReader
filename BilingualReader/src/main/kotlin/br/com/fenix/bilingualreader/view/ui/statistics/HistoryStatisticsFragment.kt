@@ -353,10 +353,7 @@ class HistoryStatisticsFragment : Fragment() {
     private fun showFilterMenu(anchor: View, menuItem: MenuItem) {
         val popup = PopupMenu(ContextThemeWrapper(requireContext(), R.style.MainToolbarStyle), anchor)
         val isGrouped = mViewModel.groupedFilter.value ?: false
-        val itemGroup = popup.menu.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped))
-        itemGroup.isCheckable = true
-        itemGroup.isChecked = isGrouped
-        itemGroup.setOnMenuItemClickListener {
+        popup.menu.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped)).setOnMenuItemClickListener {
             mViewModel.setGrouped(!isGrouped)
             (menuItem.icon as? AnimatedVectorDrawable)?.start()
             true

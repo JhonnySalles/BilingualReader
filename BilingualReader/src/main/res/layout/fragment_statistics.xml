@@ -44,7 +44,6 @@
                         style="@style/TextTitle.Statistics.Sector"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"
                         android:text="@string/statistics_heatmap" />
 

@@ -82,6 +82,9 @@
     <string name="statistics_read">Lido</string>
 
     <string name="statistics_title_completed">Completos</string>
+    <string name="statistics_title_current_month">Mês atual</string>
+    <string name="statistics_title_month">Mês</string>
+    <string name="statistics_heatmap">Atividade de Leitura</string>
     <string name="statistics_title_current">Atual</string>
 
     <string name="statistics_title_pages">Páginas</string>
@@ -1206,13 +1209,14 @@
     <string name="llm_assistant_page_range_to">Até a página</string>
     <string name="llm_assistant_page_range_invalid">Informe um intervalo válido</string>
     <string name="llm_assistant_selection_none">Nenhum selecionado</string>
+    <string name="llm_assistant_selection_default_book_pages">Página atual &amp; 3 páginas anteriores</string>
     <string name="llm_assistant_selection_limit">Selecione no máximo %1$d itens</string>
     <string name="llm_assistant_view_context">Ver contexto</string>
     <string name="llm_assistant_context_size">%1$d caracteres</string>
     <string name="llm_assistant_copied_to_clipboard">Copiado para a área de transferência</string>
     <string name="llm_assistant_context_preview_body">%1$d caracteres\n\n%2$s</string>
     <string name="llm_assistant_empty_title">Pergunte sobre a leitura</string>
-    <string name="llm_assistant_empty_hint">Selecione capítulos ou páginas acima e faça uma pergunta ou toque em uma sugestão.</string>
+    <string name="llm_assistant_empty_hint">Selecione capítulos ou páginas acima e faça uma pergunta ou toque numa sugestão.</string>
     <string name="llm_assistant_chip_summarize">Resuma o que aconteceu</string>
     <string name="llm_assistant_chip_characters">Quem são os personagens principais?</string>
     <string name="llm_assistant_chip_explain">Explique um termo ou conceito difícil</string>
@@ -1256,6 +1260,12 @@
     <string name="config_ai_max_manga_pages">Máx. páginas de mangá para IA</string>
     <string name="config_ai_temperature">Criatividade (0–100)</string>
     <string name="config_ai_temperature_hint">80 ≈ temperatura 0,80. Maior = mais criativo.</string>
+    <string name="llm_assistant_no_readable_text">[Esta página não contém texto legível — pode ser uma cena de ação ou ilustração]</string>
+    <string name="llm_assistant_low_confidence_text">[O OCR não conseguiu ler esta página com segurança — texto de baixa confiança]</string>
+    <string name="llm_assistant_incoherent_text">[Texto extraído, mas sem coerência suficiente para processamento]</string>
+    <string name="pref_clear_ocr_cache">Limpar cache de OCR</string>
+    <string name="pref_clear_ocr_cache_desc">Limpar texto de OCR em cache para páginas de mangá</string>
+    <string name="pref_clear_ocr_cache_success">Cache de OCR limpo com sucesso</string>
 
     <!-- TRACKER -->
     <string name="menu_trackers">Rastreadores</string>

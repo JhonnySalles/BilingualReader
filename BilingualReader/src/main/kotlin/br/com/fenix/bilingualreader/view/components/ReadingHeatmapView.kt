@@ -76,19 +76,20 @@ class ReadingHeatmapView @JvmOverloads constructor(
 
         val today = LocalDate.now()
         
-        val todayRow = today.dayOfWeek.value - 1 // 0=Monday..6=Sunday
+        val todayRow = today.dayOfWeek.value % 7 // 0=Sunday..6=Saturday
         val daysFromLastColEnd = 6 - todayRow
         val totalDaysToDraw = (mCols * mRows) - daysFromLastColEnd
         
         val startDate = today.minusDays(totalDaysToDraw.toLong() - 1)
 
-        // Draw Day of Week labels on the left (Row 0 = Mon, Row 1 = Tue, ..., Row 6 = Sun)
+        // Draw Day of Week labels on the left (Row 0 = Sun, Row 1 = Mon, ..., Row 6 = Sat)
         val locale = Locale.getDefault()
         for (row in 0 until mRows) {
             val top = mMonthLabelHeight + row * (mSquareSize + mSquareMargin)
             val centerY = top + mSquareSize / 2f
             val baselineY = centerY - (mTextPaint.descent() + mTextPaint.ascent()) / 2f
-            val dayInitial = DayOfWeek.of(row + 1).getDisplayName(TextStyle.NARROW, locale).uppercase(locale)
+            val dayOfWeek = if (row == 0) DayOfWeek.SUNDAY else DayOfWeek.of(row)
+            val dayInitial = dayOfWeek.getDisplayName(TextStyle.NARROW, locale).uppercase(locale)
             canvas.drawText(dayInitial, mDayLabelWidth / 2f, baselineY, mTextPaint)
         }
 
