@@ -45,6 +45,95 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <LinearLayout
+        android:id="@+id/manga_cover_actions_layout"
+        android:layout_width="@dimen/history_cover_width"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="3dp">
+
+        <LinearLayout
+            android:id="@+id/manga_cover_favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/manga_cover_favorite_icon"
+                style="@style/IconFavorite.Manga"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@drawable/ico_favorite_mark_border"
+                android:src="@drawable/ico_favorite_unmark" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/manga_cover_file_type"
+            style="@style/TextTitle.Line"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@color/card_manga_indigo_base"
+            android:textSize="9sp" />
+
+        <LinearLayout
+            android:id="@+id/manga_cover_config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/manga_cover_config_icon"
+                style="@style/IconConfig.Manga"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@drawable/ico_config_border"
+                android:src="@drawable/ico_config" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/manga_cover_info_layout"
+        android:layout_width="@dimen/history_cover_width"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="1dp">
+
+        <TextView
+            android:id="@+id/manga_cover_pages"
+            style="@style/TextNormal.Line"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:singleLine="true"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/manga_cover_last_access"
+            style="@style/TextNormal.Line"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:singleLine="true"
+            android:textSize="8sp" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/manga_cover_title"
         style="@style/TextNormal.Line"
@@ -54,6 +143,7 @@
         android:ellipsize="end"
         android:gravity="center_horizontal"
         android:maxLines="4"
+        android:layout_marginTop="2dp"
         android:textSize="@dimen/history_cover_title_size"
         android:transitionName="transition_manga_title" />
 

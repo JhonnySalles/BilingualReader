@@ -24,6 +24,11 @@ class BlurAwareItemAnimator : DefaultItemAnimator() {
         return false
     }
 
+    override fun canReuseUpdatedViewHolder(viewHolder: RecyclerView.ViewHolder, payloads: List<Any>): Boolean {
+        if (payloads.isNotEmpty()) return true
+        return super.canReuseUpdatedViewHolder(viewHolder, payloads)
+    }
+
     override fun runPendingAnimations() {
         val acquiredNow = activeToken == null
         if (acquiredNow) {

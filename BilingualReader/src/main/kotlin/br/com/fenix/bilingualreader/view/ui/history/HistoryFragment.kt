@@ -593,6 +593,21 @@ class HistoryFragment : Fragment() {
                 }
             }
 
+            override fun onClickFavorite(history: History) {
+                when (history) {
+                    is Manga -> mViewModel.save(history)
+                    is Book -> mViewModel.save(history)
+                }
+                (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(history)
+            }
+
+            override fun onClickConfig(history: History, root: View, item: View, position: Int) {
+                when (history) {
+                    is Manga -> openMenu(history, item, position)
+                    is Book -> openMenu(history, item, position)
+                }
+            }
+
             override fun onClickLong(history: History, view: View, position: Int) {
                 when (history) {
                     is Manga -> openMenu(history, view, position)

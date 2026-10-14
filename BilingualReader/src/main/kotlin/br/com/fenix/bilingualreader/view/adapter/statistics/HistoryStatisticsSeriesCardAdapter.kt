@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.HistoryGroup
+import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryHeaderViewHolder
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
@@ -44,6 +46,18 @@ class HistoryStatisticsSeriesCardAdapter : RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            when (getItemViewType(position)) {
+                HEADER -> (holder as HistoryHeaderViewHolder).bind(mHistoryList[position] as Separator)
+                else -> (holder as HistoryStatisticsSeriesViewHolder).bind(mHistoryList[position] as HistoryGroup, mOrder, payloads)
+            }
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             HEADER -> {
@@ -61,6 +75,16 @@ class HistoryStatisticsSeriesCardAdapter : RecyclerView.Adapter<RecyclerView.Vie
                     LibraryCardAnimator.clear(holder)
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int = mHistoryList.size
@@ -85,7 +109,9 @@ class HistoryStatisticsSeriesCardAdapter : RecyclerView.Adapter<RecyclerView.Vie
         for (i in mHistoryList.indices.reversed()) {
             val item = mHistoryList[i]
             if (item is HistoryGroup) {
-                val index = item.items.indexOf(history)
+                val index = item.items.indexOfFirst {
+                    it == history || (it is HistoryStatistics && it.base == history) || (it.id == history.id && it.type == history.type)
+                }
                 if (index != -1) {
                     item.items.removeAt(index)
                     if (item.items.isEmpty()) {
@@ -105,8 +131,10 @@ class HistoryStatisticsSeriesCardAdapter : RecyclerView.Adapter<RecyclerView.Vie
     override fun notifyItemChanged(history: History) {
         for (i in mHistoryList.indices) {
             val item = mHistoryList[i]
-            if (item is HistoryGroup && item.items.contains(history)) {
-                notifyItemChanged(i)
+            if (item is HistoryGroup && item.items.any {
+                it == history || (it is HistoryStatistics && it.base == history) || (it.id == history.id && it.type == history.type)
+            }) {
+                notifyItemChanged(i, AnimationUtil.PROPERTY_NO_ANIMATION)
                 return
             }
         }
@@ -127,10 +155,15 @@ class HistoryStatisticsSeriesViewHolder(itemView: View, private val listener: Hi
     private val layout: GridLayoutManager = createLayout(itemView.context)
     private val adapter: HistoryStatisticsCoverCardAdapter = HistoryStatisticsCoverCardAdapter(listener)
 
-    fun bind(group: HistoryGroup, order: Order) {
+    fun bind(group: HistoryGroup, order: Order, payloads: MutableList<Any>? = null) {
         val list = itemView.findViewById<RecyclerView>(R.id.history_series_list)
-        list.adapter = adapter
-        list.layoutManager = layout
+        if (list.adapter !== adapter) {
+            list.adapter = adapter
+            list.layoutManager = layout
+        }
+        if (payloads != null && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            adapter.isAnimation = false
+        }
         adapter.updateList(group.items, order)
     }
 }

@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), HistoryBaseAdapter {
@@ -42,6 +43,18 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            when (getItemViewType(position)) {
+                HEADER -> (holder as HistoryHeaderViewHolder).bind(mHistoryList[position] as Separator)
+                else -> (holder as HistorySeriesViewHolder).bind(mHistoryList[position] as HistoryGroup, mOrder, payloads)
+            }
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             HEADER -> {
@@ -59,6 +72,16 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                     LibraryCardAnimator.clear(holder)
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int = mHistoryList.size
@@ -83,7 +106,9 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         for (i in mHistoryList.indices.reversed()) {
             val item = mHistoryList[i]
             if (item is HistoryGroup) {
-                val index = item.items.indexOf(history)
+                val index = item.items.indexOfFirst {
+                    it == history || (it.id == history.id && it.type == history.type)
+                }
                 if (index != -1) {
                     item.items.removeAt(index)
                     if (item.items.isEmpty()) {
@@ -103,8 +128,10 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     override fun notifyItemChanged(history: History) {
         for (i in mHistoryList.indices) {
             val item = mHistoryList[i]
-            if (item is HistoryGroup && item.items.contains(history)) {
-                notifyItemChanged(i)
+            if (item is HistoryGroup && item.items.any {
+                it == history || (it.id == history.id && it.type == history.type)
+            }) {
+                notifyItemChanged(i, AnimationUtil.PROPERTY_NO_ANIMATION)
                 return
             }
         }
@@ -125,10 +152,15 @@ class HistorySeriesViewHolder(itemView: View, private val listener: HistoryCardL
     private val layout: GridLayoutManager = createLayout(itemView.context)
     private val adapter: HistoryCoverCardAdapter = HistoryCoverCardAdapter(listener)
 
-    fun bind(group: HistoryGroup, order: Order) {
+    fun bind(group: HistoryGroup, order: Order, payloads: MutableList<Any>? = null) {
         val list = itemView.findViewById<RecyclerView>(R.id.history_series_list)
-        list.adapter = adapter
-        list.layoutManager = layout
+        if (list.adapter !== adapter) {
+            list.adapter = adapter
+            list.layoutManager = layout
+        }
+        if (payloads != null && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            adapter.isAnimation = false
+        }
         adapter.updateList(group.items, order)
     }
 }

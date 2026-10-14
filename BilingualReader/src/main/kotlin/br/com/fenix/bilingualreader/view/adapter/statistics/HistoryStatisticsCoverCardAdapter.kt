@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
@@ -23,6 +24,9 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import com.google.android.material.card.MaterialCardView
@@ -61,15 +65,38 @@ class HistoryStatisticsCoverCardAdapter(private val listener: HistoryCardListene
 
     private var mList: List<History> = listOf()
     private var mOrder: Order = Order.Series
+    var isAnimation: Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryStatisticsCoverViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.carousel_card_statistics, parent, false)
         return HistoryStatisticsCoverViewHolder(item)
     }
 
+    override fun onBindViewHolder(holder: HistoryStatisticsCoverViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            holder.bind(mList[position], mOrder)
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: HistoryStatisticsCoverViewHolder, position: Int) {
         holder.bind(mList[position], mOrder)
-        LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
+        if (isAnimation)
+            LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
+        else
+            LibraryCardAnimator.clear(holder)
+    }
+
+    override fun onViewDetachedFromWindow(holder: HistoryStatisticsCoverViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: HistoryStatisticsCoverViewHolder) {
+        LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int = mList.size
@@ -78,6 +105,14 @@ class HistoryStatisticsCoverCardAdapter(private val listener: HistoryCardListene
         mList = list
         mOrder = order
         notifyDataSetChanged()
+    }
+
+    fun notifyItemChanged(history: History) {
+        val index = mList.indexOfFirst {
+            it == history || (it is HistoryStatistics && it.base == history) || (it.id == history.id && it.type == history.type)
+        }
+        if (index != -1)
+            notifyItemChanged(index, AnimationUtil.PROPERTY_NO_ANIMATION)
     }
 
     inner class HistoryStatisticsCoverViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -89,10 +124,13 @@ class HistoryStatisticsCoverCardAdapter(private val listener: HistoryCardListene
             val cover = itemView.findViewById<ImageView>(R.id.history_cover_image)
             val title = itemView.findViewById<TextView>(R.id.history_cover_title)
             val progress = itemView.findViewById<ProgressBar>(R.id.history_cover_progress)
-            val totalPages = itemView.findViewById<TextView>(R.id.history_cover_total_pages)
+            val favorite = itemView.findViewById<LinearLayout>(R.id.history_cover_favorite)
+            val favoriteIcon = itemView.findViewById<ImageView>(R.id.history_cover_favorite_icon)
+            val config = itemView.findViewById<LinearLayout>(R.id.history_cover_config)
+            val configIcon = itemView.findViewById<ImageView>(R.id.history_cover_config_icon)
             val fileType = itemView.findViewById<TextView>(R.id.history_cover_file_type)
-            val percentView = itemView.findViewById<TextView>(R.id.history_cover_percent)
-            val pagesRead = itemView.findViewById<TextView>(R.id.history_cover_pages_read)
+            val pages = itemView.findViewById<TextView>(R.id.history_cover_pages)
+            val lastAccess = itemView.findViewById<TextView>(R.id.history_cover_last_access)
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                 TooltipCompat.setTooltipText(card, history.title)
@@ -104,24 +142,27 @@ class HistoryStatisticsCoverCardAdapter(private val listener: HistoryCardListene
                 Type.BOOK -> ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
             }
 
-            fileType.text = history.fileType.acronym
+            title.setTextColor(themeColor)
+            favoriteIcon.imageTintList = ColorStateList.valueOf(themeColor)
+            configIcon.imageTintList = ColorStateList.valueOf(themeColor)
             fileType.setTextColor(themeColor)
 
-            val percent: Float = if (history.bookMark >= history.pages) 100f
-            else if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100)
-            else 0f
-            percentView.text = Util.formatDecimal(percent)
-
-            totalPages.text = "${history.pages} pág."
-            totalPages.setTextColor(themeColor)
-
-            if (history is HistoryStatistics) {
-                pagesRead.text = "+${history.pagesRead} pág."
-                pagesRead.setTextColor(themeColor)
-                pagesRead.visibility = View.VISIBLE
-            } else {
-                pagesRead.visibility = View.GONE
+            val isFav = if (history is HistoryStatistics) history.base.favorite else history.favorite
+            favoriteIcon.setImageResource(if (isFav) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favorite.setOnClickListener {
+                val newFav = !isFav
+                if (history is HistoryStatistics)
+                    history.base.favorite = newFav
+                history.favorite = newFav
+                favoriteIcon.setImageResource(if (newFav) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+                listener.onClickFavorite(history)
             }
+
+            config.setOnClickListener { listener.onClickConfig(history, card, configIcon, bindingAdapterPosition) }
+
+            fileType.text = history.fileType.acronym
+            pages.text = "${history.bookMark} / ${history.pages}"
+            lastAccess.text = if (history.lastAccess != null) GeneralConsts.formatterDate(itemView.context, history.lastAccess!!, true) else ""
 
             if (order == Order.Series) {
                 title.maxLines = 1

@@ -50,7 +50,6 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
     private val pagesReadOverall: TextView = itemView.findViewById(R.id.history_line_pages)
     private val pagesReadDaily: TextView = itemView.findViewById(R.id.history_line_pages_read)
     private val timeReadDaily: TextView = itemView.findViewById(R.id.history_line_time_read)
-    private val totalPages: TextView = itemView.findViewById(R.id.history_line_total_pages)
     private val library: TextView = itemView.findViewById(R.id.history_library)
     private val type: TextView = itemView.findViewById(R.id.history_type)
     private val favorite: ImageView = itemView.findViewById(R.id.history_favorite)
@@ -84,8 +83,6 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
             Type.BOOK -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
         }
         title.setTextColor(themeColor)
-        totalPages.text = "${history.pages} pág."
-        totalPages.setTextColor(themeColor)
         favorite.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
 
         lastAccess.text = if (history.lastAccess != null) GeneralConsts.formatterDate(itemView.context, history.lastAccess!!) else ""

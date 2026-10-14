@@ -653,6 +653,23 @@ class HistoryStatisticsFragment : Fragment() {
                 }
             }
 
+            override fun onClickFavorite(history: History) {
+                val base = if (history is HistoryStatistics) history.base else history
+                when (base) {
+                    is Manga -> mViewModel.save(base)
+                    is Book -> mViewModel.save(base)
+                }
+                (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(base)
+            }
+
+            override fun onClickConfig(history: History, root: View, item: View, position: Int) {
+                val base = if (history is HistoryStatistics) history.base else history
+                when (base) {
+                    is Manga -> openMenu(base, item, position)
+                    is Book -> openMenu(base, item, position)
+                }
+            }
+
             override fun onClickLong(history: History, view: View, position: Int) {
                 val base = if (history is HistoryStatistics) history.base else history
                 when (base) {
@@ -1055,7 +1072,7 @@ class HistoryStatisticsFragment : Fragment() {
                 R.id.menu_item_manga_file_favorite -> {
                     manga.favorite = !manga.favorite
                     mViewModel.save(manga)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(manga)
                 }
                 R.id.menu_item_manga_file_reading_history -> {
                     PopupReadingHistory(requireContext()).show(manga)
@@ -1109,7 +1126,7 @@ class HistoryStatisticsFragment : Fragment() {
                 R.id.menu_item_book_file_favorite -> {
                     book.favorite = !book.favorite
                     mViewModel.save(book)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(book)
                 }
                 R.id.menu_item_book_file_reading_history -> {
                     PopupReadingHistory(requireContext()).show(book)

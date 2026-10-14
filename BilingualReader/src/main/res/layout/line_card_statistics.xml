@@ -41,22 +41,6 @@
                 android:adjustViewBounds="false"
                 android:scaleType="centerCrop"
                 app:srcCompat="@mipmap/book_cover_2" />
-
-            <LinearLayout
-                android:id="@+id/history_line_total_pages_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:paddingEnd="3dp"
-                android:paddingTop="3dp">
-                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
-                    android:id="@+id/history_line_total_pages"
-                    style="@style/TextNormal.Card"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/history_grid_sub_title" />
-            </LinearLayout>
-
         </FrameLayout>
 
     </com.google.android.material.card.MaterialCardView>

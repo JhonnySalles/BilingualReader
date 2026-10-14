@@ -9,6 +9,9 @@ import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
+import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorHeaderViewHolder
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
@@ -54,6 +57,20 @@ class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            when (getItemViewType(position)) {
+                HEADER -> (holder as HistorySeparatorHeaderViewHolder).bind(mHistoryList[position] as Separator)
+                else -> {
+                    (holder as HistorySeparatorGridViewHolder).bind(mHistoryList[position] as History)
+                    LibraryCardAnimator.clear(holder)
+                }
+            }
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             HEADER -> {
@@ -75,8 +92,14 @@ class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
         if (holder.itemViewType != HEADER)
-            holder.itemView.clearAnimation()
+            LibraryCardAnimator.clear(holder)
         super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        if (holder.itemViewType != HEADER)
+            LibraryCardAnimator.clear(holder)
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int = mHistoryList.size
@@ -96,7 +119,9 @@ class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
     }
 
     override fun remove(history: History) {
-        val index = mHistoryList.indexOf(history)
+        val index = mHistoryList.indexOfFirst {
+            it == history || (it is History && it.id == history.id && it.type == history.type)
+        }
         if (index != -1) {
             mHistoryList.removeAt(index)
             notifyItemRemoved(index)
@@ -104,7 +129,10 @@ class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
     }
 
     override fun notifyItemChanged(history: History) {
-        if (mHistoryList.contains(history))
-            notifyItemChanged(mHistoryList.indexOf(history))
+        val index = mHistoryList.indexOfFirst {
+            it == history || (it is History && it.id == history.id && it.type == history.type)
+        }
+        if (index != -1)
+            notifyItemChanged(index, AnimationUtil.PROPERTY_NO_ANIMATION)
     }
 }
