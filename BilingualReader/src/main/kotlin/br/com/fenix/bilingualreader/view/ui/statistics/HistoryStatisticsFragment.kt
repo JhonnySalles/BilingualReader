@@ -179,26 +179,28 @@ class HistoryStatisticsFragment : Fragment() {
 
         val miLibrary = menu.findItem(R.id.menu_history_library)
         miLibrary.subMenu?.clear()
-        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 100, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 0, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
             filterLibrary(null)
             (miLibrary.icon as AnimatedVectorDrawable).start()
             true
         }
 
-        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 101, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 1, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
             filterLibrary(mViewModel.mDefaultLibrary)
             (miLibrary.icon as AnimatedVectorDrawable).start()
             true
         }
 
-        // Limit library submenu items to current active type
-        for (library in mViewModel.libraries.value ?: emptyList()) {
-            if (library.type == mViewModel.mTypeFilter) {
-                miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
-                    filterLibrary(library)
-                    (miLibrary.icon as AnimatedVectorDrawable).start()
-                    true
-                }
+        // Limit library submenu items to current active type, sorted alphabetically
+        val activeLibraries = (mViewModel.libraries.value ?: emptyList())
+            .filter { it.type == mViewModel.mTypeFilter }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.title })
+
+        activeLibraries.forEachIndexed { index, library ->
+            miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, index + 2, library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                filterLibrary(library)
+                (miLibrary.icon as AnimatedVectorDrawable).start()
+                true
             }
         }
 
@@ -221,6 +223,10 @@ class HistoryStatisticsFragment : Fragment() {
         val miFilter = menu.findItem(R.id.menu_history_filter)
         val isGrouped = mViewModel.groupedFilter.value ?: false
         miFilter.subMenu?.clear()
+        miFilter.setOnMenuItemClickListener {
+            (miFilter.icon as? AnimatedVectorDrawable)?.start()
+            false
+        }
         miFilter.subMenu?.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped))?.setOnMenuItemClickListener {
             mViewModel.setGrouped(!isGrouped)
             (miFilter.icon as? AnimatedVectorDrawable)?.start()

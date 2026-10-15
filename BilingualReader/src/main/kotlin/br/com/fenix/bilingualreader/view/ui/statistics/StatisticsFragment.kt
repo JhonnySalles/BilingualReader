@@ -344,7 +344,9 @@ class StatisticsFragment : Fragment() {
 
                 val defaultBook = LibraryUtil.getDefault(requireContext(), Type.BOOK)
                 val librariesBook = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(defaultBook.title, defaultBook))
-                librariesBook.putAll(libraries.filter { it.type == Type.BOOK }.associateBy { it.title })
+                val sortedBookLibs = libraries.filter { it.type == Type.BOOK }
+                    .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.title })
+                librariesBook.putAll(sortedBookLibs.associateBy { it.title })
 
                 if (!::mBookSelectLibrary.isInitialized || !librariesBook.contains(mBookSelectLibrary.title)) {
                     mBookSelectLibrary = Library(null, mDefaultAllLibraries)
@@ -376,7 +378,9 @@ class StatisticsFragment : Fragment() {
 
                 val defaultManga = LibraryUtil.getDefault(requireContext(), Type.MANGA)
                 val librariesManga = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(defaultManga.title, defaultManga))
-                librariesManga.putAll(libraries.filter { it.type == Type.MANGA }.associateBy { it.title })
+                val sortedMangaLibs = libraries.filter { it.type == Type.MANGA }
+                    .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.title })
+                librariesManga.putAll(sortedMangaLibs.associateBy { it.title })
 
                 if (!::mMangaSelectLibrary.isInitialized || !librariesManga.contains(mMangaSelectLibrary.title)) {
                     mMangaSelectLibrary = Library(null, mDefaultAllLibraries)

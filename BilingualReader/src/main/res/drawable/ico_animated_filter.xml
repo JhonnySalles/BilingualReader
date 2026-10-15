@@ -8,89 +8,120 @@
             android:height="24dp"
             android:viewportWidth="24"
             android:viewportHeight="24">
+            <!-- 3 Vertical Slider Tracks -->
+            <path
+                android:name="tracks"
+                android:strokeColor="?attr/colorOnSecondary"
+                android:strokeWidth="2"
+                android:strokeLineCap="round"
+                android:pathData="M 7,4 L 7,20 M 12,4 L 12,20 M 17,4 L 17,20" />
+
+            <!-- Knob 1 (Left, resting at Y = 8) -->
             <group
-                android:name="filter_group"
-                android:pivotX="12"
-                android:pivotY="12">
-                <path
-                    android:name="filter_path"
-                    android:fillColor="?attr/colorOnSecondary"
-                    android:pathData="M 10 18 L 14 18 L 14 16 L 10 16 L 10 18 Z M 3 6 L 3 8 L 21 8 L 21 6 L 3 6 Z M 6 13 L 18 13 L 18 11 L 6 11 L 6 13 Z"/>
+                android:translateX="7"
+                android:translateY="8">
+                <group android:name="group_knob_1">
+                    <path
+                        android:name="knob_1"
+                        android:fillColor="?attr/colorOnSecondary"
+                        android:pathData="M 0,-2.2 A 2.2,2.2 0 1,0 0,2.2 A 2.2,2.2 0 1,0 0,-2.2 Z" />
+                </group>
+            </group>
+
+            <!-- Knob 2 (Center, resting at Y = 16) -->
+            <group
+                android:translateX="12"
+                android:translateY="16">
+                <group android:name="group_knob_2">
+                    <path
+                        android:name="knob_2"
+                        android:fillColor="?attr/colorOnSecondary"
+                        android:pathData="M 0,-2.2 A 2.2,2.2 0 1,0 0,2.2 A 2.2,2.2 0 1,0 0,-2.2 Z" />
+                </group>
+            </group>
+
+            <!-- Knob 3 (Right, resting at Y = 11) -->
+            <group
+                android:translateX="17"
+                android:translateY="11">
+                <group android:name="group_knob_3">
+                    <path
+                        android:name="knob_3"
+                        android:fillColor="?attr/colorOnSecondary"
+                        android:pathData="M 0,-2.2 A 2.2,2.2 0 1,0 0,2.2 A 2.2,2.2 0 1,0 0,-2.2 Z" />
+                </group>
             </group>
         </vector>
     </aapt:attr>
-    <target android:name="filter_group">
+
+    <!-- Animation for Knob 1: Moves Down, then Up (Total: 800ms, from 0ms to 800ms) -->
+    <target android:name="group_knob_1">
         <aapt:attr name="android:animation">
-            <set>
+            <set android:ordering="together">
                 <objectAnimator
-                    android:propertyName="scaleX"
-                    android:duration="150"
-                    android:valueFrom="1"
-                    android:valueTo="0.8"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="scaleY"
-                    android:duration="150"
-                    android:valueFrom="1"
-                    android:valueTo="0.8"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="rotation"
-                    android:duration="150"
+                    android:propertyName="translateY"
+                    android:startOffset="0"
+                    android:duration="400"
                     android:valueFrom="0"
-                    android:valueTo="-15"
+                    android:valueTo="7"
                     android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                    android:interpolator="@android:interpolator/accelerate_decelerate" />
                 <objectAnimator
-                    android:propertyName="scaleX"
-                    android:startOffset="150"
-                    android:duration="200"
-                    android:valueFrom="0.8"
-                    android:valueTo="1.15"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="scaleY"
-                    android:startOffset="150"
-                    android:duration="200"
-                    android:valueFrom="0.8"
-                    android:valueTo="1.15"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="rotation"
-                    android:startOffset="150"
-                    android:duration="200"
-                    android:valueFrom="-15"
-                    android:valueTo="10"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="scaleX"
-                    android:startOffset="350"
-                    android:duration="150"
-                    android:valueFrom="1.15"
-                    android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="scaleY"
-                    android:startOffset="350"
-                    android:duration="150"
-                    android:valueFrom="1.15"
-                    android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="rotation"
-                    android:startOffset="350"
-                    android:duration="150"
-                    android:valueFrom="10"
+                    android:propertyName="translateY"
+                    android:startOffset="400"
+                    android:duration="400"
+                    android:valueFrom="7"
                     android:valueTo="0"
                     android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+                    android:interpolator="@android:interpolator/accelerate_decelerate" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- Animation for Knob 2: Moves Up, then Down (Total: 800ms, from 100ms to 900ms) -->
+    <target android:name="group_knob_2">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="100"
+                    android:duration="400"
+                    android:valueFrom="0"
+                    android:valueTo="-7"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/accelerate_decelerate" />
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="500"
+                    android:duration="400"
+                    android:valueFrom="-7"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/accelerate_decelerate" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- Animation for Knob 3: Moves Down, then Up (Total: 800ms, from 200ms to 1000ms) -->
+    <target android:name="group_knob_3">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="200"
+                    android:duration="400"
+                    android:valueFrom="0"
+                    android:valueTo="5"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/accelerate_decelerate" />
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="600"
+                    android:duration="400"
+                    android:valueFrom="5"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/accelerate_decelerate" />
             </set>
         </aapt:attr>
     </target>
