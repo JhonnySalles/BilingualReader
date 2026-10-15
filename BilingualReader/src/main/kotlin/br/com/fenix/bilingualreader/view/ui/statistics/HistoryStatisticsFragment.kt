@@ -32,6 +32,7 @@ import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.BundleCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -198,6 +199,29 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         miFilterYear = menu.findItem(R.id.menu_history_year)
+        miFilterYear.subMenu?.clear()
+        miFilterYear.subMenu?.add(Menu.NONE, Menu.NONE, 0, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener {
+            filterYear(null)
+            (miFilterYear.icon as? AnimatedVectorDrawable)?.start()
+            true
+        }
+        val availableYears = (mViewModel.years.value ?: emptyList()).sortedDescending()
+        availableYears.forEachIndexed { index, year ->
+            miFilterYear.subMenu?.add(Menu.NONE, Menu.NONE, index + 1, year.toString())?.setOnMenuItemClickListener {
+                filterYear(year)
+                (miFilterYear.icon as? AnimatedVectorDrawable)?.start()
+                true
+            }
+        }
+
+        val miFilter = menu.findItem(R.id.menu_history_filter)
+        val isGrouped = mViewModel.groupedFilter.value ?: false
+        miFilter.subMenu?.clear()
+        miFilter.subMenu?.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped))?.setOnMenuItemClickListener {
+            mViewModel.setGrouped(!isGrouped)
+            (miFilter.icon as? AnimatedVectorDrawable)?.start()
+            true
+        }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
             onOpenMenuHistoryStatistics(2)
@@ -332,34 +356,6 @@ class HistoryStatisticsFragment : Fragment() {
         mViewModel.filterYear(year)
     }
 
-    private fun showYearMenu(anchor: View, menuItem: MenuItem) {
-        val popup = PopupMenu(ContextThemeWrapper(requireContext(), R.style.MainToolbarStyle), anchor)
-        popup.menu.add(Menu.NONE, Menu.NONE, 0, requireContext().getString(R.string.history_menu_choice_all)).setOnMenuItemClickListener {
-            filterYear(null)
-            (menuItem.icon as? AnimatedVectorDrawable)?.start()
-            true
-        }
-        val availableYears = (mViewModel.years.value ?: emptyList()).sortedDescending()
-        availableYears.forEachIndexed { index, year ->
-            popup.menu.add(Menu.NONE, Menu.NONE, index + 1, year.toString()).setOnMenuItemClickListener {
-                filterYear(year)
-                (menuItem.icon as? AnimatedVectorDrawable)?.start()
-                true
-            }
-        }
-        popup.show()
-    }
-
-    private fun showFilterMenu(anchor: View, menuItem: MenuItem) {
-        val popup = PopupMenu(ContextThemeWrapper(requireContext(), R.style.MainToolbarStyle), anchor)
-        val isGrouped = mViewModel.groupedFilter.value ?: false
-        popup.menu.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped)).setOnMenuItemClickListener {
-            mViewModel.setGrouped(!isGrouped)
-            (menuItem.icon as? AnimatedVectorDrawable)?.start()
-            true
-        }
-        popup.show()
-    }
 
     private fun updateTitleAndSubtitle() {
         val activity = activity as? AppCompatActivity ?: return
@@ -373,8 +369,15 @@ class HistoryStatisticsFragment : Fragment() {
         } else {
             selected.sortedDescending().joinToString(", ")
         }
+        val library = mViewModel.selectedLibrary.value
+        val librarySubtitle = library?.title
+        val subtitle = if (!librarySubtitle.isNullOrEmpty()) {
+            "${getString(R.string.menu_history)} - $yearSubtitle ($librarySubtitle)"
+        } else {
+            "${getString(R.string.menu_history)} - $yearSubtitle"
+        }
         activity.supportActionBar?.title = typeTitle
-        activity.supportActionBar?.subtitle = "${getString(R.string.menu_history)} - $yearSubtitle"
+        activity.supportActionBar?.subtitle = subtitle
     }
 
     private lateinit var mPopupFilterFragment: HistoryStatisticsPopupFilter
@@ -390,6 +393,11 @@ class HistoryStatisticsFragment : Fragment() {
             if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR)) {
                 val year = bundle.getInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, -1)
                 mViewModel.setYear(if (year != -1) year else null)
+            }
+
+            if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY)) {
+                val library = BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java)
+                mViewModel.setLibrary(library)
             }
         }
 
@@ -623,22 +631,9 @@ class HistoryStatisticsFragment : Fragment() {
                         mViewModel.changeHistoryType()
                         true
                     }
-                    R.id.menu_history_year -> {
-                        (menuItem.icon as? AnimatedVectorDrawable)?.start()
-                        val anchor = mToolbar.findViewById<View>(R.id.menu_history_year) ?: mToolbar
-                        mHandler.postDelayed({
-                            showYearMenu(anchor, menuItem)
-                        }, 200)
-                        true
-                    }
-                    R.id.menu_history_filter -> {
-                        (menuItem.icon as? AnimatedVectorDrawable)?.start()
-                        val anchor = mToolbar.findViewById<View>(R.id.menu_history_filter) ?: mToolbar
-                        mHandler.postDelayed({
-                            showFilterMenu(anchor, menuItem)
-                        }, 200)
-                        true
-                    }
+                    R.id.menu_history_library -> true
+                    R.id.menu_history_year -> true
+                    R.id.menu_history_filter -> true
                     else -> false
                 }
             }
@@ -900,11 +895,16 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         mViewModel.selectedLibrary.observe(viewLifecycleOwner) {
+            updateTitleAndSubtitle()
             activity?.invalidateOptionsMenu()
         }
 
         mViewModel.selectedYears.observe(viewLifecycleOwner) {
             updateTitleAndSubtitle()
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.groupedFilter.observe(viewLifecycleOwner) {
             activity?.invalidateOptionsMenu()
         }
 

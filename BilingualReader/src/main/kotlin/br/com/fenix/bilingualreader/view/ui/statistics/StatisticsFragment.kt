@@ -225,16 +225,24 @@ class StatisticsFragment : Fragment() {
             mProgress.setBlurAutoUpdate(it)
         }
 
-        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
+        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener {
+            val library = if (::mMangaSelectLibrary.isInitialized && mMangaSelectLibrary.title != mDefaultAllLibraries) mMangaSelectLibrary else null
+            openHistory(Type.MANGA, mMangaSelectYear, library)
+        }
         mMangaHistory.setOnClickListener {
             (mMangaHistory.icon as AnimatedVectorDrawable).start()
-            openHistory(Type.MANGA, mMangaSelectYear)
+            val library = if (::mMangaSelectLibrary.isInitialized && mMangaSelectLibrary.title != mDefaultAllLibraries) mMangaSelectLibrary else null
+            openHistory(Type.MANGA, mMangaSelectYear, library)
         }
 
-        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
+        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener {
+            val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null
+            openHistory(Type.BOOK, mBookSelectYear, library)
+        }
         mBookHistory.setOnClickListener {
             (mBookHistory.icon as AnimatedVectorDrawable).start()
-            openHistory(Type.BOOK, mBookSelectYear)
+            val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null
+            openHistory(Type.BOOK, mBookSelectYear, library)
         }
 
         val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
@@ -593,13 +601,15 @@ class StatisticsFragment : Fragment() {
         return data
     }
 
-    private fun openHistory(type: Type, year: Int?) {
+    private fun openHistory(type: Type, year: Int?, library: Library? = null) {
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_history_statistics)
         bundle.putInt(GeneralConsts.KEYS.OBJECT.TYPE, type.ordinal)
         if (year != null)
             bundle.putInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, year)
+        if (library != null && library.title != mDefaultAllLibraries)
+            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, library)
 
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)

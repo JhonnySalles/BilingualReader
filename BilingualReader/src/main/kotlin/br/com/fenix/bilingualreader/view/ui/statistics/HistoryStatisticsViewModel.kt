@@ -137,6 +137,14 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                 mSuggestionTags = tags
                 mLibraries.value = libs
                 mYears.value = activeYears
+
+                val current = mLibrary.value
+                if (current != null && current.id != mDefaultKey) {
+                    val found = libs.find { it.id == current.id }
+                    if (found != null) {
+                        mLibrary.value = found
+                    }
+                }
             }
         }
     }
@@ -510,11 +518,36 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
+    fun setLibrary(library: Library?) {
+        if (library == null) {
+            mLibrary.value = null
+            return
+        }
+
+        mLibrary.value = if (library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA ||
+            library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK ||
+            library.id == mDefaultKey
+        ) {
+            mDefaultLibrary
+        } else {
+            library
+        }
+    }
+
     fun filterLibrary(library: Library?) {
-        if (library == mLibrary.value)
+        val target = if (library != null && (library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA ||
+                library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK ||
+                library.id == mDefaultKey)
+        ) {
+            mDefaultLibrary
+        } else {
+            library
+        }
+
+        if (target == mLibrary.value)
             return
 
-        mLibrary.value = library
+        mLibrary.value = target
         mList.value = filterList()
     }
 

@@ -38,11 +38,15 @@
         android:icon="@drawable/ico_animated_menu_history"
         android:orderInCategory="104"
         app:iconTint="@null"
-        app:showAsAction="always" />
+        app:showAsAction="always">
+        <menu/>
+    </item>
 
     <item android:id="@+id/menu_history_filter"
         android:title="@string/menu_history_filter"
         android:icon="@drawable/ico_animated_filter"
         android:orderInCategory="105"
-        app:showAsAction="always" />
+        app:showAsAction="always">
+        <menu/>
+    </item>
 </menu>
