@@ -29,13 +29,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_margin="@dimen/margin_small"
-                android:paddingTop="@dimen/default_navigator_header_margin_top"
                 android:clipToPadding="false"
                 android:clipChildren="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@+id/content_toolbar_history_statistics"/>
         
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/history_statistics_list"
@@ -47,14 +46,13 @@
                 android:layoutAnimation="@anim/layout_animation_history"
                 android:clipToPadding="false"
                 android:clipChildren="false"
-                android:paddingTop="@dimen/default_navigator_header_margin_top"
                 android:paddingBottom="@dimen/history_padding"
                 android:visibility="gone"
                 app:layout_constrainedHeight="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@+id/content_toolbar_history_statistics"/>
 
             <com.google.android.material.appbar.AppBarLayout
                 style="@style/AppBarLayout"
