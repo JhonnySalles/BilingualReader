@@ -2202,7 +2202,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(mToolbarTop) { view, insets ->
+        mToolbarTop.setPadding(mToolbarTop.paddingLeft, 0, mToolbarTop.paddingRight, 0)
+        ViewCompat.setOnApplyWindowInsetsListener(mToolbarTop, null)
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
@@ -2237,6 +2240,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             view.layoutParams = lp
             insets
         }
+
+        ViewCompat.requestApplyInsets(mBlurTop)
+        ViewCompat.requestApplyInsets(mToolbarBottom)
     }
 
     private fun setupTitleBackgrounds() {
@@ -2263,6 +2269,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
         mBlurTop.background = topBg
         mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        val toolbarReader = activity?.findViewById<View>(R.id.reader_manga_toolbar_reader)
+        toolbarReader?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         val bottomBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE

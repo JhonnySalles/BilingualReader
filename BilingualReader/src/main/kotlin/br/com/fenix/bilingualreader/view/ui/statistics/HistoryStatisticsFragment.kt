@@ -143,6 +143,10 @@ class HistoryStatisticsFragment : Fragment() {
                     mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
                 } else {
                     mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED || newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        GlassRenderScheduler.requestUpdate(mMenuPopupHistoryStatisticsBackground)
+                        mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 50)
+                    }
                 }
             }
         }
@@ -414,7 +418,7 @@ class HistoryStatisticsFragment : Fragment() {
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
         setupBlurViews(root)
         setupWindowInsets(root)
-        setupTitleBackgrounds()
+        setupTitleBackgrounds(root)
         mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
         mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
@@ -424,6 +428,7 @@ class HistoryStatisticsFragment : Fragment() {
 
         mMenuPopupHistoryStatistics = root.findViewById(R.id.history_statistics_popup_menu)
         mMenuPopupHistoryStatisticsBackground = root.findViewById(R.id.history_statistics_popup_header_background)
+        setupPopupBackgrounds()
         mRecyclerView.itemAnimator = BlurAwareItemAnimator()
         mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
         mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
@@ -495,14 +500,16 @@ class HistoryStatisticsFragment : Fragment() {
             mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
             mHandler.postDelayed({
                 mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-            }, 100)
+                GlassRenderScheduler.requestUpdate(mMenuPopupHistoryStatisticsBackground)
+                mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 50)
+            }, 300)
         }
     }
 
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        val contentContainer = view?.findViewById<ViewGroup>(R.id.history_statistics_content) ?: mRoot
+        val contentContainer = mRoot
         PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground, contentContainer)
     }
 
@@ -1319,7 +1326,12 @@ class HistoryStatisticsFragment : Fragment() {
         setAnimationRecycler(false)
         mRecyclerView.visibility = View.VISIBLE
         mRecyclerView.alpha = 0f
-        mRecyclerView.animate().alpha(1f).setDuration(700).start()
+        mRecyclerView.animate().alpha(1f).setDuration(700).withEndAction {
+            if (::mBlurTop.isInitialized) {
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 50)
+            }
+        }.start()
         mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
@@ -1412,14 +1424,15 @@ class HistoryStatisticsFragment : Fragment() {
 
         val context = requireContext()
         val background = (fragmentRoot as? ViewGroup)?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
-        val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: (fragmentRoot as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        val rootView = (fragmentRoot as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
         GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
 
-    private fun setupTitleBackgrounds() {
-        val barLayout = view?.findViewById<View>(R.id.content_toolbar_chapter)
+    private fun setupTitleBackgrounds(root: View? = null) {
+        val target = root ?: view
+        val barLayout = target?.findViewById<View>(R.id.content_toolbar_history_statistics)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }

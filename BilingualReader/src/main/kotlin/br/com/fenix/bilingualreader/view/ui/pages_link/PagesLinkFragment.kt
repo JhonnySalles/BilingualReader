@@ -241,8 +241,8 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         (requireActivity() as PagesLinkActivity).setActionBar(mToolbar)
-        setupBlurViews()
-        setupTitleBackgrounds()
+        setupBlurViews(root)
+        setupTitleBackgrounds(root)
         setupWindowInsets()
 
         if (mHelp.tag.toString().compareTo("not_used", true) != 0) {
@@ -785,7 +785,11 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
             mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
                 mBlurTop.setBlurAutoUpdate(true)
-                mHandler.postDelayed({ mBlurTop.setBlurAutoUpdate(false) }, 100)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
+                    GlassRenderScheduler.requestUpdate(mBlurTop)
+                    mBlurTop.blurOnceDeferred(mHandler, 50)
+                }, 300)
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
             }
@@ -1172,22 +1176,22 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         }
     }
 
-    private fun setupBlurViews() {
+    private fun setupBlurViews(fragmentRoot: View? = null) {
         if (!::mBlurTop.isInitialized)
             return
         val context = requireContext()
-        val fragmentRoot = view as? ViewGroup
-        val rootView = fragmentRoot ?: requireActivity().findViewById<ViewGroup>(R.id.pages_link_content) ?: (requireActivity().window.decorView as ViewGroup)
-        val background = fragmentRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        val fRoot = (fragmentRoot ?: view) as? ViewGroup
+        val rootView = fRoot ?: requireActivity().findViewById<ViewGroup>(R.id.frame_pages_link_root) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = fRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
         GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
 
-    private fun setupTitleBackgrounds() {
+    private fun setupTitleBackgrounds(root: View? = null) {
         if (!::mBlurTop.isInitialized)
             return
-        val barLayout = view?.findViewById<View>(R.id.pages_link_content)
+        val barLayout = (root ?: view)?.findViewById<View>(R.id.pages_link_content)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }

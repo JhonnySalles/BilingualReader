@@ -58,14 +58,16 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/reader_title_margin_negative"
             android:layout_marginEnd="@dimen/reader_title_margin_negative"
-            android:background="@drawable/app_reader_toolbar_background"
+            android:background="@android:color/transparent"
             android:theme="@style/MainToolbarContentTheme"
             app:elevation="0dp">
 
             <eightbitlab.com.blurview.BlurView
                 android:id="@+id/reader_manga_blur_top"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:clipChildren="false">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/reader_manga_toolbar_reader"

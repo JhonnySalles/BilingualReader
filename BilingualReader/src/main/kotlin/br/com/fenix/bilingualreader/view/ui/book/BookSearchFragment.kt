@@ -44,9 +44,11 @@ import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -214,6 +216,8 @@ class BookSearchFragment : Fragment(), BookParseListener {
                 if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         mBlurTop.setBlurAutoUpdate(false)
+                        GlassRenderScheduler.requestUpdate(mBlurTop)
+                        mBlurTop.blurOnceDeferred(mHandler, 50)
                     } else {
                         mBlurTop.setBlurAutoUpdate(true)
                     }
@@ -221,9 +225,9 @@ class BookSearchFragment : Fragment(), BookParseListener {
             }
         })
 
-        setupBlurViews()
+        setupBlurViews(root)
         setupWindowInsets()
-        setupTitleBackgrounds()
+        setupTitleBackgrounds(root)
 
         return root
     }
@@ -374,7 +378,9 @@ class BookSearchFragment : Fragment(), BookParseListener {
             mBlurTop.setBlurAutoUpdate(true)
             mHandler.postDelayed({
                 mBlurTop.setBlurAutoUpdate(false)
-            }, 100)
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 50)
+            }, 300)
         } else {
             mBlurTop.setBlurAutoUpdate(false)
         }
@@ -398,7 +404,9 @@ class BookSearchFragment : Fragment(), BookParseListener {
                 mBlurTop.setBlurAutoUpdate(true)
                 mHandler.postDelayed({
                     mBlurTop.setBlurAutoUpdate(false)
-                }, 100)
+                    GlassRenderScheduler.requestUpdate(mBlurTop)
+                    mBlurTop.blurOnceDeferred(mHandler, 50)
+                }, 300)
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
             }
@@ -416,21 +424,21 @@ class BookSearchFragment : Fragment(), BookParseListener {
         }
     }
 
-    private fun setupBlurViews() {
+    private fun setupBlurViews(fragmentRoot: View? = null) {
         if (!::mBlurTop.isInitialized)
             return
 
         val context = requireContext()
-        val fragmentRoot = view as? ViewGroup
-        val rootView = fragmentRoot ?: requireActivity().findViewById<ViewGroup>(R.id.book_search_content) ?: (requireActivity().window.decorView as ViewGroup)
-        val background = fragmentRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        val fRoot = (fragmentRoot ?: view) as? ViewGroup
+        val rootView = fRoot ?: requireActivity().findViewById<ViewGroup>(R.id.book_search_content) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = fRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
         GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
 
-    private fun setupTitleBackgrounds() {
-        val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_search)
+    private fun setupTitleBackgrounds(root: View? = null) {
+        val barLayout = (root ?: view)?.findViewById<View>(R.id.content_toolbar_book_search)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
