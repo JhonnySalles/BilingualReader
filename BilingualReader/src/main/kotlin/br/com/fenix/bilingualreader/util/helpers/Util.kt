@@ -94,7 +94,6 @@ import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
-import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory

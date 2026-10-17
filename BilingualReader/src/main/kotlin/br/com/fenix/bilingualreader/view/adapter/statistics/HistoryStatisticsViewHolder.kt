@@ -20,7 +20,6 @@ import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import java.time.format.DateTimeFormatter
 
 class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryCardListener) : RecyclerView.ViewHolder(itemView) {
 

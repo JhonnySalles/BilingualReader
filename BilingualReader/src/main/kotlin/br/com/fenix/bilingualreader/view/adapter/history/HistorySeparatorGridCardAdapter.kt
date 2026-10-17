@@ -10,8 +10,6 @@ import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
-import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorHeaderViewHolder
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 class HistorySeparatorGridCardAdapter(private val type: HistoryType) :
