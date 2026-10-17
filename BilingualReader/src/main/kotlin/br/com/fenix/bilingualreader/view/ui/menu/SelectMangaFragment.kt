@@ -47,6 +47,7 @@ import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
@@ -62,10 +63,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import kotlin.math.ceil
@@ -709,11 +709,10 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
         if (!::mBlurTop.isInitialized)
             return
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val fragmentRoot = view as? ViewGroup
+        val rootView = fragmentRoot ?: requireActivity().findViewById<ViewGroup>(R.id.main_root_layout) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = fragmentRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
@@ -722,11 +721,10 @@ class SelectMangaFragment : Fragment(), PopupOrderListener {
         if (!::mMenuPopupLibraryBackground.isInitialized)
             return
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mMenuPopupLibraryBackground, rootView, blurAlgorithm)
+        val fragmentRoot = view as? ViewGroup
+        val rootView = fragmentRoot ?: requireActivity().findViewById<ViewGroup>(R.id.main_root_layout) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = ThemeUtil.getBlurFrameClearDrawable(context)
+        GlassSetup.setupGlass(mMenuPopupLibraryBackground, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

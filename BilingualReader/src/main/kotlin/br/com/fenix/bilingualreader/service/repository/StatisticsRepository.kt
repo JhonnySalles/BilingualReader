@@ -13,6 +13,8 @@ class StatisticsRepository(var context: Context) {
     private val mLOGGER = LoggerFactory.getLogger(StatisticsRepository::class.java)
     private var mStatisticsDataBase = DataBase.getDataBase(context).getStatisticsDao()
     private val mLibraryRepository: LibraryRepository = LibraryRepository(context)
+    private val mHistoryRepository: HistoryRepository = HistoryRepository(context)
+
 
 
     fun statistics(): List<Statistics> = mStatisticsDataBase.statistics()
@@ -38,6 +40,20 @@ class StatisticsRepository(var context: Context) {
                 Type.MANGA -> mStatisticsDataBase.statisticsManga(dateStart, dateEnd)
                 Type.BOOK -> mStatisticsDataBase.statisticsBook(dateStart, dateEnd)
             }
+    }
+
+    fun getReadingHeatmapData(type: Type): Map<java.time.LocalDate, Int> {
+        val historyLogs = mHistoryRepository.listHistory().filter { it.type == type }
+        val data = mutableMapOf<java.time.LocalDate, Int>()
+        for (log in historyLogs) {
+            if (!log.completed) continue
+            val date = log.start.toLocalDate()
+            val pagesRead = if (log.getPageEnd() > log.pageStart) log.getPageEnd() - log.pageStart else 0
+            if (pagesRead > 0) {
+                data[date] = data.getOrDefault(date, 0) + pagesRead
+            }
+        }
+        return data
     }
 
     fun listYears(type: Type) = mStatisticsDataBase.listYears(type.toString())

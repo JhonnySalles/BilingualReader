@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navigator_header_root"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="@mipmap/navigator_header_image"
-    android:gravity="bottom"
-    android:orientation="vertical"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:id="@+id/navigator_header_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="false"
+        android:src="@mipmap/navigator_header_image" />
 
     <eightbitlab.com.blurview.BlurView
         android:id="@+id/navigator_blur"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:background="#80000000">
 
         <TextView
@@ -25,4 +32,4 @@
 
     </eightbitlab.com.blurview.BlurView>
 
-</LinearLayout>
+</FrameLayout>

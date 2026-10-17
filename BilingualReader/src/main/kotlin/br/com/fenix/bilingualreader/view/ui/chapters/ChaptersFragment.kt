@@ -27,13 +27,16 @@ import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersGridAdapter
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 
@@ -78,8 +81,8 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
         setupBlurViews(root)
-        setupWindowInsets()
-        setupTitleBackgrounds()
+        setupWindowInsets(root)
+        setupTitleBackgrounds(root)
 
         mToolbar.title = mToolbarTitle
 
@@ -158,6 +161,8 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
                 if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         mBlurTop.setBlurAutoUpdate(false)
+                        GlassRenderScheduler.requestUpdate(mBlurTop)
+                        mBlurTop.blurOnceDeferred(mHandler, 50)
                     } else {
                         mBlurTop.setBlurAutoUpdate(true)
                     }
@@ -196,6 +201,11 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     private fun observer() {
         SharedData.chapters.observe(viewLifecycleOwner) {
             (mRecyclerView.adapter as ChaptersGridAdapter).updateList(it)
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 100)
+            }
         }
         if (mPosInitial > 0)
             mRecyclerView.scrollToPosition(mPosInitial)
@@ -253,9 +263,8 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         mBlurTop.setBlurEnabled(isGlass)
         if (isGlass) {
             mBlurTop.setBlurAutoUpdate(true)
-            mHandler.postDelayed({
-                mBlurTop.setBlurAutoUpdate(false)
-            }, 100)
+            GlassRenderScheduler.requestUpdate(mBlurTop)
+            mBlurTop.blurOnceDeferred(mHandler, 100)
         } else {
             mBlurTop.setBlurAutoUpdate(false)
         }
@@ -277,16 +286,15 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
                 mBlurTop.setBlurAutoUpdate(true)
-                mHandler.postDelayed({
-                    mBlurTop.setBlurAutoUpdate(false)
-                }, 100)
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 100)
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
             }
         }
     }
 
-    private fun setupWindowInsets() {
+    private fun setupWindowInsets(root: View? = null) {
         if (!::mBlurTop.isInitialized)
             return
 
@@ -295,22 +303,43 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
         }
+
+        val target = root ?: view
+        if (target != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(target) { _, insets ->
+                val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                val headerHeight = resources.getDimensionPixelSize(R.dimen.default_navigator_header_size)
+                val bottomPadding = resources.getDimensionPixelSize(R.dimen.chapters_list_padding)
+                if (::mRecyclerView.isInitialized) {
+                    mRecyclerView.setPadding(
+                        mRecyclerView.paddingLeft,
+                        statusBarHeight + headerHeight,
+                        mRecyclerView.paddingRight,
+                        bottomPadding + navBarHeight
+                    )
+                }
+                insets
+            }
+        }
     }
 
-    private fun setupBlurViews(_root: View) {
-        if (!::mBlurTop.isInitialized || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+    private fun setupBlurViews(fragmentRoot: View? = null) {
+        if (!::mBlurTop.isInitialized)
             return
 
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(requireContext())
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
+        val context = requireContext()
+        val target = fragmentRoot ?: view
+        val rootView = (target as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = (target as? ViewGroup)?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
 
-    private fun setupTitleBackgrounds() {
-        val barLayout = view?.findViewById<View>(R.id.content_toolbar_chapter)
+    private fun setupTitleBackgrounds(root: View? = null) {
+        val target = root ?: view
+        val barLayout = target?.findViewById<View>(R.id.content_toolbar_chapter)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }

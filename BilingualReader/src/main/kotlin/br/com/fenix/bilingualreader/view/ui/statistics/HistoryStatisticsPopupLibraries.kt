@@ -60,6 +60,7 @@ class HistoryStatisticsPopupLibraries : Fragment() {
         // Divider
         val libs = mViewModel.libraries.value ?: emptyList()
         val typeLibs = libs.filter { it.type == mViewModel.mTypeFilter }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.title })
 
         if (typeLibs.isNotEmpty()) {
             val divider = inflater.inflate(R.layout.popup_divider, mContainer, false)

@@ -20,6 +20,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.os.BundleCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.doOnPreDraw
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -533,6 +534,10 @@ class BookDetailFragment : Fragment() {
                 mProgress.setProgress(0, false)
                 mFavoriteButton.setIconResource(R.drawable.ico_favorite_unmark)
             }
+
+            (view?.parent as? ViewGroup ?: view)?.doOnPreDraw {
+                activity?.supportStartPostponedEnterTransition()
+            } ?: activity?.supportStartPostponedEnterTransition()
         }
 
         mViewModel.listChapters.observe(viewLifecycleOwner) {

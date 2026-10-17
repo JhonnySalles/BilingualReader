@@ -29,32 +29,38 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
         lateinit var mDefaultImageCover3: Bitmap
         lateinit var mDefaultImageCover4: Bitmap
         lateinit var mDefaultImageCover5: Bitmap
+        private var mDefaultsLoaded = false
+
+        private fun ensureDefaults(itemView: View) {
+            if (mDefaultsLoaded) return
+            mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
+            mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+            mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
+            mDefaultImageCover4 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
+            mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
+            mDefaultsLoaded = true
+        }
     }
 
+    private val bookImage: ImageView = itemView.findViewById(R.id.book_grid_image_cover)
+    private val bookTitle: TextView = itemView.findViewById(R.id.book_grid_title)
+    private val bookSubTitle: TextView = itemView.findViewById(R.id.book_grid_sub_title)
+    private val bookType: TextView = itemView.findViewById(R.id.book_grid_file_type)
+    private val bookPagesRead: TextView = itemView.findViewById(R.id.book_grid_pages)
+    private val bookLastAccess: TextView = itemView.findViewById(R.id.book_grid_last_access)
+    private val cardView: MaterialCardView = itemView.findViewById(R.id.book_grid_card)
+    private val bookProgress: ProgressBar = itemView.findViewById(R.id.book_grid_progress)
+    private val favorite: LinearLayout = itemView.findViewById(R.id.book_grid_favorite)
+    private val favoriteIcon: ImageView = itemView.findViewById(R.id.book_grid_favorite_icon)
+    private val config: LinearLayout = itemView.findViewById(R.id.book_grid_config)
+    private val configIcon: ImageView = itemView.findViewById(R.id.book_grid_config_icon)
+
     init {
-        mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
-        mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
-        mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
-        mDefaultImageCover4 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
-        mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
+        ensureDefaults(itemView)
     }
 
     @SuppressLint("SetTextI18n")
     fun bind(book: Book) {
-        val bookImage = itemView.findViewById<ImageView>(R.id.book_grid_image_cover)
-        val bookTitle = itemView.findViewById<TextView>(R.id.book_grid_title)
-        val bookSubTitle = itemView.findViewById<TextView>(R.id.book_grid_sub_title)
-        val bookType = itemView.findViewById<TextView>(R.id.book_grid_file_type)
-        val bookPagesRead = itemView.findViewById<TextView>(R.id.book_grid_pages)
-        val bookLastAccess = itemView.findViewById<TextView>(R.id.book_grid_last_access)
-
-        val cardView = itemView.findViewById<MaterialCardView>(R.id.book_grid_card)
-        val bookProgress = itemView.findViewById<ProgressBar>(R.id.book_grid_progress)
-        val favorite = itemView.findViewById<LinearLayout>(R.id.book_grid_favorite)
-        val favoriteIcon = itemView.findViewById<ImageView>(R.id.book_grid_favorite_icon)
-        val config = itemView.findViewById<LinearLayout>(R.id.book_grid_config)
-        val configIcon = itemView.findViewById<ImageView>(R.id.book_grid_config_icon)
-
         val isLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val cardSize = AdapterUtils.getBookCardSize(itemView.context, type, isLandscape)
         cardView.layoutParams.width = cardSize.first
@@ -82,7 +88,6 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
             else -> mDefaultImageCover5
         }
 
-        bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, image)
 
         bookTitle.text = book.title

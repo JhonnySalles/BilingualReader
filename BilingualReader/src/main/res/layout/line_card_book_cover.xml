@@ -29,6 +29,7 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="false"
                 android:scaleType="centerCrop"
+                android:transitionName="transition_book_cover"
                 app:srcCompat="@mipmap/book_cover_2" />
 
             <ProgressBar
@@ -37,20 +38,113 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/history_cover_progress_height"
                 android:layout_gravity="bottom"
-                android:progress="50" />
+                android:progress="50"
+                android:transitionName="transition_progress_bar" />
 
         </FrameLayout>
 
     </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:id="@+id/book_cover_actions_layout"
+        android:layout_width="@dimen/history_cover_width"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="3dp">
+
+        <LinearLayout
+            android:id="@+id/book_cover_favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/book_cover_favorite_icon"
+                style="@style/IconFavorite.Book"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@drawable/ico_favorite_mark_border"
+                android:src="@drawable/ico_favorite_unmark" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/book_cover_file_type"
+            style="@style/TextTitle.Line"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@color/card_book_amber_base"
+            android:textSize="9sp" />
+
+        <LinearLayout
+            android:id="@+id/book_cover_config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:id="@+id/book_cover_config_icon"
+                style="@style/IconConfig.Book"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@drawable/ico_config_border"
+                android:src="@drawable/ico_config" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/book_cover_info_layout"
+        android:layout_width="@dimen/history_cover_width"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="1dp">
+
+        <TextView
+            android:id="@+id/book_cover_pages"
+            style="@style/TextNormal.Line"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:singleLine="true"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/book_cover_last_access"
+            style="@style/TextNormal.Line"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:singleLine="true"
+            android:textSize="8sp" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/book_cover_title"
         style="@style/TextNormal.Line"
         android:layout_width="@dimen/history_cover_width"
         android:layout_height="wrap_content"
+        android:textColor="@color/card_book_amber_base"
         android:ellipsize="end"
         android:gravity="center_horizontal"
         android:maxLines="4"
-        android:textSize="@dimen/history_cover_title_size" />
+        android:layout_marginTop="2dp"
+        android:textSize="@dimen/history_cover_title_size"
+        android:transitionName="transition_book_title" />
 
 </LinearLayout>

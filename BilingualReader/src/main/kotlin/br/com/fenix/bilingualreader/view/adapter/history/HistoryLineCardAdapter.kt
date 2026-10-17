@@ -7,6 +7,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 
 
@@ -23,6 +24,20 @@ class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), 
 
     override fun getItemViewType(position: Int): Int =
         if (mHistoryList[position] is Separator) HEADER else CONTENT
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            when (getItemViewType(position)) {
+                HEADER -> (holder as HistoryHeaderViewHolder).bind(mHistoryList[position] as Separator)
+                else -> {
+                    (holder as HistoryViewHolder).bind(mHistoryList[position] as History)
+                    LibraryCardAnimator.clear(holder)
+                }
+            }
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
@@ -43,6 +58,22 @@ class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), 
                     LibraryCardAnimator.clear(holder)
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        when (holder.itemViewType) {
+            HEADER -> {}
+            else -> LibraryCardAnimator.clear(holder)
+        }
+        super.onViewDetachedFromWindow(holder)
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        when (holder.itemViewType) {
+            HEADER -> {}
+            else -> LibraryCardAnimator.clear(holder)
+        }
+        super.onViewRecycled(holder)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -71,7 +102,9 @@ class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), 
     }
 
     override fun remove(history: History) {
-        val index = mHistoryList.indexOf(history)
+        val index = mHistoryList.indexOfFirst {
+            it == history || (it is History && it.id == history.id && it.type == history.type)
+        }
         if (index != -1) {
             mHistoryList.removeAt(index)
             notifyItemRemoved(index)
@@ -79,8 +112,11 @@ class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), 
     }
 
     override fun notifyItemChanged(history: History) {
-        if (mHistoryList.contains(history))
-            notifyItemChanged(mHistoryList.indexOf(history))
+        val index = mHistoryList.indexOfFirst {
+            it == history || (it is History && it.id == history.id && it.type == history.type)
+        }
+        if (index != -1)
+            notifyItemChanged(index, AnimationUtil.PROPERTY_NO_ANIMATION)
     }
 
 }

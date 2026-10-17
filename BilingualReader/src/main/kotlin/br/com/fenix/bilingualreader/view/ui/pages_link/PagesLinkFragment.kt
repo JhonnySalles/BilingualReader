@@ -55,6 +55,7 @@ import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
@@ -75,10 +76,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 
 
@@ -241,8 +241,8 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         (requireActivity() as PagesLinkActivity).setActionBar(mToolbar)
-        setupBlurViews()
-        setupTitleBackgrounds()
+        setupBlurViews(root)
+        setupTitleBackgrounds(root)
         setupWindowInsets()
 
         if (mHelp.tag.toString().compareTo("not_used", true) != 0) {
@@ -785,7 +785,11 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
             mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
                 mBlurTop.setBlurAutoUpdate(true)
-                mHandler.postDelayed({ mBlurTop.setBlurAutoUpdate(false) }, 100)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
+                    GlassRenderScheduler.requestUpdate(mBlurTop)
+                    mBlurTop.blurOnceDeferred(mHandler, 50)
+                }, 300)
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
             }
@@ -1172,23 +1176,22 @@ class PagesLinkFragment : Fragment(), PagesLinkHandler.Listener {
         }
     }
 
-    private fun setupBlurViews() {
+    private fun setupBlurViews(fragmentRoot: View? = null) {
         if (!::mBlurTop.isInitialized)
             return
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val fRoot = (fragmentRoot ?: view) as? ViewGroup
+        val rootView = fRoot ?: requireActivity().findViewById<ViewGroup>(R.id.frame_pages_link_root) ?: (requireActivity().window.decorView as ViewGroup)
+        val background = fRoot?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
 
-    private fun setupTitleBackgrounds() {
+    private fun setupTitleBackgrounds(root: View? = null) {
         if (!::mBlurTop.isInitialized)
             return
-        val barLayout = view?.findViewById<View>(R.id.pages_link_content)
+        val barLayout = (root ?: view)?.findViewById<View>(R.id.pages_link_content)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }

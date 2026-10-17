@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
@@ -16,6 +17,10 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import com.google.android.material.card.MaterialCardView
 
@@ -53,15 +58,28 @@ class MangaCoverCardAdapter(private val listener: MangaCardListener) :
 
     private var mList: List<Manga> = listOf()
     private var mOrder: Order = Order.Series
+    var isAnimation: Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MangaCoverViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.line_card_manga_cover, parent, false)
         return MangaCoverViewHolder(item)
     }
 
+    override fun onBindViewHolder(holder: MangaCoverViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            holder.bind(mList[position], mOrder)
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: MangaCoverViewHolder, position: Int) {
         holder.bind(mList[position], mOrder)
-        LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
+        if (isAnimation)
+            LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
+        else
+            LibraryCardAnimator.clear(holder)
     }
 
     override fun onViewDetachedFromWindow(holder: MangaCoverViewHolder) {
@@ -82,6 +100,12 @@ class MangaCoverCardAdapter(private val listener: MangaCardListener) :
         notifyDataSetChanged()
     }
 
+    fun notifyItemChanged(manga: Manga) {
+        val index = mList.indexOfFirst { it == manga || it.id == manga.id }
+        if (index != -1)
+            notifyItemChanged(index, AnimationUtil.PROPERTY_NO_ANIMATION)
+    }
+
     inner class MangaCoverViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(manga: Manga, order: Order) {
@@ -91,6 +115,13 @@ class MangaCoverCardAdapter(private val listener: MangaCardListener) :
             val cover = itemView.findViewById<ImageView>(R.id.manga_cover_image)
             val title = itemView.findViewById<TextView>(R.id.manga_cover_title)
             val progress = itemView.findViewById<ProgressBar>(R.id.manga_cover_progress)
+            val favorite = itemView.findViewById<LinearLayout>(R.id.manga_cover_favorite)
+            val favoriteIcon = itemView.findViewById<ImageView>(R.id.manga_cover_favorite_icon)
+            val config = itemView.findViewById<LinearLayout>(R.id.manga_cover_config)
+            val configIcon = itemView.findViewById<ImageView>(R.id.manga_cover_config_icon)
+            val fileType = itemView.findViewById<TextView>(R.id.manga_cover_file_type)
+            val pages = itemView.findViewById<TextView>(R.id.manga_cover_pages)
+            val lastAccess = itemView.findViewById<TextView>(R.id.manga_cover_last_access)
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                 TooltipCompat.setTooltipText(card, manga.title)
@@ -109,6 +140,19 @@ class MangaCoverCardAdapter(private val listener: MangaCardListener) :
 
             progress.max = manga.pages.coerceAtLeast(1)
             progress.progress = manga.bookMark
+
+            favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favorite.setOnClickListener {
+                manga.favorite = !manga.favorite
+                favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+                listener.onClickFavorite(manga)
+            }
+
+            config.setOnClickListener { listener.onClickConfig(manga, card, configIcon, bindingAdapterPosition) }
+
+            fileType.text = Util.getExtensionFromPath(manga.path).uppercase()
+            pages.text = "${manga.bookMark} / ${manga.pages}"
+            lastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!, true) else ""
 
             card.setOnClickListener { listener.onClick(manga, itemView) }
             card.setOnLongClickListener {

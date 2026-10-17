@@ -190,7 +190,9 @@ class MangaImageCoverController private constructor() {
     fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, @Suppress("UNUSED_PARAMETER") isCoverSize: Boolean = true) {
         imageView.load(manga) {
             allowHardware(false)
-            crossfade(true)
+            // Crossfade invalidates the view for several frames and wakes BlurView's
+            // software root capture; library scroll needs an instant placeholder swap.
+            crossfade(false)
             if (notLocate != null) {
                 placeholder(BitmapDrawable(context.resources, notLocate))
                 error(BitmapDrawable(context.resources, notLocate))
@@ -218,7 +220,7 @@ class MangaImageCoverController private constructor() {
     ) {
         imageView.load(manga) {
             allowHardware(false)
-            crossfade(true)
+            crossfade(false)
             if (notLocate != null) {
                 placeholder(BitmapDrawable(context.resources, notLocate))
                 error(BitmapDrawable(context.resources, notLocate))

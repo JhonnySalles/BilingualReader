@@ -594,6 +594,10 @@
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
 
+    <style name="TextTitle.Line" parent="TextTitle">
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
+    </style>
+
     <style name="TextTitle.Line.Title" parent="TextTitle">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>

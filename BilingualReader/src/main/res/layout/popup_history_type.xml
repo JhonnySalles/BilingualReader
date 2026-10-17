@@ -22,6 +22,13 @@
             android:text="@string/popup_history_type_line"/>
 
         <CheckBox
+            android:id="@+id/popup_history_type_separator_line"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_history_type_separator_line"/>
+
+        <CheckBox
             android:id="@+id/popup_history_type_separator_big"
             style="@style/CheckBox"
             android:layout_width="match_parent"
@@ -41,13 +48,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/popup_history_type_separator_carousel"/>
-
-        <CheckBox
-            android:id="@+id/popup_history_type_separator_line"
-            style="@style/CheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/popup_history_type_separator_line"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_book_mark_date"
-            app:startIconDrawable="@drawable/ico_book_mark_date">
+            app:startIconDrawable="@drawable/ico_animated_calendar">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/popup_book_mark_date_edit"
@@ -182,7 +182,7 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:text="@string/popup_book_mark_history"
-                app:icon="@drawable/ico_history" />
+                app:icon="@drawable/ico_animated_clock" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_book_mark_btn_now_date"
@@ -191,7 +191,7 @@
                 android:layout_height="@dimen/config_button_size"
                 android:layout_weight="1"
                 android:text="@string/popup_book_mark_current_date"
-                app:icon="@drawable/ico_book_mark_date" />
+                app:icon="@drawable/ico_animated_calendar" />
 
         </LinearLayout>
     </LinearLayout>

@@ -121,9 +121,9 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -1062,9 +1062,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mStorage.updateBookMark(mManga!!)
         }
         mViewModel.history?.let {
-            it.setPageEnd(getCurrentPage())
-            it.setEnd(LocalDateTime.now())
-            it.id = mViewModel.save(it)
+            if (it.id != null || getCurrentPage() != it.pageStart) {
+                it.setPageEnd(getCurrentPage())
+                it.setEnd(LocalDateTime.now())
+                it.id = mViewModel.save(it)
+            }
         }
         setBlurAutoUpdate(false)
         super.onPause()
@@ -2200,7 +2202,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(mToolbarTop) { view, insets ->
+        mToolbarTop.setPadding(mToolbarTop.paddingLeft, 0, mToolbarTop.paddingRight, 0)
+        ViewCompat.setOnApplyWindowInsetsListener(mToolbarTop, null)
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
@@ -2235,6 +2240,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             view.layoutParams = lp
             insets
         }
+
+        ViewCompat.requestApplyInsets(mBlurTop)
+        ViewCompat.requestApplyInsets(mToolbarBottom)
     }
 
     private fun setupTitleBackgrounds() {
@@ -2261,6 +2269,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
         mBlurTop.background = topBg
         mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        val toolbarReader = activity?.findViewById<View>(R.id.reader_manga_toolbar_reader)
+        toolbarReader?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         val bottomBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
@@ -2320,30 +2330,30 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun setupBlurViews() {
         if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
             return
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-            return
 
+        val context = requireContext()
         val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(requireContext())
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        val fragmentRoot = view as? ViewGroup
+        val rootView = fragmentRoot ?: decorView.findViewById<ViewGroup>(android.R.id.content)
+        val background = fragmentRoot?.background ?: decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
 
-        GlassSetup.setupGlass(mBlurTop, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurBottom, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurBottom, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurProgress, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurProgress, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurNavPrevious, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurNavPrevious, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 
-        GlassSetup.setupGlass(mBlurNavNext, rootView, RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurNavNext, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

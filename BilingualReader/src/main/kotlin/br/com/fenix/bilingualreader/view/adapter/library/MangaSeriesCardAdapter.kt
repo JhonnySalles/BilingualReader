@@ -47,7 +47,7 @@ class MangaSeriesCardAdapter(private val context: Context) :
         if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
             when (getItemViewType(position)) {
                 HEADER -> (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
-                else -> (holder as MangaSeriesViewHolder).bind(mMangaList[position] as MangaGroup, mOrder)
+                else -> (holder as MangaSeriesViewHolder).bind(mMangaList[position] as MangaGroup, mOrder, payloads)
             }
             LibraryCardAnimator.clear(holder)
             return
@@ -156,10 +156,15 @@ class MangaSeriesViewHolder(itemView: View, private val listener: MangaCardListe
     private val layout: GridLayoutManager = createLayout(itemView.context)
     private val adapter: MangaCoverCardAdapter = MangaCoverCardAdapter(listener)
 
-    fun bind(group: MangaGroup, order: Order) {
+    fun bind(group: MangaGroup, order: Order, payloads: MutableList<Any>? = null) {
         val list = itemView.findViewById<RecyclerView>(R.id.manga_series_list)
-        list.adapter = adapter
-        list.layoutManager = layout
+        if (list.adapter !== adapter) {
+            list.adapter = adapter
+            list.layoutManager = layout
+        }
+        if (payloads != null && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            adapter.isAnimation = false
+        }
         adapter.updateList(group.items, order)
     }
 }

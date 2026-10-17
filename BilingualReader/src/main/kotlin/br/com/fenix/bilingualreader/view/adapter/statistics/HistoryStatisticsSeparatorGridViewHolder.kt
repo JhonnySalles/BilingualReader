@@ -1,0 +1,140 @@
+package br.com.fenix.bilingualreader.view.adapter.statistics
+
+import android.annotation.SuppressLint
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.HistoryType
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.History
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
+import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
+import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.android.material.card.MaterialCardView
+
+class HistoryStatisticsSeparatorGridViewHolder(
+    private val type: HistoryType,
+    itemView: View,
+    private val listener: HistoryCardListener
+) : RecyclerView.ViewHolder(itemView) {
+
+    companion object {
+        lateinit var mDefaultImageCover1: Bitmap
+        lateinit var mDefaultImageCover2: Bitmap
+        lateinit var mDefaultImageCover3: Bitmap
+        lateinit var mDefaultImageCover4: Bitmap
+        lateinit var mDefaultImageCover5: Bitmap
+        private var mDefaultsLoaded = false
+
+        private fun ensureDefaults(itemView: View) {
+            if (mDefaultsLoaded) return
+            mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
+            mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+            mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
+            mDefaultImageCover4 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
+            mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
+            mDefaultsLoaded = true
+        }
+    }
+
+    private val historyImage: ImageView = itemView.findViewById(R.id.history_grid_image_cover)
+    private val historyTitle: TextView = itemView.findViewById(R.id.history_grid_title)
+    private val historySubTitle: TextView = itemView.findViewById(R.id.history_grid_sub_title)
+    private val historyType: TextView = itemView.findViewById(R.id.history_grid_file_type)
+    private val historyPagesRead: TextView = itemView.findViewById(R.id.history_grid_pages_read)
+    private val historyPages: TextView = itemView.findViewById(R.id.history_grid_pages)
+    private val historyLastAccess: TextView = itemView.findViewById(R.id.history_grid_last_access)
+    private val cardView: MaterialCardView = itemView.findViewById(R.id.history_grid_card)
+    private val historyProgress: ProgressBar = itemView.findViewById(R.id.history_grid_progress)
+    private val favorite: LinearLayout = itemView.findViewById(R.id.history_grid_favorite)
+    private val favoriteIcon: ImageView = itemView.findViewById(R.id.history_grid_favorite_icon)
+
+    init {
+        ensureDefaults(itemView)
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun bind(history: History) {
+        val isLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val cardSize = AdapterUtils.getHistoryCardSize(itemView.context, type, isLandscape)
+        cardView.layoutParams.width = cardSize.first
+        cardView.layoutParams.height = cardSize.second
+        cardView.setOnClickListener { listener.onClick(history) }
+        cardView.setOnLongClickListener {
+            listener.onClickLong(history, itemView, layoutPosition)
+            true
+        }
+
+        val themeColor = when (history.type) {
+            Type.MANGA -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_manga_indigo_base)
+            Type.BOOK -> androidx.core.content.ContextCompat.getColor(itemView.context, R.color.card_book_amber_base)
+        }
+        historyTitle.setTextColor(themeColor)
+        favoriteIcon.imageTintList = android.content.res.ColorStateList.valueOf(themeColor)
+        historyPagesRead.setTextColor(themeColor)
+
+        favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE
+
+        val image = when ((1..5).random()) {
+            1 -> mDefaultImageCover1
+            2 -> mDefaultImageCover2
+            3 -> mDefaultImageCover3
+            4 -> mDefaultImageCover4
+            else -> mDefaultImageCover5
+        }
+
+        val coverSource = if (history is HistoryStatistics) history.base else history
+        when (coverSource) {
+            is Manga -> MangaImageCoverController.instance.setImageCoverAsync(itemView.context, coverSource, historyImage, image)
+            is Book -> BookImageCoverController.instance.setImageCoverAsync(itemView.context, coverSource, historyImage, image)
+            else -> historyImage.setImageBitmap(image)
+        }
+
+        historyTitle.text = history.title
+        historySubTitle.text = history.author
+        historySubTitle.visibility = if (history.author.isEmpty()) View.GONE else View.VISIBLE
+
+        historyType.text = history.fileType.acronym
+        historyType.setTextColor(themeColor)
+
+        if (history is HistoryStatistics) {
+            historyPagesRead.text = "+${history.pagesRead} pág."
+            historyPagesRead.visibility = View.VISIBLE
+        } else {
+            historyPagesRead.visibility = View.GONE
+        }
+
+        val percent: Float = if (history.bookMark >= history.pages) 100f
+        else if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100)
+        else 0f
+        historyPages.text = Util.formatDecimal(percent)
+
+        val isSmall = history.lastAccess != null && history.bookMark > 0 && type != HistoryType.SEPARATOR_BIG
+        historyLastAccess.text = if (history.lastAccess == null) ""
+        else GeneralConsts.formatterDate(itemView.context, history.lastAccess!!, isSmall)
+
+        val progressDrawableRes = when (history.type) {
+            Type.MANGA -> R.drawable.progress_bar_manga
+            Type.BOOK -> R.drawable.progress_bar_book
+        }
+        historyProgress.progressTintList = null
+        historyProgress.progressBackgroundTintList = null
+        historyProgress.progressDrawable = androidx.core.content.ContextCompat.getDrawable(itemView.context, progressDrawableRes)
+
+        historyProgress.max = history.pages.coerceAtLeast(1)
+        historyProgress.setProgress(history.bookMark, false)
+    }
+}

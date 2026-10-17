@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -43,6 +44,10 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import br.com.fenix.bilingualreader.model.interfaces.History as Obj
 
 
@@ -120,12 +125,14 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                 val pagesRead = maxOf(1, mNewBookMark - startPage)
                 val averageTimeByPage = if (pagesRead > 0) mReadingDurationSeconds / pagesRead else mReadingDurationSeconds
 
+                val historyStart = if (mReadingDurationSeconds > 0) mNewDate.minusSeconds(mReadingDurationSeconds) else mNewDate
                 val historyRepo = HistoryRepository(context)
                 if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) {
                     val historyToUpdate = mLastHistory!!.copy(
                         pageEnd = mNewBookMark,
                         pages = obj.pages,
                         completed = mNewBookMark == mMax,
+                        start = historyStart,
                         end = mNewDate,
                         secondsRead = mReadingDurationSeconds,
                         averageTimeByPage = averageTimeByPage,
@@ -137,7 +144,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                     historyRepo.save(
                         History(
                             null, obj.fkLibrary!!, obj.id!!, obj.type, startPage, mNewBookMark, obj.pages, mNewBookMark == mMax,
-                            obj.volume, 0, mNewDate, mNewDate, mReadingDurationSeconds, averageTimeByPage, useTTS = false, isNotify = false,
+                            obj.volume, 0, historyStart, mNewDate, mReadingDurationSeconds, averageTimeByPage, useTTS = false, isNotify = false,
                             wordCount = mWordCount, secondsReadAutomatic = !mIsManualReadingTime
                         )
                     )
@@ -203,12 +210,16 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
                             val startPage = if (mIsEditing && !mForceNewHistoryRecord && mLastHistory != null) mLastHistory!!.pageStart else obj.bookMark
                             val endPage = if (mNewBookMark > 0) mNewBookMark else obj.pages
-                            mWordCount = mCalculator.countWordsFromDocument(document!!, startPage, endPage)
 
-                            if (!mIsManualReadingTime) {
-                                mReadingDurationSeconds = mCalculator.calculateBookReadingTime(mWordCount)
-                                mReadingDurationEdit.post {
-                                    mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
+                            CoroutineScope(Dispatchers.IO).launch {
+                                mWordCount = mCalculator.countWordsFromDocument(document!!, startPage, endPage)
+                                document?.recycle()
+
+                                if (!mIsManualReadingTime) {
+                                    mReadingDurationSeconds = mCalculator.calculateBookReadingTime(mWordCount)
+                                    withContext(Dispatchers.Main) {
+                                        mReadingDurationEdit.setText(formatDuration(mReadingDurationSeconds))
+                                    }
                                 }
                             }
                         }
@@ -297,8 +308,14 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mBtnCopyDuration.setOnClickListener { copyDurationToClipboard() }
         mBtnPasteDuration.setOnClickListener { pasteDurationFromClipboard() }
         mBtnAutoCalc.setOnClickListener { autoCalculateDuration() }
-        mBtnHistory.setOnClickListener { openHistoryPopup() }
-        mBtnNowDate.setOnClickListener { onNowDateClicked() }
+        mBtnHistory.setOnClickListener {
+            (mBtnHistory.icon as AnimatedVectorDrawable).start()
+            openHistoryPopup()
+        }
+        mBtnNowDate.setOnClickListener {
+            (mBtnNowDate.icon as AnimatedVectorDrawable).start()
+            onNowDateClicked()
+        }
 
         mBookMarkDate.endIconMode = TextInputLayout.END_ICON_NONE
         mBookMarkTime.endIconMode = TextInputLayout.END_ICON_NONE

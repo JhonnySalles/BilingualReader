@@ -28,41 +28,46 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         var mDescriptionAuthor: String = ""
         var mDescriptionSeries: String = ""
         var mDescriptionPublisher: String = ""
+        private var mDefaultsLoaded = false
+
+        private fun ensureDefaults(itemView: View) {
+            if (mDefaultsLoaded) return
+            mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+            mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
+            mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
+            mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
+            mDefaultsLoaded = true
+        }
     }
 
+    private val status: View = itemView.findViewById(R.id.history_status)
+    private val image: ImageView = itemView.findViewById(R.id.history_image_cover)
+    private val title: TextView = itemView.findViewById(R.id.history_text_title)
+    private val lastAccess: TextView = itemView.findViewById(R.id.history_line_last_access)
+    private val fileType: TextView = itemView.findViewById(R.id.history_line_file_type)
+    private val fileSize: TextView = itemView.findViewById(R.id.history_line_file_size)
+    private val pagesRead: TextView = itemView.findViewById(R.id.history_line_pages)
+    private val library: TextView = itemView.findViewById(R.id.history_library)
+    private val type: TextView = itemView.findViewById(R.id.history_type)
+    private val favorite: ImageView = itemView.findViewById(R.id.history_favorite)
+    private val subtitle: ImageView = itemView.findViewById(R.id.history_has_subtitle)
+    private val cardView: LinearLayout = itemView.findViewById(R.id.history_card)
+    private val series: TextView = itemView.findViewById(R.id.history_line_series)
+    private val author: TextView = itemView.findViewById(R.id.history_line_author)
+    private val publisher: TextView = itemView.findViewById(R.id.history_line_publisher)
+    private val progress: ProgressBar = itemView.findViewById(R.id.history_line_progress)
+
     init {
-        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
-        mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
-        mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
-        mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
+        ensureDefaults(itemView)
     }
 
     fun bind(history: History) {
-        val status = itemView.findViewById<View>(R.id.history_status)
-        val image = itemView.findViewById<ImageView>(R.id.history_image_cover)
-        val title = itemView.findViewById<TextView>(R.id.history_text_title)
-        val lastAccess = itemView.findViewById<TextView>(R.id.history_line_last_access)
-        val fileType = itemView.findViewById<TextView>(R.id.history_line_file_type)
-        val fileSize = itemView.findViewById<TextView>(R.id.history_line_file_size)
-        val pagesRead = itemView.findViewById<TextView>(R.id.history_line_pages)
-        val library = itemView.findViewById<TextView>(R.id.history_library)
-        val type = itemView.findViewById<TextView>(R.id.history_type)
-        val favorite = itemView.findViewById<ImageView>(R.id.history_favorite)
-        val subtitle = itemView.findViewById<ImageView>(R.id.history_has_subtitle)
-        val cardView = itemView.findViewById<LinearLayout>(R.id.history_card)
-
-        val series = itemView.findViewById<TextView>(R.id.history_line_series)
-        val author = itemView.findViewById<TextView>(R.id.history_line_author)
-        val publisher = itemView.findViewById<TextView>(R.id.history_line_publisher)
-        val progress = itemView.findViewById<ProgressBar>(R.id.history_line_progress)
-
         cardView.setOnClickListener { listener.onClick(history) }
         cardView.setOnLongClickListener {
             listener.onClickLong(history, it, layoutPosition)
             true
         }
 
-        image.setImageBitmap(null)
         when (history) {
             is Manga -> MangaImageCoverController.instance.setImageCoverAsync(itemView.context, history, image, mDefaultImageCover)
             is Book -> BookImageCoverController.instance.setImageCoverAsync(itemView.context, history, image, mDefaultImageCover)
@@ -129,13 +134,13 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         else
             history.library.title.uppercase()
 
-        type.text = when(history.type) {
+        type.text = when (history.type) {
             Type.BOOK -> itemView.context.getString(R.string.history_book)
             Type.MANGA -> itemView.context.getString(R.string.history_manga)
         }
 
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE
-        subtitle.visibility  = if (history is Manga && history.hasSubtitle) {
+        subtitle.visibility = if (history is Manga && history.hasSubtitle) {
             if (history.lastVocabImport != null)
                 subtitle.setImageResource(R.drawable.ico_subtitles_imported)
             else
@@ -150,7 +155,6 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
             cardView.setBackgroundResource(R.drawable.custom_ripple_history)
             status.setBackgroundResource(R.color.transparent)
         }
-
     }
 
 }

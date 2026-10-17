@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -183,8 +184,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 share.forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
+                        it.id = manga.id ?: 0
+                        it.idLibrary = manga.fkLibrary ?: 0
+                        val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)
                             for (shared in h.values) {
                                 val existing = histories.find { s -> shared.start.compareTo(GeneralConsts.dateTimeToDate(s.start)) == 0 }
                                 if (existing == null) {
@@ -219,6 +222,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                             }
                         }
 
+                        val hasNewLocalHistory = histories.any { local ->
+                            val key = local.start.format(DateTimeFormatter.ofPattern(ShareItem.PARSE_DATE_TIME))
+                            it.history == null || !it.history!!.containsKey(key)
+                        }
+                        if (hasNewLocalHistory)
+                            it.alter = true
+
                         it.annotation?.let { a ->
                             val annotations = repositoryAnnotation.findByManga(manga.id!!)
                             for (shared in  a.values) {
@@ -250,6 +260,12 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                         share.filter { it.alter }.forEach {
                             mangas[it.file] = sync
                             it.sync = sync
+                            if (it.id == 0L || it.idLibrary == 0L) {
+                                repositoryManga.findByFileName(it.file)?.let { m ->
+                                    it.id = m.id ?: 0L
+                                    it.idLibrary = m.fkLibrary ?: 0L
+                                }
+                            }
                             it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
                             it.refreshAnnotations(repositoryAnnotation.findByManga(it.id))
                             collection.document(it.file).set(it).await()
@@ -376,8 +392,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 share.forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
+                        it.id = book.id ?: 0
+                        it.idLibrary = book.fkLibrary ?: 0
+                        val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!)
                         it.history?.let { h ->
-                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!)
                             for (shared in h.values) {
                                 val existing = histories.find { s -> shared.start.compareTo(GeneralConsts.dateTimeToDate(s.start)) == 0 }
                                 if (existing == null) {
@@ -411,6 +429,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                 }
                             }
                         }
+
+                        val hasNewLocalHistory = histories.any { local ->
+                            val key = local.start.format(DateTimeFormatter.ofPattern(ShareItem.PARSE_DATE_TIME))
+                            it.history == null || !it.history!!.containsKey(key)
+                        }
+                        if (hasNewLocalHistory)
+                            it.alter = true
 
                         it.annotation?.let { a ->
                             val annotations = repositoryAnnotation.findByBook(book.id!!)
@@ -448,6 +473,12 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                         share.filter { it.alter }.forEach {
                             books[it.file] = sync
                             it.sync = sync
+                            if (it.id == 0L || it.idLibrary == 0L) {
+                                repositoryBook.findByFileName(it.file)?.let { b ->
+                                    it.id = b.id ?: 0L
+                                    it.idLibrary = b.fkLibrary ?: 0L
+                                }
+                            }
                             it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
                             it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
                             collection.document(it.file).set(it).await()

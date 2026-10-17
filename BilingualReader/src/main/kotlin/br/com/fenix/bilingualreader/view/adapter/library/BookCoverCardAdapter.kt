@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
@@ -16,6 +17,10 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import com.google.android.material.card.MaterialCardView
 
@@ -53,15 +58,28 @@ class BookCoverCardAdapter(private val listener: BookCardListener) :
 
     private var mList: List<Book> = listOf()
     private var mOrder: Order = Order.Series
+    var isAnimation: Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookCoverViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.line_card_book_cover, parent, false)
         return BookCoverViewHolder(item)
     }
 
+    override fun onBindViewHolder(holder: BookCoverViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && LibraryCardAnimator.hasNoAnimationPayload(payloads)) {
+            holder.bind(mList[position], mOrder)
+            LibraryCardAnimator.clear(holder)
+            return
+        }
+        onBindViewHolder(holder, position)
+    }
+
     override fun onBindViewHolder(holder: BookCoverViewHolder, position: Int) {
         holder.bind(mList[position], mOrder)
-        LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
+        if (isAnimation)
+            LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_ITEM)
+        else
+            LibraryCardAnimator.clear(holder)
     }
 
     override fun onViewDetachedFromWindow(holder: BookCoverViewHolder) {
@@ -82,6 +100,12 @@ class BookCoverCardAdapter(private val listener: BookCardListener) :
         notifyDataSetChanged()
     }
 
+    fun notifyItemChanged(book: Book) {
+        val index = mList.indexOfFirst { it == book || it.id == book.id }
+        if (index != -1)
+            notifyItemChanged(index, AnimationUtil.PROPERTY_NO_ANIMATION)
+    }
+
     inner class BookCoverViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(book: Book, order: Order) {
@@ -91,6 +115,13 @@ class BookCoverCardAdapter(private val listener: BookCardListener) :
             val cover = itemView.findViewById<ImageView>(R.id.book_cover_image)
             val title = itemView.findViewById<TextView>(R.id.book_cover_title)
             val progress = itemView.findViewById<ProgressBar>(R.id.book_cover_progress)
+            val favorite = itemView.findViewById<LinearLayout>(R.id.book_cover_favorite)
+            val favoriteIcon = itemView.findViewById<ImageView>(R.id.book_cover_favorite_icon)
+            val config = itemView.findViewById<LinearLayout>(R.id.book_cover_config)
+            val configIcon = itemView.findViewById<ImageView>(R.id.book_cover_config_icon)
+            val fileType = itemView.findViewById<TextView>(R.id.book_cover_file_type)
+            val pages = itemView.findViewById<TextView>(R.id.book_cover_pages)
+            val lastAccess = itemView.findViewById<TextView>(R.id.book_cover_last_access)
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                 TooltipCompat.setTooltipText(card, book.title)
@@ -109,6 +140,19 @@ class BookCoverCardAdapter(private val listener: BookCardListener) :
 
             progress.max = book.pages.coerceAtLeast(1)
             progress.progress = book.bookMark
+
+            favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favorite.setOnClickListener {
+                book.favorite = !book.favorite
+                favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+                listener.onClickFavorite(book)
+            }
+
+            config.setOnClickListener { listener.onClickConfig(book, card, configIcon, bindingAdapterPosition) }
+
+            fileType.text = Util.getExtensionFromPath(book.path).uppercase()
+            pages.text = "${book.bookMark} / ${book.pages}"
+            lastAccess.text = if (book.lastAccess != null) GeneralConsts.formatterDate(itemView.context, book.lastAccess!!, true) else ""
 
             card.setOnClickListener { listener.onClick(book, itemView) }
             card.setOnLongClickListener {

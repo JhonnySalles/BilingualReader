@@ -22,7 +22,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -33,6 +32,7 @@ import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.BundleCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -62,14 +62,16 @@ import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryBaseAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistoryCoverCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistorySeparatorGridCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.history.HistorySeriesCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
+import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsCoverCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsSeparatorGridCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
@@ -79,10 +81,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -142,6 +143,10 @@ class HistoryStatisticsFragment : Fragment() {
                     mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
                 } else {
                     mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED || newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        GlassRenderScheduler.requestUpdate(mMenuPopupHistoryStatisticsBackground)
+                        mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 50)
+                    }
                 }
             }
         }
@@ -160,6 +165,7 @@ class HistoryStatisticsFragment : Fragment() {
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
+    private var mSwipeBlurActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -173,42 +179,58 @@ class HistoryStatisticsFragment : Fragment() {
 
         val miLibrary = menu.findItem(R.id.menu_history_library)
         miLibrary.subMenu?.clear()
-        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 100, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 0, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
             filterLibrary(null)
             (miLibrary.icon as AnimatedVectorDrawable).start()
             true
         }
 
-        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 101, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 1, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
             filterLibrary(mViewModel.mDefaultLibrary)
             (miLibrary.icon as AnimatedVectorDrawable).start()
             true
         }
 
-        // Limit library submenu items to current active type
-        for (library in mViewModel.libraries.value ?: emptyList()) {
-            if (library.type == mViewModel.mTypeFilter) {
-                miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
-                    filterLibrary(library)
-                    (miLibrary.icon as AnimatedVectorDrawable).start()
-                    true
-                }
+        // Limit library submenu items to current active type, sorted alphabetically
+        val activeLibraries = (mViewModel.libraries.value ?: emptyList())
+            .filter { it.type == mViewModel.mTypeFilter }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.title })
+
+        activeLibraries.forEachIndexed { index, library ->
+            miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, index + 2, library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                filterLibrary(library)
+                (miLibrary.icon as AnimatedVectorDrawable).start()
+                true
             }
         }
 
         miFilterYear = menu.findItem(R.id.menu_history_year)
         miFilterYear.subMenu?.clear()
-        miFilterYear.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miFilterYear.subMenu?.add(Menu.NONE, Menu.NONE, 0, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener {
             filterYear(null)
+            (miFilterYear.icon as? AnimatedVectorDrawable)?.start()
             true
         }
-
         val availableYears = (mViewModel.years.value ?: emptyList()).sortedDescending()
-        for (year in availableYears) {
-            miFilterYear.subMenu?.add(year.toString())?.setOnMenuItemClickListener { _: MenuItem? ->
+        availableYears.forEachIndexed { index, year ->
+            miFilterYear.subMenu?.add(Menu.NONE, Menu.NONE, index + 1, year.toString())?.setOnMenuItemClickListener {
                 filterYear(year)
+                (miFilterYear.icon as? AnimatedVectorDrawable)?.start()
                 true
             }
+        }
+
+        val miFilter = menu.findItem(R.id.menu_history_filter)
+        val isGrouped = mViewModel.groupedFilter.value ?: false
+        miFilter.subMenu?.clear()
+        miFilter.setOnMenuItemClickListener {
+            (miFilter.icon as? AnimatedVectorDrawable)?.start()
+            false
+        }
+        miFilter.subMenu?.add(Menu.NONE, 1, 0, requireContext().getString(R.string.popup_history_filter_grouped))?.setOnMenuItemClickListener {
+            mViewModel.setGrouped(!isGrouped)
+            (miFilter.icon as? AnimatedVectorDrawable)?.start()
+            true
         }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
@@ -217,6 +239,10 @@ class HistoryStatisticsFragment : Fragment() {
 
         MenuUtil.longClick(requireActivity(), R.id.menu_history_year) {
             onOpenMenuHistoryStatistics(3)
+        }
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_filter) {
+            onOpenMenuHistoryStatistics(4)
         }
 
         miGridOrder = menu.findItem(R.id.menu_history_list_order)
@@ -340,6 +366,7 @@ class HistoryStatisticsFragment : Fragment() {
         mViewModel.filterYear(year)
     }
 
+
     private fun updateTitleAndSubtitle() {
         val activity = activity as? AppCompatActivity ?: return
         val typeTitle = when (mViewModel.mTypeFilter) {
@@ -352,9 +379,18 @@ class HistoryStatisticsFragment : Fragment() {
         } else {
             selected.sortedDescending().joinToString(", ")
         }
+        val library = mViewModel.selectedLibrary.value
+        val librarySubtitle = library?.title
+        val subtitle = if (!librarySubtitle.isNullOrEmpty()) {
+            "${getString(R.string.menu_history)} - $yearSubtitle ($librarySubtitle)"
+        } else {
+            "${getString(R.string.menu_history)} - $yearSubtitle"
+        }
         activity.supportActionBar?.title = typeTitle
-        activity.supportActionBar?.subtitle = "${getString(R.string.menu_history)} - $yearSubtitle"
+        activity.supportActionBar?.subtitle = subtitle
     }
+
+    private lateinit var mPopupFilterFragment: HistoryStatisticsPopupFilter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryStatisticsViewModel::class.java]
@@ -367,6 +403,11 @@ class HistoryStatisticsFragment : Fragment() {
             if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR)) {
                 val year = bundle.getInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, -1)
                 mViewModel.setYear(if (year != -1) year else null)
+            }
+
+            if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY)) {
+                val library = BundleCompat.getSerializable(bundle, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java)
+                mViewModel.setLibrary(library)
             }
         }
 
@@ -383,7 +424,7 @@ class HistoryStatisticsFragment : Fragment() {
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
         setupBlurViews(root)
         setupWindowInsets(root)
-        setupTitleBackgrounds()
+        setupTitleBackgrounds(root)
         mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
         mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
@@ -393,10 +434,12 @@ class HistoryStatisticsFragment : Fragment() {
 
         mMenuPopupHistoryStatistics = root.findViewById(R.id.history_statistics_popup_menu)
         mMenuPopupHistoryStatisticsBackground = root.findViewById(R.id.history_statistics_popup_header_background)
+        setupPopupBackgrounds()
         mRecyclerView.itemAnimator = BlurAwareItemAnimator()
         mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
         mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
         mPopupTypeFragment = HistoryStatisticsPopupType()
+        mPopupFilterFragment = HistoryStatisticsPopupFilter()
         mPopupLibrariesFragment = HistoryStatisticsPopupLibraries()
         mPopupYearsFragment = HistoryStatisticsPopupYears()
         mPopupOrderFragment = HistoryStatisticsPopupOrder()
@@ -427,6 +470,10 @@ class HistoryStatisticsFragment : Fragment() {
         viewFilterOrderPagerAdapter.addFragment(
             mPopupYearsFragment,
             resources.getString(R.string.popup_history_tab_year)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupFilterFragment,
+            resources.getString(R.string.popup_history_tab_filter)
         )
         mPopupHistoryStatisticsView.adapter = viewFilterOrderPagerAdapter
         TabLayoutMediator(mPopupHistoryStatisticsTab, mPopupHistoryStatisticsView) { tab, position ->
@@ -459,14 +506,16 @@ class HistoryStatisticsFragment : Fragment() {
             mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
             mHandler.postDelayed({
                 mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-            }, 100)
+                GlassRenderScheduler.requestUpdate(mMenuPopupHistoryStatisticsBackground)
+                mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 50)
+            }, 300)
         }
     }
 
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        val contentContainer = view?.findViewById<ViewGroup>(R.id.history_statistics_content) ?: mRoot
+        val contentContainer = mRoot
         PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground, contentContainer)
     }
 
@@ -483,6 +532,9 @@ class HistoryStatisticsFragment : Fragment() {
         }
         MenuUtil.longClick(requireActivity(), R.id.menu_history_year) {
             onOpenMenuHistoryStatistics(3)
+        }
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_filter) {
+            onOpenMenuHistoryStatistics(4)
         }
         if (mHistoryType == HistoryType.SEPARATOR_BIG || mHistoryType == HistoryType.SEPARATOR_MEDIUM)
             generateLayout(mHistoryType)
@@ -558,6 +610,20 @@ class HistoryStatisticsFragment : Fragment() {
                 dialog.show()
             }
         }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                mSwipeBlurActive = true
+                setHistoryBlurContinuous(true)
+            }
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            mSwipeBlurActive = false
+            setHistoryBlurContinuous(false)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -578,6 +644,9 @@ class HistoryStatisticsFragment : Fragment() {
                         mViewModel.changeHistoryType()
                         true
                     }
+                    R.id.menu_history_library -> true
+                    R.id.menu_history_year -> true
+                    R.id.menu_history_filter -> true
                     else -> false
                 }
             }
@@ -589,6 +658,23 @@ class HistoryStatisticsFragment : Fragment() {
                 when (base) {
                     is Manga -> open(base)
                     is Book -> open(base)
+                }
+            }
+
+            override fun onClickFavorite(history: History) {
+                val base = if (history is HistoryStatistics) history.base else history
+                when (base) {
+                    is Manga -> mViewModel.save(base)
+                    is Book -> mViewModel.save(base)
+                }
+                (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(base)
+            }
+
+            override fun onClickConfig(history: History, root: View, item: View, position: Int) {
+                val base = if (history is HistoryStatistics) history.base else history
+                when (base) {
+                    is Manga -> openMenu(base, item, position)
+                    is Book -> openMenu(base, item, position)
                 }
             }
 
@@ -605,21 +691,13 @@ class HistoryStatisticsFragment : Fragment() {
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
-
-                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    mBlurTop.setBlurAutoUpdate(false)
-                    if (isGlass) {
-                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-                    }
+                    setAnimationRecycler(true)
+                    if (!mSwipeBlurActive)
+                        setHistoryBlurContinuous(false)
                 } else {
-                    mBlurTop.setBlurAutoUpdate(true)
-                    if (isGlass && isPopupVisible) {
-                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
-                    }
+                    setAnimationRecycler(true)
+                    setHistoryBlurContinuous(true)
                 }
             }
         })
@@ -699,13 +777,13 @@ class HistoryStatisticsFragment : Fragment() {
     private fun generateLayout(type: HistoryType) {
         mHistoryType = type
         val adapter: HistoryBaseAdapter = when (type) {
-            HistoryType.SEPARATOR_CAROUSEL -> HistorySeriesCardAdapter()
+            HistoryType.SEPARATOR_CAROUSEL -> HistoryStatisticsSeriesCardAdapter()
             HistoryType.SEPARATOR_BIG,
-            HistoryType.SEPARATOR_MEDIUM -> HistorySeparatorGridCardAdapter(type)
+            HistoryType.SEPARATOR_MEDIUM -> HistoryStatisticsSeparatorGridCardAdapter(type)
             else -> HistoryStatisticsAdapter()
         }
         adapter.attachListener(mListener)
-        if (adapter is HistorySeriesCardAdapter)
+        if (adapter is HistoryStatisticsSeriesCardAdapter)
             adapter.setOrder(mViewModel.order.value?.first ?: Order.LastAccess)
         mRecyclerView.adapter = adapter as RecyclerView.Adapter<*>
         mRecyclerView.layoutManager = when (type) {
@@ -738,6 +816,37 @@ class HistoryStatisticsFragment : Fragment() {
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
         (mRecyclerView.adapter as? HistoryBaseAdapter)?.isAnimation = isAnimate
+    }
+
+    private fun setHistoryBlurContinuous(active: Boolean) {
+        val ctx = context ?: return
+        val isGlass = GeneralConsts.getSharedPreferences(ctx)
+            .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (!isGlass) {
+            if (::mBlurTop.isInitialized)
+                mBlurTop.setBlurAutoUpdate(false)
+            return
+        }
+        if (active) {
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.setBlurAutoUpdate(true)
+                GlassRenderScheduler.setScrollRateCap(mBlurTop, true)
+            }
+            val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+            if (isPopupVisible) {
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
+            }
+            GlassRenderScheduler.setScrollRateCap(mMenuPopupHistoryStatisticsBackground, true)
+        } else if (!mSwipeBlurActive && mRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.setBlurAutoUpdate(false)
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 50)
+            }
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+            GlassRenderScheduler.requestUpdate(mMenuPopupHistoryStatisticsBackground)
+            mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 50)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -773,7 +882,7 @@ class HistoryStatisticsFragment : Fragment() {
 
     private fun updateList(list: ArrayList<Any>) {
         val adapter = mRecyclerView.adapter as? HistoryBaseAdapter ?: return
-        if (adapter is HistorySeriesCardAdapter)
+        if (adapter is HistoryStatisticsSeriesCardAdapter)
             adapter.setOrder(mViewModel.order.value?.first ?: Order.LastAccess)
         adapter.updateList(list)
     }
@@ -799,11 +908,16 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         mViewModel.selectedLibrary.observe(viewLifecycleOwner) {
+            updateTitleAndSubtitle()
             activity?.invalidateOptionsMenu()
         }
 
         mViewModel.selectedYears.observe(viewLifecycleOwner) {
             updateTitleAndSubtitle()
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.groupedFilter.observe(viewLifecycleOwner) {
             activity?.invalidateOptionsMenu()
         }
 
@@ -971,7 +1085,7 @@ class HistoryStatisticsFragment : Fragment() {
                 R.id.menu_item_manga_file_favorite -> {
                     manga.favorite = !manga.favorite
                     mViewModel.save(manga)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(manga)
                 }
                 R.id.menu_item_manga_file_reading_history -> {
                     PopupReadingHistory(requireContext()).show(manga)
@@ -1025,7 +1139,7 @@ class HistoryStatisticsFragment : Fragment() {
                 R.id.menu_item_book_file_favorite -> {
                     book.favorite = !book.favorite
                     mViewModel.save(book)
-                    mRecyclerView.adapter?.notifyItemChanged(position)
+                    (mRecyclerView.adapter as? HistoryBaseAdapter)?.notifyItemChanged(book)
                 }
                 R.id.menu_item_book_file_reading_history -> {
                     PopupReadingHistory(requireContext()).show(book)
@@ -1218,13 +1332,18 @@ class HistoryStatisticsFragment : Fragment() {
         setAnimationRecycler(false)
         mRecyclerView.visibility = View.VISIBLE
         mRecyclerView.alpha = 0f
-        mRecyclerView.animate().alpha(1f).setDuration(700).start()
+        mRecyclerView.animate().alpha(1f).setDuration(700).withEndAction {
+            if (::mBlurTop.isInitialized) {
+                GlassRenderScheduler.requestUpdate(mBlurTop)
+                mBlurTop.blurOnceDeferred(mHandler, 50)
+            }
+        }.start()
         mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
     override fun onDestroyView() {
         mViewModel.clearFilter()
-        HistoryCoverCardAdapter.clearCoverCache()
+        HistoryStatisticsCoverCardAdapter.clearCoverCache()
         mHandler.removeCallbacksAndMessages(null)
         _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
         _mBottomSheet = null
@@ -1310,18 +1429,16 @@ class HistoryStatisticsFragment : Fragment() {
             return
 
         val context = requireContext()
-        val decorView = requireActivity().window.decorView
-        val background = decorView.background ?: br.com.fenix.bilingualreader.util.helpers.ThemeUtil.getBlurFrameClearDrawable(context)
-        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-
-        val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
-        GlassSetup.setupGlass(mBlurTop, rootView, blurAlgorithm)
+        val background = (fragmentRoot as? ViewGroup)?.background ?: ThemeUtil.getBlurFrameClearDrawable(context)
+        val rootView = (fragmentRoot as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        GlassSetup.setupGlass(mBlurTop, rootView)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }
 
-    private fun setupTitleBackgrounds() {
-        val barLayout = view?.findViewById<View>(R.id.content_toolbar_chapter)
+    private fun setupTitleBackgrounds(root: View? = null) {
+        val target = root ?: view
+        val barLayout = target?.findViewById<View>(R.id.content_toolbar_history_statistics)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }

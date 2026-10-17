@@ -722,6 +722,9 @@ abstract class StatisticsDAO {
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(CASE WHEN SUBSTR(H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 7) = strftime('%Y-%m', 'now', 'localtime') THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN SUBSTR(H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 7) = strftime('%Y-%m', 'now', 'localtime') THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + "," +
+                "          COALESCE(CASE WHEN SUBSTR(H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 7) = strftime('%Y-%m', 'now', 'localtime') AND H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + "," +
                 "          COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
@@ -736,9 +739,12 @@ abstract class StatisticsDAO {
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + "," +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + "," +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + ", " +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
                 "   FROM " + DataBaseConsts.BOOK.TABLE_NAME + " B " +
                 "   LEFT JOIN (" + HISTORY_BOOK + ") AS H ON H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY +
@@ -749,6 +755,9 @@ abstract class StatisticsDAO {
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(CASE WHEN SUBSTR(H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 7) = strftime('%Y-%m', 'now', 'localtime') THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN SUBSTR(H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 7) = strftime('%Y-%m', 'now', 'localtime') THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + "," +
+                "          COALESCE(CASE WHEN SUBSTR(H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 7) = strftime('%Y-%m', 'now', 'localtime') AND H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + "," +
                 "          COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
                 "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
@@ -763,9 +772,12 @@ abstract class StatisticsDAO {
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + "," +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + "," +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
                 "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + ", " +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
                 "   FROM " + DataBaseConsts.MANGA.TABLE_NAME + " M " +
                 "   LEFT JOIN (" + HISTORY_MANGA + ") AS H ON H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY +
@@ -781,9 +793,12 @@ abstract class StatisticsDAO {
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES + ", " +
+                "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS + "," +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
+                "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS + ", " +
                 "  " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " AS " + DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME
 
         const val SELECT = "SELECT " + SELECT_FIELDS +  ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +

@@ -82,6 +82,9 @@
     <string name="statistics_read">Read</string>
 
     <string name="statistics_title_completed">Completed</string>
+    <string name="statistics_title_current_month">Current Month</string>
+    <string name="statistics_title_month">Month</string>
+    <string name="statistics_heatmap">Reading Map</string>
     <string name="statistics_title_current">Current</string>
 
     <string name="statistics_title_pages">Pages</string>
@@ -1191,6 +1194,7 @@
     <string name="llm_assistant_context_book">Context: book chapters</string>
     <string name="llm_assistant_context_empty">Context: none available</string>
     <string name="llm_assistant_context_with_selection">%1$s — %2$s</string>
+    <string name="llm_assistant_context_words">%1$s • %2$d words</string>
     <string name="llm_assistant_refresh_context">Refresh context</string>
     <string name="llm_assistant_select_chapters">Chapters</string>
     <string name="llm_assistant_select_pages">Pages</string>
@@ -1205,8 +1209,11 @@
     <string name="llm_assistant_page_range_to">To page</string>
     <string name="llm_assistant_page_range_invalid">Enter a valid page range</string>
     <string name="llm_assistant_selection_none">None selected</string>
+    <string name="llm_assistant_selection_default_book_pages">Current page &amp; 3 previous pages</string>
     <string name="llm_assistant_selection_limit">Select at most %1$d items</string>
     <string name="llm_assistant_view_context">View context</string>
+    <string name="llm_assistant_context_size">%1$d characters</string>
+    <string name="llm_assistant_copied_to_clipboard">Copied to clipboard</string>
     <string name="llm_assistant_context_preview_body">%1$d characters\n\n%2$s</string>
     <string name="llm_assistant_empty_title">Ask about what you are reading</string>
     <string name="llm_assistant_empty_hint">Select chapters or pages above, then ask a question or tap a suggestion.</string>
@@ -1252,6 +1259,14 @@
     <string name="config_ai_max_book_chapters">Max book chapters for AI</string>
     <string name="config_ai_max_manga_pages">Max manga pages for AI</string>
     <string name="config_ai_temperature">Creativity (0–100)</string>
+    <string name="config_ai_temperature_hint">80 ≈ 0.80 temperature. Higher = more creative.</string>
+    <string name="llm_assistant_no_readable_text">[This page contains no readable text — it may be an action scene or illustration]</string>
+    <string name="llm_assistant_low_confidence_text">[OCR could not reliably read this page — low confidence text]</string>
+    <string name="llm_assistant_incoherent_text">[Text extracted but not coherent enough to process]</string>
+    <string name="pref_clear_ocr_cache">Clear OCR Cache</string>
+    <string name="pref_clear_ocr_cache_desc">Clear cached OCR text for manga pages</string>
+    <string name="pref_clear_ocr_cache_success">OCR Cache cleared successfully</string>
+
     <!-- TRACKER -->
     <string name="menu_trackers">Trackers</string>
     <string name="tracker_title">Reading Tracker</string>
@@ -1307,4 +1322,7 @@
     <string name="time_unit_hours">Hours</string>
     <string name="time_unit_minutes">Minutes</string>
     <string name="time_unit_seconds">Seconds</string>
+    <string name="menu_history_filter">Filter</string>
+    <string name="popup_history_tab_filter">Filters</string>
+    <string name="popup_history_filter_grouped">Group (Book/Manga)</string>
 </resources>

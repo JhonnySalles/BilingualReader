@@ -81,6 +81,9 @@
     <string name="statistics_read">Read</string>
 
     <string name="statistics_title_completed">Completed</string>
+    <string name="statistics_title_current_month">Current Month</string>
+    <string name="statistics_title_month">Month</string>
+    <string name="statistics_heatmap">Reading Map</string>
     <string name="statistics_title_current">Current</string>
 
     <string name="statistics_title_pages">Pages</string>
@@ -1398,4 +1401,7 @@
     <string name="time_unit_hours">Hours</string>
     <string name="time_unit_minutes">Minutes</string>
     <string name="time_unit_seconds">Seconds</string>
+    <string name="menu_history_filter">Filter</string>
+    <string name="popup_history_tab_filter">Filters</string>
+    <string name="popup_history_filter_grouped">Group (Book/Manga)</string>
 </resources>

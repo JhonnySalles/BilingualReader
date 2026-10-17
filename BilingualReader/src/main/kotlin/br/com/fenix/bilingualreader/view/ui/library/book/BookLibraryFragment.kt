@@ -26,7 +26,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
@@ -210,6 +209,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
+    private var mSwipeBlurActive = false
 
     companion object {
         var mSortType: Order = Order.Name
@@ -739,7 +739,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
         mBottomSheet.isDraggable = true
 
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupLibrary, mBottomSheet, root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch))
@@ -766,26 +765,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                    setAnimationRecycler(true)
-
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
-                    if (isGlass) {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
-                        GlassRenderScheduler.requestUpdate(mMenuPopupLibraryBackground)
-                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(50)
-                    }
+                    setAnimationRecycler(true)
+                    // Keep continuous blur while a delete-swipe is in progress / recovering.
+                    if (!mSwipeBlurActive)
+                        setLibraryBlurContinuous(false)
                 } else {
-                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
-                    if (isGlass && isPopupVisible) {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
-                    }
-                    if (isGlass) {
-                        GlassRenderScheduler.setScrollRateCap(mMenuPopupLibraryBackground, true)
-                    }
+                    setAnimationRecycler(true)
+                    setLibraryBlurContinuous(true)
                 }
             }
         })
@@ -1010,31 +997,63 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val bundle = Bundle()
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
+        val isCarousel = mGridType == LibraryBookType.SEPARATOR_CAROUSEL
+        val isLine = mGridType == LibraryBookType.LINE || mGridType == LibraryBookType.SEPARATOR_LINE
+        val idText = when {
+            isCarousel -> R.id.book_cover_title
+            isLine -> R.id.book_line_title
+            else -> R.id.book_grid_title
+        }
+        val idAuthor = when {
+            isCarousel -> null
+            isLine -> R.id.book_line_author
+            else -> R.id.book_grid_sub_title
+        }
+        val idProgress = when {
+            isCarousel -> R.id.book_cover_progress
+            isLine -> R.id.book_line_progress
+            else -> R.id.book_grid_progress
+        }
+        val idCover = when {
+            isCarousel -> R.id.book_cover_image
+            isLine -> R.id.book_line_image_cover
+            else -> R.id.book_grid_image_cover
+        }
+
+        val coverView = view.findViewById<ImageView>(idCover)
+        val titleView = view.findViewById<TextView>(idText)
+        val progressView = view.findViewById<ProgressBar>(idProgress)
+        val authorView = idAuthor?.let { view.findViewById<TextView>(it) }
+
+        if (titleView != null) {
+            bundle.putInt(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.SHARED_ELEMENT_TEXT_COLOR, titleView.currentTextColor)
+        }
+        if (progressView != null) {
+            val progressColor = br.com.fenix.bilingualreader.view.animation.ProgressColorTransition.extractProgressColor(progressView)
+            if (progressColor != null) {
+                bundle.putInt(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.SHARED_ELEMENT_PROGRESS_COLOR, progressColor)
+            }
+        }
         intent.putExtras(bundle)
 
-        val type = mViewModel.libraryType.value
-        if (type == LibraryBookType.SEPARATOR_CAROUSEL) {
+        if (coverView != null && titleView != null && progressView != null) {
+            val pairs = mutableListOf<androidx.core.util.Pair<View, String>>()
+            pairs.add(androidx.core.util.Pair.create(coverView as View, "transition_book_cover"))
+            pairs.add(androidx.core.util.Pair.create(titleView as View, "transition_book_title"))
+            pairs.add(androidx.core.util.Pair.create(progressView as View, "transition_progress_bar"))
+            if (authorView != null) {
+                pairs.add(androidx.core.util.Pair.create(authorView as View, "transition_book_author"))
+            }
+
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *pairs.toTypedArray())
+            GlassRenderScheduler.suspendFor(400L, "activityTransition")
+            requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            bookDetailLauncher.launch(intent, options)
+        } else {
             GlassRenderScheduler.suspendFor(400L, "activityTransition")
             requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
             bookDetailLauncher.launch(intent)
-            return
         }
-
-        val isLine = type == LibraryBookType.LINE || type == LibraryBookType.SEPARATOR_LINE
-        val idText = if (isLine) R.id.book_line_title else R.id.book_grid_title
-        val idAuthor = if (isLine) R.id.book_line_author else R.id.book_grid_sub_title
-        val idProgress = if (isLine) R.id.book_line_progress else R.id.book_grid_progress
-        val idCover = if (isLine) R.id.book_line_image_cover else R.id.book_grid_image_cover
-
-        val pImageCover = androidx.core.util.Pair.create(view.findViewById<ImageView>(idCover) as View, "transition_book_cover")
-        val pTitle = androidx.core.util.Pair.create(view.findViewById<TextView>(idText) as View, "transition_book_title")
-        val pAuthor = androidx.core.util.Pair.create(view.findViewById<TextView>(idAuthor) as View, "transition_book_author")
-        val pProgress = androidx.core.util.Pair.create(view.findViewById<ProgressBar>(idProgress) as View, "transition_progress_bar")
-
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), pImageCover, pTitle, pAuthor, pProgress)
-        GlassRenderScheduler.suspendFor(400L, "activityTransition")
-        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        bookDetailLauncher.launch(intent, options)
     }
 
     private fun loadConfig() {
@@ -1119,6 +1138,29 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
         mLibraryAdapter?.isAnimation = isAnimate
+    }
+
+    private fun setLibraryBlurContinuous(active: Boolean) {
+        val ctx = context ?: return
+        val isGlass = GeneralConsts.getSharedPreferences(ctx)
+            .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (!isGlass) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+            return
+        }
+        if (active) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+            val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+            if (isPopupVisible) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+            }
+            GlassRenderScheduler.setScrollRateCap(mMenuPopupLibraryBackground, true)
+        } else if (!mSwipeBlurActive && mRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            GlassRenderScheduler.requestUpdate(mMenuPopupLibraryBackground)
+            (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(50)
+        }
     }
 
     private fun removeList(book: Book) {
@@ -1312,10 +1354,19 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE)
-                mRefreshLayout.setEnabled(false)
-            else
-                mRefreshLayout.setEnabled(true)
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                mRefreshLayout.isEnabled = false
+                mSwipeBlurActive = true
+                setLibraryBlurContinuous(true)
+            } else {
+                mRefreshLayout.isEnabled = true
+            }
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            mSwipeBlurActive = false
+            setLibraryBlurContinuous(false)
         }
     }
 

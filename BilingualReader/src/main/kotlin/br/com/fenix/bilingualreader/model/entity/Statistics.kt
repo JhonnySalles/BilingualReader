@@ -27,6 +27,11 @@ data class Statistics (
     val currentReadingPages: Long,
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS)
     val currentReadingSeconds: Long,
+    
+    @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_PAGES)
+    val currentMonthReadingPages: Long = 0,
+    @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.CURRENT_MONTH_READING_SECONDS)
+    val currentMonthReadingSeconds: Long = 0,
 
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES)
     val totalReadPages: Long,
@@ -35,6 +40,9 @@ data class Statistics (
 
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH)
     val readByMonth: Long,
+    
+    @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_MONTH_WORKS)
+    val totalReadMonthWorks: Long = 0,
 
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME)
     val dateTime: LocalDateTime?,

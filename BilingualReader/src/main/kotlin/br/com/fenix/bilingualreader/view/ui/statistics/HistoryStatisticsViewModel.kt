@@ -137,6 +137,14 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                 mSuggestionTags = tags
                 mLibraries.value = libs
                 mYears.value = activeYears
+
+                val current = mLibrary.value
+                if (current != null && current.id != mDefaultKey) {
+                    val found = libs.find { it.id == current.id }
+                    if (found != null) {
+                        mLibrary.value = found
+                    }
+                }
             }
         }
     }
@@ -179,6 +187,26 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
+    private fun loadGroupedFilter(): Boolean {
+        return GeneralConsts.getSharedPreferences(app.applicationContext).getBoolean(
+            GeneralConsts.KEYS.LIBRARY.HISTORY_STATISTICS_GROUPED, false
+        )
+    }
+
+    private val mGroupedFilter = MutableLiveData(loadGroupedFilter())
+    val groupedFilter: LiveData<Boolean> = mGroupedFilter
+
+    fun setGrouped(grouped: Boolean) {
+        if (mGroupedFilter.value == grouped) return
+        mGroupedFilter.value = grouped
+        GeneralConsts.getSharedPreferences(app.applicationContext).edit()
+            .putBoolean(GeneralConsts.KEYS.LIBRARY.HISTORY_STATISTICS_GROUPED, grouped)
+            .apply()
+        
+        mListFull.value?.clear()
+        list()
+    }
+
     private fun loadAggregatedHistory(): List<History> {
         val historyLogs = mHistoryRepository.listHistory().filter { it.type == mTypeFilter }
         val selected = mYearsFilter.value ?: emptySet()
@@ -189,15 +217,20 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
 
         val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val isGrouped = mGroupedFilter.value == true
         val groupedLogs = filteredLogs.groupBy {
-            Pair(it.start.format(dateFormatter), it.fkReference)
+            if (isGrouped) {
+                it.fkReference
+            } else {
+                Pair(it.start.format(dateFormatter), it.fkReference)
+            }
         }
 
         val cachedItems = mutableMapOf<Long, History?>()
         val statsItems = mutableListOf<HistoryStatistics>()
 
         for ((key, logsForGroup) in groupedLogs) {
-            val refId = key.second
+            val refId = if (key is Long) key else (key as Pair<*, *>).second as Long
             val baseItem = cachedItems.getOrPut(refId) {
                 if (mTypeFilter == Type.MANGA) {
                     mMangaRepository.get(refId)
@@ -336,12 +369,18 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private fun getSeparatorTitle(order: Order, history: History): String {
         return when (order) {
             Order.Name -> history.title.take(1).uppercase(Locale.getDefault()).ifEmpty { "#" }
-            Order.LastAccess -> GeneralConsts.formatDateSeparator(app.applicationContext, history.lastAccess)
+            Order.LastAccess -> {
+                val forceYear = mYearsFilter.value?.isNotEmpty() == true
+                GeneralConsts.formatDateSeparator(app.applicationContext, history.lastAccess, forceYear)
+            }
             Order.Favorite -> if (history.favorite) mFavoriteLabel else mNotFavoriteLabel
             Order.Author -> history.author.trim().ifEmpty { "" }
             Order.Genre -> history.genre.trim().ifEmpty { "" }
             Order.Series -> history.series.trim().ifEmpty { mSeriesEmptyLabel }
-            else -> GeneralConsts.formatDateSeparator(app.applicationContext, history.lastAccess)
+            else -> {
+                val forceYear = mYearsFilter.value?.isNotEmpty() == true
+                GeneralConsts.formatDateSeparator(app.applicationContext, history.lastAccess, forceYear)
+            }
         }
     }
 
@@ -479,11 +518,36 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
+    fun setLibrary(library: Library?) {
+        if (library == null) {
+            mLibrary.value = null
+            return
+        }
+
+        mLibrary.value = if (library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA ||
+            library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK ||
+            library.id == mDefaultKey
+        ) {
+            mDefaultLibrary
+        } else {
+            library
+        }
+    }
+
     fun filterLibrary(library: Library?) {
-        if (library == mLibrary.value)
+        val target = if (library != null && (library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA ||
+                library.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK ||
+                library.id == mDefaultKey)
+        ) {
+            mDefaultLibrary
+        } else {
+            library
+        }
+
+        if (target == mLibrary.value)
             return
 
-        mLibrary.value = library
+        mLibrary.value = target
         mList.value = filterList()
     }
 

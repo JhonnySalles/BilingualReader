@@ -59,7 +59,9 @@ import br.com.fenix.bilingualreader.view.ui.tracker.TrackerFragment
 import br.com.fenix.bilingualreader.view.ui.tracker.TrackerListFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
+import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.GlassSetup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -112,6 +114,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
+        setupSharedElementTransitions()
 
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
 
@@ -216,7 +219,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (isColdStart) {
                         mFragmentManager.beginTransaction()
                             .replace(R.id.main_content_root, ConfigFragment())
-                            .commit()
+                            .commitAllowingStateLoss()
                     }
                 } else {
                     val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
@@ -233,7 +236,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             if (isColdStart) {
                                 mFragmentManager.beginTransaction()
                                     .replace(R.id.main_content_root, HistoryFragment())
-                                    .commit()
+                                    .commitAllowingStateLoss()
                             }
                         }
                         library.type == Type.MANGA -> {
@@ -242,7 +245,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             if (isColdStart) {
                                 mFragmentManager.beginTransaction()
                                     .replace(R.id.main_content_root, MangaLibraryFragment())
-                                    .commit()
+                                    .commitAllowingStateLoss()
                             } else {
                                 mMangaLibraryModel.list {
                                     mMangaLibraryModel.isLoading = false
@@ -255,7 +258,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             if (isColdStart) {
                                 mFragmentManager.beginTransaction()
                                     .replace(R.id.main_content_root, BookLibraryFragment())
-                                    .commit()
+                                    .commitAllowingStateLoss()
                             } else {
                                 mBookLibraryModel.list {
                                     mBookLibraryModel.isLoading = false
@@ -397,7 +400,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.anim.slide_fragment_remove_enter, R.anim.slide_fragment_remove_exit)
             .replace(R.id.main_content_root, fragment)
             .addToBackStack(null)
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     private var mLibraries: List<Library> = listOf()
@@ -579,24 +582,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupBlurViews() {
-        if (!::mBlurTop.isInitialized || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+        if (!::mBlurTop.isInitialized)
             return
 
-        val decorView = window.decorView
-        val background = decorView.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-            ?: (findViewById<ViewGroup>(R.id.main_content_root) as ViewGroup)
+        val rootLayout = findViewById<ViewGroup>(R.id.main_root_layout) ?: window.decorView.findViewById<ViewGroup>(android.R.id.content)
+        val background = rootLayout.background ?: ThemeUtil.getBlurFrameClearDrawable(this)
 
-        eightbitlab.com.blurview.GlassSetup.setupGlass(mBlurTop, rootView, eightbitlab.com.blurview.RenderEffectBlur())
+        GlassSetup.setupGlass(mBlurTop, rootLayout)
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
 
         val headerView = mNavigationView.getHeaderView(0)
         val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
-            val navRoot = decorView.findViewById<ViewGroup>(android.R.id.content)
-            eightbitlab.com.blurview.GlassSetup.setupGlass(navigatorBlur, navRoot, eightbitlab.com.blurview.RenderEffectBlur())
-                .setFrameClearDrawable(background)
+            val navHeaderRoot = (headerView as? ViewGroup) ?: rootLayout
+            val clearBg = ThemeUtil.getBlurFrameClearDrawable(this)
+            GlassSetup.setupGlass(navigatorBlur, navHeaderRoot)
+                .setFrameClearDrawable(clearBg)
                 .setBlurRadius(15f)
         }
     }
@@ -604,5 +606,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun setupTitleBackgrounds() {
         val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
         MenuUtil.setupToolbar(this, mToolBar, mBlurTop, mainBarLayout)
+    }
+
+    private fun setupSharedElementTransitions() {
+        val transition = android.transition.TransitionSet().apply {
+            ordering = android.transition.TransitionSet.ORDERING_TOGETHER
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.ChangeTransform())
+            addTransition(android.transition.ChangeClipBounds())
+            addTransition(android.transition.ChangeImageTransform())
+            addTransition(br.com.fenix.bilingualreader.view.animation.TextColorTransition())
+            addTransition(br.com.fenix.bilingualreader.view.animation.ProgressColorTransition())
+            duration = 350L
+            interpolator = android.view.animation.AnimationUtils.loadInterpolator(this@MainActivity, android.R.interpolator.fast_out_slow_in)
+        }
+        window.sharedElementExitTransition = transition
+        window.sharedElementReenterTransition = transition
     }
 }
