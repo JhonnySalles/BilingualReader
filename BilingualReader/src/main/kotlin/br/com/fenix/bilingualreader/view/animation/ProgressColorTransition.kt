@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.animation
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.drawable.ClipDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable

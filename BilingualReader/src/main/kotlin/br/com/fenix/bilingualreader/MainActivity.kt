@@ -59,7 +59,6 @@ import br.com.fenix.bilingualreader.view.ui.tracker.TrackerFragment
 import br.com.fenix.bilingualreader.view.ui.tracker.TrackerListFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
-import eightbitlab.com.blurview.BlurAlgorithm
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
 import kotlinx.coroutines.CoroutineScope
