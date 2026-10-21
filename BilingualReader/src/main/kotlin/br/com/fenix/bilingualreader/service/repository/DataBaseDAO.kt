@@ -686,6 +686,9 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
     @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ_AUTOMATIC + " = 0 ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
     abstract fun listNotAutomatic(type: Type): List<History>
 
+    @Query("DELETE FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference")
+    abstract fun deleteByReference(type: Type, idReference: Long)
+
 }
 
 

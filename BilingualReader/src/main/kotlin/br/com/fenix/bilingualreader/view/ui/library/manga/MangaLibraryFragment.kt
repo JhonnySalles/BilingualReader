@@ -11,6 +11,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
+import android.graphics.Canvas
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -95,6 +96,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardA
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.managers.MangaLibraryHandler
@@ -212,6 +214,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
     private var mSwipeBlurActive = false
+    private var mItemTouchHelper: ItemTouchHelper? = null
+    private var mPendingSwipePosition = RecyclerView.NO_POSITION
+    private var mPendingSwipeView: View? = null
+    private var mPendingSwipeDx = 0f
+    private var mPendingSwipeAlpha = 1f
+    private var mPendingSwipeRestoring = false
+    private var mPendingSwipeDialog: AlertDialog? = null
 
     companion object {
         var mSortType: Order = Order.Name
@@ -446,6 +455,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun onDestroyView() {
+        mPendingSwipeView?.animate()?.cancel()
+        mPendingSwipePosition = RecyclerView.NO_POSITION
+        mPendingSwipeRestoring = false
+        mPendingSwipeView = null
+        mPendingSwipeDialog?.dismiss()
+        mPendingSwipeDialog = null
+        mItemTouchHelper?.attachToRecyclerView(null)
+        mItemTouchHelper = null
         mViewModel.clearFilter()
         MangaCoverCardAdapter.clearCoverCache()
         (mRecyclerView.itemAnimator as? BlurAwareItemAnimator)?.destroy()
@@ -816,7 +833,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             }
         }
 
-        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
+        mItemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        mItemTouchHelper?.attachToRecyclerView(mRecyclerView)
 
         mListener = object : MangaCardListener {
             override fun onClick(manga: Manga, root: View) {
@@ -1313,6 +1331,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             }
 
             override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
+                if (mPendingSwipePosition != RecyclerView.NO_POSITION)
+                    return 0
                 if (mViewModel.libraryType.value == LibraryMangaType.SEPARATOR_CAROUSEL)
                     return 0
                 if (viewHolder.itemViewType == 1) { // 1 is HEADER in separator adapters
@@ -1324,13 +1344,41 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
                 val position = viewHolder.bindingAdapterPosition
                 if (position == RecyclerView.NO_POSITION) return
-                val adapter = mLibraryAdapter ?: return
-                val manga = adapter.getItem(position) ?: return
-                mRecyclerView.post {
-                    mViewModel.remove(manga)
-                    mRecyclerView.adapter?.notifyItemRemoved(position)
-                    deleteManga(manga, position, swiped = true)
+                val manga = mLibraryAdapter?.getItem(position) ?: return
+                val itemView = viewHolder.itemView
+                var dx = itemView.translationX
+                if (dx == 0f)
+                    dx = if (direction == ItemTouchHelper.LEFT) -itemView.width.toFloat() else itemView.width.toFloat()
+                mPendingSwipePosition = position
+                mPendingSwipeView = itemView
+                mPendingSwipeDx = dx
+                mPendingSwipeAlpha = itemView.alpha
+                mPendingSwipeRestoring = false
+                deleteManga(manga, position, swiped = true)
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val position = viewHolder.bindingAdapterPosition
+                if (mPendingSwipePosition != RecyclerView.NO_POSITION && !isCurrentlyActive) {
+                    if (mPendingSwipeRestoring) {
+                        if (viewHolder.itemView === mPendingSwipeView || position == mPendingSwipePosition)
+                            return
+                    } else if (position == mPendingSwipePosition) {
+                        mPendingSwipeView = viewHolder.itemView
+                        super.onChildDraw(c, recyclerView, viewHolder, mPendingSwipeDx, 0f, actionState, false)
+                        viewHolder.itemView.alpha = mPendingSwipeAlpha
+                        return
+                    }
                 }
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
 
             override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
@@ -1346,6 +1394,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
             override fun clearView(recyclerView: RecyclerView, viewHolder: ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
+                if (mPendingSwipePosition != RecyclerView.NO_POSITION &&
+                    !mPendingSwipeRestoring &&
+                    viewHolder.bindingAdapterPosition == mPendingSwipePosition
+                ) {
+                    viewHolder.itemView.translationX = mPendingSwipeDx
+                    viewHolder.itemView.alpha = mPendingSwipeAlpha
+                    mPendingSwipeView = viewHolder.itemView
+                }
                 mSwipeBlurActive = false
                 setLibraryBlurContinuous(false)
             }
@@ -1357,16 +1413,76 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 .setTitle(getString(R.string.manga_library_menu_delete))
                 .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
                 .setPositiveButton(R.string.action_delete) { _, _ ->
-                    deleteFile(manga, swiped)
+                    if (swiped)
+                        confirmSwipeDelete(manga, position)
+                    else
+                        deleteFile(manga)
                     excluded = true
                 }.setOnDismissListener {
-                    if (!excluded && swiped) {
-                        mViewModel.add(manga, position)
-                        mRecyclerView.adapter?.notifyItemInserted(position)
-                    }
+                    mPendingSwipeDialog = null
+                    if (!excluded && swiped)
+                        restoreSwipedItem(position)
                 }
                 .create()
+        if (swiped)
+            mPendingSwipeDialog = dialog
         dialog.show()
+    }
+
+    private fun confirmSwipeDelete(manga: Manga, position: Int) {
+        val view = mPendingSwipeView ?: _mRecyclerView?.findViewHolderForAdapterPosition(position)?.itemView
+        view?.animate()?.cancel()
+        clearPendingSwipeTracking()
+        mLibraryAdapter?.removeList(manga)
+        deleteFile(manga, swiped = true)
+    }
+
+    private fun restoreSwipedItem(position: Int) {
+        if (mPendingSwipePosition == RecyclerView.NO_POSITION)
+            return
+        mPendingSwipeRestoring = true
+        val recycler = _mRecyclerView
+        val animateView = mPendingSwipeView ?: recycler?.findViewHolderForAdapterPosition(position)?.itemView
+        if (recycler == null || animateView == null) {
+            finishSwipeRestore(position)
+            return
+        }
+        val duration = recycler.itemAnimator?.moveDuration ?: 250L
+        animateView.animate()
+            .translationX(0f)
+            .alpha(1f)
+            .setDuration(duration)
+            .withEndAction {
+                if (_mRecyclerView == null)
+                    return@withEndAction
+                finishSwipeRestore(position)
+            }
+            .start()
+    }
+
+    private fun finishSwipeRestore(position: Int) {
+        val view = mPendingSwipeView
+        if (view != null)
+            LibraryCardAnimator.clear(view)
+        clearPendingSwipeTracking()
+        resetItemTouchHelper()
+        if (_mRecyclerView != null)
+            mRecyclerView.adapter?.notifyItemChanged(position, AnimationUtil.PROPERTY_NO_ANIMATION)
+    }
+
+    private fun clearPendingSwipeTracking() {
+        mPendingSwipePosition = RecyclerView.NO_POSITION
+        mPendingSwipeView = null
+        mPendingSwipeDx = 0f
+        mPendingSwipeAlpha = 1f
+        mPendingSwipeRestoring = false
+    }
+
+    private fun resetItemTouchHelper() {
+        val helper = mItemTouchHelper ?: return
+        val recycler = _mRecyclerView ?: return
+        helper.attachToRecyclerView(null)
+        helper.attachToRecyclerView(recycler)
     }
 
     private fun deleteFile(manga: Manga?, swiped: Boolean = false) {

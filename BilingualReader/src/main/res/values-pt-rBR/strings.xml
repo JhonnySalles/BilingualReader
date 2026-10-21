@@ -876,6 +876,8 @@
     <string name="menu_history_type_layout">Tipo de layout</string>
     <string name="history_last_access">Último acesso</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
+    <string name="history_menu_delete_history">Excluir histórico</string>
+    <string name="history_menu_delete_file">Excluir arquivo</string>
     <string name="history_menu_choice_all">Todos</string>
     <string name="history_library_default">Padrão</string>
     <string name="history_manga">Manga / Comic</string>

@@ -106,9 +106,23 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
 
     override fun removeList(item: Manga) {
         val index = mMangaList.indexOf(item)
-        if (index != -1) {
-            mMangaList.removeAt(index)
-            notifyItemRemoved(index)
+        if (index == -1)
+            return
+        mMangaList.removeAt(index)
+        notifyItemRemoved(index)
+        removeOrphanSeparator(index)
+    }
+
+    private fun removeOrphanSeparator(removedIndex: Int) {
+        val headerIndex = removedIndex - 1
+        val header = mMangaList.getOrNull(headerIndex) as? Separator ?: return
+        val next = mMangaList.getOrNull(headerIndex + 1)
+        if (next == null || next is Separator) {
+            mMangaList.removeAt(headerIndex)
+            notifyItemRemoved(headerIndex)
+        } else {
+            header.items = (header.items - 1).coerceAtLeast(0)
+            notifyItemChanged(headerIndex)
         }
     }
 

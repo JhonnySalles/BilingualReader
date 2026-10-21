@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
+import android.graphics.Canvas
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -59,6 +60,7 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
@@ -72,6 +74,7 @@ import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsSep
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsSeriesCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
 import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
+import br.com.fenix.bilingualreader.view.components.LibraryCardAnimator
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
@@ -165,6 +168,14 @@ class HistoryStatisticsFragment : Fragment() {
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
     private var mSwipeBlurActive = false
+    private var mItemTouchHelper: ItemTouchHelper? = null
+    private var mPendingSwipePosition = RecyclerView.NO_POSITION
+    private var mPendingSwipeView: View? = null
+    private var mPendingSwipeDx = 0f
+    private var mPendingSwipeAlpha = 1f
+    private var mPendingSwipeRestoring = false
+    private var mPendingSwipeDialog: AlertDialog? = null
+    private var mSkipNextHistoryListUpdate = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -479,7 +490,8 @@ class HistoryStatisticsFragment : Fragment() {
             tab.text = viewFilterOrderPagerAdapter.getPageTitle(position)
         }.attach()
 
-        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
+        mItemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        mItemTouchHelper?.attachToRecyclerView(mRecyclerView)
         observer()
         return root
     }
@@ -566,10 +578,12 @@ class HistoryStatisticsFragment : Fragment() {
         }
     }
 
-    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean = false
 
         override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+            if (mPendingSwipePosition != RecyclerView.NO_POSITION)
+                return 0
             if (mHistoryType == HistoryType.SEPARATOR_CAROUSEL ||
                 mHistoryType == HistoryType.SEPARATOR_BIG ||
                 mHistoryType == HistoryType.SEPARATOR_MEDIUM
@@ -585,29 +599,40 @@ class HistoryStatisticsFragment : Fragment() {
             if (position == RecyclerView.NO_POSITION) return
             val adapter = mRecyclerView.adapter as? HistoryBaseAdapter ?: return
             val history = adapter.getItem(position) ?: return
-            mRecyclerView.post {
-                mViewModel.remove(history)
-                updateList(mViewModel.history.value ?: arrayListOf())
+            val itemView = viewHolder.itemView
+            var dx = itemView.translationX
+            if (dx == 0f)
+                dx = if (direction == ItemTouchHelper.LEFT) -itemView.width.toFloat() else itemView.width.toFloat()
+            mPendingSwipePosition = position
+            mPendingSwipeView = itemView
+            mPendingSwipeDx = dx
+            mPendingSwipeAlpha = itemView.alpha
+            mPendingSwipeRestoring = false
+            confirmHistoryDelete(history, position)
+        }
 
-                var excluded = false
-                val dialog: AlertDialog =
-                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(getString(R.string.manga_library_menu_delete))
-                        .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
-                        .setPositiveButton(
-                            R.string.action_delete
-                        ) { _, _ ->
-                            mViewModel.deletePermanent(history)
-                            excluded = true
-                        }.setOnDismissListener {
-                            if (!excluded) {
-                                mViewModel.add(history, position)
-                                updateList(mViewModel.history.value ?: arrayListOf())
-                            }
-                        }
-                        .create()
-                dialog.show()
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            val position = viewHolder.bindingAdapterPosition
+            if (mPendingSwipePosition != RecyclerView.NO_POSITION && !isCurrentlyActive) {
+                if (mPendingSwipeRestoring) {
+                    if (viewHolder.itemView === mPendingSwipeView || position == mPendingSwipePosition)
+                        return
+                } else if (position == mPendingSwipePosition) {
+                    mPendingSwipeView = viewHolder.itemView
+                    super.onChildDraw(c, recyclerView, viewHolder, mPendingSwipeDx, 0f, actionState, false)
+                    viewHolder.itemView.alpha = mPendingSwipeAlpha
+                    return
+                }
             }
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
@@ -620,9 +645,93 @@ class HistoryStatisticsFragment : Fragment() {
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             super.clearView(recyclerView, viewHolder)
+            if (mPendingSwipePosition != RecyclerView.NO_POSITION &&
+                !mPendingSwipeRestoring &&
+                viewHolder.bindingAdapterPosition == mPendingSwipePosition
+            ) {
+                viewHolder.itemView.translationX = mPendingSwipeDx
+                viewHolder.itemView.alpha = mPendingSwipeAlpha
+                mPendingSwipeView = viewHolder.itemView
+            }
             mSwipeBlurActive = false
             setHistoryBlurContinuous(false)
         }
+    }
+
+    private fun confirmHistoryDelete(history: History, position: Int) {
+        var excluded = false
+        val dialog: AlertDialog =
+            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.history_menu_delete_history))
+                .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
+                .setPositiveButton(R.string.action_delete) { _, _ ->
+                    commitSwipeDelete(history, position)
+                    excluded = true
+                }.setOnDismissListener {
+                    mPendingSwipeDialog = null
+                    if (!excluded)
+                        restoreSwipedItem(position)
+                }
+                .create()
+        mPendingSwipeDialog = dialog
+        dialog.show()
+    }
+
+    private fun commitSwipeDelete(history: History, position: Int) {
+        val itemView = mPendingSwipeView ?: mRecyclerView.findViewHolderForAdapterPosition(position)?.itemView
+        itemView?.animate()?.cancel()
+        clearPendingSwipeTracking()
+        (mRecyclerView.adapter as? HistoryBaseAdapter)?.remove(history)
+        mSkipNextHistoryListUpdate = true
+        mViewModel.deleteHistory(history)
+    }
+
+    private fun restoreSwipedItem(position: Int) {
+        if (mPendingSwipePosition == RecyclerView.NO_POSITION)
+            return
+        mPendingSwipeRestoring = true
+        val animateView = mPendingSwipeView ?: mRecyclerView.findViewHolderForAdapterPosition(position)?.itemView
+        if (animateView == null) {
+            finishSwipeRestore(position)
+            return
+        }
+        val duration = mRecyclerView.itemAnimator?.moveDuration ?: 250L
+        animateView.animate()
+            .translationX(0f)
+            .alpha(1f)
+            .setDuration(duration)
+            .withEndAction {
+                if (view == null)
+                    return@withEndAction
+                finishSwipeRestore(position)
+            }
+            .start()
+    }
+
+    private fun finishSwipeRestore(position: Int) {
+        val itemView = mPendingSwipeView
+        if (itemView != null)
+            LibraryCardAnimator.clear(itemView)
+        clearPendingSwipeTracking()
+        resetItemTouchHelper()
+        if (view != null)
+            mRecyclerView.adapter?.notifyItemChanged(position, AnimationUtil.PROPERTY_NO_ANIMATION)
+    }
+
+    private fun clearPendingSwipeTracking() {
+        mPendingSwipePosition = RecyclerView.NO_POSITION
+        mPendingSwipeView = null
+        mPendingSwipeDx = 0f
+        mPendingSwipeAlpha = 1f
+        mPendingSwipeRestoring = false
+    }
+
+    private fun resetItemTouchHelper() {
+        val helper = mItemTouchHelper ?: return
+        if (view == null)
+            return
+        helper.attachToRecyclerView(null)
+        helper.attachToRecyclerView(mRecyclerView)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -895,6 +1004,10 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         mViewModel.history.observe(viewLifecycleOwner) {
+            if (mSkipNextHistoryListUpdate) {
+                mSkipNextHistoryListUpdate = false
+                return@observe
+            }
             updateList(it)
         }
 
@@ -1096,24 +1209,13 @@ class HistoryStatisticsFragment : Fragment() {
                     mViewModel.clear(item)
                     updateList(mViewModel.history.value ?: arrayListOf())
                 }
-                R.id.menu_item_manga_file_delete -> {
+                R.id.menu_item_manga_file_delete_history -> {
                     val item = (mRecyclerView.adapter as? HistoryBaseAdapter)?.getItem(position) ?: manga
-                    val dialog: AlertDialog =
-                        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                            .setTitle(getString(R.string.manga_library_menu_delete))
-                            .setMessage(getString(R.string.history_delete_description) + "\n" + manga.name)
-                            .setPositiveButton(
-                                R.string.action_positive
-                            ) { _, _ ->
-                                mViewModel.deletePermanent(item)
-                                mViewModel.remove(item)
-                                updateList(mViewModel.history.value ?: arrayListOf())
-                            }
-                            .setNegativeButton(
-                                R.string.action_negative
-                            ) { _, _ -> }
-                            .create()
-                    dialog.show()
+                    confirmDeleteHistory(item)
+                }
+                R.id.menu_item_manga_file_delete_file -> {
+                    val item = (mRecyclerView.adapter as? HistoryBaseAdapter)?.getItem(position) ?: manga
+                    confirmDeleteFile(item)
                 }
                 R.id.menu_item_manga_file_copy_name -> FileUtil(requireContext()).copyName(manga)
             }
@@ -1150,24 +1252,13 @@ class HistoryStatisticsFragment : Fragment() {
                     mViewModel.clear(item)
                     updateList(mViewModel.history.value ?: arrayListOf())
                 }
-                R.id.menu_item_book_file_delete -> {
+                R.id.menu_item_book_file_delete_history -> {
                     val item = (mRecyclerView.adapter as? HistoryBaseAdapter)?.getItem(position) ?: book
-                    val dialog: AlertDialog =
-                        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                            .setTitle(getString(R.string.book_library_menu_delete))
-                            .setMessage(getString(R.string.history_delete_description) + "\n" + book.name)
-                            .setPositiveButton(
-                                R.string.action_positive
-                            ) { _, _ ->
-                                mViewModel.deletePermanent(item)
-                                mViewModel.remove(item)
-                                updateList(mViewModel.history.value ?: arrayListOf())
-                            }
-                            .setNegativeButton(
-                                R.string.action_negative
-                            ) { _, _ -> }
-                            .create()
-                    dialog.show()
+                    confirmDeleteHistory(item)
+                }
+                R.id.menu_item_book_file_delete_file -> {
+                    val item = (mRecyclerView.adapter as? HistoryBaseAdapter)?.getItem(position) ?: book
+                    confirmDeleteFile(item)
                 }
                 R.id.menu_item_book_file_copy_name -> FileUtil(requireContext()).copyName(book)
             }
@@ -1175,6 +1266,30 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         popup.show()
+    }
+
+    private fun confirmDeleteHistory(history: History) {
+        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+            .setTitle(getString(R.string.history_menu_delete_history))
+            .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
+            .setPositiveButton(R.string.action_positive) { _, _ ->
+                mViewModel.deleteHistory(history)
+            }
+            .setNegativeButton(R.string.action_negative) { _, _ -> }
+            .create()
+            .show()
+    }
+
+    private fun confirmDeleteFile(history: History) {
+        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+            .setTitle(getString(R.string.history_menu_delete_file))
+            .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + history.name)
+            .setPositiveButton(R.string.action_positive) { _, _ ->
+                mViewModel.deleteFile(history)
+            }
+            .setNegativeButton(R.string.action_negative) { _, _ -> }
+            .create()
+            .show()
     }
 
     private fun getSkeletonTitleHeight(): Int =
@@ -1341,6 +1456,15 @@ class HistoryStatisticsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        mPendingSwipeView?.animate()?.cancel()
+        mPendingSwipePosition = RecyclerView.NO_POSITION
+        mPendingSwipeRestoring = false
+        mPendingSwipeView = null
+        mSkipNextHistoryListUpdate = false
+        mPendingSwipeDialog?.dismiss()
+        mPendingSwipeDialog = null
+        mItemTouchHelper?.attachToRecyclerView(null)
+        mItemTouchHelper = null
         mViewModel.clearFilter()
         HistoryStatisticsCoverCardAdapter.clearCoverCache()
         mHandler.removeCallbacksAndMessages(null)

@@ -10,8 +10,11 @@
         android:id="@+id/menu_item_book_file_clear"
         android:title="@string/book_library_menu_clear"/>
     <item
-        android:id="@+id/menu_item_book_file_delete"
-        android:title="@string/book_library_menu_delete"/>
+        android:id="@+id/menu_item_book_file_delete_history"
+        android:title="@string/history_menu_delete_history"/>
+    <item
+        android:id="@+id/menu_item_book_file_delete_file"
+        android:title="@string/history_menu_delete_file"/>
     <item
         android:id="@+id/menu_item_book_file_copy_name"
         android:title="@string/book_library_menu_copy"/>

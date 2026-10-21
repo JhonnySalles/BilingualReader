@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.stream.Collectors
@@ -249,14 +250,39 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         }
     }
 
-    fun deletePermanent(history: History?) {
+    fun deleteHistory(history: History?) {
         history ?: return
+        history.lastAccess = LocalDateTime.MIN
+        history.bookMark = 0
+        clear(history)
+    }
+
+    fun deleteFile(history: History?) {
+        history ?: return
+        history.lastAccess = LocalDateTime.MIN
+        history.bookMark = 0
         viewModelScope.launch(Dispatchers.IO) {
             when (history) {
-                is Manga -> mMangaRepository.deletePermanent(history)
-                is Book -> mBookRepository.deletePermanent(history)
+                is Manga -> {
+                    mMangaRepository.update(history)
+                    mMangaRepository.delete(history)
+                    if (history.file.exists()) {
+                        val isDeleted = history.file.delete()
+                        mLOGGER.info("File deleted ${history.name}: $isDeleted")
+                    }
+                }
+                is Book -> {
+                    mBookRepository.update(history)
+                    mBookRepository.delete(history)
+                    if (history.file.exists()) {
+                        val isDeleted = history.file.delete()
+                        mLOGGER.info("File deleted ${history.name}: $isDeleted")
+                    }
+                }
             }
         }
+        mListFull.value?.remove(history)
+        mList.value = filterList()
     }
 
     fun save(history: History?) {

@@ -96,9 +96,23 @@ class BookSeparatorLineCardAdapter(private val context: Context) :
 
     override fun removeList(item: Book) {
         val index = mBookList.indexOf(item)
-        if (index != -1) {
-            mBookList.removeAt(index)
-            notifyItemRemoved(index)
+        if (index == -1)
+            return
+        mBookList.removeAt(index)
+        notifyItemRemoved(index)
+        removeOrphanSeparator(index)
+    }
+
+    private fun removeOrphanSeparator(removedIndex: Int) {
+        val headerIndex = removedIndex - 1
+        val header = mBookList.getOrNull(headerIndex) as? Separator ?: return
+        val next = mBookList.getOrNull(headerIndex + 1)
+        if (next == null || next is Separator) {
+            mBookList.removeAt(headerIndex)
+            notifyItemRemoved(headerIndex)
+        } else {
+            header.items = (header.items - 1).coerceAtLeast(0)
+            notifyItemChanged(headerIndex)
         }
     }
 

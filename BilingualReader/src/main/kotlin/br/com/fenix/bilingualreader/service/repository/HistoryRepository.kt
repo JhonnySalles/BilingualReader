@@ -4,6 +4,7 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.enums.Type
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 
 
 class HistoryRepository(private val context: Context) {
@@ -42,5 +43,14 @@ class HistoryRepository(private val context: Context) {
     fun listNotAutomatic(type: Type): List<History> = mDataBase.listNotAutomatic(type)
 
     fun update(obj: History) = mDataBase.update(obj)
+
+    fun deleteByReference(type: Type, idReference: Long) = mDataBase.deleteByReference(type, idReference)
+
+    fun deleteByReferenceAndDay(type: Type, idLibrary: Long, idReference: Long, day: LocalDate) {
+        for (item in mDataBase.find(type, idLibrary, idReference)) {
+            if (item.start.toLocalDate() == day)
+                mDataBase.delete(item)
+        }
+    }
 
 }

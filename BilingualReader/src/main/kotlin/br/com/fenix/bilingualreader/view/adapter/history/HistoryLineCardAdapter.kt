@@ -105,9 +105,22 @@ class HistoryLineCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), 
         val index = mHistoryList.indexOfFirst {
             it == history || (it is History && it.id == history.id && it.type == history.type)
         }
-        if (index != -1) {
-            mHistoryList.removeAt(index)
-            notifyItemRemoved(index)
+        if (index == -1)
+            return
+        mHistoryList.removeAt(index)
+        notifyItemRemoved(index)
+        removeOrphanSeparator(index)
+    }
+
+    private fun removeOrphanSeparator(removedIndex: Int) {
+        val headerIndex = removedIndex - 1
+        val header = mHistoryList.getOrNull(headerIndex) as? Separator ?: return
+        val next = mHistoryList.getOrNull(headerIndex + 1)
+        if (next == null || next is Separator) {
+            mHistoryList.removeAt(headerIndex)
+            notifyItemRemoved(headerIndex)
+        } else {
+            header.items = (header.items - 1).coerceAtLeast(0)
         }
     }
 

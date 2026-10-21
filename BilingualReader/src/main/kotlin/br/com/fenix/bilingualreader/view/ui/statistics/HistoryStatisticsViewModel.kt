@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.stream.Collectors
@@ -301,15 +302,52 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
-    fun deletePermanent(history: History?) {
+    fun deleteHistory(history: History?) {
         history ?: return
         val base = unwrap(history)
+        val id = base.id ?: return
+        val library = base.fkLibrary ?: 0L
+        val day = (history.lastAccess ?: history.sort)?.toLocalDate()
+        val grouped = mGroupedFilter.value == true
+        viewModelScope.launch(Dispatchers.IO) {
+            if (grouped || day == null)
+                mHistoryRepository.deleteByReference(base.type, id)
+            else
+                mHistoryRepository.deleteByReferenceAndDay(base.type, library, id, day)
+        }
+        removeMatching(history)
+        mList.value = filterList()
+    }
+
+    fun deleteFile(history: History?) {
+        history ?: return
+        val base = unwrap(history)
+        base.lastAccess = LocalDateTime.MIN
+        base.bookMark = 0
         viewModelScope.launch(Dispatchers.IO) {
             when (base) {
-                is Manga -> mMangaRepository.deletePermanent(base)
-                is Book -> mBookRepository.deletePermanent(base)
+                is Manga -> {
+                    mMangaRepository.update(base)
+                    mMangaRepository.delete(base)
+                    if (base.file.exists()) {
+                        val isDeleted = base.file.delete()
+                        mLOGGER.info("File deleted ${base.name}: $isDeleted")
+                    }
+                }
+                is Book -> {
+                    mBookRepository.update(base)
+                    mBookRepository.delete(base)
+                    if (base.file.exists()) {
+                        val isDeleted = base.file.delete()
+                        mLOGGER.info("File deleted ${base.name}: $isDeleted")
+                    }
+                }
             }
+            base.id?.let { mHistoryRepository.deleteByReference(base.type, it) }
         }
+        val targetId = base.id
+        mListFull.value?.removeAll { unwrap(it).id == targetId }
+        mList.value = filterList()
     }
 
     fun save(history: History?) {
