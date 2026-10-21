@@ -679,11 +679,25 @@ class HistoryStatisticsFragment : Fragment() {
 
     private fun commitSwipeDelete(history: History, position: Int) {
         val itemView = mPendingSwipeView ?: mRecyclerView.findViewHolderForAdapterPosition(position)?.itemView
-        itemView?.animate()?.cancel()
+        prepareSwipedViewForRemoval(itemView)
         clearPendingSwipeTracking()
         (mRecyclerView.adapter as? HistoryBaseAdapter)?.remove(history)
+        endSwipedViewRemoval(itemView)
         mSkipNextHistoryListUpdate = true
         mViewModel.deleteHistory(history)
+    }
+
+    private fun prepareSwipedViewForRemoval(view: View?) {
+        view?.animate()?.cancel()
+        view?.visibility = View.INVISIBLE
+        mPendingSwipeRestoring = true
+        resetItemTouchHelper()
+    }
+
+    private fun endSwipedViewRemoval(view: View?) {
+        if (view == null || this.view == null) return
+        val holder = mRecyclerView.findContainingViewHolder(view) ?: return
+        mRecyclerView.itemAnimator?.endAnimation(holder)
     }
 
     private fun restoreSwipedItem(position: Int) {

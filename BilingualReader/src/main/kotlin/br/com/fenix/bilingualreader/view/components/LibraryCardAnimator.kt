@@ -28,6 +28,7 @@ object LibraryCardAnimator {
 
     fun animate(view: View, style: Style) {
         view.animate().cancel()
+        view.visibility = View.VISIBLE
 
         when (style) {
             Style.LINE, Style.SEPARATOR_TITLE_CENTER, Style.CAROUSEL_ITEM -> {
@@ -89,6 +90,8 @@ object LibraryCardAnimator {
     }
 
     fun clear(view: View) {
+        view.animate().cancel()
+        view.visibility = View.VISIBLE
         view.alpha = 1f
         view.translationX = 0f
         view.translationY = 0f

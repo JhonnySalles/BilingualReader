@@ -1450,10 +1450,25 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun confirmSwipeDelete(book: Book, position: Int) {
         val view = mPendingSwipeView ?: _mRecyclerView?.findViewHolderForAdapterPosition(position)?.itemView
-        view?.animate()?.cancel()
+        prepareSwipedViewForRemoval(view)
         clearPendingSwipeTracking()
         mLibraryAdapter?.removeList(book)
+        endSwipedViewRemoval(view)
         deleteFile(book, swiped = true)
+    }
+
+    private fun prepareSwipedViewForRemoval(view: View?) {
+        view?.animate()?.cancel()
+        view?.visibility = View.INVISIBLE
+        mPendingSwipeRestoring = true
+        resetItemTouchHelper()
+    }
+
+    private fun endSwipedViewRemoval(view: View?) {
+        if (view == null) return
+        val recycler = _mRecyclerView ?: return
+        val holder = recycler.findContainingViewHolder(view) ?: return
+        recycler.itemAnimator?.endAnimation(holder)
     }
 
     private fun restoreSwipedItem(position: Int) {
