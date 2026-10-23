@@ -430,6 +430,7 @@
     <dimen name="history_skeleton_item_height">25dp</dimen>
     <dimen name="history_skeleton_item_margin">5dp</dimen>
     <dimen name="history_carousel_skeleton_height">160dp</dimen>
+    <dimen name="history_carousel_skeleton_margin_bottom">16dp</dimen>
     <dimen name="history_carousel_skeleton_item_margin">3dp</dimen>
     <dimen name="history_grid_skeleton_height_separator_big">220dp</dimen>
     <dimen name="history_grid_skeleton_height_separator_medium">220dp</dimen>

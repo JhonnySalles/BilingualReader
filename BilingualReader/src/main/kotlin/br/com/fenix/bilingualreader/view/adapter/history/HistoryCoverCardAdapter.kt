@@ -154,6 +154,14 @@ class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
                 title.text = history.name
             }
 
+            val progressDrawableRes = when (history.type) {
+                Type.MANGA -> R.drawable.progress_bar_manga
+                Type.BOOK -> R.drawable.progress_bar_book
+            }
+            progress.progressTintList = null
+            progress.progressBackgroundTintList = null
+            progress.progressDrawable = ContextCompat.getDrawable(itemView.context, progressDrawableRes)
+
             progress.max = history.pages.coerceAtLeast(1)
             progress.progress = history.bookMark
 

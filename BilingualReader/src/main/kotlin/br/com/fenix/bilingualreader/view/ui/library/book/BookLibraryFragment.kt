@@ -101,6 +101,8 @@ import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.managers.BookLibraryHandler
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
+import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
+import br.com.fenix.bilingualreader.service.services.CoverGenerationService
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -917,6 +919,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         R.id.menu_book_config_tag -> {
                             mPopupTag.getPopupTags(book) { mViewModel.loadTags() }
                         }
+                        R.id.menu_book_config_reading_history -> {
+                            PopupReadingHistory(requireContext()).show(book)
+                        }
                         R.id.menu_book_config_book_mark -> {
                             val onUpdate: (History) -> (Unit) = {
                                 mViewModel.save(it as Book)
@@ -994,6 +999,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     }
                     R.id.menu_book_library_list_order -> {
                         onChangeSort()
+                        true
+                    }
+                    R.id.menu_book_library_generate_covers -> {
+                        val books = mViewModel.getAllBooks()
+                        if (books.isNotEmpty()) {
+                            CoverGenerationService.instance.enqueue(requireContext(), books)
+                            Toast.makeText(requireContext(), R.string.notifications_generate_covers_started, Toast.LENGTH_SHORT).show()
+                        }
                         true
                     }
                     else -> false

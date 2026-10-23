@@ -17,6 +17,11 @@ object LibraryCardAnimator {
     private const val GRID_SLIDE_DP = 40f
     private val interpolator = DecelerateInterpolator()
 
+    enum class ScrollDirection {
+        DOWN,
+        UP
+    }
+
     enum class Style {
         LINE,
         SEPARATOR_TITLE_RIGHT,
@@ -26,7 +31,7 @@ object LibraryCardAnimator {
         CAROUSEL_ITEM
     }
 
-    fun animate(view: View, style: Style) {
+    fun animate(view: View, style: Style, direction: ScrollDirection = ScrollDirection.DOWN) {
         view.animate().cancel()
         view.visibility = View.VISIBLE
 
@@ -69,13 +74,14 @@ object LibraryCardAnimator {
                 if (view.width > 0) start() else view.post(start)
             }
             Style.CAROUSEL_TITLE -> {
-                // Slide de Baixo para Cima
+                // Slide vertical: de Baixo para Cima (DOWN) ou de Cima para Baixo (UP)
                 view.alpha = 0f
                 view.scaleX = 1f
                 view.scaleY = 1f
                 view.translationX = 0f
                 val start = {
-                    val dy = if (view.height > 0) view.height.toFloat() else view.resources.displayMetrics.density * 48f
+                    val dyMagnitude = if (view.height > 0) view.height.toFloat() else view.resources.displayMetrics.density * 48f
+                    val dy = if (direction == ScrollDirection.UP) -dyMagnitude else dyMagnitude
                     view.translationY = dy
                     view.animate()
                         .alpha(1f)

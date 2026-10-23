@@ -887,8 +887,9 @@
     <string name="popup_history_tab_content">Tipo</string>
     <string name="popup_history_tab_year">Ano</string>
     <string name="popup_history_type_line">Linha</string>
-    <string name="popup_history_type_separator_line">Linha com separador</string>
-    <string name="popup_history_type_separator_carousel">Carrossel com separador</string>
+    <string name="popup_history_type_carousel">Carrossel</string>
+    <string name="popup_history_type_big">Grid grande</string>
+    <string name="popup_history_type_medium">Grid médio</string>
 
     <!-- PAGE LINK -->
     <string name="page_link_manga_empty">Manga não encontrado</string>
@@ -1327,4 +1328,8 @@
     <string name="menu_history_filter">Filtro</string>
     <string name="popup_history_tab_filter">Filtros</string>
     <string name="popup_history_filter_grouped">Agrupar (Livro/Mangá)</string>
+    <string name="menu_library_generate_covers">Gerar capas</string>
+    <string name="notifications_generate_covers_title">Gerando capas</string>
+    <string name="notifications_generate_covers_progress">%1$d de %2$d - %3$s</string>
+    <string name="notifications_generate_covers_started">Iniciando geração de capas em segundo plano...</string>
 </resources>

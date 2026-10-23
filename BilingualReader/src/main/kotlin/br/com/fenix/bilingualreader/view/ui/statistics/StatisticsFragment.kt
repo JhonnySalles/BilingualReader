@@ -224,20 +224,12 @@ class StatisticsFragment : Fragment() {
             mProgress.setBlurAutoUpdate(it)
         }
 
-        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener {
-            val library = if (::mMangaSelectLibrary.isInitialized && mMangaSelectLibrary.title != mDefaultAllLibraries) mMangaSelectLibrary else null
-            openHistory(Type.MANGA, mMangaSelectYear, library)
-        }
         mMangaHistory.setOnClickListener {
             (mMangaHistory.icon as AnimatedVectorDrawable).start()
             val library = if (::mMangaSelectLibrary.isInitialized && mMangaSelectLibrary.title != mDefaultAllLibraries) mMangaSelectLibrary else null
             openHistory(Type.MANGA, mMangaSelectYear, library)
         }
 
-        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener {
-            val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null
-            openHistory(Type.BOOK, mBookSelectYear, library)
-        }
         mBookHistory.setOnClickListener {
             (mBookHistory.icon as AnimatedVectorDrawable).start()
             val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null

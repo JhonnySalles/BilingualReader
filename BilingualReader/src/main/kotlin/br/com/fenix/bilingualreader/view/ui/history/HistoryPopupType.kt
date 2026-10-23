@@ -24,11 +24,10 @@ class HistoryPopupType : Fragment() {
         val root = inflater.inflate(R.layout.popup_history_type, container, false)
 
         mCheckMap = mapOf(
-            HistoryType.LINE to root.findViewById(R.id.popup_history_type_line),
-            HistoryType.SEPARATOR_BIG to root.findViewById(R.id.popup_history_type_separator_big),
-            HistoryType.SEPARATOR_MEDIUM to root.findViewById(R.id.popup_history_type_separator_medium),
-            HistoryType.SEPARATOR_CAROUSEL to root.findViewById(R.id.popup_history_type_separator_carousel),
-            HistoryType.SEPARATOR_LINE to root.findViewById(R.id.popup_history_type_separator_line)
+            HistoryType.SEPARATOR_LINE to root.findViewById(R.id.popup_history_type_line),
+            HistoryType.SEPARATOR_BIG to root.findViewById(R.id.popup_history_type_big),
+            HistoryType.SEPARATOR_MEDIUM to root.findViewById(R.id.popup_history_type_medium),
+            HistoryType.SEPARATOR_CAROUSEL to root.findViewById(R.id.popup_history_type_carousel)
         )
 
         setChecked(mViewModel.historyType.value ?: HistoryType.SEPARATOR_LINE)
@@ -48,10 +47,8 @@ class HistoryPopupType : Fragment() {
                 removeListener()
                 if (isChecked)
                     mViewModel.setHistoryType(check.key)
-                else if (check.key == HistoryType.LINE)
-                    mViewModel.setHistoryType(HistoryType.SEPARATOR_LINE)
                 else
-                    mViewModel.setHistoryType(HistoryType.LINE)
+                    check.value.isChecked = true
                 addListener()
             }
     }

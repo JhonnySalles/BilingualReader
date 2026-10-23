@@ -22,6 +22,27 @@ class MangaSeriesCardAdapter(private val context: Context) :
     private var mMangaList: MutableList<Any> = mutableListOf()
     private var mOrder: Order = Order.Name
     override var isAnimation: Boolean = true
+    var scrollDirection: LibraryCardAnimator.ScrollDirection = LibraryCardAnimator.ScrollDirection.DOWN
+
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            if (dy > 0) {
+                scrollDirection = LibraryCardAnimator.ScrollDirection.DOWN
+            } else if (dy < 0) {
+                scrollDirection = LibraryCardAnimator.ScrollDirection.UP
+            }
+        }
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        recyclerView.addOnScrollListener(scrollListener)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        recyclerView.removeOnScrollListener(scrollListener)
+    }
 
     companion object {
         private const val HEADER = 1
@@ -60,14 +81,14 @@ class MangaSeriesCardAdapter(private val context: Context) :
             HEADER -> {
                 (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
                 if (isAnimation)
-                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE, scrollDirection)
                 else
                     LibraryCardAnimator.clear(holder)
             }
             else -> {
                 (holder as MangaSeriesViewHolder).bind(mMangaList[position] as MangaGroup, mOrder)
                 if (isAnimation)
-                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE)
+                    LibraryCardAnimator.animate(holder.itemView, LibraryCardAnimator.Style.CAROUSEL_TITLE, scrollDirection)
                 else
                     LibraryCardAnimator.clear(holder)
             }

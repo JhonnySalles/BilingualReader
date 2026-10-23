@@ -677,4 +677,6 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         } else
             processed(ShareMarkType.SYNC_IN_PROGRESS, idNotification)
     }
+
+    fun getAllBooks(): List<Book> = mFullMap.values.toList().ifEmpty { mListBook.value ?: emptyList() }
 }

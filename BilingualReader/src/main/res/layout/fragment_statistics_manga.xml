@@ -41,9 +41,6 @@
                 android:padding="@dimen/margin_small"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:background="@drawable/statistics_content_small_rounded_background"
-                android:foreground="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
                 android:orientation="vertical">
                 <TextView
                     style="@style/TextTitle.Statistics.Container.Title"

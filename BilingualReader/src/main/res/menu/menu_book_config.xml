@@ -4,6 +4,9 @@
         android:id="@+id/menu_book_config_tag"
         android:title="@string/menu_book_config_tag"/>
     <item
+        android:id="@+id/menu_book_config_reading_history"
+        android:title="@string/menu_history"/>
+    <item
         android:id="@+id/menu_book_config_book_mark"
         android:title="@string/menu_book_config_book_mark"/>
     <item

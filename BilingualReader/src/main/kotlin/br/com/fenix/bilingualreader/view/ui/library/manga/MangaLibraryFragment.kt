@@ -102,6 +102,8 @@ import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import br.com.fenix.bilingualreader.view.managers.MangaLibraryHandler
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
+import br.com.fenix.bilingualreader.view.ui.popup.PopupReadingHistory
+import br.com.fenix.bilingualreader.service.services.CoverGenerationService
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -907,6 +909,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                                 fileName = manga.fileName
                             )
                         }
+                        R.id.menu_manga_config_reading_history -> {
+                            PopupReadingHistory(requireContext()).show(manga)
+                        }
                         R.id.menu_manga_config_book_mark -> {
                             val onUpdate: (History) -> (Unit) = {
                                 mViewModel.save(it as Manga)
@@ -1005,6 +1010,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                                 }
                             }
                             .show()
+                        true
+                    }
+                    R.id.menu_manga_library_generate_covers -> {
+                        val mangas = mViewModel.getAllMangas()
+                        if (mangas.isNotEmpty()) {
+                            CoverGenerationService.instance.enqueue(requireContext(), mangas)
+                            Toast.makeText(requireContext(), R.string.notifications_generate_covers_started, Toast.LENGTH_SHORT).show()
+                        }
                         true
                     }
                     else -> false

@@ -24,4 +24,11 @@
         android:title="@string/menu_book_library_type"
         android:visible="true"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_book_library_generate_covers"
+        android:orderInCategory="200"
+        android:title="@string/menu_library_generate_covers"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

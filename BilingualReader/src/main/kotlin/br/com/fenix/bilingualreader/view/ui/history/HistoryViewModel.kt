@@ -88,11 +88,10 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
     fun changeHistoryType() {
         val next = when (mHistoryType.value) {
-            HistoryType.LINE -> HistoryType.SEPARATOR_BIG
+            HistoryType.SEPARATOR_LINE -> HistoryType.SEPARATOR_BIG
             HistoryType.SEPARATOR_BIG -> HistoryType.SEPARATOR_MEDIUM
             HistoryType.SEPARATOR_MEDIUM -> HistoryType.SEPARATOR_CAROUSEL
             HistoryType.SEPARATOR_CAROUSEL -> HistoryType.SEPARATOR_LINE
-            HistoryType.SEPARATOR_LINE -> HistoryType.LINE
             else -> HistoryType.SEPARATOR_LINE
         }
         setHistoryType(next)
@@ -115,7 +114,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
             HistoryType.SEPARATOR_LINE.toString()
         ).toString()
         return when (raw) {
-            "LINE_DATE", "SERIES_LINE" -> HistoryType.SEPARATOR_LINE
+            "LINE", "LINE_DATE", "SERIES_LINE" -> HistoryType.SEPARATOR_LINE
             "SERIES_CAROUSEL" -> HistoryType.SEPARATOR_CAROUSEL
             else -> try {
                 HistoryType.valueOf(raw)
@@ -436,7 +435,6 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         }
 
         when (mHistoryType.value ?: HistoryType.SEPARATOR_LINE) {
-            HistoryType.LINE -> sortedList.addAll(contentItems)
             HistoryType.SEPARATOR_LINE,
             HistoryType.SEPARATOR_BIG,
             HistoryType.SEPARATOR_MEDIUM -> buildGroupedList(sortedList, contentItems, order, carousel = false)

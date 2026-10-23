@@ -813,4 +813,6 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             }
         }
     }
+
+    fun getAllMangas(): List<Manga> = mFullMap.values.toList().ifEmpty { mListMangas.value ?: emptyList() }
 }
