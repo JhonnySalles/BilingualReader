@@ -54,6 +54,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
@@ -327,6 +328,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     private fun initialize(book: Book?) {
+        if (!::mLibrary.isInitialized) {
+            mLibrary = LibraryUtil.getDefault(this, Type.BOOK)
+        }
         val fragment: BookReaderFragment = if (book != null && book.file.exists()) {
             setBook(book)
             BookReaderFragment.create(mLibrary, book)
@@ -337,7 +341,12 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     private fun initialize(file: File?, page: Int, pages: Int) {
+        if (!::mLibrary.isInitialized) {
+            mLibrary = LibraryUtil.getDefault(this, Type.BOOK)
+        }
         val fragment: BookReaderFragment = if (file != null) {
+            val book = mRepository.findByFileName(file.name) ?: Book(mLibrary.id, null, file)
+            setBook(book)
             changePageDescription(0, "", page, pages)
             BookReaderFragment.create(mLibrary, file)
         } else

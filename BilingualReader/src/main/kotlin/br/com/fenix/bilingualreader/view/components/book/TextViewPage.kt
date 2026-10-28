@@ -48,6 +48,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     private var mSelectionHandler: Handler? = null
 
     init {
+        autoLinkMask = 0
         mSelectionHandler = Handler(Looper.getMainLooper())
         mOriginalSize = textSize
 

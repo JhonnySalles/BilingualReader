@@ -28,7 +28,7 @@ class EpubContext : PdfContext() {
     }
 
     override fun getCacheFileName(fileNameOriginal: String): File {
-        val hash = (fileNameOriginal + BookCSS.get().isAutoHypens + BookCSS.get().hypenLang).hashCode()
+        val hash = (fileNameOriginal + BookCSS.get().isAutoHypens + BookCSS.get().hypenLang + "_v3").hashCode()
         val file = File(CacheZipUtils.CACHE_BOOK_DIR, "$hash.epub")
         cacheFile = file
         return file

@@ -1211,7 +1211,6 @@
         <item><![CDATA[Picasso  -  https://github.com/square/picasso]]></item>
         <item><![CDATA[JunRar  -  https://github.com/junrar/junrar]]></item>
         <item><![CDATA[Apache Commons  -  https://mvnrepository.com/artifact/org.apache.commons/commons-compress/1.21]]></item>
-        <item><![CDATA[Gpu Image Transform  -  https://github.com/cats-oss/android-gpuimage]]></item>
     </string-array>
 
     <!-- OTHERS -->

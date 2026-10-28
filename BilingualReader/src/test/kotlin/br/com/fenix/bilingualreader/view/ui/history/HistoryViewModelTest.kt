@@ -187,9 +187,6 @@ class HistoryViewModelTest {
         assertEquals(HistoryType.SEPARATOR_LINE, viewModel.historyType.value)
 
         viewModel.changeHistoryType()
-        assertEquals(HistoryType.LINE, viewModel.historyType.value)
-
-        viewModel.changeHistoryType()
         assertEquals(HistoryType.SEPARATOR_BIG, viewModel.historyType.value)
 
         viewModel.changeHistoryType()
@@ -268,7 +265,7 @@ class HistoryViewModelTest {
     fun `LINE type should not include separators`() {
         val manga = Manga(1L, 1L, File("/path/Manga1")).apply { lastAccess = LocalDateTime.now() }
         viewModel.update(mutableListOf(manga))
-        viewModel.setHistoryType(HistoryType.LINE)
+        viewModel.setHistoryType(HistoryType.SEPARATOR_LINE)
 
         val history = viewModel.history.value!!
         assertFalse(history.any { it is Separator })
@@ -331,7 +328,7 @@ class HistoryViewModelTest {
             lastAccess = LocalDateTime.of(2025, 3, 1, 10, 0)
         }
         viewModel.update(mutableListOf(manga2024, manga2025))
-        viewModel.setHistoryType(HistoryType.LINE)
+        viewModel.setHistoryType(HistoryType.SEPARATOR_LINE)
 
         viewModel.filterYears(setOf(2025))
         val filtered = viewModel.history.value!!.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>()
@@ -347,7 +344,7 @@ class HistoryViewModelTest {
         val book = Book(1L, 1L, File("/path/Book1")).apply { lastAccess = LocalDateTime.now() }
         val manga = Manga(2L, 1L, File("/path/Manga1")).apply { lastAccess = LocalDateTime.now() }
         viewModel.update(mutableListOf(book, manga))
-        viewModel.setHistoryType(HistoryType.LINE)
+        viewModel.setHistoryType(HistoryType.SEPARATOR_LINE)
 
         viewModel.filterContentTypes(setOf(Type.MANGA, Type.BOOK))
         assertEquals(2, viewModel.history.value!!.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>().size)
@@ -373,7 +370,7 @@ class HistoryViewModelTest {
             lastAccess = LocalDateTime.now().minusHours(2)
         }
         viewModel.update(mutableListOf(mangaA, mangaB, mangaC))
-        viewModel.setHistoryType(HistoryType.LINE)
+        viewModel.setHistoryType(HistoryType.SEPARATOR_LINE)
 
         viewModel.filterLibraries(setOf(libA, libB))
         val filtered = viewModel.history.value!!.filterIsInstance<br.com.fenix.bilingualreader.model.interfaces.History>()

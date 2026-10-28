@@ -96,7 +96,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.GlassSetup
-import org.beyka.tiffbitmapfactory.TiffBitmapFactory
+import dev.jaeyoung.tiffbitmapfactory.TiffBitmapFactory
+import dev.jaeyoung.tiffbitmapfactory.TiffBitmapFactoryOptions
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -931,13 +932,6 @@ class ImageUtil {
             return le || be
         }
 
-        /** Non-deprecated TIFF decode path (decodeFile is deprecated since Android Q). */
-        private fun decodeTiffFile(file: File, options: TiffBitmapFactory.Options): Bitmap? {
-            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { pfd ->
-                return TiffBitmapFactory.decodeFileDescriptor(pfd.fd, options)
-            }
-        }
-
         private fun isNativeFormat(bytes: ByteArray): Boolean {
             if (bytes.size < 4) return false
             val isJpeg = bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte()
@@ -959,13 +953,12 @@ class ImageUtil {
             // 1. JXL
             try {
                 if (com.awxkee.jxlcoder.JxlCoder.isJXL(bytes)) {
-                    val jxlCoder = com.awxkee.jxlcoder.JxlCoder()
                     val w = if (reqWidth > 0) reqWidth else 0
                     val h = if (reqHeight > 0) reqHeight else 0
                     if (w > 0 && h > 0) {
-                        return jxlCoder.decodeSampled(bytes, w, h)
+                        return com.awxkee.jxlcoder.JxlCoder.decodeSampled(bytes, w, h)
                     }
-                    return jxlCoder.decode(bytes)
+                    return com.awxkee.jxlcoder.JxlCoder.decode(bytes)
                 }
             } catch (ignored: Throwable) {}
 
@@ -991,16 +984,16 @@ class ImageUtil {
                     val tempFile = File.createTempFile("tiff_", ".tif")
                     try {
                         tempFile.writeBytes(bytes)
-                        val tiffOptions = TiffBitmapFactory.Options()
+                        val tiffOptions = TiffBitmapFactoryOptions()
                         if (reqWidth > 0 && reqHeight > 0) {
                             tiffOptions.inJustDecodeBounds = true
-                            decodeTiffFile(tempFile, tiffOptions)
+                            TiffBitmapFactory.decodeFile(tempFile.absolutePath, tiffOptions)
                             if (tiffOptions.outWidth > 0 && tiffOptions.outHeight > 0) {
                                 tiffOptions.inSampleSize = calculateInSampleSize(tiffOptions.outWidth, tiffOptions.outHeight, reqWidth, reqHeight)
                             }
                             tiffOptions.inJustDecodeBounds = false
                         }
-                        val tiffBitmap = decodeTiffFile(tempFile, tiffOptions)
+                        val tiffBitmap = TiffBitmapFactory.decodeFile(tempFile.absolutePath, tiffOptions)
                         if (tiffBitmap != null) return tiffBitmap
                     } finally {
                         tempFile.delete()
@@ -1818,7 +1811,19 @@ class TextUtil {
             return false
         }
 
-        fun isOnlyImageOnHtml(html: String): Boolean = html.contains("< ?(img)[^>]*>".toRegex()) && replaceHtmlTags(html).trim().isEmpty()
+        fun cleanHtmlForText(html: String): String {
+            var page = html.replace("(?i)<head>[\\s\\S]*?</head>".toRegex(), "")
+            page = page.replace("(?i)<title>[\\s\\S]*?</title>".toRegex(), "")
+            page = page.replace("(?i)<style>[\\s\\S]*?</style>".toRegex(), "")
+            page = page.replace("(?i)<script>[\\s\\S]*?</script>".toRegex(), "")
+            return replaceHtmlTags(page).trim()
+        }
+
+        fun isOnlyImageOnHtml(html: String): Boolean {
+            val hasImage = html.contains("< ?(img)[^>]*>".toRegex()) || html.contains("< ?(image)[^>]*>".toRegex())
+            if (!hasImage) return false
+            return cleanHtmlForText(html).isEmpty()
+        }
     }
 }
 

@@ -51,7 +51,9 @@ public abstract class AbstractCodecContext implements CodecContext {
 
         if (TempHolder.get().loadingCancelled) {
             recycle();
-            CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles());
+            if (CacheZipUtils.CACHE_BOOK_DIR != null) {
+                CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles());
+            }
         }
     }
 
@@ -65,7 +67,9 @@ public abstract class AbstractCodecContext implements CodecContext {
         }
 
         File cacheFileName = getCacheFileName(fileNameOriginal);
-        CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
+        if (CacheZipUtils.CACHE_BOOK_DIR != null) {
+            CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
+        }
 
         if (cacheFileName != null && cacheFileName.isFile()) {
             

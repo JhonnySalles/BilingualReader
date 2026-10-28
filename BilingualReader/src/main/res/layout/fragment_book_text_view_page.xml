@@ -29,7 +29,6 @@
             android:clickable="true"
             android:background="@color/transparent"
             android:textIsSelectable="true"
-            android:autoLink="all"
             android:linksClickable="true"
             android:gravity="start|top"
             android:layout_width="match_parent"

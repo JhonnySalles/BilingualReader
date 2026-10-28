@@ -85,15 +85,17 @@ public class MuPdfPage extends AbstractCodecPage {
     @Override
     public Bitmap renderThumbnail(final int width, final int originW, final int originH) {
         final RectF rectF = new RectF(0, 0, 1f, 1f);
-        final float k = (float) originH / originW;
-        
-        final BitmapRef renderBitmap = renderBitmap(width, (int) (width * k), rectF);
-        return renderBitmap.getBitmap();
+        final float k = originW > 0 ? (float) originH / originW : 1.4f;
+        final int targetH = Math.max(1, (int) (width * k));
+        final BitmapRef renderBitmap = renderBitmap(width, targetH, rectF);
+        return renderBitmap != null ? renderBitmap.getBitmap() : null;
     }
 
     private float[] calculateFz(final int width, final int height, final RectF pageSliceBounds) {
         final Matrix matrix = MatrixUtils.get();
-        matrix.postScale(width / pageBounds.width(), height / pageBounds.height());
+        final float pbW = pageBounds != null && pageBounds.width() > 0 ? pageBounds.width() : width;
+        final float pbH = pageBounds != null && pageBounds.height() > 0 ? pageBounds.height() : height;
+        matrix.postScale(width / pbW, height / pbH);
         matrix.postTranslate(-pageSliceBounds.left * width, -pageSliceBounds.top * height);
         matrix.postScale(1 / pageSliceBounds.width(), 1 / pageSliceBounds.height());
 
@@ -232,25 +234,16 @@ public class MuPdfPage extends AbstractCodecPage {
 
     @Override
     public int getCharCount() {
-        try {
-            TempHolder.lock.lock();
-            return getCharCount(docHandle, pageHandle);
-        } finally {
-            TempHolder.lock.unlock();
-        }
+        return 0;
     }
 
     private static native void getBounds(long dochandle, long handle, float[] bounds);
-
-    private static native int getCharCount(long dochandle, long handle);
 
     private static native void free(long dochandle, long handle);
 
     private static native long open(long dochandle, int pageno);
 
     private static native void renderPage(long dochandle, long pagehandle, int[] viewboxarray, float[] matrixarray, int[] bufferarray, int r, int g, int b);
-
-    private static native boolean renderPageBitmap(long dochandle, long pagehandle, int[] viewboxarray, float[] matrixarray, Bitmap bitmap);
 
     private native static TextChar[][][][] text(long docHandle, long pageHandle);
 

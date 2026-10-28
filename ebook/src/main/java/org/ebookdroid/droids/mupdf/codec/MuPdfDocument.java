@@ -13,10 +13,13 @@ import java.util.List;
 import java.util.Map;
 
 import br.com.ebook.foobnix.android.utils.Dips;
+import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
+
+import java.io.File;
 
 public class MuPdfDocument extends AbstractCodecDocument {
 
@@ -211,10 +214,30 @@ public class MuPdfDocument extends AbstractCodecDocument {
             long maxAlloc = Runtime.getRuntime().maxMemory() / 4;
             int allocatedMemory = (int) Math.min((long) AppState.get().allocatedMemorySize * 1024 * 1024, Math.max(16 * 1024 * 1024, maxAlloc));
 
-            final long open = open(allocatedMemory, format, fname, pwd, css, BookCSS.get().documentStyle == BookCSS.STYLES_ONLY_USER ? 0 : 1);
+            int useDocStyle = BookCSS.get().documentStyle == BookCSS.STYLES_ONLY_USER ? 0 : 1;
+            float imageScale = 1.0f;
+            int antiAlias = 0;
+            String accel = "";
+            try {
+                File accelDir = CacheZipUtils.CACHE_BOOK_DIR;
+                if (accelDir == null || (!accelDir.exists() && !accelDir.mkdirs())) {
+                    File parent = new File(fname).getParentFile();
+                    accelDir = (parent != null && parent.canWrite()) ? parent : new File("/data/local/tmp");
+                }
+                if (accelDir.exists() || accelDir.mkdirs()) {
+                    File accelFile = new File(accelDir, Math.abs(fname.hashCode()) + ".accel");
+                    accel = accelFile.getAbsolutePath();
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Could not determine accel path for {}: {}", fname, e.getMessage());
+            }
 
-            if (open == 0)
-                throw new RuntimeException("Document is corrupted");
+            int isImageScale = 0;
+
+            final long open = open(allocatedMemory, format, fname, pwd != null ? pwd : "", css != null ? css : "", useDocStyle, imageScale, antiAlias, accel, isImageScale);
+
+            if (open <= 0)
+                throw new RuntimeException("Document is corrupted or could not be opened: " + fname);
 
             // final int pages = getPageCountWithException(open);
             return open;
@@ -223,26 +246,21 @@ public class MuPdfDocument extends AbstractCodecDocument {
         }
     }
 
-    private static native long open(int storememory, int format, String fname, String pwd, String css, int useDocStyle);
+    private static native long open(int storememory, int format, String fname, String pwd, String css, int useDocStyle,
+                                    float scale, int antialias, String accel, int isImageScale);
 
     private static native void free(long handle);
 
     private synchronized int getPageCountWithException(final long handle) {
         if (handle == 0 || isRecycled()) return 0;
         final int count = getPageCountSafe(handle, Dips.screenWidth(), Dips.screenHeight(), Dips.spToPx(AppState.get().fontSizeSp));
-        if (count == 0)
-            throw new RuntimeException("Document is corrupted");
-
-        return count;
+        return Math.max(1, count);
     }
 
     private synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
         if (handle == 0 || isRecycled()) return 0;
         final int count = getPageCountSafe(handle, w, h, Dips.spToPx(size));
-        if (count == 0)
-            throw new RuntimeException("Document is corrupted");
-
-        return count;
+        return Math.max(1, count);
     }
 
     private static long cacheHandle;

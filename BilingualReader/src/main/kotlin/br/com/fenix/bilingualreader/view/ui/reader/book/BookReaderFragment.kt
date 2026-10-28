@@ -274,7 +274,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             if (file != null && file.exists()) {
                 if (mBook == null)
-                    mBook = mStorage.findBookByName(file.name)
+                    mBook = mStorage.findBookByName(file.name) ?: Book(mLibrary.id, null, file)
 
                 mViewModel.loadConfiguration(mBook)
 
@@ -1760,7 +1760,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         } else {
             val chapter = mParse!!.getChapter(current) ?: Pair(0, "")
 
-            val html = mParse!!.getPage(current).pageHTMLWithImages.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+            val rawHtml = mParse!!.getPage(current).pageHTMLWithImages
+            val html = if (rawHtml.contains("<image-begin>data:"))
+                rawHtml.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
+            else
+                rawHtml.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
             val separator = if (html.contains("<end-line>")) "<end-line>" else "<br>"
             val texts = html.split(separator).map { it.replace("<[^>]*>".toRegex(), "") }
@@ -1785,14 +1789,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun generateHistory(book: Book) {
+        val libId = book.fkLibrary ?: return
+        val bookId = book.id ?: return
         if (mViewModel.history != null) {
-            if (mViewModel.history!!.fkLibrary != book.fkLibrary || mViewModel.history!!.fkReference != book.id) {
+            if (mViewModel.history!!.fkLibrary != libId || mViewModel.history!!.fkReference != bookId) {
                 mViewModel.history!!.setEnd(LocalDateTime.now())
                 mHistoryRepository.save(mViewModel.history!!)
-                mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, book.volume)
+                mViewModel.history = History(libId, bookId, Type.BOOK, book.bookMark, book.pages, book.volume)
             }
         } else
-            mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, book.volume)
+            mViewModel.history = History(libId, bookId, Type.BOOK, book.bookMark, book.pages, book.volume)
     }
 
     private fun generatePageAverage(isOnlyCalculate: Boolean = false) {

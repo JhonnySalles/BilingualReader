@@ -35,9 +35,24 @@ public class MuPdfOutline {
         return ls;
     }
 
+    private String getTitleString(long dochandle, long outline) {
+        try {
+            byte[] titleArray = getTitleArray(dochandle, outline);
+            if (titleArray != null && titleArray.length > 0) {
+                return new String(titleArray, java.nio.charset.StandardCharsets.UTF_8);
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            return getTitle(dochandle, outline);
+        } catch (Throwable ignored) {
+            return "";
+        }
+    }
+
     private void ttOutline(final List<OutlineLink> ls, long outline, final int level) {
         while (outline != -1 && outline != 0) {
-            final String title = getTitle(outline);
+            final String title = getTitleString(docHandle, outline);
             final String link = getLink(outline, docHandle);
             if (title != null) {
                 final OutlineLink outlineLink = new OutlineLink(title, link, level);
@@ -72,7 +87,9 @@ public class MuPdfOutline {
         }
     }
 
-    private static native String getTitle(long outlinehandle);
+    private static native String getTitle(long dochandle, long outlinehandle);
+
+    private static native byte[] getTitleArray(long dochandle, long outlinehandle);
 
     private static native String getLink(long outlinehandle, long dochandle);
 

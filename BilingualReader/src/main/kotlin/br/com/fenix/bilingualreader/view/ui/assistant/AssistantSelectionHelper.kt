@@ -110,7 +110,7 @@ object AssistantSelectionHelper {
         var dialogInstance: androidx.appcompat.app.AlertDialog? = null
 
         if (type == Type.MANGA) {
-            val rangeButton = com.google.android.material.button.MaterialButton(context, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+            val rangeButton = com.google.android.material.button.MaterialButton(context, null, androidx.appcompat.R.attr.borderlessButtonStyle).apply {
                 text = context.getString(R.string.llm_assistant_page_range)
                 setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f)
                 setOnClickListener {

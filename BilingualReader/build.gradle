@@ -62,6 +62,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
+        freeCompilerArgs += ["-Xskip-metadata-version-check"]
     }
     buildFeatures {
         viewBinding true
@@ -72,6 +73,9 @@ android {
         noCompress 'task'
     }
     packaging {
+        jniLibs {
+            useLegacyPackaging true
+        }
         resources {
             excludes += [
                 'META-INF/CONTRIBUTORS.md',
@@ -139,6 +143,14 @@ configurations {
         if (name.contains("Test") || name.contains("androidTest")) {
             exclude group: 'com.github.tony19', module: 'logback-android'
         }
+        resolutionStrategy {
+            force 'androidx.core:core:1.13.1'
+            force 'androidx.core:core-ktx:1.13.1'
+            force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10'
+        }
     }
 }
 
@@ -200,7 +212,6 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.22'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'jp.co.cyberagent.android:gpuimage:2.1.0'
 
     implementation group: 'com.atilika.kuromoji', name: 'kuromoji-ipadic', version: '0.9.0'
     implementation 'com.worksap.nlp:sudachi:0.7.0'  //Only > Android O
@@ -217,10 +228,10 @@ dependencies {
     implementation 'org.lucasr.twowayview:twowayview:0.1.4'
 
     // OCR / Translate / Language ID
-    implementation 'cz.adaptech:tesseract4android:4.1.1'
+    implementation 'cz.adaptech.tesseract4android:tesseract4android:4.8.0'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.0'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition-japanese:16.0.0'
-    implementation 'com.google.mlkit:translate:17.0.1'
+    implementation 'com.google.mlkit:translate:17.0.3'
     implementation 'com.google.mlkit:language-id:17.0.6'
 
     // On-device LLM (MediaPipe) — 0.10.27 required for Gemma-3 1B .task
@@ -276,13 +287,13 @@ dependencies {
     implementation 'io.coil-kt:coil:2.6.0'
     implementation 'io.coil-kt:coil-gif:2.6.0'
     implementation 'io.coil-kt:coil-svg:2.6.0'
-    implementation 'com.github.awxkee:jxl-coder:1.8.0'
-    implementation 'com.github.awxkee:avif-coder:1.8.0'
-    implementation 'io.github.beyka:Android-TiffBitmapFactory:0.9.9.1'
+    implementation 'io.github.awxkee:jxl-coder:2.6.1'
+    implementation 'io.github.awxkee:avif-coder:2.2.0'
+    implementation 'dev.jaeyoung:fileloom-tiff-bitmap-factory:0.1.0'
     implementation 'dev.keiji.jp2:jp2-android:1.0.5'
 
     // SENTRY
-    implementation 'io.sentry:sentry-android:7.14.0'
+    implementation 'io.sentry:sentry-android:8.0.0'
 
     // ** Filament 3D **
     implementation 'com.google.android.filament:filament-android:1.72.0'

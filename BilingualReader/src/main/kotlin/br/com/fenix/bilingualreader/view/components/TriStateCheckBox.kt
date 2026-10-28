@@ -8,7 +8,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 
 class TriStateCheckBox : MaterialCheckBox {
     constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, com.google.android.material.R.attr.checkboxStyle)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, androidx.appcompat.R.attr.checkboxStyle)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         val sets = intArrayOf(R.attr.state)
 

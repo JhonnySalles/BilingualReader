@@ -553,15 +553,16 @@ public class BookCSS {
         builder.append("text-author{font-style:italic;font-weight:bold;}");
         builder.append("image{text-align:center;text-indent:0px;display:block;}");
         builder.append("subtitle{text-align:center !important;text-indent:0px !important;}");
-        builder.append("title{text-align:center !important;text-indent:0px !important;}");
+        builder.append("body title,section>title{text-align:center !important;text-indent:0px !important;}");
+        builder.append("head,head title,head meta,head link,head style,head script{display:none !important;}");
 
         if (compat) {
             // Avoid child/sibling selectors that older MuPDF CSS parsers reject.
-            builder.append("title p{text-align:center !important;text-indent:0px !important;}");
+            builder.append("body title p{text-align:center !important;text-indent:0px !important;}");
         } else {
             builder.append("section>title{page-break-before:avoid;}");
             builder.append("section>title>p{text-align:center !important;text-indent:0px !important;}");
-            builder.append("title>p{text-align:center !important;text-indent:0px !important;}");
+            builder.append("body title>p{text-align:center !important;text-indent:0px !important;}");
             builder.append("section+section>title{page-break-before:always;}");
             builder.append("p>image{display:block;}");
         }
@@ -588,10 +589,10 @@ public class BookCSS {
             builder.append("h5{font-size:0.80em;text-align:center;font-weight:normal;font-family:myHeader;}");
             builder.append("h6{font-size:0.60em;text-align:center;font-weight:normal;font-family:myHeader;}");
             if (compat) {
-                builder.append("title{font-size:1.2em;font-weight:normal;font-family:myHeader;}");
+                builder.append("body title,section>title{font-size:1.2em;font-weight:normal;font-family:myHeader;}");
                 builder.append("subtitle{font-size:1.0em;font-weight:normal;font-family:myHeader;}");
             } else {
-                builder.append("title,title>p,title>p>strong{font-size:1.2em;font-weight:normal;font-family:myHeader;}");
+                builder.append("body title,section>title,section>title>p,section>title>p>strong{font-size:1.2em;font-weight:normal;font-family:myHeader;}");
                 builder.append("subtitle{font-size:1.0em;font-weight:normal;font-family:myHeader;}");
             }
         } else {
@@ -602,7 +603,7 @@ public class BookCSS {
             builder.append("h4{font-size:1.00em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
             builder.append("h5{font-size:0.80em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
             builder.append("h6{font-size:0.60em;text-align:center;font-weight:bold;font-family:").append(headerFamily).append(";}");
-            builder.append("title{font-size:1.2em;font-weight:bold;font-family:").append(headerFamily).append(";}");
+            builder.append("body title,section>title{font-size:1.2em;font-weight:bold;font-family:").append(headerFamily).append(";}");
             builder.append("subtitle{font-size:1.0em;font-weight:bold;font-family:").append(headerFamily).append(";}");
         }
 

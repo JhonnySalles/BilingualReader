@@ -18,6 +18,8 @@ import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
 import org.slf4j.LoggerFactory
 import org.xmlpull.v1.XmlPullParser
+import android.graphics.BitmapFactory
+import br.com.ebook.foobnix.android.utils.Dips
 import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -50,6 +52,26 @@ object EpubBookExtractor : BookExtractor {
         return resolvedParts.joinToString("/")
     }
 
+    private fun normalizeTitle(s: String): String = s.replace("[-_—–:,.]".toRegex(), " ")
+        .replace("\\s+".toRegex(), " ")
+        .trim()
+        .lowercase(Locale.getDefault())
+
+    private fun isMatchingBookTitle(candidate: String, opfTitles: Set<String>): Boolean {
+        val normCandidate = normalizeTitle(candidate)
+        if (normCandidate.isEmpty()) return true
+        if (normCandidate.equals("cover", ignoreCase = true) || normCandidate.equals("capa", ignoreCase = true)) return true
+        for (opf in opfTitles) {
+            val normOpf = normalizeTitle(opf)
+            if (normOpf.isNotEmpty()) {
+                if (normCandidate == normOpf || normCandidate.contains(normOpf) || normOpf.contains(normCandidate)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     fun preprocessEpub(inputPath: String, outputPath: String) {
         try {
             LOGGER.info("preprocessEpub: {} || {}", inputPath, outputPath)
@@ -60,6 +82,7 @@ object EpubBookExtractor : BookExtractor {
             var coverPageEntryName = ""
             var injectCoverPageEntryName = ""
             var injectCoverPageContent = ""
+            val opfTitles = mutableSetOf<String>()
             
             ZipFile(file, StandardCharsets.UTF_8).use { zipFile ->
                 val containerEntry = zipFile.getEntry("META-INF/container.xml")
@@ -78,6 +101,18 @@ object EpubBookExtractor : BookExtractor {
                     if (opfEntry != null) {
                         zipFile.getInputStream(opfEntry).use { inputStream ->
                             val opfDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                            
+                            val dcTitles = opfDoc.select("dc|title, title")
+                            for (t in dcTitles) {
+                                val txt = t.text().trim()
+                                if (txt.isNotEmpty()) {
+                                    opfTitles.add(txt)
+                                }
+                            }
+                            val fileNameWithoutExt = file.nameWithoutExtension.trim()
+                            if (fileNameWithoutExt.isNotEmpty()) {
+                                opfTitles.add(fileNameWithoutExt)
+                            }
                             
                             val ncxItem = opfDoc.select("item[media-type=application/x-dtbncx+xml]").firstOrNull()
                             if (ncxItem != null) {
@@ -168,6 +203,29 @@ object EpubBookExtractor : BookExtractor {
                         Fb2BookExtractor.writeToZipNoClose(zos, injectCoverPageEntryName, ByteArrayInputStream(injectCoverPageContent.toByteArray(StandardCharsets.UTF_8)))
                     }
 
+                    val screenW = try { Dips.screenWidth() } catch (e: Throwable) { 1080 }
+                    val screenH = try { Dips.screenHeight() } catch (e: Throwable) { 1920 }
+                    val thresholdW = maxOf(100, screenW / 3)
+                    val thresholdH = maxOf(100, screenH / 3)
+                    val imageDimensionCache = mutableMapOf<String, Pair<Int, Int>?>()
+
+                    fun getImageDimensions(entryPath: String): Pair<Int, Int>? {
+                        return imageDimensionCache.getOrPut(entryPath) {
+                            val entry = zipFile.getEntry(entryPath) ?: return@getOrPut null
+                            try {
+                                zipFile.getInputStream(entry).use { stream ->
+                                    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                                    BitmapFactory.decodeStream(stream, null, options)
+                                    if (options.outWidth > 0 && options.outHeight > 0) {
+                                        Pair(options.outWidth, options.outHeight)
+                                    } else null
+                                }
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                    }
+
                     val entries = zipFile.entries()
                     while (entries.hasMoreElements()) {
                         if (TempHolder.get().loadingCancelled) break
@@ -183,6 +241,7 @@ object EpubBookExtractor : BookExtractor {
                         } else if (name == coverPageEntryName) {
                             val coverHtml: String = zipFile.getInputStream(entry).use { inputStream ->
                                 val coverDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                                coverDoc.head()?.select("title")?.remove()
                                 val svg = coverDoc.select("svg").firstOrNull()
                                 if (svg != null) {
                                     val image = svg.select("image").firstOrNull()
@@ -221,8 +280,56 @@ object EpubBookExtractor : BookExtractor {
                                 var htmlContent = String(inputStream.readBytes(), StandardCharsets.UTF_8)
                                 try {
                                     val doc = Jsoup.parse(htmlContent, "", Parser.xmlParser())
-                                    val styles = doc.select("style")
                                     var modified = false
+
+                                    val head = doc.head()
+                                    if (head != null) {
+                                        val headTitles = head.select("title")
+                                        for (headTitle in headTitles) {
+                                            val titleText = headTitle.text().trim()
+                                            if (isMatchingBookTitle(titleText, opfTitles)) {
+                                                LOGGER.info("Removing redundant head title '{}' from {}", titleText, name)
+                                                headTitle.remove()
+                                                modified = true
+                                            }
+                                        }
+                                    }
+
+                                    val imgElements = doc.select("img, image")
+                                    for (img in imgElements) {
+                                        val src = if (img.tagName().equals("image", ignoreCase = true)) {
+                                            if (img.hasAttr("xlink:href")) img.attr("xlink:href") else img.attr("href")
+                                        } else {
+                                            img.attr("src")
+                                        }
+                                        if (src.isEmpty()) continue
+
+                                        val resolvedImgPath = resolvePath(name, src)
+                                        val dims = getImageDimensions(resolvedImgPath)
+                                        val isFullPageClass = img.classNames().any { it.contains("cover", ignoreCase = true) || it.contains("full", ignoreCase = true) }
+                                        val parent = img.parent()
+                                        val isParentFullPage = parent?.classNames()?.any { it.contains("cover", ignoreCase = true) || it.contains("full", ignoreCase = true) } == true
+
+                                        val isLargeImage = (dims != null && (dims.first > thresholdW || dims.second > thresholdH)) || isFullPageClass || isParentFullPage
+
+                                        if (isLargeImage) {
+                                            val currentStyle = img.attr("style")
+                                            val breakCss = "page-break-before: always !important; page-break-after: always !important;"
+                                            if (!currentStyle.contains("page-break-before")) {
+                                                img.attr("style", if (currentStyle.isNotEmpty()) "$currentStyle; $breakCss" else breakCss)
+                                                modified = true
+                                            }
+                                            if (parent != null && parent.tagName() in listOf("div", "p", "section") && parent.text().trim().isEmpty()) {
+                                                val pStyle = parent.attr("style")
+                                                if (!pStyle.contains("page-break-before")) {
+                                                    parent.attr("style", if (pStyle.isNotEmpty()) "$pStyle; $breakCss" else breakCss)
+                                                    modified = true
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    val styles = doc.select("style")
                                     for ((index, style) in styles.withIndex()) {
                                         val rawCss = style.html()
                                         if (!isValidCss(rawCss)) {

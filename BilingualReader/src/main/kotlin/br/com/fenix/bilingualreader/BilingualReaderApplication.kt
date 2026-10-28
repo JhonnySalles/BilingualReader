@@ -25,6 +25,8 @@ class BilingualReaderApplication : Application(), ImageLoaderFactory {
                 event
             }
         }
+
+        br.com.fenix.bilingualreader.service.parses.book.DocumentParse.init(this)
     }
 
     override fun newImageLoader(): ImageLoader {

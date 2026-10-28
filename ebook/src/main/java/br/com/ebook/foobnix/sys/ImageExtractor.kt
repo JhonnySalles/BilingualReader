@@ -21,6 +21,7 @@ import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper
 import br.com.ebook.universalimageloader.core.download.BaseImageDownloader
 import br.com.ebook.universalimageloader.core.download.ImageDownloader
 import br.com.ebook.util.BitmapUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.ebookdroid.BookType
 import org.ebookdroid.common.bitmaps.BitmapRef
@@ -170,7 +171,7 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
             pageUrl.height = (pageUrl.width * 1.5).toInt()
         }
 
-        val ebookMeta = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
+        val ebookMeta = runBlocking(Dispatchers.IO) {
             BookExtractorFactory.getMetadata(path)
         }
 
@@ -181,7 +182,7 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
             cover = BitmapUtils.arrayToBitmap(ebookMeta.coverImage, pageUrl.width)
         } else {
             // Usamos a nova BookExtractorFactory em Kotlin
-            val coverResult = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
+            val coverResult = runBlocking(Dispatchers.IO) {
                 BookExtractorFactory.getExtractor(unZipPath)?.extractCover(unZipPath)
             }
 

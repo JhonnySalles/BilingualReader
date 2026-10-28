@@ -548,9 +548,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener: View.OnTouchListener? = null, javascript: WebInterface? = null) {
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
-        if (text.contains("<image-begin>image"))
-            text = text.replace("<image-begin>", "<img src=\"data:")
-                .replace("<image-end>", "\" />")
+        if (text.contains("<image-begin>")) {
+            text = if (text.contains("<image-begin>data:"))
+                text.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
+            else
+                text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+        }
 
         text = TextUtil.formatHtml(text)
 
@@ -594,8 +597,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val documentPage = parse?.getPage(page)
         var text = documentPage?.pageHTMLWithImages.orEmpty()
 
-        if (text.contains("<image-begin>image"))
-            text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+        if (text.contains("<image-begin>")) {
+            text = if (text.contains("<image-begin>data:"))
+                text.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
+            else
+                text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+        }
 
         val content = TextUtil.formatHtml(text).trim()
         holder.isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
@@ -610,10 +617,26 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                         ImageUtil.decodeImageBase64(img)
                     }
                 }
-                if (bitmaps.isEmpty() && parse != null) {
-                    val nativeBitmap = ImageParse(context).getPage(parse.path, page)
+                if (bitmaps.isEmpty()) {
+                    val displayMetrics = context.resources.displayMetrics
+                    val width = minOf(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                    val nativeBitmap = try {
+                        documentPage?.renderThumbnail(width)
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error to render page thumbnail natively: ${e.message}", e)
+                        null
+                    }
                     if (nativeBitmap != null) {
                         bitmaps = listOf(nativeBitmap)
+                    } else if (parse != null) {
+                        val fallbackBitmap = try {
+                            ImageParse(context).getPage(parse.path, page)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (fallbackBitmap != null) {
+                            bitmaps = listOf(fallbackBitmap)
+                        }
                     }
                 }
                 if (bitmaps.isNotEmpty()) {
@@ -785,8 +808,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             val documentPage = parse.getPage(page)
             var text = documentPage.pageHTMLWithImages.orEmpty()
 
-            if (text.contains("<image-begin>image"))
-                text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+            if (text.contains("<image-begin>")) {
+                text = if (text.contains("<image-begin>data:"))
+                    text.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
+                else
+                    text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+            }
 
             val content = TextUtil.formatHtml(text).trim()
             val isOnlyImage = TextUtil.isOnlyImageOnHtml(content)

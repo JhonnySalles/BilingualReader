@@ -19,8 +19,14 @@ class ImageGetter(val context: Context, val textView: TextView, val maxWidth: In
     override fun getDrawable(text: String): Drawable {
         var drawable =  BitmapDrawable(context.resources, "")
         try {
-            val image = TextUtil.getImageFromTag(text)
-            val base64 = image.substringAfter(",").trim()
+            val image = if (text.contains("<img")) TextUtil.getImageFromTag(text) else text
+            val base64 = when {
+                image.contains(";base64,") -> image.substringAfter(";base64,").trim()
+                image.contains(",") -> image.substringAfter(",").trim()
+                image.length > 100 -> image.trim()
+                else -> null
+            }
+            if (base64 == null) return drawable
             val screenWidth = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 context.resources.displayMetrics.heightPixels
             else
