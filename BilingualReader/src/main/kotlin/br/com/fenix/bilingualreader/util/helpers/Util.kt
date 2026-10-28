@@ -1738,8 +1738,54 @@ class TextUtil {
             return arrayOf(firstPart, secondPart)
         }
 
+        private val REGEX_STYLE_COORDS = "(?i)\\s*style=\"[^\"]*?(?:top|left|position\\s*:\\s*absolute)[^\"]*\"".toRegex()
+        private val REGEX_HR = "(?i)<hr\\s*/?>".toRegex()
+        private val REGEX_BR = "(?i)<br\\s*/?>".toRegex()
+        private val REGEX_CLOSING_HEADERS = "(?i)</h[1-6]>".toRegex()
+        private val REGEX_OPENING_HEADERS = "(?i)<h[1-6][^>]*>".toRegex()
+        private val REGEX_OPENING_P = "(?i)<p[^>]*>".toRegex()
+
         fun formatHtml(html: String, endLine: String = "<br/>"): String {
-            return replaceEndLine(html.replace("<p>", "").replace("</p>", ""), endLine)
+            if (html.isEmpty()) return ""
+
+            var page = html
+
+            // Normaliza tags legadas de imagem caso ainda presentes
+            if (page.contains("<image-begin>")) {
+                page = if (page.contains("<image-begin>data:"))
+                    page.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
+                else
+                    page.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+            }
+
+            // Remove tags proprietárias de ruído do MuPDF/Foobnix
+            page = page.replace("<pause>", "").replace("</pause>", "")
+
+            // Trata tags legadas <end-line> se presentes (retrocompatibilidade)
+            if (page.contains("<end-line>")) {
+                page = replaceEndLine(page, endLine)
+            }
+
+            // Converte divisores <hr> em marcador visual de cena (* * *) com quebra de parágrafo
+            page = page.replace(REGEX_HR, "<p align=\"center\" style=\"text-align: center;\">* * *</p>")
+
+            // Limpa coordenadas absolutas do MuPDF (ex: top:12.3pt; left:45.6pt) que quebram reflow fluido
+            page = page.replace(REGEX_STYLE_COORDS, "")
+
+            // Se o chamador especificou um delimitador customizado (ex: "||" para busca ou TTS),
+            // substitui os pontos de término de parágrafo e quebras por esse delimitador
+            if (endLine != "<br/>") {
+                page = page.replace("</p>", endLine)
+                page = page.replace(REGEX_BR, endLine)
+                page = page.replace(REGEX_CLOSING_HEADERS, endLine)
+                page = page.replace(REGEX_OPENING_P, "")
+                page = page.replace(REGEX_OPENING_HEADERS, "")
+                return page
+            }
+
+            // Para exibição no leitor: PRESERVA parágrafos (<p>...</p>), quebras (<br/>),
+            // títulos (<h1> a <h6>), formatações (<b>, <i>, <u>, etc.) e imagens intactas.
+            return page
         }
 
         fun replaceEndLine(html: String, character: String = ""): String {
@@ -1759,9 +1805,10 @@ class TextUtil {
 
         fun replaceHtmlTTS(html: String?, endLineSeparator: String = " "): String {
             var page = html ?: return ""
-            page = page.replace("</?[b|i]>|</?tt>|<p>".toRegex(), "")
+            page = page.replace("(?i)</?[b|i]>|</?tt>|<p>|<h[1-6]>".toRegex(), "")
             page = page.replace("</p>", " ")
-            page = page.replace("<br/>".toRegex(), endLineSeparator)
+            page = page.replace("(?i)</h[1-6]>".toRegex(), " ")
+            page = page.replace(REGEX_BR, endLineSeparator)
             page = page.replace("&nbsp;", " ").replace("&lt;", " ").replace("&gt;", "")
                 .replace("&amp;", " ").replace("&quot;", " ")
             page = page.replace("['|*]".toRegex(), "")

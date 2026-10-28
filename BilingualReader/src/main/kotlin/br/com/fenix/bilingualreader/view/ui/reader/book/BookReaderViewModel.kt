@@ -187,6 +187,15 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  max-height: 100%;" +
                 "}"
 
+        val typography = " p { margin-top: 0; margin-bottom: 0.8em; } " +
+                "h1 { font-size: 1.50em; text-align: center; font-weight: bold; margin-top: 1.2em; margin-bottom: 0.6em; } " +
+                "h2 { font-size: 1.30em; text-align: center; font-weight: bold; margin-top: 1.0em; margin-bottom: 0.5em; } " +
+                "h3 { font-size: 1.15em; font-weight: bold; margin-top: 0.8em; margin-bottom: 0.4em; } " +
+                "h4 { font-size: 1.00em; font-weight: bold; } " +
+                "h5 { font-size: 0.85em; font-weight: bold; } " +
+                "h6 { font-size: 0.75em; font-weight: bold; } " +
+                "hr { border: none; border-top: 1px solid $fontColor; opacity: 0.3; margin: 1.2em 0; } "
+
         val meta = "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
@@ -200,6 +209,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 // (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") + // Not working
                 "} " +
                 img +
+                typography +
                 Formatter.getCss() +
                 "</style>"
         mFontCss.value = style
@@ -704,7 +714,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             var isSpan = false
 
             for (mark in marks) {
-                if (mark.color == br.com.fenix.bilingualreader.model.enums.Color.None || mark.range[1] > span.length || mark.range[0] > span.length)
+                val start = mark.range.getOrNull(0) ?: 0
+                val end = mark.range.getOrNull(1) ?: 0
+                if (mark.color == br.com.fenix.bilingualreader.model.enums.Color.None ||
+                    start < 0 || end <= start || start >= span.length || end > span.length)
                     continue
 
                 isSpan = true
@@ -728,13 +741,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 listener?.textSelectChangeMark(annotation)
         }
 
-        val spannable = span.getSpans(annotation.range[0], annotation.range[1], ClickableSpan::class.java)
+        val start = annotation.range.getOrNull(0)?.coerceIn(0, span.length) ?: 0
+        val end = annotation.range.getOrNull(1)?.coerceIn(start, span.length) ?: start
+        if (start >= end) return
+
+        val spannable = span.getSpans(start, end, ClickableSpan::class.java)
         if (spannable != null && spannable.isNotEmpty()) {
             for (i in spannable.indices)
                 span.removeSpan(spannable[i])
         }
 
-        span.setSpan(click, annotation.range[0], annotation.range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        span.setSpan(click, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
 
@@ -831,9 +848,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 val marks = mAnnotation.filter { it.page == page }
                 if (marks.isNotEmpty()) {
                     for (mark in marks) {
-                        if (mark.color == br.com.fenix.bilingualreader.model.enums.Color.None || mark.range[1] > processed.length || mark.range[0] > processed.length)
+                        val start = mark.range.getOrNull(0) ?: 0
+                        val end = mark.range.getOrNull(1) ?: 0
+                        if (mark.color == br.com.fenix.bilingualreader.model.enums.Color.None ||
+                            start < 0 || end <= start || start >= processed.length || end > processed.length)
                             continue
-                        processed.setSpan(ForegroundColorSpan(context.getColor(mark.color.getColor())), mark.range[0], mark.range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        processed.setSpan(ForegroundColorSpan(context.getColor(mark.color.getColor())), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
                 textView.text = processed
