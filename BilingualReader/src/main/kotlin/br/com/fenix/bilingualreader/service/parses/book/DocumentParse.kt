@@ -152,6 +152,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
             when (ext) {
                 "epub", "kepub" -> br.com.ebook.extractor.EpubBookExtractor.extractTocOutline(filePath)
                 "fb2" -> br.com.ebook.extractor.Fb2BookExtractor.extractOutline(filePath)
+                "docx" -> br.com.ebook.extractor.DocxBookExtractor.extractOutline(filePath)
                 "zip" -> {
                     val pair = br.com.ebook.foobnix.ext.CacheZipUtils.isSingleAndSupportEntryFile(file)
                     val entryName = pair.second?.lowercase(java.util.Locale.getDefault()) ?: ""
@@ -161,6 +162,13 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                         val unzipped = br.com.ebook.foobnix.ext.CacheZipUtils.extracIfNeed(filePath, br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir.ZipApp)
                         if (unzipped.unZipPath != null) {
                             br.com.ebook.extractor.Fb2BookExtractor.extractOutline(unzipped.unZipPath!!)
+                        } else {
+                            emptyList()
+                        }
+                    } else if (entryName.endsWith(".docx")) {
+                        val unzipped = br.com.ebook.foobnix.ext.CacheZipUtils.extracIfNeed(filePath, br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir.ZipApp)
+                        if (unzipped.unZipPath != null) {
+                            br.com.ebook.extractor.DocxBookExtractor.extractOutline(unzipped.unZipPath!!)
                         } else {
                             emptyList()
                         }
@@ -176,6 +184,54 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         }
     }
 
+    private fun resolveLinkPage(link: String?): Int {
+        if (link == null) return -1
+        var pageNum = OutlineLinkWrapper.getPageNumber(link)
+        if (pageNum <= 0 && mCodecDocument is org.ebookdroid.droids.mupdf.codec.MuPdfDocument) {
+            try {
+                val docHandle = (mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument).documentHandle
+                var targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link)
+                if (targetPage < 0 && link.startsWith("OEBPS/")) {
+                    targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.substring(6))
+                }
+                if (targetPage < 0 && !link.startsWith("OEBPS/")) {
+                    targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + link)
+                }
+                if (targetPage < 0 && link.contains("#")) {
+                    val anchor = link.substring(link.indexOf('#'))
+                    targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, anchor)
+                    if (targetPage < 0 && link.contains(".fb2#")) {
+                        targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "fb2.fb2" + anchor)
+                    }
+                    if (targetPage < 0 && link.contains(".html#")) {
+                        targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "docx-converted.html" + anchor)
+                    }
+                }
+                if (targetPage < 0 && link.contains("#")) {
+                    val base = link.substringBefore("#")
+                    if (base.isNotEmpty()) {
+                        var basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
+                        if (basePage < 0 && base.startsWith("OEBPS/")) {
+                            basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base.substring(6))
+                        }
+                        if (basePage < 0 && !base.startsWith("OEBPS/")) {
+                            basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + base)
+                        }
+                        if (basePage >= 0) {
+                            targetPage = basePage
+                        }
+                    }
+                }
+                if (targetPage >= 0) {
+                    pageNum = targetPage + 1
+                }
+            } catch (e: Exception) {
+                mLOGGER.warn("Error resolving page for link $link: ${e.message}")
+            }
+        }
+        return pageNum
+    }
+
     fun getChapter(page: Int): Pair<Int, String>? {
         var chapter: Pair<Int, String>? = null
         var outlineList = mCodecDocument?.outline
@@ -187,23 +243,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
             var autoPage = 1
             for (link in outlineList) {
                 if (link.title.isNullOrBlank()) continue
-                var pageNum = OutlineLinkWrapper.getPageNumber(link.link)
-                if (pageNum <= 0 && link.link != null && mCodecDocument is org.ebookdroid.droids.mupdf.codec.MuPdfDocument) {
-                    try {
-                        val docHandle = (mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument).documentHandle
-                        val targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.link)
-                        if (targetPage >= 0) {
-                            pageNum = targetPage + 1
-                        } else if (link.link.contains("#")) {
-                            val base = link.link.substringBefore("#")
-                            val basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
-                            if (basePage >= 0) {
-                                pageNum = basePage + 1
-                            }
-                        }
-                    } catch (ignored: Exception) {
-                    }
-                }
+                var pageNum = resolveLinkPage(link.link)
                 if (pageNum <= 0) {
                     pageNum = autoPage
                 }
@@ -217,7 +257,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
             if (chapter == null) {
                 val firstLink = outlineList.firstOrNull { !it.title.isNullOrBlank() }
                 if (firstLink != null) {
-                    var p = OutlineLinkWrapper.getPageNumber(firstLink.link)
+                    var p = resolveLinkPage(firstLink.link)
                     if (p <= 0) p = 1
                     chapter = Pair(p, firstLink.title)
                 }
@@ -236,24 +276,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
             var autoPage = 1
             for (link in outlineList) {
                 if (link.title.isNullOrBlank()) continue
-                var pageNum = OutlineLinkWrapper.getPageNumber(link.link)
-                if (pageNum <= 0 && link.link != null && mCodecDocument is org.ebookdroid.droids.mupdf.codec.MuPdfDocument) {
-                    try {
-                        val docHandle = (mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument).documentHandle
-                        val targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.link)
-                        if (targetPage >= 0) {
-                            pageNum = targetPage + 1
-                        } else if (link.link.contains("#")) {
-                            val base = link.link.substringBefore("#")
-                            val basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
-                            if (basePage >= 0) {
-                                pageNum = basePage + 1
-                            }
-                        }
-                    } catch (e: Exception) {
-                        mLOGGER.warn("Error resolving page for link ${link.link}: ${e.message}")
-                    }
-                }
+                val pageNum = resolveLinkPage(link.link)
                 if (pageNum > 0) {
                     chapter[link.title] = pageNum
                     autoPage = pageNum + 1

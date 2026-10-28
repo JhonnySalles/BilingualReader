@@ -82,16 +82,29 @@ public class MuPdfDocument extends AbstractCodecDocument {
                             if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
                                 try {
                                     int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
-                                    if (p >= 0) {
-                                        l.setLink("#" + (p + 1));
-                                    } else if (l.getLink().contains("#")) {
+                                    if (p < 0 && l.getLink().startsWith("OEBPS/")) {
+                                        p = MuPdfLinks.getLinkPage(documentHandle, l.getLink().substring(6));
+                                    }
+                                    if (p < 0 && !l.getLink().startsWith("OEBPS/")) {
+                                        p = MuPdfLinks.getLinkPage(documentHandle, "OEBPS/" + l.getLink());
+                                    }
+                                    if (p < 0 && l.getLink().contains("#")) {
                                         String base = l.getLink().substring(0, l.getLink().indexOf('#'));
                                         if (!base.isEmpty()) {
                                             int bp = MuPdfLinks.getLinkPage(documentHandle, base);
+                                            if (bp < 0 && base.startsWith("OEBPS/")) {
+                                                bp = MuPdfLinks.getLinkPage(documentHandle, base.substring(6));
+                                            }
+                                            if (bp < 0 && !base.startsWith("OEBPS/")) {
+                                                bp = MuPdfLinks.getLinkPage(documentHandle, "OEBPS/" + base);
+                                            }
                                             if (bp >= 0) {
-                                                l.setLink("#" + (bp + 1));
+                                                p = bp;
                                             }
                                         }
+                                    }
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
                                     }
                                 } catch (Throwable ignored) {
                                 }
@@ -103,8 +116,36 @@ public class MuPdfDocument extends AbstractCodecDocument {
                 } else if (nameLow.endsWith(".fb2")) {
                     List<OutlineLink> fb2List = br.com.ebook.extractor.Fb2BookExtractor.INSTANCE.extractOutline(fname);
                     if (!fb2List.isEmpty()) {
+                        for (OutlineLink l : fb2List) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
                         fb2List.add(new OutlineLink("", "", -1));
                         return fb2List;
+                    }
+                } else if (nameLow.endsWith(".docx")) {
+                    List<OutlineLink> docxList = br.com.ebook.extractor.DocxBookExtractor.INSTANCE.extractOutline(fname);
+                    if (!docxList.isEmpty()) {
+                        for (OutlineLink l : docxList) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        docxList.add(new OutlineLink("", "", -1));
+                        return docxList;
                     }
                 }
             }

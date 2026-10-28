@@ -948,14 +948,16 @@ object EpubBookExtractor : BookExtractor {
                 }
 
                 if (list.isEmpty() && navEntry != null) {
+                    val navParent = if (navEntry.name.contains("/")) navEntry.name.substring(0, navEntry.name.lastIndexOf("/") + 1) else ""
                     zipFile.getInputStream(navEntry).use { inputStream ->
                         val doc = Jsoup.parse(inputStream, "UTF-8", "", Parser.htmlParser())
                         val links = doc.select("nav[epub|type=toc] a[href], nav#toc a[href], body a[href]")
                         for (a in links) {
-                            val text = a.text()
-                            val href = a.attr("href")
+                            val text = a.text().trim()
+                            val href = a.attr("href").trim()
                             if (text.isNotEmpty() && href.isNotEmpty()) {
-                                list.add(org.ebookdroid.core.codec.OutlineLink(text, href, 0))
+                                val resolvedHref = resolvePath(navParent, href)
+                                list.add(org.ebookdroid.core.codec.OutlineLink(text, resolvedHref, 0))
                             }
                         }
                     }

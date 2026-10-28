@@ -66,6 +66,25 @@ public class MuPdfOutline {
                             targetPage = MuPdfLinks.getLinkPage(docHandle, uri);
                         } catch (Throwable ignored) {
                         }
+                        if (targetPage < 0 && !uri.startsWith("OEBPS/")) {
+                            try {
+                                targetPage = MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + uri);
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        if (targetPage < 0 && uri.startsWith("OEBPS/")) {
+                            try {
+                                targetPage = MuPdfLinks.getLinkPage(docHandle, uri.substring(6));
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        if (targetPage < 0 && uri.contains("#")) {
+                            String anchor = uri.substring(uri.indexOf('#'));
+                            try {
+                                targetPage = MuPdfLinks.getLinkPage(docHandle, anchor);
+                            } catch (Throwable ignored) {
+                            }
+                        }
                         if (targetPage >= 0) {
                             link = "#" + (targetPage + 1);
                         } else if (uri.contains("#")) {
@@ -75,6 +94,12 @@ public class MuPdfOutline {
                                 try {
                                     basePage = MuPdfLinks.getLinkPage(docHandle, base);
                                 } catch (Throwable ignored) {
+                                }
+                                if (basePage < 0 && !base.startsWith("OEBPS/")) {
+                                    try {
+                                        basePage = MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + base);
+                                    } catch (Throwable ignored) {
+                                    }
                                 }
                                 if (basePage >= 0) {
                                     link = "#" + (basePage + 1);

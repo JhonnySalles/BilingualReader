@@ -518,6 +518,7 @@ object Fb2BookExtractor : BookExtractor {
         }
 
         var count = 0
+        var sectionCount = 0
         var isEncoding = false
         var isFindBodyEnd = false
         var titleBegin = false
@@ -555,6 +556,15 @@ object Fb2BookExtractor : BookExtractor {
                 for (i in subLine.indices) {
                     var sub = if (i == 0) subLine[i] else "</" + subLine[i]
 
+                    if (sub.contains("<section>") || sub.contains("<section ")) {
+                        sectionCount++
+                        sub = if (sub.contains("<section>")) {
+                            sub.replace("<section>", "<section><a id=\"sec_$sectionCount\"></a><a id=\"$sectionCount\"></a>")
+                        } else {
+                            sub.replaceFirst(Regex("<section\\s+([^>]+)>"), "<section $1><a id=\"sec_$sectionCount\"></a><a id=\"$sectionCount\"></a>")
+                        }
+                    }
+
                     if (EbookSettings.isAutoHypens && sub.contains("<title")) {
                         titleBegin = true
                     }
@@ -587,7 +597,18 @@ object Fb2BookExtractor : BookExtractor {
     fun generateNCX(titles: List<String>): String {
         val navs = StringBuilder()
         for (i in titles.indices) {
-            navs.append(createNavPoint(i + 1, titles[i]))
+            val t = titles[i]
+            var id = i + 1
+            var titleText = t
+            if (t.contains(DIVIDER)) {
+                val parts = t.split(DIVIDER)
+                val parsedId = parts[0].toIntOrNull()
+                if (parsedId != null && parsedId > 0) {
+                    id = parsedId
+                }
+                titleText = parts[1].replace("[title]", "").trim()
+            }
+            navs.append(createNavPoint(id, titleText))
         }
         return Fb2Templates.NCX.replace("%nav%", navs.toString())
     }
@@ -612,37 +633,41 @@ object Fb2BookExtractor : BookExtractor {
         val dividerSection = -1
         val dividerLine: String? = null
 
-        FileInputStream(fb2).use { fis ->
-            val xpp = XmlParser.buildPullParser()
-            xpp.setInput(fis, encoding)
-            var eventType = xpp.eventType
-            var isTitle = false
-            val title = StringBuilder()
+        try {
+            FileInputStream(fb2).use { fis ->
+                val xpp = XmlParser.buildPullParser()
+                xpp.setInput(fis, encoding)
+                var eventType = xpp.eventType
+                var isTitle = false
+                val title = StringBuilder()
 
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (TempHolder.get().loadingCancelled) break
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.name == "section") section++
-                    if (xpp.name == "title") isTitle = true
-                } else if (eventType == XmlPullParser.END_TAG) {
-                    if (xpp.name == "title") {
-                        isTitle = false
-                        val cleanTitle = "[${xpp.name}]${title.toString().trim()}"
-                        titles.add("$section$DIVIDER$cleanTitle")
-                        title.setLength(0)
-                        if (section == dividerSection && dividerLine != null) {
-                            titles.remove(dividerLine)
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (TempHolder.get().loadingCancelled) break
+                    if (eventType == XmlPullParser.START_TAG) {
+                        if (xpp.name == "section") section++
+                        if (xpp.name == "title") isTitle = true
+                    } else if (eventType == XmlPullParser.END_TAG) {
+                        if (xpp.name == "title") {
+                            isTitle = false
+                            val cleanTitle = "[${xpp.name}]${title.toString().trim()}"
+                            titles.add("$section$DIVIDER$cleanTitle")
+                            title.setLength(0)
+                            if (section == dividerSection && dividerLine != null) {
+                                titles.remove(dividerLine)
+                            }
+                        }
+                        if (xpp.name == "section") section--
+                        if (xpp.name == "body") break
+                    } else if (eventType == XmlPullParser.TEXT) {
+                        if (isTitle) {
+                            title.append(" ").append(xpp.text.trim())
                         }
                     }
-                    if (xpp.name == "section") section--
-                    if (xpp.name == "body") break
-                } else if (eventType == XmlPullParser.TEXT) {
-                    if (isTitle) {
-                        title.append(" ").append(xpp.text.trim())
-                    }
+                    eventType = xpp.next()
                 }
-                eventType = xpp.next()
             }
+        } catch (t: Throwable) {
+            LOGGER.warn("XmlPullParser failed in getFb2Titles: {}", t.message)
         }
 
         if (titles.isNotEmpty() && titles.last().endsWith(DIVIDER)) {
@@ -650,6 +675,95 @@ object Fb2BookExtractor : BookExtractor {
         }
         if (titles.isNotEmpty() && titles.last().endsWith(FOOTER_NOTES_SIGN)) {
             titles.removeAt(titles.size - 1)
+        }
+
+        if (titles.isEmpty()) {
+            try {
+                val doc = org.jsoup.Jsoup.parse(File(fb2), encoding, "", org.jsoup.parser.Parser.xmlParser())
+                val sections = doc.select("body > section, section")
+
+                for ((idx, sec) in sections.withIndex()) {
+                    val titleEl = sec.selectFirst("> title")
+                    if (titleEl != null) {
+                        val titleTxt = titleEl.text().trim()
+                        if (titleTxt.isNotEmpty()) {
+                            titles.add("${idx + 1}$DIVIDER[title]$titleTxt")
+                        }
+                    }
+                }
+
+                if (titles.isEmpty()) {
+                    val allSections = sections.mapIndexed { idx, sec ->
+                        val ps = sec.select("p").map { it.text().trim() }.filter { it.isNotEmpty() }
+                        Pair(idx + 1, ps)
+                    }
+
+                    var tocItems: List<String>? = null
+                    for (pair in allSections) {
+                        val ps = pair.second
+                        if (ps.isNotEmpty()) {
+                            val firstLower = ps[0].lowercase(Locale.getDefault())
+                            if (firstLower.contains("conteúdo") || firstLower.contains("conteudo") ||
+                                firstLower.contains("table of contents") || firstLower.contains("sumário") ||
+                                firstLower.contains("sumario")
+                            ) {
+                                tocItems = ps.drop(1)
+                                break
+                            }
+                        }
+                    }
+
+                    if (!tocItems.isNullOrEmpty()) {
+                        var currSearch = 0
+                        for (item in tocItems) {
+                            val normItem = item.replace(Regex("[^a-zA-Z0-9]"), "").lowercase(Locale.getDefault())
+                            var targetSec: Int? = null
+                            for (i in currSearch until allSections.size) {
+                                val sIdx = allSections[i].first
+                                val sPs = allSections[i].second
+                                val sText = sPs.take(4).joinToString(" ").replace(Regex("[^a-zA-Z0-9]"), "").lowercase(Locale.getDefault())
+                                if (normItem.isNotEmpty() && (sText.contains(normItem) || (normItem.length >= 8 && sText.contains(normItem.substring(0, 8))))) {
+                                    targetSec = sIdx
+                                    currSearch = i + 1
+                                    break
+                                }
+                            }
+                            if (targetSec == null) {
+                                for (i in 0 until currSearch) {
+                                    val sIdx = allSections[i].first
+                                    val sPs = allSections[i].second
+                                    val sText = sPs.take(4).joinToString(" ").replace(Regex("[^a-zA-Z0-9]"), "").lowercase(Locale.getDefault())
+                                    if (normItem.isNotEmpty() && (sText.contains(normItem) || (normItem.length >= 8 && sText.contains(normItem.substring(0, 8))))) {
+                                        targetSec = sIdx
+                                        break
+                                    }
+                                }
+                            }
+                            val finalSec = targetSec ?: (currSearch + 1)
+                            titles.add("$finalSec$DIVIDER$item")
+                        }
+                    } else {
+                        for (pair in allSections) {
+                            val secIdx = pair.first
+                            val ps = pair.second
+                            if (ps.isNotEmpty()) {
+                                val first = ps[0]
+                                val lower = first.lowercase(Locale.getDefault())
+                                if (lower.startsWith("capítulo") || lower.startsWith("chapter") ||
+                                    lower.startsWith("interlúdio") || lower.startsWith("interlude") ||
+                                    lower.startsWith("epílogo") || lower.startsWith("epilogue") ||
+                                    lower.startsWith("prologue") || lower.startsWith("prólogo") ||
+                                    lower.startsWith("afterword")
+                                ) {
+                                    titles.add("$secIdx$DIVIDER$first")
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                LOGGER.error("Error fallback parsing FB2 titles: {}", e.message, e)
+            }
         }
         return titles
     }
@@ -761,17 +875,19 @@ object Fb2BookExtractor : BookExtractor {
         try {
             val encoding = findHeaderEncoding(path)
             val titles = getFb2Titles(path, encoding)
+            var autoId = 1
             for (t in titles) {
                 if (t.contains(DIVIDER)) {
                     val parts = t.split(DIVIDER)
-                    val level = parts[0].toIntOrNull() ?: 0
+                    val id = parts[0].toIntOrNull() ?: autoId
                     val rawTitle = parts[1].replace("[title]", "").trim()
                     if (rawTitle.isNotEmpty()) {
-                        list.add(OutlineLink(rawTitle, "#0", level))
+                        list.add(OutlineLink(rawTitle, "fb2.fb2#$id", 0))
                     }
                 } else if (t.isNotBlank()) {
-                    list.add(OutlineLink(t.trim(), "#0", 0))
+                    list.add(OutlineLink(t.trim(), "fb2.fb2#$autoId", 0))
                 }
+                autoId++
             }
         } catch (e: Exception) {
             LOGGER.error("Error extracting FB2 outline: {}", e.message, e)
