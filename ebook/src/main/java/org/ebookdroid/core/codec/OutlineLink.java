@@ -4,7 +4,7 @@ public class OutlineLink implements CharSequence {
 
     private String title;
     private int level;
-	private final String link;
+	private String link;
 
 	public OutlineLink(final String title, final String link, final int level) {
 		this.title = title;
@@ -70,6 +70,10 @@ public class OutlineLink implements CharSequence {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
 }

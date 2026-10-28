@@ -111,8 +111,17 @@ object MobiBookExtractor : BookExtractor {
                 throw IOException("O formato PDB/MOBI não é suportado pelo LibMobi (código: $success)")
             }
             
-            val result = File(outputDir, "$hashCode$hashCode.epub")
-            if (result.exists()) {
+            val singleEpub = File(outputDir, "$hashCode.epub")
+            val doubleEpub = File(outputDir, "$hashCode$hashCode.epub")
+            val result = when {
+                doubleEpub.exists() -> doubleEpub
+                singleEpub.exists() -> {
+                    singleEpub.renameTo(doubleEpub)
+                    if (doubleEpub.exists()) doubleEpub else singleEpub
+                }
+                else -> null
+            }
+            if (result != null && result.exists()) {
                 val coverBytes = extractCover(path).getOrNull()
                 if (coverBytes != null && coverBytes.isNotEmpty()) {
                     br.com.ebook.util.EpubCoverInjector.injectCover(result.path, coverBytes)

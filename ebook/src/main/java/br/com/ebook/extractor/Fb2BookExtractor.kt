@@ -755,4 +755,27 @@ object Fb2BookExtractor : BookExtractor {
             throw RuntimeException("Falha ao converter FB2 para EPUB intermediário")
         }
     }
+
+    fun extractOutline(path: String): List<OutlineLink> {
+        val list = mutableListOf<OutlineLink>()
+        try {
+            val encoding = findHeaderEncoding(path)
+            val titles = getFb2Titles(path, encoding)
+            for (t in titles) {
+                if (t.contains(DIVIDER)) {
+                    val parts = t.split(DIVIDER)
+                    val level = parts[0].toIntOrNull() ?: 0
+                    val rawTitle = parts[1].replace("[title]", "").trim()
+                    if (rawTitle.isNotEmpty()) {
+                        list.add(OutlineLink(rawTitle, "#0", level))
+                    }
+                } else if (t.isNotBlank()) {
+                    list.add(OutlineLink(t.trim(), "#0", 0))
+                }
+            }
+        } catch (e: Exception) {
+            LOGGER.error("Error extracting FB2 outline: {}", e.message, e)
+        }
+        return list
+    }
 }

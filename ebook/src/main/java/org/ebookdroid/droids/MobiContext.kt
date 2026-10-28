@@ -42,12 +42,20 @@ class MobiContext : PdfContext() {
         val hashCodeStr = fileName.hashCode().toString()
         val htmlCache = File(CacheZipUtils.CACHE_BOOK_DIR, "$hashCodeStr$hashCodeStr.html")
 
-        if (fileName.endsWith(".pdb", ignoreCase = true) && epubCache.isFile) {
+        val isPdb = fileName.endsWith(".pdb", ignoreCase = true)
+        if (isPdb && epubCache.isFile) {
             LOGGER.info("Deleting old corrupted EPUB cache for PDB file: {}", epubCache)
             epubCache.delete()
+        } else if (!isPdb && htmlCache.isFile && !epubCache.isFile) {
+            LOGGER.info("Deleting stale HTML fallback cache for MOBI/AZW3 file to allow EPUB conversion: {}", htmlCache)
+            htmlCache.delete()
         }
 
-        val cache = if (htmlCache.isFile) htmlCache else epubCache
+        val cache = if (isPdb) {
+            if (htmlCache.isFile) htmlCache else epubCache
+        } else {
+            epubCache
+        }
 
         try {
             if (cache.isFile) {

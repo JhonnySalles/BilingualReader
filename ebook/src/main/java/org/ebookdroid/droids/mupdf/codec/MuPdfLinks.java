@@ -81,4 +81,6 @@ public class MuPdfLinks {
 
     private static native int fillPageLinkTargetPoint(long linkhandle, float[] point);
 
+    public static native int getLinkPage(long dochandle, String url);
+
 }

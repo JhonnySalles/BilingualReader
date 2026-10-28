@@ -61,7 +61,55 @@ public class MuPdfDocument extends AbstractCodecDocument {
     @Override
     public List<OutlineLink> getOutline() {
         final MuPdfOutline ou = new MuPdfOutline();
-        return ou.getOutline(documentHandle);
+        List<OutlineLink> list = ou.getOutline(documentHandle);
+        boolean hasValid = false;
+        if (list != null) {
+            for (OutlineLink l : list) {
+                if (l != null && l.getTitle() != null && !l.getTitle().trim().isEmpty()) {
+                    hasValid = true;
+                    break;
+                }
+            }
+        }
+        if (!hasValid && fname != null) {
+            File f = new File(fname);
+            if (f.isFile()) {
+                String nameLow = f.getName().toLowerCase(java.util.Locale.getDefault());
+                if (nameLow.endsWith(".epub") || nameLow.endsWith(".kepub")) {
+                    List<OutlineLink> tocList = br.com.ebook.extractor.EpubBookExtractor.INSTANCE.extractTocOutline(fname);
+                    if (!tocList.isEmpty()) {
+                        for (OutlineLink l : tocList) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    } else if (l.getLink().contains("#")) {
+                                        String base = l.getLink().substring(0, l.getLink().indexOf('#'));
+                                        if (!base.isEmpty()) {
+                                            int bp = MuPdfLinks.getLinkPage(documentHandle, base);
+                                            if (bp >= 0) {
+                                                l.setLink("#" + (bp + 1));
+                                            }
+                                        }
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        tocList.add(new OutlineLink("", "", -1));
+                        return tocList;
+                    }
+                } else if (nameLow.endsWith(".fb2")) {
+                    List<OutlineLink> fb2List = br.com.ebook.extractor.Fb2BookExtractor.INSTANCE.extractOutline(fname);
+                    if (!fb2List.isEmpty()) {
+                        fb2List.add(new OutlineLink("", "", -1));
+                        return fb2List;
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     @Override

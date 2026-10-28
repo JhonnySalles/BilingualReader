@@ -144,25 +144,82 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         mCodecDocument?.recycle()
     }
 
+    private fun getFallbackOutline(filePath: String): List<OutlineLink> {
+        return try {
+            val file = File(filePath)
+            if (!file.exists()) return emptyList()
+            val ext = file.extension.lowercase(java.util.Locale.getDefault())
+            when (ext) {
+                "epub", "kepub" -> br.com.ebook.extractor.EpubBookExtractor.extractTocOutline(filePath)
+                "fb2" -> br.com.ebook.extractor.Fb2BookExtractor.extractOutline(filePath)
+                "zip" -> {
+                    val pair = br.com.ebook.foobnix.ext.CacheZipUtils.isSingleAndSupportEntryFile(file)
+                    val entryName = pair.second?.lowercase(java.util.Locale.getDefault()) ?: ""
+                    if (entryName.endsWith(".epub") || entryName.endsWith(".kepub")) {
+                        br.com.ebook.extractor.EpubBookExtractor.extractTocOutline(filePath)
+                    } else if (entryName.endsWith(".fb2")) {
+                        val unzipped = br.com.ebook.foobnix.ext.CacheZipUtils.extracIfNeed(filePath, br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir.ZipApp)
+                        if (unzipped.unZipPath != null) {
+                            br.com.ebook.extractor.Fb2BookExtractor.extractOutline(unzipped.unZipPath!!)
+                        } else {
+                            emptyList()
+                        }
+                    } else {
+                        emptyList()
+                    }
+                }
+                else -> emptyList()
+            }
+        } catch (e: Exception) {
+            mLOGGER.warn("Error getting fallback outline for $filePath: ${e.message}")
+            emptyList()
+        }
+    }
+
     fun getChapter(page: Int): Pair<Int, String>? {
         var chapter: Pair<Int, String>? = null
-        val outlineList = mCodecDocument?.outline
+        var outlineList = mCodecDocument?.outline
+        if (outlineList.isNullOrEmpty() || outlineList.none { !it.title.isNullOrBlank() }) {
+            outlineList = getFallbackOutline(path).toMutableList()
+        }
         if (!outlineList.isNullOrEmpty()) {
             val oneBasedPage = page + 1
+            var autoPage = 1
             for (link in outlineList) {
-                val pageNum = OutlineLinkWrapper.getPageNumber(link.link)
-                if (pageNum > 0) {
-                    if (pageNum <= oneBasedPage) {
-                        chapter = Pair(pageNum, link.title)
-                    } else {
-                        break
+                if (link.title.isNullOrBlank()) continue
+                var pageNum = OutlineLinkWrapper.getPageNumber(link.link)
+                if (pageNum <= 0 && link.link != null && mCodecDocument is org.ebookdroid.droids.mupdf.codec.MuPdfDocument) {
+                    try {
+                        val docHandle = (mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument).documentHandle
+                        val targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.link)
+                        if (targetPage >= 0) {
+                            pageNum = targetPage + 1
+                        } else if (link.link.contains("#")) {
+                            val base = link.link.substringBefore("#")
+                            val basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
+                            if (basePage >= 0) {
+                                pageNum = basePage + 1
+                            }
+                        }
+                    } catch (ignored: Exception) {
                     }
+                }
+                if (pageNum <= 0) {
+                    pageNum = autoPage
+                }
+                autoPage = pageNum + 1
+                if (pageNum <= oneBasedPage) {
+                    chapter = Pair(pageNum, link.title)
+                } else {
+                    break
                 }
             }
             if (chapter == null) {
-                val firstLink = outlineList.firstOrNull { OutlineLinkWrapper.getPageNumber(it.link) > 0 }
+                val firstLink = outlineList.firstOrNull { !it.title.isNullOrBlank() }
                 if (firstLink != null) {
-                    chapter = Pair(OutlineLinkWrapper.getPageNumber(firstLink.link), firstLink.title)
+                    var p = OutlineLinkWrapper.getPageNumber(firstLink.link)
+                    if (p <= 0) p = 1
+                    chapter = Pair(p, firstLink.title)
                 }
             }
         }
@@ -171,12 +228,37 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
     fun getChapters(): Map<String, Int> {
         val chapter: MutableMap<String, Int> = mutableMapOf()
-        val outlineList = mCodecDocument?.outline
+        var outlineList = mCodecDocument?.outline
+        if (outlineList.isNullOrEmpty() || outlineList.none { !it.title.isNullOrBlank() }) {
+            outlineList = getFallbackOutline(path).toMutableList()
+        }
         if (!outlineList.isNullOrEmpty()) {
+            var autoPage = 1
             for (link in outlineList) {
-                val pageNum = OutlineLinkWrapper.getPageNumber(link.link)
+                if (link.title.isNullOrBlank()) continue
+                var pageNum = OutlineLinkWrapper.getPageNumber(link.link)
+                if (pageNum <= 0 && link.link != null && mCodecDocument is org.ebookdroid.droids.mupdf.codec.MuPdfDocument) {
+                    try {
+                        val docHandle = (mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument).documentHandle
+                        val targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.link)
+                        if (targetPage >= 0) {
+                            pageNum = targetPage + 1
+                        } else if (link.link.contains("#")) {
+                            val base = link.link.substringBefore("#")
+                            val basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
+                            if (basePage >= 0) {
+                                pageNum = basePage + 1
+                            }
+                        }
+                    } catch (e: Exception) {
+                        mLOGGER.warn("Error resolving page for link ${link.link}: ${e.message}")
+                    }
+                }
                 if (pageNum > 0) {
                     chapter[link.title] = pageNum
+                    autoPage = pageNum + 1
+                } else {
+                    chapter[link.title] = autoPage++
                 }
             }
         }

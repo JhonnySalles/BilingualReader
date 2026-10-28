@@ -463,74 +463,155 @@ object EpubBookExtractor : BookExtractor {
         var isbn = ""
         var publisher = ""
         var releaseDate: LocalDate? = null
+        var annotation = ""
 
         ZipFile(File(path), StandardCharsets.UTF_8).use { zipFile ->
-            val entries = zipFile.entries()
-            while (entries.hasMoreElements()) {
-                val entry = entries.nextElement()
-                if (entry.name.lowercase(Locale.getDefault()).endsWith(".opf")) {
-                    zipFile.getInputStream(entry).use { inputStream ->
-                        val xpp = XmlParser.buildPullParser()
-                        xpp.setInput(inputStream, "utf-8")
-                        var eventType = xpp.eventType
-                        while (eventType != XmlPullParser.END_DOCUMENT) {
-                            if (eventType == XmlPullParser.START_TAG) {
-                                val tagName = xpp.name
-                                val cleanTagName = if (tagName.contains(":")) tagName.substring(tagName.indexOf(":") + 1) else tagName
-                                when (cleanTagName) {
-                                    "title" -> title = xpp.nextText() ?: ""
-                                    "creator" -> {
-                                        var creatorVal = (xpp.nextText() ?: "").trim()
-                                        if (creatorVal.isNotEmpty()) {
-                                            if (EbookSettings.isFirstSurname) {
-                                                creatorVal = TxtUtils.replaceLastFirstName(creatorVal) ?: ""
-                                            }
-                                            if (creatorVal.isNotEmpty()) {
-                                                val currentAuthors = author.split(",").map { a -> a.trim() }
-                                                if (!currentAuthors.contains(creatorVal)) {
-                                                    author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"
-                                                }
-                                            }
-                                        }
-                                    }
-                                    "subject" -> {
-                                        val subVal = xpp.nextText() ?: ""
-                                        subject = if (subject.isEmpty()) subVal else "$subject, $subVal"
-                                    }
-                                    "language" -> {
-                                        if (lang.isEmpty()) lang = xpp.nextText() ?: ""
-                                    }
-                                    "identifier" -> {
-                                        val content = xpp.nextText() ?: ""
-                                        if (content.lowercase(Locale.getDefault()).contains("isbn")) {
-                                            isbn = content.replace(Regex("\\D"), "")
-                                        }
-                                    }
-                                    "publisher" -> publisher = xpp.nextText() ?: ""
-                                    "date" -> {
-                                        val dateStr = xpp.nextText()
-                                        releaseDate = DateParseUtils.parseFlexibleDate(dateStr)
-                                    }
-                                    "meta" -> {
-                                        val nameAttr = xpp.getAttributeValue(null, "name")
-                                        if (nameAttr == "calibre:series") {
-                                            series = xpp.getAttributeValue(null, "content") ?: ""
-                                        } else if (nameAttr == "calibre:series_index") {
-                                            number = xpp.getAttributeValue(null, "content") ?: ""
-                                            number = number.replace(".0", "")
-                                        } else {
-                                            val propertyAttr = xpp.getAttributeValue(null, "property")
-                                            if (propertyAttr == "group-position") {
-                                                number = xpp.text ?: ""
-                                            }
-                                        }
-                                    }
-                                }
+            var opfEntry: ZipEntry? = null
+            val containerEntry = zipFile.getEntry("META-INF/container.xml")
+            if (containerEntry != null) {
+                try {
+                    zipFile.getInputStream(containerEntry).use { inputStream ->
+                        val containerDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                        val rootfile = containerDoc.select("rootfile[full-path]").firstOrNull()
+                        if (rootfile != null) {
+                            opfEntry = zipFile.getEntry(rootfile.attr("full-path"))
+                        }
+                    }
+                } catch (ignored: Exception) {
+                }
+            }
+
+            if (opfEntry == null) {
+                val entries = zipFile.entries()
+                while (entries.hasMoreElements()) {
+                    val entry = entries.nextElement()
+                    if (entry.name.lowercase(Locale.getDefault()).endsWith(".opf")) {
+                        opfEntry = entry
+                        break
+                    }
+                }
+            }
+
+            if (opfEntry != null) {
+                zipFile.getInputStream(opfEntry).use { inputStream ->
+                    val opfDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+
+                    val allElems = opfDoc.allElements.toList()
+                    val dcTitle = allElems.firstOrNull { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "title" || t.endsWith(":title")
+                    }
+                    if (dcTitle != null) {
+                        title = dcTitle.text().trim()
+                    }
+
+                    val dcCreators = allElems.filter { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "creator" || t.endsWith(":creator")
+                    }
+                    val authorsList = mutableListOf<String>()
+                    for (c in dcCreators) {
+                        var creatorVal = c.text().trim()
+                        if (creatorVal.isNotEmpty()) {
+                            if (EbookSettings.isFirstSurname) {
+                                creatorVal = TxtUtils.replaceLastFirstName(creatorVal) ?: creatorVal
                             }
-                            if (eventType == XmlPullParser.END_TAG && xpp.name.endsWith("metadata")) {
-                                break
+                            if (!authorsList.contains(creatorVal)) {
+                                authorsList.add(creatorVal)
                             }
-                            eventType = xpp.next()
+                        }
+                    }
+                    if (authorsList.isNotEmpty()) {
+                        author = authorsList.joinToString(", ")
+                    }
+
+                    val dcDesc = allElems.firstOrNull { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "description" || t.endsWith(":description")
+                    }
+                    if (dcDesc != null) {
+                        val rawDesc = dcDesc.html().ifEmpty { dcDesc.text() }
+                        annotation = if (rawDesc.contains("<")) {
+                            try {
+                                Jsoup.parse(rawDesc).text().trim()
+                            } catch (e: Exception) {
+                                rawDesc.trim()
+                            }
+                        } else {
+                            rawDesc.trim()
+                        }
+                    }
+
+                    val subjects = allElems.filter { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "subject" || t.endsWith(":subject")
+                    }.map { it.text().trim() }.filter { it.isNotEmpty() }
+                    if (subjects.isNotEmpty()) {
+                        subject = subjects.joinToString(", ")
+                    }
+
+                    val dcLang = allElems.firstOrNull { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "language" || t.endsWith(":language")
+                    }
+                    if (dcLang != null) {
+                        lang = dcLang.text().trim()
+                    }
+
+                    val dcIds = allElems.filter { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "identifier" || t.endsWith(":identifier")
+                    }
+                    for (idElem in dcIds) {
+                        val text = idElem.text()
+                        if (text.lowercase(Locale.getDefault()).contains("isbn")) {
+                            isbn = text.replace(Regex("\\D"), "")
+                            break
+                        }
+                    }
+
+                    val dcPub = allElems.firstOrNull { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "publisher" || t.endsWith(":publisher")
+                    }
+                    if (dcPub != null) {
+                        publisher = dcPub.text().trim()
+                    }
+
+                    val dcDate = allElems.firstOrNull { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "date" || t.endsWith(":date")
+                    }
+                    if (dcDate != null) {
+                        releaseDate = DateParseUtils.parseFlexibleDate(dcDate.text().trim())
+                    }
+
+                    // Series e Volume (EPUB 2 calibre e EPUB 3)
+                    val metaTags = allElems.filter { 
+                        val t = it.tagName().lowercase(Locale.getDefault())
+                        t == "meta" || t.endsWith(":meta")
+                    }
+                    for (m in metaTags) {
+                        val name = m.attr("name")
+                        val prop = m.attr("property")
+                        val content = m.attr("content")
+                        val text = m.text().trim()
+
+                        if (name == "calibre:series" || prop == "belongs-to-collection") {
+                            val s = if (content.isNotEmpty()) content else text
+                            if (s.isNotBlank() && series.isBlank()) {
+                                series = s.trim()
+                            }
+                        } else if (name == "calibre:series_index") {
+                            val idx = if (content.isNotEmpty()) content else text
+                            if (idx.isNotBlank()) {
+                                number = idx.replace(".0", "").trim()
+                            }
+                        } else if (prop == "group-position") {
+                            val idx = if (text.isNotEmpty()) text else content
+                            if (idx.isNotBlank()) {
+                                number = idx.replace(".0", "").trim()
+                            }
                         }
                     }
                 }
@@ -559,6 +640,7 @@ object EpubBookExtractor : BookExtractor {
             releaseDate = releaseDate,
             seriesIndex = sIndex,
             language = lang,
+            annotation = annotation,
             unzipPath = path
         )
     }.onFailure { e ->

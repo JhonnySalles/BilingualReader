@@ -53,7 +53,57 @@ public class MuPdfOutline {
     private void ttOutline(final List<OutlineLink> ls, long outline, final int level) {
         while (outline != -1 && outline != 0) {
             final String title = getTitleString(docHandle, outline);
-            final String link = getLink(outline, docHandle);
+            String link = null;
+            try {
+                String uri = getLinkUri(outline, docHandle);
+                if (uri != null && !uri.trim().isEmpty()) {
+                    uri = uri.trim();
+                    if (uri.startsWith("#") && uri.matches("#\\d+")) {
+                        link = uri;
+                    } else {
+                        int targetPage = -1;
+                        try {
+                            targetPage = MuPdfLinks.getLinkPage(docHandle, uri);
+                        } catch (Throwable ignored) {
+                        }
+                        if (targetPage >= 0) {
+                            link = "#" + (targetPage + 1);
+                        } else if (uri.contains("#")) {
+                            String base = uri.substring(0, uri.indexOf('#'));
+                            if (!base.isEmpty()) {
+                                int basePage = -1;
+                                try {
+                                    basePage = MuPdfLinks.getLinkPage(docHandle, base);
+                                } catch (Throwable ignored) {
+                                }
+                                if (basePage >= 0) {
+                                    link = "#" + (basePage + 1);
+                                }
+                            }
+                        }
+                        if (link == null) {
+                            link = uri;
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                LOGGER.warn("Error getting link URI: {}", t.getMessage());
+            }
+
+            if (link == null || link.equals("#0")) {
+                try {
+                    String fallback = getLink(outline, docHandle);
+                    if (fallback != null && !fallback.equals("#0")) {
+                        link = fallback;
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+
+            if (link == null) {
+                link = "#0";
+            }
+
             if (title != null) {
                 final OutlineLink outlineLink = new OutlineLink(title, link, level);
 
@@ -92,6 +142,8 @@ public class MuPdfOutline {
     private static native byte[] getTitleArray(long dochandle, long outlinehandle);
 
     private static native String getLink(long outlinehandle, long dochandle);
+
+    private static native String getLinkUri(long outlinehandle, long dochandle);
 
     private static native int fillLinkTargetPoint(long outlinehandle, float[] point);
 
