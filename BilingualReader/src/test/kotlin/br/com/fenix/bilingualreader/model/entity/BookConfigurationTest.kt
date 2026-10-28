@@ -22,7 +22,8 @@ class BookConfigurationTest {
             fontType = FontType.BabelStoneHan,
             fontSize = 18.0f,
             scrolling = ScrollingType.Horizontal,
-            pagination = PaginationType.Default
+            pagination = PaginationType.Default,
+            imageScale = 1.25f
         )
 
         assertEquals(1L, config.id)
@@ -34,5 +35,6 @@ class BookConfigurationTest {
         assertEquals(18.0f, config.fontSize)
         assertEquals(ScrollingType.Horizontal, config.scrolling)
         assertEquals(PaginationType.Default, config.pagination)
+        assertEquals(1.25f, config.imageScale, 0.001f)
     }
 }

@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
@@ -51,6 +53,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.LlmSettings
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
@@ -345,6 +348,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigCoversPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigCoversRestoreDefault: MaterialButton
     private lateinit var mConfigCoversDelete: MaterialButton
+    private lateinit var mConfigCoversCacheSize: TextView
 
     private lateinit var mConfigStatisticsDelete: MaterialButton
 
@@ -474,6 +478,15 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookBtnRecalculateAll: MaterialButton
     private lateinit var mBookBtnRecalculateNew: MaterialButton
 
+    private lateinit var mBookAntialias: TextInputLayout
+    private lateinit var mBookAntialiasAutoComplete: MaterialAutoCompleteTextView
+    private var mBookAntialiasMap: LinkedHashMap<String, Int> = linkedMapOf()
+    private var mBookAntialiasSelect: Int = GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS_DEFAULT
+    private lateinit var mBookImageScale: Slider
+    private lateinit var mBookImageScaleValue: TextView
+    private lateinit var mBookAccelDelete: MaterialButton
+    private lateinit var mBookAccelCacheSize: TextView
+
     private var mBookOrderSelect: Order = Order.Name
     private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
     private var mBookPaginationSelect: PaginationType = PaginationType.Default
@@ -564,6 +577,13 @@ class ConfigFragment : Fragment() {
         mBookBtnRecalculateAll = view.findViewById(R.id.config_book_btn_recalculate_all)
         mBookBtnRecalculateNew = view.findViewById(R.id.config_book_btn_recalculate_new)
 
+        mBookAntialias = view.findViewById(R.id.config_book_antialias)
+        mBookAntialiasAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_antialias)
+        mBookImageScale = view.findViewById(R.id.config_book_image_scale)
+        mBookImageScaleValue = view.findViewById(R.id.config_book_image_scale_value)
+        mBookAccelDelete = view.findViewById(R.id.config_book_accel_delete)
+        mBookAccelCacheSize = view.findViewById(R.id.config_book_accel_cache_size)
+
         mMangaBtnRecalculateAll.setOnClickListener { confirmRecalculate(Type.MANGA, onlyNew = false) }
         mMangaBtnRecalculateNew.setOnClickListener { confirmRecalculate(Type.MANGA, onlyNew = true) }
         mBookBtnRecalculateAll.setOnClickListener { confirmRecalculate(Type.BOOK, onlyNew = false) }
@@ -590,6 +610,7 @@ class ConfigFragment : Fragment() {
         mConfigCoversPathAutoComplete = view.findViewById(R.id.config_covers_autocomplete_path)
         mConfigCoversRestoreDefault = view.findViewById(R.id.config_covers_restore_default)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
+        mConfigCoversCacheSize = view.findViewById(R.id.config_covers_cache_size)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
         mConfigAiEnable = view.findViewById(R.id.config_ai_enable)
@@ -893,6 +914,57 @@ class ConfigFragment : Fragment() {
                     TextSpeech.getDefault(false)
             }
 
+        mBookAntialiasMap = linkedMapOf(
+            getString(R.string.config_book_antialias_0) to 0,
+            getString(R.string.config_book_antialias_2) to 2,
+            getString(R.string.config_book_antialias_4) to 4,
+            getString(R.string.config_book_antialias_8) to 8
+        )
+        val adapterAntialias = ArrayAdapter(requireContext(), R.layout.list_item, mBookAntialiasMap.keys.toTypedArray())
+        mBookAntialiasAutoComplete.setAdapter(adapterAntialias)
+        mBookAntialiasAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val key = parent.getItemAtPosition(position)?.toString().orEmpty()
+                mBookAntialiasSelect = mBookAntialiasMap[key] ?: GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS_DEFAULT
+                AppState.get().antiAliasPdf = mBookAntialiasSelect
+            }
+
+        mBookImageScale.addOnChangeListener { _, value, fromUser ->
+            mBookImageScaleValue.text = String.format(Locale.US, "%.2fx", value)
+            if (fromUser) {
+                AppState.get().defaultImageScale = value
+            }
+        }
+
+        mBookAccelDelete.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_book_accel_delete_title))
+                .setMessage(getString(R.string.config_book_accel_delete_description))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            val deleted = CacheZipUtils.clearAccelCache()
+                            withContext(Dispatchers.Main) {
+                                if (deleted) {
+                                    Toast.makeText(requireContext(), getString(R.string.config_book_accel_delete_success), Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(requireContext(), getString(R.string.config_book_accel_delete_error), Toast.LENGTH_SHORT).show()
+                                }
+                                updateAccelCacheSize()
+                            }
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error clearing accel cache: " + e.message, e)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), getString(R.string.config_book_accel_delete_error), Toast.LENGTH_SHORT).show()
+                            }
+                            Telemetry.recordException(e, "Error clearing accel cache: " + e.message)
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+        }
+
         val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapThemeMode.keys.toTypedArray())
         mConfigSystemThemeModeAutoComplete.setAdapter(themesMode)
         mConfigSystemThemeModeAutoComplete.onItemClickListener =
@@ -1048,6 +1120,7 @@ class ConfigFragment : Fragment() {
 
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                                updateCoverCacheSize()
                             }
                         } catch (e: Exception) {
                             mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
@@ -1440,6 +1513,19 @@ class ConfigFragment : Fragment() {
                 mBookFontSize.value
             )
 
+            this.putInt(
+                GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS,
+                mBookAntialiasSelect
+            )
+
+            this.putFloat(
+                GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE,
+                mBookImageScale.value
+            )
+
+            AppState.get().antiAliasPdf = mBookAntialiasSelect
+            AppState.get().defaultImageScale = mBookImageScale.value
+
             this.putBoolean(
                 GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED,
                 mConfigSystemShareMarkEnabled.isChecked
@@ -1743,6 +1829,29 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
             false
         )
+
+        mBookAntialiasSelect = sharedPreferences.getInt(
+            GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS,
+            GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS_DEFAULT
+        )
+        val antialiasLabel = mBookAntialiasMap.entries.firstOrNull { it.value == mBookAntialiasSelect }?.key
+            ?: mBookAntialiasMap.entries.firstOrNull { it.value == GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS_DEFAULT }?.key
+        if (antialiasLabel != null) {
+            mBookAntialiasAutoComplete.setText(antialiasLabel, false)
+        }
+
+        val scale = sharedPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE,
+            GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE_DEFAULT
+        )
+        mBookImageScale.value = scale.coerceIn(0.25f, 2.0f)
+        mBookImageScaleValue.text = String.format(Locale.US, "%.2fx", mBookImageScale.value)
+
+        AppState.get().antiAliasPdf = mBookAntialiasSelect
+        AppState.get().defaultImageScale = mBookImageScale.value
+
+        updateCoverCacheSize()
+        updateAccelCacheSize()
 
         mConfigSystemDateSelect = sharedPreferences.getString(
             GeneralConsts.KEYS.SYSTEM.FORMAT_DATA,
@@ -2403,6 +2512,34 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_tracker_last_sync, aniSync)
         } else {
             getString(R.string.config_tracker_sync_never)
+        }
+    }
+
+    private fun updateCoverCacheSize() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val coverDir = GeneralConsts.getCoverDir(requireContext())
+            val mangaFolder = File(coverDir, GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+            val bookFolder = File(coverDir, GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+            val totalSize = FileUtil.getFolderSize(mangaFolder) + FileUtil.getFolderSize(bookFolder)
+            val formatted = FileUtil.formatSize(totalSize)
+            withContext(Dispatchers.Main) {
+                if (isAdded) {
+                    mConfigCoversCacheSize.text = getString(R.string.config_covers_cache_size, formatted)
+                }
+            }
+        }
+    }
+
+    private fun updateAccelCacheSize() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val accelDir = CacheZipUtils.CACHE_ACCEL_DIR ?: File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.ACCEL)
+            val totalSize = FileUtil.getFolderSize(accelDir)
+            val formatted = FileUtil.formatSize(totalSize)
+            withContext(Dispatchers.Main) {
+                if (isAdded) {
+                    mBookAccelCacheSize.text = getString(R.string.config_book_accel_cache_size, formatted)
+                }
+            }
         }
     }
 

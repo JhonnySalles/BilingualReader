@@ -275,6 +275,10 @@ class GeneralConsts private constructor() {
             const val MANGA_AVG_TIME_PER_PAGE_DEFAULT = 120f
             const val BOOK_AVG_WORDS_PER_MINUTE = "BOOK_AVG_WORDS_PER_MINUTE"
             const val BOOK_AVG_WORDS_PER_MINUTE_DEFAULT = 250f
+            const val BOOK_PDF_ANTIALIAS = "BOOK_PDF_ANTIALIAS"
+            const val BOOK_PDF_ANTIALIAS_DEFAULT = 8
+            const val BOOK_IMAGE_SCALE = "BOOK_IMAGE_SCALE"
+            const val BOOK_IMAGE_SCALE_DEFAULT = 1.0f
         }
 
         object TOUCH {
@@ -466,6 +470,7 @@ class GeneralConsts private constructor() {
         const val MANGA_COVERS = "MangaCovers"
         const val BOOK_COVERS = "BookCovers"
         const val BOOKS = "Books"
+        const val ACCEL = "accel"
         const val LINKED = "Linked"
         const val IMAGE = "Image"
         const val AUDIO = "Audio"

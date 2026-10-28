@@ -28,7 +28,8 @@ object BookConfigurationMock : Mock<Long, BookConfiguration> {
         fontType = FontType.Arial,
         fontSize = 18f,
         scrolling = ScrollingType.Vertical,
-        pagination = PaginationType.Default
+        pagination = PaginationType.Default,
+        imageScale = 1.0f
     )
 
     override fun asserts(expected: BookConfiguration?, actual: BookConfiguration?) {

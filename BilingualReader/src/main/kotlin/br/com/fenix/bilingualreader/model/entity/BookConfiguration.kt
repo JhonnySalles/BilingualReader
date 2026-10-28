@@ -38,5 +38,7 @@ data class BookConfiguration (
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SCROLLING)
     var scrolling: ScrollingType,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.PAGINATION)
-    var pagination: PaginationType
+    var pagination: PaginationType,
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.IMAGE_SCALE)
+    var imageScale: Float = 1.0f
 ) : Serializable, EntityBase<Long, BookConfiguration>

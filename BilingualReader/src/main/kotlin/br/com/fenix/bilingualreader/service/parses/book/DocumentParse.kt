@@ -30,7 +30,15 @@ import java.lang.Thread.sleep
 import java.util.Date
 
 
-class DocumentParse(var path: String, var password: String = "", var fontSize: Int, var isLandscape: Boolean, var isVertical: Boolean, var listener: BookParseListener? = null) : CodecDocument {
+class DocumentParse(
+    var path: String,
+    var password: String = "",
+    var fontSize: Int,
+    var isLandscape: Boolean,
+    var isVertical: Boolean,
+    var listener: BookParseListener? = null,
+    var imageScale: Float = AppState.get().defaultImageScale
+) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
@@ -53,6 +61,17 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
             Dips.init(context)
             AppState.get().load(context)
+
+            val preferences = GeneralConsts.getSharedPreferences(context)
+            AppState.get().antiAliasPdf = preferences.getInt(
+                GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS,
+                GeneralConsts.KEYS.READER.BOOK_PDF_ANTIALIAS_DEFAULT
+            )
+            AppState.get().defaultImageScale = preferences.getFloat(
+                GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE,
+                GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE_DEFAULT
+            )
+
             CacheZipUtils.init(context, cacheDir)
             ExtUtils.init(context)
             IMG.init(context)
@@ -67,6 +86,12 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
 
     fun changeFontSize(fontSize: Int, onEnding: (Boolean) -> (Unit)) = openBook(path, password, fontSize, onEnding)
+
+    fun changeImageScale(scale: Float, onEnding: (Boolean) -> (Unit)) {
+        this.imageScale = scale
+        mPageCountCache.clear()
+        openBook(path, password, fontSize, onEnding)
+    }
 
     // Cache da contagem de paginas por tamanho de fonte. Para uma mesma instancia do documento
     // (largura/altura fixas), a contagem so varia com o fontSize, entao evitamos repaginar
@@ -83,6 +108,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
     private var mMainHandler = Handler(Looper.getMainLooper())
     fun openBook(path: String, password: String = "", fontSize: Int, onEnding: (Boolean) -> (Unit)) {
+        AppState.get().currentBookImageScale = imageScale
         listener?.onLoading(false)
         Thread {
             try {
@@ -153,6 +179,10 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                 "epub", "kepub" -> br.com.ebook.extractor.EpubBookExtractor.extractTocOutline(filePath)
                 "fb2" -> br.com.ebook.extractor.Fb2BookExtractor.extractOutline(filePath)
                 "docx" -> br.com.ebook.extractor.DocxBookExtractor.extractOutline(filePath)
+                "htmlz" -> br.com.ebook.extractor.HtmlzBookExtractor.extractOutline(filePath)
+                "txtz" -> br.com.ebook.extractor.TxtzBookExtractor.extractOutline(filePath)
+                "rb" -> br.com.ebook.extractor.RbBookExtractor.extractOutline(filePath)
+                "snb" -> br.com.ebook.extractor.SnbBookExtractor.extractOutline(filePath)
                 "zip" -> {
                     val pair = br.com.ebook.foobnix.ext.CacheZipUtils.isSingleAndSupportEntryFile(file)
                     val entryName = pair.second?.lowercase(java.util.Locale.getDefault()) ?: ""

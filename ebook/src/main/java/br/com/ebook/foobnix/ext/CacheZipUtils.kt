@@ -61,6 +61,9 @@ object CacheZipUtils {
     
     @JvmField
     var CACHE_BOOK_DIR: File? = null
+
+    @JvmField
+    var CACHE_ACCEL_DIR: File? = null
     
     @JvmField
     var CACHE_WEB: File? = null
@@ -74,6 +77,7 @@ object CacheZipUtils {
     @JvmStatic
     fun init(@Suppress("UNUSED_PARAMETER") c: Context, dir: File) {
         CACHE_BOOK_DIR = File(dir, "Book")
+        CACHE_ACCEL_DIR = File(dir, "accel")
         CACHE_UN_ZIP_DIR = File(dir, "UnZip")
         ATTACHMENTS_CACHE_DIR = File(dir, "Attachments")
         CACHE_WEB = File(dir, "Web")
@@ -87,8 +91,19 @@ object CacheZipUtils {
     @JvmStatic
     fun createAllCacheDirs() {
         CACHE_BOOK_DIR?.let { if (!it.exists()) it.mkdirs() }
+        CACHE_ACCEL_DIR?.let { if (!it.exists()) it.mkdirs() }
         ATTACHMENTS_CACHE_DIR?.let { if (!it.exists()) it.mkdirs() }
         CACHE_WEB?.let { if (!it.exists()) it.mkdirs() }
+    }
+
+    @JvmStatic
+    fun clearAccelCache(): Boolean {
+        return try {
+            CACHE_ACCEL_DIR?.listFiles()?.forEach { it.delete() }
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     @JvmStatic

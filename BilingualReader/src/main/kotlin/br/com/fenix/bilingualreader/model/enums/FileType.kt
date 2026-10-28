@@ -54,6 +54,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     ODT(TYPE_BOOK, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text"), "ODT"),
     MD(TYPE_BOOK, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown"), "MD"),
     MHT(TYPE_BOOK, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822"), "MHT"),
+    TXTZ(TYPE_BOOK, arrayOf("txtz"), arrayOf("application/txtz+zip", "application/x-txtz"), "TXTZ"),
+    RB(TYPE_BOOK, arrayOf("rb"), arrayOf("application/x-rocketbook", "application/data-rocketbook"), "RB"),
+    SNB(TYPE_BOOK, arrayOf("snb"), arrayOf("application/x-snb", "application/snb"), "SNB"),
  
     // Comic file
     CBZ(TYPE_MANGA, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ"),

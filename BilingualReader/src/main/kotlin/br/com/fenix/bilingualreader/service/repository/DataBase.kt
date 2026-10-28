@@ -44,7 +44,7 @@ import java.io.BufferedReader
 import java.io.File
 
 @Database(
-    version = 5, exportSchema = true,
+    version = 6, exportSchema = true,
     entities = [Manga::class, MangaAnnotation::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
         Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class, History::class,

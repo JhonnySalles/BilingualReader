@@ -195,6 +195,23 @@
     <string name="config_covers_delete_description">Do you really want to delete the cover cache?</string>
     <string name="config_covers_delete_success">Successfully cleared cache.</string>
     <string name="config_covers_delete_error">Error clearing cover cache.</string>
+    <string name="config_covers_cache_size">Cache size: %s</string>
+
+    <string name="config_book_accel_delete">Clear acceleration cache</string>
+    <string name="config_book_accel_delete_title">Clear acceleration cache</string>
+    <string name="config_book_accel_delete_description">Do you really want to delete the acceleration cache for books?</string>
+    <string name="config_book_accel_delete_success">Acceleration cache cleared successfully.</string>
+    <string name="config_book_accel_delete_error">Error clearing acceleration cache.</string>
+    <string name="config_book_accel_cache_size">Cache size: %s</string>
+    <string name="config_book_mupdf_render">MuPDF Rendering</string>
+    <string name="config_book_antialias">Antialias (PDF style)</string>
+    <string name="config_book_antialias_hint">Antialias for PDF style</string>
+    <string name="config_book_antialias_0">0 (Disabled)</string>
+    <string name="config_book_antialias_2">2 (Low)</string>
+    <string name="config_book_antialias_4">4 (Medium)</string>
+    <string name="config_book_antialias_8">8 (Maximum - Default)</string>
+    <string name="config_book_image_scale">Image scale</string>
+    <string name="popup_reading_book_image_scale">Image scale</string>
 
     <string name="config_statistics_clear">Clear statistics</string>
     <string name="config_statistics_clear_title">Clear statistics</string>

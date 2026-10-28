@@ -419,6 +419,9 @@ public class AppState {
     public int tapzoneSize = Dips.isXLargeScreen() ? 15 : 25;
 
     public int allocatedMemorySize = (int) MemoryUtils.RECOMENDED_MEMORY_SIZE;
+    public int antiAliasPdf = 8;
+    public float defaultImageScale = 1.0f;
+    public float currentBookImageScale = 1.0f;
 
     @IgnoreHashCode
     public boolean isScrollAnimation = true;

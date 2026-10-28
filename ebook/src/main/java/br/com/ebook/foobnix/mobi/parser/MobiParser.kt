@@ -123,6 +123,8 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         }
     }
 
+    var isMobi: Boolean = false
+        private set
     var name: String
     var recordsCount: Int
     private val recordsOffset = ArrayList<Int>()
@@ -142,17 +144,27 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         var count: Int = 0
         val headers = HashMap<Int, ByteArray>()
 
-        fun parse(raw: ByteBuffer): EXTH {
-            val offset = indexOf(raw, "EXTH".toByteArray())
+        fun parse(raw: ByteBuffer, mobiOffset: Int, rec0Len: Int): EXTH {
+            val maxSearchLen = kotlin.math.min(rec0Len, 100_000)
+            val offset = indexOf(raw, "EXTH".toByteArray(), mobiOffset, maxSearchLen)
+            if (offset < 0 || offset + 12 > raw.capacity()) {
+                return this
+            }
             identifier = asString(raw, offset, 4)
             len = asInt(raw, offset + 4, 4)
             count = asInt(raw, offset + 8, 4)
 
+            if (count <= 0 || count > 300 || offset + len > raw.capacity()) {
+                return this
+            }
+
             var rOffset = offset + 12
 
             for (i in 0 until count) {
+                if (rOffset + 8 > raw.capacity()) break
                 val rType = asInt(raw, rOffset, 4)
                 val rLen = asInt(raw, rOffset + 4, 4)
+                if (rLen < 8 || rOffset + rLen > raw.capacity()) break
                 val data = getBytes(raw, rOffset + 8, rLen - 8)
                 rOffset += rLen
                 headers[rType] = data
@@ -161,9 +173,11 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         }
     }
 
-    fun indexOf(input: ByteBuffer, search: ByteArray): Int {
-        val limit = input.limit() - search.size + 1
-        for (i in 0 until limit) {
+    fun indexOf(input: ByteBuffer, search: ByteArray, startOffset: Int = 0, maxLen: Int = -1): Int {
+        val start = kotlin.math.max(0, startOffset)
+        val end = if (maxLen > 0) kotlin.math.min(input.limit(), start + maxLen) else input.limit()
+        val limit = end - search.size + 1
+        for (i in start until limit) {
             var found = true
             for (j in search.indices) {
                 if (input.get(i + j) != search[j]) {
@@ -177,41 +191,67 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
     }
 
     init {
-        name = asString(raw, 0, 32)
+        name = asString(raw, 0, 32).trimEnd('\u0000', ' ')
         recordsCount = asInt(raw, 76, 2)
 
-        var i = 78
-        while (i < 78 + recordsCount * 8) {
-            val recordOffset = byteArrayToInt(getBytes(raw, i, 4))
-            recordsOffset.add(recordOffset)
-            i += 8
+        if (recordsCount > 0) {
+            var i = 78
+            while (i < 78 + recordsCount * 8 && i + 4 <= raw.capacity()) {
+                val recordOffset = byteArrayToInt(getBytes(raw, i, 4))
+                recordsOffset.add(recordOffset)
+                i += 8
+            }
         }
-        val mobiOffset = recordsOffset[0]
 
-        compression = asInt(raw, mobiOffset, 2)
-        val encryption = asInt(raw, mobiOffset + 12, 2)
-        
+        if (recordsOffset.isNotEmpty()) {
+            val mobiOffset = recordsOffset[0]
+            compression = asInt(raw, mobiOffset, 2)
 
-        mobiType = asInt(raw, mobiOffset + 24, 4)
-        encoding = if (asInt(raw, mobiOffset + 28, 4) == 1252) "cp1251" else "UTF-8"
+            val rec0Len = if (recordsOffset.size > 1) recordsOffset[1] - mobiOffset else raw.capacity() - mobiOffset
+            val magic = if (rec0Len >= 20 && mobiOffset + 20 <= raw.capacity()) asString(raw, mobiOffset + 16, 4) else ""
+            isMobi = (magic == "MOBI" || magic == "BOOK")
 
-        val fullNameOffset = asInt(raw, mobiOffset + 84, 4)
-        val fullNameLen = asInt(raw, mobiOffset + 88, 4)
-        var nameTemp = asString(raw, mobiOffset + fullNameOffset, fullNameLen)
-        if (encryption != 0) {
-            nameTemp = "(DRM) $nameTemp"
-        }
-        fullName = nameTemp
+            if (isMobi) {
+                val encryption = asInt(raw, mobiOffset + 12, 2)
 
-        locale = asString(raw, mobiOffset + 92, 4)
+                mobiType = asInt(raw, mobiOffset + 24, 4)
+                encoding = if (asInt(raw, mobiOffset + 28, 4) == 1252) "cp1251" else "UTF-8"
 
-        firstImageIndex = asInt(raw, mobiOffset + 108, 4)
-        val isEXTHFlag = (asInt(raw, mobiOffset + 128, 4) and 0x40) != 0
-        firstContentIndex = asInt(raw, mobiOffset + 192, 2)
-        lastContentIndex = asInt(raw, mobiOffset + 194, 2)
+                val fullNameOffset = asInt(raw, mobiOffset + 84, 4)
+                val fullNameLen = asInt(raw, mobiOffset + 88, 4)
+                var nameTemp = if (fullNameLen in 1..4096 && mobiOffset + fullNameOffset + fullNameLen <= raw.capacity()) {
+                    asString(raw, mobiOffset + fullNameOffset, fullNameLen)
+                } else {
+                    name
+                }
+                if (encryption != 0) {
+                    nameTemp = "(DRM) $nameTemp"
+                }
+                fullName = nameTemp
 
-        if (isEXTHFlag) {
-            exth = EXTH().parse(raw)
+                locale = asString(raw, mobiOffset + 92, 4)
+
+                firstImageIndex = asInt(raw, mobiOffset + 108, 4)
+                val isEXTHFlag = (asInt(raw, mobiOffset + 128, 4) and 0x40) != 0
+                firstContentIndex = asInt(raw, mobiOffset + 192, 2)
+                lastContentIndex = asInt(raw, mobiOffset + 194, 2)
+
+                if (isEXTHFlag) {
+                    exth = EXTH().parse(raw, mobiOffset, rec0Len)
+                }
+            } else {
+                // Formato PalmDOC / PDB sem cabeçalho MOBI
+                fullName = name
+                encoding = "UTF-8"
+                locale = ""
+                firstContentIndex = 1
+                lastContentIndex = recordsCount
+                firstImageIndex = recordsCount
+            }
+        } else {
+            fullName = name
+            encoding = "UTF-8"
+            locale = ""
         }
     }
 
@@ -316,6 +356,9 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         get() = exth.headers
 
     fun getCoverOrThumb(): ByteArray? {
+        if (!isMobi) {
+            return null
+        }
         var imgNumber = exth.headers[201]
         if (imgNumber == null) {
             imgNumber = exth.headers[202]
@@ -326,7 +369,7 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
             return getRecordByIndex(index + firstImageIndex)
         } else {
             var i = firstImageIndex
-            while (i < lastContentIndex) {
+            while (i < lastContentIndex && i < recordsOffset.size) {
                 val img = getRecordByIndex(i)
                 if (img != null && img.size >= 2) {
                     if ((img[0].toInt() and 0xff) == 0xFF && (img[1].toInt() and 0xff) == 0xD8) {

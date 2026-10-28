@@ -119,6 +119,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mFontSize: MutableLiveData<Float> = MutableLiveData(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT)
     val fontSize: LiveData<Float> = mFontSize
 
+    private var mImageScale: MutableLiveData<Float> = MutableLiveData(GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE_DEFAULT)
+    val imageScale: LiveData<Float> = mImageScale
+
     private var mFontCss: MutableLiveData<String> = MutableLiveData("")
     val fontCss: LiveData<String> = mFontCss
 
@@ -444,6 +447,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             )!!
         )
 
+        mImageScale.value = mPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE,
+            GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE_DEFAULT
+        )
+
         if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             mDefaultCss = generateCSS()
         else
@@ -461,6 +469,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mSpacingType.value = configuration.spacing
             mFontType.value = configuration.fontType
             mFontSize.value = configuration.fontSize
+            mImageScale.value = configuration.imageScale
             if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
                 mDefaultCss = generateCSS()
             else
@@ -479,7 +488,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             FontType.TimesNewRoman,
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
             ScrollingType.Pagination,
-            PaginationType.Default
+            PaginationType.Default,
+            mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE, GeneralConsts.KEYS.READER.BOOK_IMAGE_SCALE_DEFAULT)
         )
         saveBookConfiguration(mConfiguration.value!!)
     }
@@ -492,11 +502,22 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         configuration.spacing = spacingType.value!!
         configuration.fontType = fontType.value!!
         configuration.fontSize = fontSize.value!!
+        configuration.imageScale = imageScale.value ?: 1.0f
 
         if (configuration.id == null)
             mRepository.saveConfiguration(configuration)
         else
             mRepository.updateConfiguration(configuration)
+    }
+
+    fun setImageScale(scale: Float) {
+        if (mImageScale.value != scale) {
+            mImageScale.value = scale
+            mConfiguration.value?.let {
+                it.imageScale = scale
+                saveBookConfiguration(it)
+            }
+        }
     }
 
     fun loadFonts() = loadFonts(isJapanese)

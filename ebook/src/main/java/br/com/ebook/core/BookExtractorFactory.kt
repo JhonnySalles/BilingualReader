@@ -38,6 +38,9 @@ object BookExtractorFactory {
             "tcr" -> TcrBookExtractor
             "html", "htm", "xhtml", "xhtm", "mht", "mhtml" -> HtmlBookExtractor
             "htmlz" -> HtmlzBookExtractor
+            "txtz" -> br.com.ebook.extractor.TxtzBookExtractor
+            "rb" -> br.com.ebook.extractor.RbBookExtractor
+            "snb" -> br.com.ebook.extractor.SnbBookExtractor
             "pmlz" -> PmlzBookExtractor
             "rtf" -> RtfBookExtractor
             "pdf", "xps" -> PdfBookExtractor

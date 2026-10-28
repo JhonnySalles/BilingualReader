@@ -150,5 +150,18 @@ class BookReaderViewModelTest {
         assertEquals(24f, viewModel.fontSize.value)
         assertEquals(ScrollingType.Scrolling, viewModel.scrollingMode.value)
         assertEquals(PaginationType.Default, viewModel.paginationType.value)
+        assertEquals(1.0f, viewModel.imageScale.value)
+    }
+
+    @Test
+    fun `setImageScale should update liveData and save configuration`() = runTest {
+        val book = Book(null, 1L, File("test.epub"))
+        viewModel.loadConfiguration(book)
+
+        viewModel.setImageScale(1.5f)
+        advanceUntilIdle()
+
+        assertEquals(1.5f, viewModel.imageScale.value)
+        verify { bookRepository.updateConfiguration(any()) }
     }
 }

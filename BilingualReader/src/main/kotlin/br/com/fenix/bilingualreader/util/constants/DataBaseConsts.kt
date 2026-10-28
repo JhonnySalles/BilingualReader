@@ -245,6 +245,7 @@ class DataBaseConsts private constructor() {
             const val PAGINATION = "pagination"
             const val FONT_TYPE = "font_type"
             const val FONT_SIZE = "font_size"
+            const val IMAGE_SCALE = "image_scale"
         }
     }
 

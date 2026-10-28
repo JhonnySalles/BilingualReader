@@ -281,7 +281,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mParse = DocumentParse(
                     file.path, mBook?.password ?: "", mViewModel.fontSize.value!!.toInt(),
                     resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
-                    mViewModel.isJapaneseStyle(), this
+                    mViewModel.isJapaneseStyle(), this,
+                    mViewModel.imageScale.value ?: 1.0f
                 )
 
                 if (mBook != null) {
@@ -1203,6 +1204,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mPagesAverage.clear()
             mReadingPageInternal = getCurrentPage(isInternal = true)
             generatePageAverage(isOnlyCalculate = true)
+        }
+
+        mViewModel.imageScale.observeForever { scale ->
+            if (!isAdded || mParse == null || mParse?.imageScale == scale)
+                return@observeForever
+
+            mParse?.changeImageScale(scale) { isSuccess ->
+                if (isSuccess && isAdded) {
+                    mPagerAdapter.notifyItemChanged(getCurrentPage(isInternal = true))
+                }
+            }
         }
     }
 

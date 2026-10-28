@@ -183,8 +183,8 @@ class Migrations {
         // Migration version 6.
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                mLOGGER.info("Start migration 5 - 6...")
-
+                mLOGGER.info("Start migration 5 - 6: Add image_scale to BookConfiguration...")
+                db.execSQL("ALTER TABLE `${DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME}` ADD COLUMN `${DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.IMAGE_SCALE}` REAL NOT NULL DEFAULT 1.0")
                 mLOGGER.info("Completed migration 5 - 6.")
             }
         }

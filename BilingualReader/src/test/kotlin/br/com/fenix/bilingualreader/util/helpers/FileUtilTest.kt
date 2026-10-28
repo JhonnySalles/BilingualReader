@@ -114,4 +114,24 @@ class FileUtilTest {
         verify { fromChannel.close() }
         verify { toChannel.close() }
     }
+
+    @Test
+    fun testGetFolderSize() {
+        assertEquals(0L, FileUtil.getFolderSize(null))
+
+        val nonExistent = File("non_existent_folder_xyz_123")
+        assertEquals(0L, FileUtil.getFolderSize(nonExistent))
+
+        val tempDir = java.nio.file.Files.createTempDirectory("folder_size_test").toFile()
+        try {
+            val file1 = File(tempDir, "file1.txt").apply { writeText("12345") }
+            val subDir = File(tempDir, "sub").apply { mkdir() }
+            val file2 = File(subDir, "file2.txt").apply { writeText("67890") }
+
+            val expectedSize = file1.length() + file2.length()
+            assertEquals(expectedSize, FileUtil.getFolderSize(tempDir))
+        } finally {
+            tempDir.deleteRecursively()
+        }
+    }
 }

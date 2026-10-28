@@ -750,6 +750,16 @@
             android:text="@string/config_covers_delete"
             app:icon="@drawable/ico_covers_delete" />
 
+        <TextView
+            android:id="@+id/config_covers_cache_size"
+            style="@style/TextNormal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_covers_cache_size" />
+
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
             android:layout_width="match_parent"

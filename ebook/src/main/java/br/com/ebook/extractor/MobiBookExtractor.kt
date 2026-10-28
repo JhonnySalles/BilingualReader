@@ -19,12 +19,17 @@ object MobiBookExtractor : BookExtractor {
     override val supportedFormats: Set<String> = setOf("mobi", "azw", "azw3", "azw4", "pdb", "prc")
 
     override suspend fun extractOverview(path: String): Result<String> = runCatching {
+        if (path.endsWith(".pdb", ignoreCase = true)) {
+            return@runCatching ""
+        }
         var info = ""
         val file = File(path)
         try {
             val raw = getMappedByteBuffer(file)
             val parser = MobiParser(raw)
-            info = parser.description ?: ""
+            if (parser.isMobi) {
+                info = parser.description ?: ""
+            }
         } catch (e: Throwable) {
             LOGGER.error("Error to get book overview: {}", e.message, e)
         }
@@ -44,11 +49,17 @@ object MobiBookExtractor : BookExtractor {
         val publisher = parser.publisher ?: ""
         val release = parser.release
 
-        if (title.isNullOrBlank()) {
-            title = file.name
+        if (title.isBlank() || !parser.isMobi) {
+            val pair = TxtUtils.getTitleAuthorByPath(file.name)
+            if (title.isBlank() || title == file.name) {
+                title = pair.first ?: file.nameWithoutExtension
+            }
+            if (author.isNullOrBlank()) {
+                author = pair.second ?: ""
+            }
         }
 
-        if (EbookSettings.isFirstSurname) {
+        if (EbookSettings.isFirstSurname && !author.isNullOrBlank()) {
             author = TxtUtils.replaceLastFirstName(author)
         }
 
@@ -69,12 +80,17 @@ object MobiBookExtractor : BookExtractor {
     }
 
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
+        if (path.endsWith(".pdb", ignoreCase = true)) {
+            return@runCatching null
+        }
         var coverBytes: ByteArray? = null
         val file = File(path)
         try {
             val raw = getMappedByteBuffer(file)
             val parser = MobiParser(raw)
-            coverBytes = parser.getCoverOrThumb()
+            if (parser.isMobi) {
+                coverBytes = parser.getCoverOrThumb()
+            }
         } catch (e: Throwable) {
             LOGGER.error("Error to get book cover: {}", e.message, e)
         }

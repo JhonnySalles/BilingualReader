@@ -17,6 +17,9 @@ import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.service.listener.PopupLayoutListener
 import br.com.fenix.bilingualreader.util.helpers.executeWithAnimation
+import android.widget.TextView
+import com.google.android.material.slider.Slider
+import java.util.Locale
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
@@ -33,6 +36,8 @@ class PopupBookLayout : Fragment() {
     private lateinit var mScrollingModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mPaginationType: TextInputLayout
     private lateinit var mPaginationTypeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mImageScaleSlider: Slider
+    private lateinit var mImageScaleValue: TextView
 
     private lateinit var mMarginSmall: MaterialButton
     private lateinit var mMarginMedium: MaterialButton
@@ -187,6 +192,15 @@ class PopupBookLayout : Fragment() {
             true
         }
 
+        mImageScaleSlider = root.findViewById(R.id.popup_book_layout_image_scale)
+        mImageScaleValue = root.findViewById(R.id.popup_book_layout_image_scale_value)
+        mImageScaleSlider.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                mImageScaleValue.text = String.format(Locale.getDefault(), "%.2fx", value)
+                mViewModel.setImageScale(value)
+            }
+        }
+
         observer()
         return root
     }
@@ -259,6 +273,12 @@ class PopupBookLayout : Fragment() {
 
         mViewModel.spacingType.observe(viewLifecycleOwner) {
             setButtonMarked(getSpacingsButton(), getSelected(it))
+        }
+
+        mViewModel.imageScale.observe(viewLifecycleOwner) { scale ->
+            val safeScale = scale.coerceIn(0.25f, 2.0f)
+            mImageScaleSlider.value = safeScale
+            mImageScaleValue.text = String.format(Locale.getDefault(), "%.2fx", safeScale)
         }
     }
 

@@ -51,6 +51,7 @@ dependencies {
     // Ebook e Parsing de Texto
     implementation("org.jsoup:jsoup:1.18.3")
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
+    implementation("org.apache.commons:commons-compress:1.22")
     implementation(files("libs/rtfparserkit-1.10.0.jar"))
 
     // Coroutines para I/O Assíncrono

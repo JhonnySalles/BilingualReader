@@ -662,6 +662,16 @@ class FileUtil(val context: Context) {
             return String.format("%.1f %sB", size.toDouble() / (1L shl z * 10), " KMGTPE"[z])
         }
 
+        fun getFolderSize(dir: File?): Long {
+            if (dir == null || !dir.exists()) return 0L
+            var size = 0L
+            val files = dir.listFiles() ?: return 0L
+            for (f in files) {
+                size += if (f.isDirectory) getFolderSize(f) else f.length()
+            }
+            return size
+        }
+
     }
 
     /**

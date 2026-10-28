@@ -38,6 +38,14 @@ class FileTypeTest {
         val bookTypes = FileType.getBook()
         assertTrue(bookTypes.contains(FileType.PDF))
         assertTrue(bookTypes.contains(FileType.EPUB))
+        assertTrue(bookTypes.contains(FileType.TXTZ))
+        assertTrue(bookTypes.contains(FileType.RB))
+        assertTrue(bookTypes.contains(FileType.SNB))
+        assertTrue(bookTypes.contains(FileType.HTML))
+        assertTrue(FileType.isBook("book.htmlz"))
+        assertTrue(FileType.isBook("book.txtz"))
+        assertTrue(FileType.isBook("book.rb"))
+        assertTrue(FileType.isBook("book.snb"))
         assertFalse(bookTypes.contains(FileType.CBZ))
     }
 
