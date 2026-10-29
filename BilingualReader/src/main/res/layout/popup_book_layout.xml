@@ -5,6 +5,7 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:orientation="vertical"
     android:paddingLeft="@dimen/margin_small"
     android:paddingTop="@dimen/margin_small"
@@ -21,7 +22,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/popup_book_layout_scrolling_mode"
             style="@style/TextInputDropMenu"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/popup_reading_layout_scrolling_mode"
             android:layout_margin="@dimen/margin_small"
@@ -45,7 +46,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/popup_book_layout_pagination_type"
             style="@style/TextInputDropMenu"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/popup_reading_layout_pagination_type"
             android:layout_margin="@dimen/margin_small"
@@ -65,7 +66,7 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/popup_book_layout_margin_divider"
             style="@style/MaterialDivider"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginTop="@dimen/margin_big"
@@ -135,7 +136,7 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/popup_book_layout_spacing_divider"
             style="@style/MaterialDivider"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginTop="@dimen/margin_big"
@@ -205,7 +206,7 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/popup_book_layout_alignment_divider"
             style="@style/MaterialDivider"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginTop="@dimen/margin_big"
@@ -289,7 +290,7 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/popup_book_layout_reading_touch_divider"
             style="@style/MaterialDivider"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginTop="@dimen/margin_big"
@@ -302,7 +303,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_reading_touch_screen"
             style="@style/Button.LabelStart"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="60dp"
             android:text="@string/popup_reading_layout_reading_view_touch"
             android:layout_margin="@dimen/margin"
@@ -314,7 +315,7 @@
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/popup_book_layout_image_scale_divider"
             style="@style/MaterialDivider"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginTop="@dimen/margin_big"
@@ -337,7 +338,7 @@
 
         <LinearLayout
             android:id="@+id/popup_book_layout_image_scale_container"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginEnd="@dimen/margin"

@@ -253,6 +253,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
         mPopupReaderLayout.setListener(this)
         mPopupConfigurationView.adapter = viewPagerAdapter
+        mPopupConfigurationView.offscreenPageLimit = 2
         TabLayoutMediator(mPopupConfigurationTab, mPopupConfigurationView) { tab, position ->
             tab.text = viewPagerAdapter.getPageTitle(position)
         }.attach()

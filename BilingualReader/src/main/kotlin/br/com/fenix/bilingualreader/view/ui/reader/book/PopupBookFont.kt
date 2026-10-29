@@ -52,8 +52,7 @@ class PopupBookFont : Fragment() {
         }
 
         mViewModel.fontType.observe(viewLifecycleOwner) {
-            (mFontType.adapter as FontsCardAdapter).notifyDataSetChanged()
-            mFontType.scrollBy(mViewModel.getSelectedFontTypeIndex())
+            (mFontType.adapter as? FontsCardAdapter)?.notifyDataSetChanged()
         }
     }
 
@@ -67,7 +66,12 @@ class PopupBookFont : Fragment() {
         mViewModel.loadFonts()
         val lineAdapter = FontsCardAdapter(requireContext(), mViewModel.fonts.value!!, listener)
         mFontType.adapter = lineAdapter
-        mFontType.scrollBy(mViewModel.getSelectedFontTypeIndex())
+        val selectedIndex = mViewModel.getSelectedFontTypeIndex()
+        if (selectedIndex > 0) {
+            mFontType.post {
+                mFontType.setSelection(selectedIndex)
+            }
+        }
 
         mViewModel.fonts.observe(viewLifecycleOwner) {
             lineAdapter.updateList(it)

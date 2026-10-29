@@ -1274,7 +1274,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val initialTranslation = if (isFullScreen) 0f else -50f
         val finalTranslation = if (isFullScreen) -50f else 0f
 
-        val targetTop = mBlurTop ?: mToolbarTop
+        val targetTop = mToolbarTop
         val targetBottom = mBlurBottom ?: mToolbarBottom
 
         setupTitleBackgrounds()
@@ -1284,6 +1284,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         if (!isFullScreen) {
             setReaderBlurContinuous(true)
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.translationY = 0f
+                mBlurTop.alpha = 1f
+            }
             targetTop.visibility = View.VISIBLE
             targetTop.translationY = initialTranslation
             targetTop.alpha = initialAlpha
