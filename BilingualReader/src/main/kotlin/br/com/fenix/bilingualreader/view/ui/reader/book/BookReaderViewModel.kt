@@ -63,7 +63,9 @@ import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -815,6 +817,19 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     // --------------------------------------------------------- Book - Chapters ---------------------------------------------------------
     var isLoadChapters = false
     var stopLoadChapters = false
+    private var loadChapterJob: Job? = null
+
+    fun cancelLoadChapters() {
+        stopLoadChapters = true
+        loadChapterJob?.cancel()
+        loadChapterJob = null
+        isLoadChapters = false
+    }
+
+    override fun onCleared() {
+        cancelLoadChapters()
+        super.onCleared()
+    }
 
     private fun createChapterThumbnailTextView(context: Context, renderWidth: Int, renderHeight: Int, fontScale: Float): TextView {
         val textView = TextView(context)
@@ -843,6 +858,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView: TextView, imageMaxWidth: Int): Bitmap? {
         try {
+            if (parse.isRecycled) return null
             val documentPage = parse.getPage(page)
             var text = documentPage.pageHTMLWithImages.orEmpty()
 
@@ -878,7 +894,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     }
                 }
                 textView.text = processed
-                documentPage.recycle()
+                try {
+                    if (!parse.isRecycled) documentPage.recycle()
+                } catch (ignored: Throwable) {}
 
                 bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.RGB_565)
                 val canvas = Canvas(bitmap)
@@ -895,7 +913,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 }
                 if (bitmaps.isEmpty()) {
                     val nativeBitmap = try {
-                        documentPage.renderThumbnail(imageMaxWidth)
+                        if (!parse.isRecycled) documentPage.renderThumbnail(imageMaxWidth) else null
                     } catch (e: Exception) {
                         null
                     }
@@ -903,7 +921,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                         bitmaps = listOf(nativeBitmap)
                     } else {
                         val fallbackBitmap = try {
-                            ImageParse(context).getPage(parse.path, page, imageMaxWidth)
+                            if (!parse.isRecycled) ImageParse(context).getPage(parse.path, page, imageMaxWidth) else null
                         } catch (e: Exception) {
                             null
                         }
@@ -912,7 +930,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                         }
                     }
                 }
-                documentPage.recycle()
+                try {
+                    if (!parse.isRecycled) documentPage.recycle()
+                } catch (ignored: Throwable) {}
                 bitmap = when {
                     bitmaps.isEmpty() -> return null
                     bitmaps.size == 1 -> bitmaps[0]
@@ -938,6 +958,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         if (SharedData.isProcessed(parse)) {
+            cancelLoadChapters()
             isLoadChapters = true
             SharedData.clearChapters()
             stopLoadChapters = false
@@ -987,24 +1008,21 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             }
 
             SharedData.setChapters(parse, list)
-            CoroutineScope(Dispatchers.IO).launch {
-                val deferred = async {
-                    for (index in orderedIndices) {
-                        if (stopLoadChapters)
-                            break
+            loadChapterJob = CoroutineScope(Dispatchers.IO).launch {
+                for (index in orderedIndices) {
+                    if (!isActive || stopLoadChapters || parse.isRecycled)
+                        break
 
-                        val chapter = list[index]
-                        chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
-                        withContext(Dispatchers.Main) {
-                            if (!stopLoadChapters)
-                                SharedData.callListeners(chapter.number)
-                        }
+                    val chapter = list[index]
+                    chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
+                    withContext(Dispatchers.Main) {
+                        if (!stopLoadChapters && !parse.isRecycled)
+                            SharedData.callListeners(chapter.number)
                     }
                 }
 
-                deferred.await()
                 withContext(Dispatchers.Main) {
-                    if (!stopLoadChapters)
+                    if (!stopLoadChapters && !parse.isRecycled)
                         SharedData.setChapters(parse, list.toList())
                 }
                 isLoadChapters = false
@@ -1020,24 +1038,24 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val textView = createChapterThumbnailTextView(context, renderWidth, renderHeight, fontScale)
         val chapters = SharedData.chapters.value ?: return
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val deferred = async {
-                for ((index, chapter) in chapters.withIndex()) {
-                    if (stopLoadChapters)
-                        break
+        cancelLoadChapters()
+        isLoadChapters = true
+        stopLoadChapters = false
 
-                    if (chapter.isTitle || chapter.image != null)
-                        continue
+        loadChapterJob = CoroutineScope(Dispatchers.IO).launch {
+            for ((index, chapter) in chapters.withIndex()) {
+                if (!isActive || stopLoadChapters || parse.isRecycled)
+                    break
 
-                    chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
-                    withContext(Dispatchers.Main) {
-                        if (!stopLoadChapters)
-                            SharedData.callListeners(chapter.number)
-                    }
+                if (chapter.isTitle || chapter.image != null)
+                    continue
+
+                chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
+                withContext(Dispatchers.Main) {
+                    if (!stopLoadChapters && !parse.isRecycled)
+                        SharedData.callListeners(chapter.number)
                 }
             }
-
-            deferred.await()
             isLoadChapters = false
         }
     }

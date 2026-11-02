@@ -97,7 +97,23 @@ object TxtzBookExtractor : BookExtractor {
         var coverBytes: ByteArray? = null
         try {
             ZipFile(path).use { zip ->
-                val entry = zip.getEntry("cover.jpeg") ?: zip.getEntry("cover.jpg") ?: zip.getEntry("cover.png")
+                var coverEntryName: String? = null
+                val opfEntry = zip.getEntry("metadata.opf")
+                if (opfEntry != null) {
+                    try {
+                        zip.getInputStream(opfEntry).use { stream ->
+                            val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
+                            val coverEl = doc.select("cover-relpath-from-base, meta[name=cover-relpath-from-base]").firstOrNull()
+                            val coverMeta = if (coverEl?.tagName() == "meta") coverEl.attr("content").trim() else coverEl?.text()?.trim()
+                            if (!coverMeta.isNullOrEmpty()) {
+                                coverEntryName = coverMeta
+                            }
+                        }
+                    } catch (ignored: Exception) {}
+                }
+
+                val entry = (if (coverEntryName != null) zip.getEntry(coverEntryName) else null)
+                    ?: zip.getEntry("cover.jpeg") ?: zip.getEntry("cover.jpg") ?: zip.getEntry("cover.png")
                 if (entry != null) {
                     zip.getInputStream(entry).use { input ->
                         coverBytes = input.readBytes()
@@ -224,7 +240,8 @@ object TxtzBookExtractor : BookExtractor {
                 try {
                     zip.getInputStream(opfEntry).use { stream ->
                         val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
-                        val coverMeta = doc.select("meta[name=cover-relpath-from-base]").firstOrNull()?.attr("content")?.trim()
+                        val coverEl = doc.select("cover-relpath-from-base, meta[name=cover-relpath-from-base]").firstOrNull()
+                        val coverMeta = if (coverEl?.tagName() == "meta") coverEl.attr("content").trim() else coverEl?.text()?.trim()
                         if (!coverMeta.isNullOrEmpty()) {
                             coverFileName = coverMeta
                         }
@@ -263,30 +280,22 @@ object TxtzBookExtractor : BookExtractor {
         val coverBytes = if (coverFileName != null) resourceBytes[coverFileName!!] else null
         val hasCover = coverBytes != null && coverBytes.isNotEmpty()
 
-        if (hasCover && coverBytes != null) {
-            val coverHash = java.util.Arrays.hashCode(coverBytes).toString()
-            val duplicates = resourceBytes.filter { it.key != coverFileName && java.util.Arrays.hashCode(it.value).toString() == coverHash }.keys.toList()
-            duplicates.forEach { resourceBytes.remove(it) }
-        }
-
-        // Dedup gallery items (excluding cover and duplicate images by content hash)
+        // Imagens que são diferentes da capa são adicionadas como páginas de galeria ao final do livro.
+        // Ignora imagens que sejam a capa primária, duplicatas com o mesmo conteúdo ou nome variantes de cover.
         val galleryItems = mutableListOf<br.com.ebook.util.EpubPackager.GalleryItem>()
-        val seenImageHashes = mutableSetOf<String>()
-        if (hasCover) {
-            seenImageHashes.add(java.util.Arrays.hashCode(coverBytes).toString())
-        }
-
         for ((name, bytes) in resourceBytes) {
-            val n = name.lowercase()
-            if (n.startsWith("cover.") || n.contains("/cover.")) continue
-            val hash = java.util.Arrays.hashCode(bytes).toString()
-            if (!seenImageHashes.add(hash)) continue
-            galleryItems.add(
-                br.com.ebook.util.EpubPackager.GalleryItem(
-                    imageFileName = name,
-                    title = File(name).nameWithoutExtension
+            val isCoverDuplicate = name.equals(coverFileName, ignoreCase = true) ||
+                    File(name).nameWithoutExtension.equals("cover", ignoreCase = true) ||
+                    (hasCover && coverBytes.contentEquals(bytes))
+
+            if (!isCoverDuplicate) {
+                galleryItems.add(
+                    br.com.ebook.util.EpubPackager.GalleryItem(
+                        imageFileName = name,
+                        title = File(name).nameWithoutExtension
+                    )
                 )
-            )
+            }
         }
 
         val rawLines = textContent.replace("\r", "").split('\n')
@@ -410,24 +419,53 @@ object TxtzBookExtractor : BookExtractor {
         val list = mutableListOf<OutlineLink>()
         try {
             var textContent: String? = null
-            var hasGallery = false
+            var coverFileName: String? = null
+            val imageMap = mutableMapOf<String, ByteArray>()
             if (path.endsWith(".txtz", ignoreCase = true)) {
                 ZipFile(path).use { zip ->
+                    val opfEntry = zip.getEntry("metadata.opf")
+                    if (opfEntry != null) {
+                        try {
+                            zip.getInputStream(opfEntry).use { stream ->
+                                val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
+                                val coverEl = doc.select("cover-relpath-from-base, meta[name=cover-relpath-from-base]").firstOrNull()
+                                val coverMeta = if (coverEl?.tagName() == "meta") coverEl.attr("content").trim() else coverEl?.text()?.trim()
+                                if (!coverMeta.isNullOrEmpty()) {
+                                    coverFileName = coverMeta
+                                }
+                            }
+                        } catch (ignored: Exception) {}
+                    }
+
                     val entry = zip.getEntry("index.txt") ?: zip.entries().asSequence().firstOrNull { it.name.endsWith(".txt") }
                     if (entry != null) {
                         val bytes = zip.getInputStream(entry).use { it.readBytes() }
                         textContent = decodeTextBytes(bytes)
                     }
+
                     for (e in zip.entries().asSequence()) {
                         val n = e.name.lowercase()
-                        if ((n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp")) &&
-                            !n.startsWith("cover.") && !n.contains("/cover.")) {
-                            hasGallery = true
-                            break
+                        if (n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp")) {
+                            imageMap[e.name] = zip.getInputStream(e).use { it.readBytes() }
                         }
                     }
                 }
             }
+
+            if (coverFileName == null) {
+                coverFileName = imageMap.keys.firstOrNull { it.lowercase().startsWith("cover.") }
+                    ?: imageMap.keys.firstOrNull()
+            }
+
+            val coverBytes = if (coverFileName != null) imageMap[coverFileName!!] else null
+            val hasCover = coverBytes != null && coverBytes.isNotEmpty()
+
+            val galleryImages = imageMap.filter { (name, bytes) ->
+                val isCoverDuplicate = name.equals(coverFileName, ignoreCase = true) ||
+                        File(name).nameWithoutExtension.equals("cover", ignoreCase = true) ||
+                        (hasCover && coverBytes.contentEquals(bytes))
+                !isCoverDuplicate
+            }.keys.toList()
 
             if (textContent.isNullOrBlank()) return emptyList()
 
@@ -437,8 +475,9 @@ object TxtzBookExtractor : BookExtractor {
             for (b in boundaries) {
                 list.add(OutlineLink(b.title, "chap_${b.chapterNumber}.xhtml#txtz_chap_${b.chapterNumber}", 0))
             }
-            if (hasGallery) {
-                list.add(OutlineLink("Galeria de Imagens", "gallery_0.xhtml", 0))
+            for ((index, imgName) in galleryImages.withIndex()) {
+                val imgTitle = File(imgName).nameWithoutExtension.ifBlank { (index + 1).toString() }
+                list.add(OutlineLink("Galeria - $imgTitle", "gallery_$index.xhtml", 0))
             }
         } catch (e: Exception) {
             LOGGER.warn("Error extracting outline from TXTZ {}: {}", path, e.message)

@@ -5,6 +5,7 @@ import br.com.ebook.core.BookExtractorFactory
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -134,14 +135,14 @@ class NewFormatsExtractionTest {
             val chap1Text = zip.getInputStream(chap1Entry).bufferedReader(Charsets.UTF_8).readText()
             assertTrue(chap1Text.contains("CAP"), "chap_1.xhtml must start with Chapter 1")
 
-            // No gallery items (since cover.jpg is duplicate of cover.jpeg)
+            // Gallery items: cover.jpg is identical to cover.jpeg, so it must NOT be duplicated in gallery
             val galleryEntry = zip.getEntry("OEBPS/gallery_0.xhtml")
-            assertTrue(galleryEntry == null, "TXTZ gallery must be empty for 01-86")
+            assertNull(galleryEntry, "TXTZ gallery must not duplicate cover image in 01-86")
         }
 
-        // 5. Outline
+        // 5. Outline (10 chapters, no gallery duplicate)
         val outline = TxtzBookExtractor.extractOutline(file.absolutePath)
-        assertEquals(10, outline.size, "TXTZ outline should have exactly 10 real chapters")
+        assertEquals(10, outline.size, "TXTZ outline should have exactly 10 real chapters with no duplicate cover gallery")
         assertTrue(outline[0].link.startsWith("chap_1.xhtml#"), "First outline chapter should point to chap_1.xhtml")
     }
 
@@ -307,6 +308,11 @@ class NewFormatsExtractionTest {
             zos.write(fakeJpeg)
             zos.closeEntry()
 
+            // Duplicate cover under another name
+            zos.putNextEntry(java.util.zip.ZipEntry("cover.jpeg"))
+            zos.write(fakeJpeg)
+            zos.closeEntry()
+
             zos.putNextEntry(java.util.zip.ZipEntry("illustration_01.png"))
             zos.write(fakePng)
             zos.closeEntry()
@@ -319,15 +325,19 @@ class NewFormatsExtractionTest {
 
         ZipFile(epubFile).use { zip ->
             assertNotNull(zip.getEntry("OEBPS/cover.xhtml"))
-            // Gallery item must be present at the end for illustration_01.png
+            // Gallery item must be present at the end ONLY for illustration_01.png (cover.jpeg must be excluded)
             val galleryEntry = zip.getEntry("OEBPS/gallery_0.xhtml")
             assertNotNull(galleryEntry, "Gallery item must exist for illustration_01.png")
             val galleryHtml = zip.getInputStream(galleryEntry).bufferedReader(Charsets.UTF_8).readText()
             assertTrue(galleryHtml.contains("illustration_01.png"))
+
+            val galleryEntry2 = zip.getEntry("OEBPS/gallery_1.xhtml")
+            assertNull(galleryEntry2, "Duplicate cover.jpeg must not generate gallery_1.xhtml")
         }
 
         val outline = TxtzBookExtractor.extractOutline(tempTxtz.absolutePath)
-        assertTrue(outline.any { it.title.contains("Galeria") }, "Outline should include gallery entry")
+        val galleryOutline = outline.filter { it.title.contains("Galeria") }
+        assertEquals(1, galleryOutline.size, "Outline should include exactly 1 gallery entry for illustration_01")
     }
 
     @Test

@@ -398,7 +398,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     private fun setBook(book: Book) {
-        mViewModel.stopLoadChapters = true
+        mViewModel.cancelLoadChapters()
         SharedData.clearChapters()
         changePageDescription(book.chapter, book.chapterDescription, if (book.bookMark > 0) book.bookMark else 1, book.pages)
         mBook = book

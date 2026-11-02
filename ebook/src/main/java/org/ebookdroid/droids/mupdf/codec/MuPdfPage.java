@@ -142,7 +142,9 @@ public class MuPdfPage extends AbstractCodecPage {
                 long p = pageHandle;
                 pageHandle = 0;
                 
-                free(docHandle, p);
+                if (!MuPdfDocument.isDocHandleRecycled(docHandle)) {
+                    free(docHandle, p);
+                }
             }
         } catch (final Exception e) {
             LOGGER.error("Error recycle: {}", e.getMessage(), e);

@@ -62,9 +62,11 @@ class ImageGetter(val context: Context, val textView: TextView, val maxWidth: In
             }
 
             if (bmp != null) {
-                if (bmp.width > targetWidth) {
-                    val height = bmp.height * (targetWidth.toFloat() / bmp.width)
-                    bmp = Bitmap.createScaledBitmap(bmp, targetWidth, height.toInt(), false)
+                if (targetWidth > 0 && bmp.width > targetWidth) {
+                    val newHeight = (bmp.height * (targetWidth.toFloat() / bmp.width)).toInt()
+                    if (newHeight > 0) {
+                        bmp = Bitmap.createScaledBitmap(bmp, targetWidth, newHeight, false)
+                    }
                 }
 
                 drawable = BitmapDrawable(context.resources, bmp)

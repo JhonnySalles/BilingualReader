@@ -307,11 +307,19 @@ public class MuPdfDocument extends AbstractCodecDocument {
         }
     }
 
+    private static final java.util.Set<Long> recycledDocHandles = java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<Long, Boolean>());
+
+    public static boolean isDocHandleRecycled(long handle) {
+        return handle == 0 || recycledDocHandles.contains(handle);
+    }
+
     @Override
     protected void freeDocument() {
-        free(documentHandle);
+        if (documentHandle != 0) {
+            recycledDocHandles.add(documentHandle);
+            free(documentHandle);
+        }
         cacheHandle = -1;
-        
     }
 
     static void normalizeLinkTargetRect(final long docHandle, final int targetPage, final RectF targetRect, final int flags) {
