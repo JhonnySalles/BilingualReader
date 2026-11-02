@@ -28,6 +28,8 @@ class TxtContext : PdfContext() {
             if (content is BookContent.HtmlFile) {
                 finalFileName = content.path
                 notes = content.notes
+            } else if (content is BookContent.EpubFile) {
+                finalFileName = content.path
             }
             LOGGER.info("new file name: {}", finalFileName)
         } catch (e: Exception) {
@@ -35,6 +37,7 @@ class TxtContext : PdfContext() {
         }
 
         val muPdfDocument = MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, finalFileName, password)
+        muPdfDocument.setOriginalFname(fileName)
         muPdfDocument.setFootNotes(notes)
         return muPdfDocument
     }

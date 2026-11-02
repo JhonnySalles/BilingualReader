@@ -889,17 +889,30 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
                 textView.draw(canvas)
             } else {
-                documentPage.recycle()
                 val images = TextUtil.getImagesFromTag(text)
                 var bitmaps = images.mapNotNull {
                     ImageUtil.decodeImageBase64(it.substringAfter(",").trim(), imageMaxWidth, imageMaxWidth)
                 }
                 if (bitmaps.isEmpty()) {
-                    val nativeBitmap = ImageParse(context).getPage(parse.path, page, imageMaxWidth)
+                    val nativeBitmap = try {
+                        documentPage.renderThumbnail(imageMaxWidth)
+                    } catch (e: Exception) {
+                        null
+                    }
                     if (nativeBitmap != null) {
                         bitmaps = listOf(nativeBitmap)
+                    } else {
+                        val fallbackBitmap = try {
+                            ImageParse(context).getPage(parse.path, page, imageMaxWidth)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (fallbackBitmap != null) {
+                            bitmaps = listOf(fallbackBitmap)
+                        }
                     }
                 }
+                documentPage.recycle()
                 bitmap = when {
                     bitmaps.isEmpty() -> return null
                     bitmaps.size == 1 -> bitmaps[0]
@@ -956,10 +969,21 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 .let { if (it >= 0) it else list.indexOfLast { c -> !c.isTitle } }
             val orderedIndices = mutableListOf<Int>()
             if (startIndex >= 0) {
-                for (i in startIndex until list.size)
-                    if (!list[i].isTitle) orderedIndices.add(i)
-                for (i in startIndex - 1 downTo 0)
-                    if (!list[i].isTitle) orderedIndices.add(i)
+                // Bidirectional proximity ordering: starts around current reading position, expanding outwards
+                val nonTitleIndices = list.indices.filter { !list[it].isTitle }
+                val startPos = nonTitleIndices.indexOf(startIndex).coerceAtLeast(0)
+                var left = startPos - 1
+                var right = startPos
+                while (right < nonTitleIndices.size || left >= 0) {
+                    if (right < nonTitleIndices.size) {
+                        orderedIndices.add(nonTitleIndices[right])
+                        right++
+                    }
+                    if (left >= 0) {
+                        orderedIndices.add(nonTitleIndices[left])
+                        left--
+                    }
+                }
             }
 
             SharedData.setChapters(parse, list)
@@ -973,7 +997,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                         chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
                         withContext(Dispatchers.Main) {
                             if (!stopLoadChapters)
-                                SharedData.callListeners(index)
+                                SharedData.callListeners(chapter.number)
                         }
                     }
                 }
@@ -1008,7 +1032,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     chapter.image = loadImage(context, parse, chapter.number, textView, renderWidth)
                     withContext(Dispatchers.Main) {
                         if (!stopLoadChapters)
-                            SharedData.callListeners(index)
+                            SharedData.callListeners(chapter.number)
                     }
                 }
             }

@@ -169,7 +169,65 @@ object HtmlzBookExtractor : BookExtractor {
             throw java.io.IOException("index.html missing in HTMLZ archive")
         }
 
-        BookContent.HtmlFile(indexHtml.absolutePath)
+        // Package into standard EPUB 2.0
+        val epubFile = File(destDir, "book.epub")
+        try {
+            val meta = extractMetadata(path).getOrNull()
+            val title = meta?.title?.ifEmpty { File(path).nameWithoutExtension } ?: File(path).nameWithoutExtension
+            val author = meta?.author ?: ""
+
+            val resourceBytes = mutableMapOf<String, ByteArray>()
+            destDir.walkTopDown().filter { it.isFile }.forEach { f ->
+                val rel = f.relativeTo(destDir).path.replace('\\', '/')
+                val n = rel.lowercase()
+                if (n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".gif") || n.endsWith(".webp") || n.endsWith(".css")) {
+                    resourceBytes[rel] = f.readBytes()
+                }
+            }
+
+            val coverFile = destDir.listFiles { _, name ->
+                val n = name.lowercase()
+                n.startsWith("cover.") && (n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp"))
+            }?.firstOrNull()
+
+            val coverBytes = if (coverFile != null && coverFile.exists()) coverFile.readBytes() else null
+            val coverFileName = coverFile?.name ?: "cover.jpg"
+
+            val htmlText = indexHtml.readText(Charsets.UTF_8)
+            val doc = org.jsoup.Jsoup.parse(htmlText, "UTF-8")
+
+            // Segment content into spine items using SpineSegmenter
+            val hasCustomStyle = resourceBytes.keys.any { it.trimStart('/').equals("style.css", ignoreCase = true) }
+            val cssLinks = if (hasCustomStyle) listOf("style.css") else emptyList()
+
+            val chapters = br.com.ebook.util.SpineSegmenter.segmentHtmlDocument(
+                doc = doc,
+                resourceBytes = resourceBytes,
+                bookTitle = title,
+                coverFileNameToSkip = null,
+                defaultCssLinks = cssLinks
+            )
+
+            br.com.ebook.util.EpubPackager.createEpub(
+                outputFile = epubFile,
+                title = title,
+                author = author,
+                coverBytes = coverBytes,
+                coverFileName = coverFileName,
+                galleryItems = emptyList(),
+                chapters = chapters,
+                resourceFiles = resourceBytes
+            )
+            LOGGER.info("HTMLZ successfully packaged to EPUB: {}", epubFile.absolutePath)
+        } catch (e: Exception) {
+            LOGGER.error("Error packaging HTMLZ to EPUB: {}", e.message, e)
+        }
+
+        if (epubFile.exists()) {
+            BookContent.EpubFile(epubFile.absolutePath)
+        } else {
+            BookContent.HtmlFile(indexHtml.absolutePath)
+        }
     }
 
     fun extractOutline(path: String): List<OutlineLink> {

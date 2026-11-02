@@ -33,13 +33,32 @@ object DocBookExtractor : BookExtractor {
         emptyMap()
     }
 
+    private fun escapeHtml(text: String): String {
+        val out = StringBuilder(text.length)
+        for (c in text) {
+            when (c) {
+                '<' -> out.append("&lt;")
+                '>' -> out.append("&gt;")
+                '&' -> out.append("&amp;")
+                '"' -> out.append("&quot;")
+                '\'' -> out.append("&#39;")
+                else -> out.append(c)
+            }
+        }
+        return out.toString()
+    }
+
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
-        val outHtmlFile = File(outputDir, "doc-converted.html")
+        val hashCode = path.hashCode().toString()
+        val destDir = File(outputDir, "doc_temp_$hashCode")
+        destDir.mkdirs()
+
         val file = File(path)
         val bytes = file.readBytes()
         
         // 1. Scan for images (JPEG / PNG) in the binary stream
         val imageFiles = mutableListOf<String>()
+        val resourceBytes = mutableMapOf<String, ByteArray>()
         var offset = 0
         var imgCount = 0
         val n = bytes.size
@@ -59,7 +78,8 @@ object DocBookExtractor : BookExtractor {
                     if (imgSize > 2048) { // Ignore tiny noise
                         val imgBytes = bytes.copyOfRange(offset, end + 2)
                         val imgName = "image_${imgCount++}.jpg"
-                        File(outputDir, imgName).writeBytes(imgBytes)
+                        File(destDir, imgName).writeBytes(imgBytes)
+                        resourceBytes[imgName] = imgBytes
                         imageFiles.add(imgName)
                         offset = end + 2
                         continue
@@ -82,7 +102,8 @@ object DocBookExtractor : BookExtractor {
                     if (imgSize > 2048) {
                         val imgBytes = bytes.copyOfRange(offset, end + 8)
                         val imgName = "image_${imgCount++}.png"
-                        File(outputDir, imgName).writeBytes(imgBytes)
+                        File(destDir, imgName).writeBytes(imgBytes)
+                        resourceBytes[imgName] = imgBytes
                         imageFiles.add(imgName)
                         offset = end + 8
                         continue
@@ -93,16 +114,16 @@ object DocBookExtractor : BookExtractor {
         }
 
         // 2. Parse text and embed images where the character \u0001 (0x01) occurs
-        val htmlBuilder = StringBuilder()
-        htmlBuilder.append("<html><head><meta charset=\"UTF-8\"/><style>p { margin: 1em 0; line-height: 1.5; } img { max-width: 100%; height: auto; display: block; margin: 1em auto; }</style></head><body>")
-
+        val blocks = mutableListOf<br.com.ebook.util.SpineSegmenter.Block>()
         var i = 0
         var embeddedImgCount = 0
 
-        fun insertImageTag() {
+        fun insertImageBlock() {
             if (embeddedImgCount < imageFiles.size) {
                 val imgName = imageFiles[embeddedImgCount++]
-                htmlBuilder.append("<img src=\"").append(imgName).append("\"/>")
+                val imgData = resourceBytes[imgName]
+                val role = br.com.ebook.util.ImageSizeUtils.classify(imgData)
+                blocks.add(br.com.ebook.util.SpineSegmenter.Block.Image(src = imgName, role = role))
             }
         }
 
@@ -132,19 +153,23 @@ object DocBookExtractor : BookExtractor {
                         val segment = String(bytes, start, len, Charsets.UTF_16LE).trim()
                         if (segment.isNotEmpty()) {
                             if (hasImageChar) {
-                                htmlBuilder.append("<p>")
+                                val currentP = StringBuilder()
                                 segment.forEach { char ->
                                     if (char == '\u0001') {
-                                        htmlBuilder.append("</p>")
-                                        insertImageTag()
-                                        htmlBuilder.append("<p>")
+                                        if (currentP.isNotEmpty()) {
+                                            blocks.add(br.com.ebook.util.SpineSegmenter.Block.HtmlText("<p>${escapeHtml(currentP.toString())}</p>", textLength = currentP.length))
+                                            currentP.clear()
+                                        }
+                                        insertImageBlock()
                                     } else {
-                                        htmlBuilder.append(android.text.TextUtils.htmlEncode(char.toString()))
+                                        currentP.append(char)
                                     }
                                 }
-                                htmlBuilder.append("</p>")
+                                if (currentP.isNotEmpty()) {
+                                    blocks.add(br.com.ebook.util.SpineSegmenter.Block.HtmlText("<p>${escapeHtml(currentP.toString())}</p>", textLength = currentP.length))
+                                }
                             } else {
-                                htmlBuilder.append("<p>").append(android.text.TextUtils.htmlEncode(segment)).append("</p>")
+                                blocks.add(br.com.ebook.util.SpineSegmenter.Block.HtmlText("<p>${escapeHtml(segment)}</p>", textLength = segment.length))
                             }
                         }
                     }
@@ -173,19 +198,23 @@ object DocBookExtractor : BookExtractor {
                     val segment = String(bytes, start, len, Charsets.US_ASCII).trim()
                     if (segment.isNotEmpty() && !segment.startsWith("Microsoft") && !segment.contains("Word.Document")) {
                         if (hasImageChar) {
-                            htmlBuilder.append("<p>")
+                            val currentP = StringBuilder()
                             segment.forEach { char ->
                                 if (char == '\u0001') {
-                                    htmlBuilder.append("</p>")
-                                    insertImageTag()
-                                    htmlBuilder.append("<p>")
+                                    if (currentP.isNotEmpty()) {
+                                        blocks.add(br.com.ebook.util.SpineSegmenter.Block.HtmlText("<p>${escapeHtml(currentP.toString())}</p>", textLength = currentP.length))
+                                        currentP.clear()
+                                    }
+                                    insertImageBlock()
                                 } else {
-                                    htmlBuilder.append(android.text.TextUtils.htmlEncode(char.toString()))
+                                    currentP.append(char)
                                 }
                             }
-                            htmlBuilder.append("</p>")
+                            if (currentP.isNotEmpty()) {
+                                blocks.add(br.com.ebook.util.SpineSegmenter.Block.HtmlText("<p>${escapeHtml(currentP.toString())}</p>", textLength = currentP.length))
+                            }
                         } else {
-                            htmlBuilder.append("<p>").append(android.text.TextUtils.htmlEncode(segment)).append("</p>")
+                            blocks.add(br.com.ebook.util.SpineSegmenter.Block.HtmlText("<p>${escapeHtml(segment)}</p>", textLength = segment.length))
                         }
                     }
                 }
@@ -195,15 +224,51 @@ object DocBookExtractor : BookExtractor {
             i++
         }
 
-        // Append any remaining images at the end if they were not placed by \u0001
+        // Leftover images not placed via \u0001 go to gallery at the end
+        val leftoverGalleryItems = mutableListOf<br.com.ebook.util.EpubPackager.GalleryItem>()
         while (embeddedImgCount < imageFiles.size) {
-            insertImageTag()
+            val imgName = imageFiles[embeddedImgCount++]
+            leftoverGalleryItems.add(
+                br.com.ebook.util.EpubPackager.GalleryItem(
+                    imageFileName = imgName,
+                    title = File(imgName).nameWithoutExtension
+                )
+            )
         }
 
-        htmlBuilder.append("</body></html>")
-        outHtmlFile.parentFile?.mkdirs()
-        outHtmlFile.writeText(htmlBuilder.toString())
-        
-        BookContent.HtmlFile(outHtmlFile.absolutePath)
+        val meta = extractMetadata(path).getOrNull()
+        val title = meta?.title?.ifEmpty { file.nameWithoutExtension } ?: file.nameWithoutExtension
+
+        // Segment into spine items
+        val chapters = br.com.ebook.util.SpineSegmenter.segment(
+            blocks = blocks,
+            bookTitle = title,
+            minTextChars = 200
+        )
+
+        // Cover: first image if FULL_PAGE
+        var coverBytes: ByteArray? = null
+        var coverFileName = "cover.jpg"
+        if (imageFiles.isNotEmpty()) {
+            val firstImgName = imageFiles.first()
+            val firstData = resourceBytes[firstImgName]
+            if (firstData != null && br.com.ebook.util.ImageSizeUtils.classify(firstData) == br.com.ebook.util.ImageSizeUtils.ImageRole.FULL_PAGE) {
+                coverBytes = firstData
+                coverFileName = firstImgName
+            }
+        }
+
+        val epubFile = File(destDir, "book.epub")
+        br.com.ebook.util.EpubPackager.createEpub(
+            outputFile = epubFile,
+            title = title,
+            coverBytes = coverBytes,
+            coverFileName = coverFileName,
+            galleryItems = leftoverGalleryItems,
+            chapters = chapters,
+            resourceFiles = resourceBytes
+        )
+
+        BookContent.EpubFile(epubFile.absolutePath)
     }
 }

@@ -7,6 +7,7 @@ import br.com.ebook.foobnix.ext.XmlParser
 import br.com.ebook.util.IOUtils.copyTo
 import org.ebookdroid.core.codec.OutlineLink
 import org.jsoup.Jsoup
+import org.jsoup.parser.Parser
 import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
 import org.xmlpull.v1.XmlPullParser
@@ -22,7 +23,7 @@ object TxtzBookExtractor : BookExtractor {
     override val supportedFormats: Set<String> = setOf("txtz")
 
     private val CHAPTER_PATTERN = Pattern.compile(
-        "^\\s*(cap[ií]tulo\\s+\\d+.*|chapter\\s+\\d+.*|ep[ií]logo.*|prologue.*|pr[oó]logo.*|afterword.*|[0-9IVXLCDM]+\\..*)\\s*$",
+        "^\\s*(cap.?tulo\\s+\\d+.*|chapter\\s+\\d+.*|ep.?logo.*|prologue.*|pr.?logo.*|afterword.*|[0-9IVXLCDM]+\\..*)\\s*$",
         Pattern.CASE_INSENSITIVE
     )
 
@@ -145,6 +146,17 @@ object TxtzBookExtractor : BookExtractor {
         emptyMap()
     }
 
+    private fun decodeTextBytes(bytes: ByteArray): String {
+        return try {
+            val decoder = Charsets.UTF_8.newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+            decoder.decode(java.nio.ByteBuffer.wrap(bytes)).toString()
+        } catch (e: Exception) {
+            String(bytes, java.nio.charset.Charset.forName("windows-1252"))
+        }
+    }
+
     private fun escapeHtml(text: String): String {
         val out = StringBuilder(text.length)
         for (c in text) {
@@ -160,6 +172,42 @@ object TxtzBookExtractor : BookExtractor {
         return out.toString()
     }
 
+    data class TxtzChapterBoundary(
+        val lineIndex: Int,
+        val title: String,
+        val chapterNumber: Int
+    )
+
+    fun findChapterBoundaries(lines: List<String>): List<TxtzChapterBoundary> {
+        val candidates = mutableListOf<Int>()
+        for ((idx, line) in lines.withIndex()) {
+            if (CHAPTER_PATTERN.matcher(line).matches()) {
+                candidates.add(idx)
+            }
+        }
+        if (candidates.isEmpty()) return emptyList()
+
+        // Cluster detection: if candidate i has neighbor candidate within 10 lines, it's Table of Contents (TOC)
+        val isTocCandidate = mutableSetOf<Int>()
+        for (i in candidates.indices) {
+            val c = candidates[i]
+            val prevClose = (i > 0 && (c - candidates[i - 1] <= 10))
+            val nextClose = (i + 1 < candidates.size && (candidates[i + 1] - c <= 10))
+            if (prevClose || nextClose) {
+                isTocCandidate.add(c)
+            }
+        }
+
+        val realBoundaries = mutableListOf<TxtzChapterBoundary>()
+        var chapNum = 1
+        for (c in candidates) {
+            if (!isTocCandidate.contains(c)) {
+                realBoundaries.add(TxtzChapterBoundary(c, lines[c], chapNum++))
+            }
+        }
+        return realBoundaries
+    }
+
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
         val hashCode = path.hashCode().toString()
         val destDir = File(outputDir, "txtz_temp_$hashCode")
@@ -167,69 +215,215 @@ object TxtzBookExtractor : BookExtractor {
 
         var textContent = ""
         var coverFileName: String? = null
+        val resourceBytes = mutableMapOf<String, ByteArray>()
 
         ZipFile(path).use { zip ->
+            // Check metadata.opf for cover-relpath-from-base
+            val opfEntry = zip.getEntry("metadata.opf")
+            if (opfEntry != null) {
+                try {
+                    zip.getInputStream(opfEntry).use { stream ->
+                        val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
+                        val coverMeta = doc.select("meta[name=cover-relpath-from-base]").firstOrNull()?.attr("content")?.trim()
+                        if (!coverMeta.isNullOrEmpty()) {
+                            coverFileName = coverMeta
+                        }
+                    }
+                } catch (e: Exception) {
+                    LOGGER.warn("Could not read cover from metadata.opf: {}", e.message)
+                }
+            }
+
             val entries = zip.entries()
             while (entries.hasMoreElements()) {
                 val entry = entries.nextElement()
                 val nameLower = entry.name.lowercase()
                 if (nameLower.endsWith(".txt") && (nameLower.contains("index") || textContent.isEmpty())) {
-                    zip.getInputStream(entry).use { input ->
-                        textContent = input.bufferedReader(Charsets.UTF_8).readText()
-                    }
-                } else if (nameLower.endsWith(".jpg") || nameLower.endsWith(".jpeg") || nameLower.endsWith(".png")) {
+                    val bytes = zip.getInputStream(entry).use { it.readBytes() }
+                    textContent = decodeTextBytes(bytes)
+                } else if (nameLower.endsWith(".jpg") || nameLower.endsWith(".jpeg") || nameLower.endsWith(".png") || nameLower.endsWith(".webp")) {
+                    val bytes = zip.getInputStream(entry).use { it.readBytes() }
+                    resourceBytes[entry.name] = bytes
                     val outFile = File(destDir, entry.name)
                     outFile.parentFile?.mkdirs()
-                    zip.getInputStream(entry).use { input ->
-                        FileOutputStream(outFile).use { output ->
-                            BufferedOutputStream(output).use { bos ->
-                                input.copyTo(bos)
-                            }
-                        }
-                    }
-                    if (nameLower.startsWith("cover.")) {
+                    outFile.writeBytes(bytes)
+
+                    if (coverFileName == null && nameLower.startsWith("cover.")) {
                         coverFileName = entry.name
                     }
                 }
             }
         }
 
+        if (coverFileName == null) {
+            coverFileName = resourceBytes.keys.firstOrNull { it.lowercase().startsWith("cover.") }
+                ?: resourceBytes.keys.firstOrNull()
+        }
+
+        val coverBytes = if (coverFileName != null) resourceBytes[coverFileName!!] else null
+        val hasCover = coverBytes != null && coverBytes.isNotEmpty()
+
+        if (hasCover && coverBytes != null) {
+            val coverHash = java.util.Arrays.hashCode(coverBytes).toString()
+            val duplicates = resourceBytes.filter { it.key != coverFileName && java.util.Arrays.hashCode(it.value).toString() == coverHash }.keys.toList()
+            duplicates.forEach { resourceBytes.remove(it) }
+        }
+
+        // Dedup gallery items (excluding cover and duplicate images by content hash)
+        val galleryItems = mutableListOf<br.com.ebook.util.EpubPackager.GalleryItem>()
+        val seenImageHashes = mutableSetOf<String>()
+        if (hasCover) {
+            seenImageHashes.add(java.util.Arrays.hashCode(coverBytes).toString())
+        }
+
+        for ((name, bytes) in resourceBytes) {
+            val n = name.lowercase()
+            if (n.startsWith("cover.") || n.contains("/cover.")) continue
+            val hash = java.util.Arrays.hashCode(bytes).toString()
+            if (!seenImageHashes.add(hash)) continue
+            galleryItems.add(
+                br.com.ebook.util.EpubPackager.GalleryItem(
+                    imageFileName = name,
+                    title = File(name).nameWithoutExtension
+                )
+            )
+        }
+
+        val rawLines = textContent.replace("\r", "").split('\n')
+        val lines = rawLines.map { it.trim() }
+        val boundaries = findChapterBoundaries(lines)
+        val boundaryMap = boundaries.associateBy { it.lineIndex }
+
         val outHtmlFile = File(destDir, "index.html")
         java.io.PrintWriter(java.io.BufferedWriter(java.io.OutputStreamWriter(FileOutputStream(outHtmlFile), Charsets.UTF_8))).use { writer ->
-            writer.println("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/><style>p,p+p{margin:0;text-indent:1.5em;line-height:1.4;} h2{text-align:center;margin:1.5em 0;}</style></head><body>")
+            writer.println("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/><style>body{margin:0;padding:0;} p,p+p{margin:0;text-indent:1.5em;line-height:1.4;} h2{text-align:center;margin:1.5em 0;} img{max-width:100%;height:auto;display:block;margin:0 auto;} .br-gap{margin:1.5em 0;}</style></head><body>")
 
-            if (coverFileName != null && File(destDir, coverFileName!!).exists()) {
-                writer.println("<div style=\"text-align:center;\"><img src=\"$coverFileName\" style=\"max-width:100%;height:auto;\"/></div><br/>")
+            if (hasCover && coverFileName != null) {
+                writer.println("<div class=\"br-full-page\" style=\"text-align: center; margin: 0; padding: 0;\"><img src=\"$coverFileName\" style=\"max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; margin: 0 auto;\" alt=\"Cover\"/></div>")
             }
 
-            var chapterIndex = 0
-            textContent.split('\n').forEach { rawLine ->
-                val line = rawLine.trim()
-                if (line.isEmpty()) {
-                    writer.println("<br/>")
-                } else if (CHAPTER_PATTERN.matcher(line).matches()) {
-                    chapterIndex++
-                    writer.println("<h2 id=\"txtz_chap_$chapterIndex\"><a id=\"txtz_chap_$chapterIndex\"></a>${escapeHtml(line)}</h2>")
+            var consecutiveEmpty = 0
+            for ((idx, line) in lines.withIndex()) {
+                val boundary = boundaryMap[idx]
+                if (boundary != null) {
+                    writer.println("<h2 id=\"txtz_chap_${boundary.chapterNumber}\" style=\"page-break-before: always;\"><a id=\"txtz_chap_${boundary.chapterNumber}\"></a>${escapeHtml(line)}</h2>")
+                    consecutiveEmpty = 0
+                } else if (line.isEmpty()) {
+                    consecutiveEmpty++
                 } else {
+                    if (consecutiveEmpty >= 3) {
+                        writer.println("<p class=\"br-gap\">&#160;</p>")
+                    }
+                    consecutiveEmpty = 0
                     writer.println("<p>${escapeHtml(line)}</p>")
+                }
+            }
+
+            if (galleryItems.isNotEmpty()) {
+                writer.println("<div id=\"txtz_gallery\" style=\"page-break-before: always;\"><a id=\"txtz_gallery\"></a></div>")
+                for (item in galleryItems) {
+                    writer.println("<div class=\"bilingual-reader-gallery-page\" style=\"page-break-after: always; text-align: center; margin: 0; padding: 0;\">")
+                    writer.println("<img src=\"${item.imageFileName}\" style=\"width: 100%; height: auto; display: block; margin: 0 auto;\" alt=\"${escapeHtml(item.title)}\"/>")
+                    writer.println("</div>")
                 }
             }
             writer.println("</body></html>")
         }
 
-        BookContent.HtmlFile(outHtmlFile.absolutePath)
+        // Package into standard EPUB 2.0
+        val epubFile = File(destDir, "book.epub")
+        try {
+            val meta = extractMetadata(path).getOrNull()
+            val title = meta?.title?.ifEmpty { File(path).nameWithoutExtension } ?: File(path).nameWithoutExtension
+            val author = meta?.author ?: ""
+
+            val epubChapters = mutableListOf<br.com.ebook.util.EpubPackager.ChapterItem>()
+            var currentChapTitle = title
+            var currentChapBuilder = StringBuilder()
+            var currentChapFileName = "chap_0.xhtml"
+            var currentAnchorId: String? = null
+            var consecutiveEmpty = 0
+
+            for ((idx, line) in lines.withIndex()) {
+                val boundary = boundaryMap[idx]
+                if (boundary != null) {
+                    if (currentChapBuilder.isNotEmpty()) {
+                        epubChapters.add(
+                            br.com.ebook.util.EpubPackager.ChapterItem(
+                                title = currentChapTitle,
+                                contentHtml = currentChapBuilder.toString(),
+                                fileName = currentChapFileName,
+                                anchorId = currentAnchorId
+                            )
+                        )
+                    }
+                    currentChapTitle = boundary.title
+                    currentChapFileName = "chap_${boundary.chapterNumber}.xhtml"
+                    currentAnchorId = "txtz_chap_${boundary.chapterNumber}"
+                    currentChapBuilder = StringBuilder()
+                    currentChapBuilder.append("<h2>${escapeHtml(line)}</h2>\n")
+                    consecutiveEmpty = 0
+                } else if (line.isEmpty()) {
+                    consecutiveEmpty++
+                } else {
+                    if (consecutiveEmpty >= 3) {
+                        currentChapBuilder.append("<p class=\"br-gap\">&#160;</p>\n")
+                    }
+                    consecutiveEmpty = 0
+                    currentChapBuilder.append("<p>${escapeHtml(line)}</p>\n")
+                }
+            }
+            if (currentChapBuilder.isNotEmpty()) {
+                epubChapters.add(
+                    br.com.ebook.util.EpubPackager.ChapterItem(
+                        title = currentChapTitle,
+                        contentHtml = currentChapBuilder.toString(),
+                        fileName = currentChapFileName,
+                        anchorId = currentAnchorId
+                    )
+                )
+            }
+
+            br.com.ebook.util.EpubPackager.createEpub(
+                outputFile = epubFile,
+                title = title,
+                author = author,
+                coverBytes = coverBytes,
+                coverFileName = coverFileName ?: "cover.jpg",
+                galleryItems = galleryItems,
+                chapters = epubChapters,
+                resourceFiles = resourceBytes
+            )
+            LOGGER.info("TXTZ successfully packaged to EPUB: {}", epubFile.absolutePath)
+        } catch (e: Exception) {
+            LOGGER.error("Error packaging TXTZ to EPUB: {}", e.message, e)
+        }
+
+        if (epubFile.exists()) {
+            BookContent.EpubFile(epubFile.absolutePath)
+        } else {
+            BookContent.HtmlFile(outHtmlFile.absolutePath)
+        }
     }
 
     fun extractOutline(path: String): List<OutlineLink> {
         val list = mutableListOf<OutlineLink>()
         try {
             var textContent: String? = null
+            var hasGallery = false
             if (path.endsWith(".txtz", ignoreCase = true)) {
                 ZipFile(path).use { zip ->
                     val entry = zip.getEntry("index.txt") ?: zip.entries().asSequence().firstOrNull { it.name.endsWith(".txt") }
                     if (entry != null) {
-                        zip.getInputStream(entry).use { stream ->
-                            textContent = stream.bufferedReader(Charsets.UTF_8).readText()
+                        val bytes = zip.getInputStream(entry).use { it.readBytes() }
+                        textContent = decodeTextBytes(bytes)
+                    }
+                    for (e in zip.entries().asSequence()) {
+                        val n = e.name.lowercase()
+                        if ((n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp")) &&
+                            !n.startsWith("cover.") && !n.contains("/cover.")) {
+                            hasGallery = true
+                            break
                         }
                     }
                 }
@@ -237,13 +431,14 @@ object TxtzBookExtractor : BookExtractor {
 
             if (textContent.isNullOrBlank()) return emptyList()
 
-            var chapterIndex = 0
-            textContent!!.split('\n').forEach { rawLine ->
-                val line = rawLine.trim()
-                if (CHAPTER_PATTERN.matcher(line).matches()) {
-                    chapterIndex++
-                    list.add(OutlineLink(line, "#txtz_chap_$chapterIndex", 0))
-                }
+            val rawLines = textContent!!.replace("\r", "").split('\n')
+            val lines = rawLines.map { it.trim() }
+            val boundaries = findChapterBoundaries(lines)
+            for (b in boundaries) {
+                list.add(OutlineLink(b.title, "chap_${b.chapterNumber}.xhtml#txtz_chap_${b.chapterNumber}", 0))
+            }
+            if (hasGallery) {
+                list.add(OutlineLink("Galeria de Imagens", "gallery_0.xhtml", 0))
             }
         } catch (e: Exception) {
             LOGGER.warn("Error extracting outline from TXTZ {}: {}", path, e.message)

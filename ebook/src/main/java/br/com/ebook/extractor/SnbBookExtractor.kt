@@ -293,6 +293,28 @@ object SnbBookExtractor : BookExtractor {
         return out.toString()
     }
 
+    private fun resolveSnbImage(rawName: String, diskImages: Map<String, File>): String? {
+        val clean = rawName.trim()
+        if (clean.isEmpty()) return null
+        val lower = clean.lowercase()
+        // 1. Match direto
+        diskImages[lower]?.let { return it.name }
+        // 2. Normalizar ".._" e "oebps_text_"
+        val norm = lower.replace(".._", "").replace("oebps_text_", "oebps_")
+        diskImages[norm]?.let { return it.name }
+        // 3. Match pelo nome do arquivo simples
+        val simple = File(lower).name
+        diskImages[simple]?.let { return it.name }
+        // 4. Match por sufixo
+        val suffix = lower.substringAfterLast(".._")
+        for ((k, file) in diskImages) {
+            if (k.endsWith(suffix) || suffix.endsWith(k)) {
+                return file.name
+            }
+        }
+        return null
+    }
+
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
         val hashCode = path.hashCode().toString()
         val destDir = File(outputDir, "snb_temp_$hashCode")
@@ -316,6 +338,8 @@ object SnbBookExtractor : BookExtractor {
                 }
             }
 
+            val diskImageFiles = imgDir.listFiles()?.associateBy { it.name.lowercase() } ?: emptyMap()
+
             // 2. Ler toc.snbf
             val tocXml = snb.getFileStream("snbf/toc.snbf")
             if (tocXml != null) {
@@ -338,10 +362,32 @@ object SnbBookExtractor : BookExtractor {
                 }
             }
 
+            // 2.5 Obter imagem de capa de snbf/book.snbf
+            var coverName = ""
+            val metaXml = snb.getFileStream("snbf/book.snbf")
+            if (metaXml != null) {
+                val docMeta = Jsoup.parse(ByteArrayInputStream(metaXml), "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
+                coverName = docMeta.select("cover").text().trim()
+            }
+            if (coverName.isEmpty()) {
+                val firstImg = snb.files.firstOrNull {
+                    val n = it.fileName.lowercase()
+                    (n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png")) && it.fileBody != null
+                }
+                if (firstImg != null) {
+                    coverName = File(firstImg.fileName).name
+                }
+            }
+
             // 3. Montar index.html unificado
             val indexHtml = File(destDir, "index.html")
+            val hasCover = coverName.isNotEmpty() && File(imgDir, coverName).exists()
             java.io.PrintWriter(java.io.BufferedWriter(java.io.OutputStreamWriter(FileOutputStream(indexHtml), Charsets.UTF_8))).use { writer ->
-                writer.println("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/><style>p,p+p{margin:0;text-indent:1.5em;line-height:1.4;} h2{text-align:center;margin:1.5em 0;} img{max-width:100%;height:auto;}</style></head><body>")
+                writer.println("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/><style>body{margin:0;padding:0;} p,p+p{margin:0;text-indent:1.5em;line-height:1.4;} h2{text-align:center;margin:1.5em 0;} img{width:100%;height:auto;display:block;margin:0 auto;} .bilingual-reader-cover-page{page-break-after:always;text-align:center;margin:0;padding:0;} .bilingual-reader-gallery-page{page-break-after:always;text-align:center;margin:0;padding:0;} .bilingual-reader-image-inline{text-align:center;margin:1.2em 0;}</style></head><body>")
+
+                if (hasCover) {
+                    writer.println("<div class=\"bilingual-reader-cover-page\" style=\"page-break-after: always; text-align: center; margin: 0; padding: 0;\"><img src=\"images/$coverName\" style=\"width: 100%; height: auto; display: block; margin: 0 auto;\" alt=\"Cover\"/></div>")
+                }
 
                 var chapIdx = 0
                 for (pair in chapters) {
@@ -350,14 +396,17 @@ object SnbBookExtractor : BookExtractor {
                     val title = pair.second
                     val chapBytes = snb.getFileStream("snbc/$src") ?: snb.getFileStream(src)
 
-                    writer.println("<section id=\"snb_sec_$chapIdx\"><a id=\"snb_chap_$chapIdx\"></a>")
-                    if (title.isNotEmpty()) {
-                        writer.println("<h2>${escapeHtml(title)}</h2>")
-                    }
-
                     if (chapBytes != null) {
                         try {
                             val docChap = Jsoup.parse(ByteArrayInputStream(chapBytes), "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
+                            val hasText = docChap.select("text").any { it.text().trim().isNotEmpty() }
+                            val isImageOnlyChapter = !hasText
+
+                            writer.println("<section id=\"snb_sec_$chapIdx\"><a id=\"snb_chap_$chapIdx\"></a>")
+                            if (title.isNotEmpty() && !isImageOnlyChapter) {
+                                writer.println("<h2>${escapeHtml(title)}</h2>")
+                            }
+
                             for (el in docChap.select("text, image, img")) {
                                 if (el.tagName().equals("text", ignoreCase = true)) {
                                     val t = el.text().trim()
@@ -367,23 +416,136 @@ object SnbBookExtractor : BookExtractor {
                                         writer.println("<br/>")
                                     }
                                 } else if (el.tagName().equals("image", ignoreCase = true) || el.tagName().equals("img", ignoreCase = true)) {
-                                    var imgSrc = el.attr("src").ifEmpty { el.attr("href") }
-                                    imgSrc = File(imgSrc).name // normaliza para apontar para images/<nome>
-                                    writer.println("<div style=\"text-align:center;\"><img src=\"images/$imgSrc\"/></div>")
+                                    val rawSrc = el.attr("src").ifEmpty { el.attr("href") }.ifEmpty { el.text().trim() }
+                                    val resolved = resolveSnbImage(rawSrc, diskImageFiles)
+                                    if (resolved != null) {
+                                        if (isImageOnlyChapter) {
+                                            writer.println("<div class=\"bilingual-reader-gallery-page\" style=\"page-break-after: always; text-align: center; margin: 0; padding: 0;\"><img src=\"images/$resolved\" style=\"width: 100%; height: auto; display: block; margin: 0 auto;\"/></div>")
+                                        } else {
+                                            writer.println("<div class=\"bilingual-reader-image-inline\" style=\"text-align: center; margin: 1.2em 0;\"><img src=\"images/$resolved\" style=\"width: 100%; height: auto; display: block; margin: 0 auto;\"/></div>")
+                                        }
+                                    }
                                 }
                             }
+                            writer.println("</section>")
                         } catch (e: Exception) {
                             LOGGER.warn("Error parsing SNB chapter $src: {}", e.message)
                         }
                     }
-                    writer.println("</section>")
                 }
                 writer.println("</body></html>")
+            }
+
+            // Package into standard EPUB 2.0
+            val epubFile = File(destDir, "book.epub")
+            try {
+                val meta = extractMetadata(path).getOrNull()
+                val title = meta?.title?.ifEmpty { File(path).nameWithoutExtension } ?: File(path).nameWithoutExtension
+                val author = meta?.author ?: ""
+
+                val resourceBytes = mutableMapOf<String, ByteArray>()
+                imgDir.listFiles { _, name ->
+                    val n = name.lowercase()
+                    n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp")
+                }?.forEach { f ->
+                    resourceBytes["images/${f.name}"] = f.readBytes()
+                }
+
+                val coverBytes = if (hasCover) File(imgDir, coverName).readBytes() else null
+
+                val galleryItems = mutableListOf<br.com.ebook.util.EpubPackager.GalleryItem>()
+                val epubChapters = mutableListOf<br.com.ebook.util.EpubPackager.ChapterItem>()
+
+                var chapCounter = 0
+                for (pair in chapters) {
+                    chapCounter++
+                    val src = pair.first
+                    val cTitle = pair.second
+                    val chapBytes = snb.getFileStream("snbc/$src") ?: snb.getFileStream(src)
+                    if (chapBytes != null) {
+                        try {
+                            val docChap = Jsoup.parse(ByteArrayInputStream(chapBytes), "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
+                            val hasText = docChap.select("text").any { it.text().trim().isNotEmpty() }
+                            if (!hasText) {
+                                // Image-only chapter (introductory gallery/insert page) in linear reading order
+                                val imgEls = docChap.select("image, img")
+                                var subIdx = 0
+                                for (imgEl in imgEls) {
+                                    val rawSrc = imgEl.attr("src").ifEmpty { imgEl.attr("href") }.ifEmpty { imgEl.text().trim() }
+                                    val resolved = resolveSnbImage(rawSrc, diskImageFiles)
+                                    if (resolved != null && resourceBytes.containsKey("images/$resolved")) {
+                                        val itemTitle = if (subIdx == 0 && cTitle.isNotEmpty()) cTitle else (cTitle.ifEmpty { resolved })
+                                        val fullPageHtml = """<div class="br-full-page"><img src="images/$resolved" alt="${escapeHtml(itemTitle)}" /></div>"""
+                                        epubChapters.add(
+                                            br.com.ebook.util.EpubPackager.ChapterItem(
+                                                title = itemTitle,
+                                                contentHtml = fullPageHtml,
+                                                fileName = "img_page_${chapCounter}_$subIdx.xhtml",
+                                                anchorId = if (subIdx == 0) "snb_chap_$chapCounter" else null
+                                            )
+                                        )
+                                        subIdx++
+                                    }
+                                }
+                            } else {
+                                val chapHtml = StringBuilder()
+                                if (cTitle.isNotEmpty()) {
+                                    chapHtml.append("<h2>${escapeHtml(cTitle)}</h2>\n")
+                                }
+                                for (el in docChap.select("text, image, img")) {
+                                    if (el.tagName().equals("text", ignoreCase = true)) {
+                                        val t = el.text().trim()
+                                        if (t.isNotEmpty()) {
+                                            chapHtml.append("<p>${escapeHtml(t)}</p>\n")
+                                        } else {
+                                            chapHtml.append("<br/>\n")
+                                        }
+                                    } else {
+                                        val rawSrc = el.attr("src").ifEmpty { el.attr("href") }.ifEmpty { el.text().trim() }
+                                        val resolved = resolveSnbImage(rawSrc, diskImageFiles)
+                                        if (resolved != null) {
+                                            chapHtml.append("<div style=\"text-align: center; margin: 1.2em 0;\"><img src=\"images/$resolved\" style=\"width: 100%; height: auto; display: block; margin: 0 auto;\"/></div>\n")
+                                        }
+                                    }
+                                }
+                                epubChapters.add(
+                                    br.com.ebook.util.EpubPackager.ChapterItem(
+                                        title = cTitle,
+                                        contentHtml = chapHtml.toString(),
+                                        fileName = "chap_$chapCounter.xhtml",
+                                        anchorId = "snb_chap_$chapCounter"
+                                    )
+                                )
+                            }
+                        } catch (e: Exception) {
+                            LOGGER.warn("Error processing chapter $src for EPUB: {}", e.message)
+                        }
+                    }
+                }
+
+                br.com.ebook.util.EpubPackager.createEpub(
+                    outputFile = epubFile,
+                    title = title,
+                    author = author,
+                    coverBytes = coverBytes,
+                    coverFileName = if (coverName.isNotEmpty()) "images/$coverName" else "cover.jpg",
+                    galleryItems = galleryItems,
+                    chapters = epubChapters,
+                    resourceFiles = resourceBytes
+                )
+                LOGGER.info("SNB successfully packaged to EPUB: {}", epubFile.absolutePath)
+            } catch (e: Exception) {
+                LOGGER.error("Error packaging SNB to EPUB: {}", e.message, e)
             }
         }
 
         val outIndex = File(destDir, "index.html")
-        BookContent.HtmlFile(outIndex.absolutePath)
+        val epubFile = File(destDir, "book.epub")
+        if (epubFile.exists()) {
+            BookContent.EpubFile(epubFile.absolutePath)
+        } else {
+            BookContent.HtmlFile(outIndex.absolutePath)
+        }
     }
 
     fun extractOutline(path: String): List<OutlineLink> {

@@ -58,6 +58,16 @@ public class MuPdfDocument extends AbstractCodecDocument {
         return footNotes;
     }
 
+    private String originalFname;
+
+    public void setOriginalFname(String originalFname) {
+        this.originalFname = originalFname;
+    }
+
+    public String getOriginalFname() {
+        return originalFname != null ? originalFname : fname;
+    }
+
     @Override
     public List<OutlineLink> getOutline() {
         final MuPdfOutline ou = new MuPdfOutline();
@@ -71,12 +81,13 @@ public class MuPdfDocument extends AbstractCodecDocument {
                 }
             }
         }
-        if (!hasValid && fname != null) {
-            File f = new File(fname);
+        String bookPath = getOriginalFname();
+        if (!hasValid && bookPath != null) {
+            File f = new File(bookPath);
             if (f.isFile()) {
                 String nameLow = f.getName().toLowerCase(java.util.Locale.getDefault());
                 if (nameLow.endsWith(".epub") || nameLow.endsWith(".kepub")) {
-                    List<OutlineLink> tocList = br.com.ebook.extractor.EpubBookExtractor.INSTANCE.extractTocOutline(fname);
+                    List<OutlineLink> tocList = br.com.ebook.extractor.EpubBookExtractor.INSTANCE.extractTocOutline(bookPath);
                     if (!tocList.isEmpty()) {
                         for (OutlineLink l : tocList) {
                             if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
@@ -114,7 +125,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
                         return tocList;
                     }
                 } else if (nameLow.endsWith(".fb2")) {
-                    List<OutlineLink> fb2List = br.com.ebook.extractor.Fb2BookExtractor.INSTANCE.extractOutline(fname);
+                    List<OutlineLink> fb2List = br.com.ebook.extractor.Fb2BookExtractor.INSTANCE.extractOutline(bookPath);
                     if (!fb2List.isEmpty()) {
                         for (OutlineLink l : fb2List) {
                             if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
@@ -131,7 +142,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
                         return fb2List;
                     }
                 } else if (nameLow.endsWith(".docx")) {
-                    List<OutlineLink> docxList = br.com.ebook.extractor.DocxBookExtractor.INSTANCE.extractOutline(fname);
+                    List<OutlineLink> docxList = br.com.ebook.extractor.DocxBookExtractor.INSTANCE.extractOutline(bookPath);
                     if (!docxList.isEmpty()) {
                         for (OutlineLink l : docxList) {
                             if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
@@ -146,6 +157,74 @@ public class MuPdfDocument extends AbstractCodecDocument {
                         }
                         docxList.add(new OutlineLink("", "", -1));
                         return docxList;
+                    }
+                } else if (nameLow.endsWith(".txtz")) {
+                    List<OutlineLink> txtzList = br.com.ebook.extractor.TxtzBookExtractor.INSTANCE.extractOutline(bookPath);
+                    if (!txtzList.isEmpty()) {
+                        for (OutlineLink l : txtzList) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        txtzList.add(new OutlineLink("", "", -1));
+                        return txtzList;
+                    }
+                } else if (nameLow.endsWith(".rb")) {
+                    List<OutlineLink> rbList = br.com.ebook.extractor.RbBookExtractor.INSTANCE.extractOutline(bookPath);
+                    if (!rbList.isEmpty()) {
+                        for (OutlineLink l : rbList) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        rbList.add(new OutlineLink("", "", -1));
+                        return rbList;
+                    }
+                } else if (nameLow.endsWith(".snb")) {
+                    List<OutlineLink> snbList = br.com.ebook.extractor.SnbBookExtractor.INSTANCE.extractOutline(bookPath);
+                    if (!snbList.isEmpty()) {
+                        for (OutlineLink l : snbList) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        snbList.add(new OutlineLink("", "", -1));
+                        return snbList;
+                    }
+                } else if (nameLow.endsWith(".htmlz")) {
+                    List<OutlineLink> htmlzList = br.com.ebook.extractor.HtmlzBookExtractor.INSTANCE.extractOutline(bookPath);
+                    if (!htmlzList.isEmpty()) {
+                        for (OutlineLink l : htmlzList) {
+                            if (l.getLink() != null && !l.getLink().matches("#\\d+")) {
+                                try {
+                                    int p = MuPdfLinks.getLinkPage(documentHandle, l.getLink());
+                                    if (p >= 0) {
+                                        l.setLink("#" + (p + 1));
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                        }
+                        htmlzList.add(new OutlineLink("", "", -1));
+                        return htmlzList;
                     }
                 }
             }
@@ -311,15 +390,22 @@ public class MuPdfDocument extends AbstractCodecDocument {
             int antiAlias = AppState.get().antiAliasPdf;
             String accel = "";
             try {
-                File accelDir = CacheZipUtils.CACHE_ACCEL_DIR != null ? CacheZipUtils.CACHE_ACCEL_DIR : CacheZipUtils.CACHE_BOOK_DIR;
-                if (accelDir == null || (!accelDir.exists() && !accelDir.mkdirs())) {
-                    File parent = new File(fname).getParentFile();
-                    accelDir = (parent != null && parent.canWrite()) ? parent : new File("/data/local/tmp");
-                }
-                if (accelDir.exists() || accelDir.mkdirs()) {
-                    String bookFileName = new File(fname).getName();
-                    File accelFile = new File(accelDir, bookFileName + ".accel");
+                File fileObj = new File(fname);
+                File parent = fileObj.getParentFile();
+                if (parent != null && parent.canWrite() && !parent.equals(CacheZipUtils.CACHE_BOOK_DIR)) {
+                    File accelFile = new File(parent, fileObj.getName() + ".accel");
                     accel = accelFile.getAbsolutePath();
+                } else {
+                    File accelDir = CacheZipUtils.CACHE_ACCEL_DIR != null ? CacheZipUtils.CACHE_ACCEL_DIR : CacheZipUtils.CACHE_BOOK_DIR;
+                    if (accelDir == null || (!accelDir.exists() && !accelDir.mkdirs())) {
+                        accelDir = (parent != null && parent.canWrite()) ? parent : new File("/data/local/tmp");
+                    }
+                    if (accelDir.exists() || accelDir.mkdirs()) {
+                        String prefix = (parent != null && !parent.getName().isEmpty()) ? parent.getName() + "_" : "";
+                        String bookFileName = prefix + fileObj.getName();
+                        File accelFile = new File(accelDir, bookFileName + ".accel");
+                        accel = accelFile.getAbsolutePath();
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.warn("Could not determine accel path for {}: {}", fname, e.getMessage());

@@ -27,6 +27,8 @@ class DocContext : PdfContext() {
             if (content is BookContent.HtmlFile) {
                 finalFileName = content.path
                 notes = content.notes
+            } else if (content is BookContent.EpubFile) {
+                finalFileName = content.path
             }
             LOGGER.info("doc new file name: {}", finalFileName)
         } catch (e: Exception) {

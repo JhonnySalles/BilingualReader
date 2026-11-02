@@ -41,17 +41,18 @@ public class OutlineLinkWrapper implements CharSequence {
     public static int getPageNumber(String link) {
         if (link != null) {
             if (link.startsWith("#")) {
-                try {
-                    int page = Integer.parseInt(link.substring(1).replace(" ", ""));
-                    return PageUrl.realToFake(page);
-
-                } catch (final Exception e) {
-                    LOGGER.error("Error to export all: " + e.getMessage(), e);
+                String clean = link.substring(1).replace(" ", "");
+                if (clean.matches("\\d+")) {
+                    try {
+                        int page = Integer.parseInt(clean);
+                        return PageUrl.realToFake(page);
+                    } catch (final Exception e) {
+                        LOGGER.error("Error to parse page number: " + e.getMessage(), e);
+                    }
                 }
             }
         }
         return -1;
-
     }
 
     public String getTitleRaw() {

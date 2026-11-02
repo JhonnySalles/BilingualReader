@@ -6,6 +6,7 @@ import br.com.ebook.core.BookMetadata
 import org.ebookdroid.core.codec.OutlineLink
 import org.jsoup.Jsoup
 import org.slf4j.LoggerFactory
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
@@ -109,6 +110,34 @@ object RbBookExtractor : BookExtractor {
         )
     }
 
+    private fun decompressFirstTextChunk(raf: RandomAccessFile, item: RbItem): String {
+        return try {
+            raf.seek(item.offset)
+            val hdr = ByteArray(8)
+            raf.readFully(hdr)
+            val bbHdr = ByteBuffer.wrap(hdr).order(ByteOrder.LITTLE_ENDIAN)
+            val chunkCount = bbHdr.int
+            if (chunkCount <= 0) return ""
+            val firstChunkSize = ByteBuffer.wrap(ByteArray(4).also { raf.readFully(it) }).order(ByteOrder.LITTLE_ENDIAN).int
+            raf.skipBytes((chunkCount - 1) * 4)
+            val compData = ByteArray(firstChunkSize)
+            raf.readFully(compData)
+            val inflater = Inflater()
+            inflater.setInput(compData)
+            val out = ByteArrayOutputStream()
+            val buf = ByteArray(4096)
+            while (!inflater.needsInput() && !inflater.finished()) {
+                val count = inflater.inflate(buf)
+                if (count > 0) out.write(buf, 0, count) else break
+            }
+            inflater.end()
+            out.toString(Charsets.UTF_8.name())
+        } catch (e: Exception) {
+            LOGGER.warn("Error decompressing first chunk in RB: {}", e.message)
+            ""
+        }
+    }
+
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
         var coverBytes: ByteArray? = null
         try {
@@ -118,7 +147,22 @@ object RbBookExtractor : BookExtractor {
                     val n = it.name.lowercase()
                     n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".jpeg")
                 }
-                val coverItem = imageItems.firstOrNull { it.name.startsWith("0.") } ?: imageItems.firstOrNull()
+
+                // 1. Tenta obter a primeira imagem referenciada no index.html (ex: 12.png)
+                var targetImgName: String? = null
+                val htmlItem = items.firstOrNull { it.name.equals("index.html", ignoreCase = true) }
+                if (htmlItem != null && htmlItem.flags == 8) {
+                    val firstHtmlChunk = decompressFirstTextChunk(raf, htmlItem)
+                    val imgMatch = Regex("""<img[^>]+src=["']?([^"'>\s]+)""", RegexOption.IGNORE_CASE).find(firstHtmlChunk)
+                    if (imgMatch != null) {
+                        targetImgName = File(imgMatch.groupValues[1]).name.lowercase()
+                    }
+                }
+
+                val coverItem = if (targetImgName != null) {
+                    imageItems.firstOrNull { it.name.equals(targetImgName, ignoreCase = true) }
+                } else null ?: imageItems.maxByOrNull { it.size } ?: imageItems.firstOrNull()
+
                 if (coverItem != null) {
                     raf.seek(coverItem.offset)
                     val data = ByteArray(coverItem.size)
@@ -140,6 +184,17 @@ object RbBookExtractor : BookExtractor {
         emptyMap()
     }
 
+    private fun decodeHtmlBytes(bytes: ByteArray): String {
+        return try {
+            val decoder = Charsets.UTF_8.newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+            decoder.decode(ByteBuffer.wrap(bytes)).toString()
+        } catch (e: Exception) {
+            String(bytes, java.nio.charset.Charset.forName("windows-1252"))
+        }
+    }
+
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
         val hashCode = path.hashCode().toString()
         val destDir = File(outputDir, "rb_temp_$hashCode")
@@ -158,7 +213,7 @@ object RbBookExtractor : BookExtractor {
                     raf.readFully(hdr)
                     val bbHdr = ByteBuffer.wrap(hdr).order(ByteOrder.LITTLE_ENDIAN)
                     val chunkCount = bbHdr.int
-                    val uncompressedSize = bbHdr.int
+                    bbHdr.int // uncompressedSize
 
                     val chunkSizes = IntArray(chunkCount)
                     val sizesBuf = ByteArray(chunkCount * 4)
@@ -202,7 +257,75 @@ object RbBookExtractor : BookExtractor {
             throw java.io.IOException("index.html missing after RB extraction")
         }
 
-        BookContent.HtmlFile(indexHtml.absolutePath)
+        try {
+            val rawBytes = indexHtml.readBytes()
+            val htmlText = decodeHtmlBytes(rawBytes)
+            val doc = Jsoup.parse(htmlText, "UTF-8")
+
+            // Flatten empty <center>, <div>, <p> wrappers around images
+            for (img in doc.select("img")) {
+                var p = img.parent()
+                while (p != null && p.tagName().lowercase() in setOf("center", "div", "p")
+                    && p.text().trim().isEmpty() && p.children().size <= 1 && p.tagName().lowercase() != "body"
+                ) {
+                    val grandParent = p.parent()
+                    p.replaceWith(img)
+                    p = grandParent
+                }
+            }
+
+            indexHtml.writeText(doc.outerHtml(), Charsets.UTF_8)
+
+            // Package into standard EPUB 2.0
+            val epubFile = File(destDir, "book.epub")
+            try {
+                val meta = extractMetadata(path).getOrNull()
+                val title = meta?.title?.ifEmpty { File(path).nameWithoutExtension } ?: File(path).nameWithoutExtension
+                val author = meta?.author ?: ""
+
+                val resourceBytes = mutableMapOf<String, ByteArray>()
+                destDir.listFiles { _, name ->
+                    val n = name.lowercase()
+                    n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".jpeg")
+                }?.forEach { f ->
+                    resourceBytes[f.name] = f.readBytes()
+                }
+
+                val coverBytes = extractCover(path).getOrNull() ?: resourceBytes["12.png"]
+                val coverFileName = "12.png"
+
+                val chapters = br.com.ebook.util.SpineSegmenter.segmentHtmlDocument(
+                    doc = doc,
+                    resourceBytes = resourceBytes,
+                    bookTitle = title,
+                    coverFileNameToSkip = coverFileName,
+                    minTextChars = 200
+                )
+
+                br.com.ebook.util.EpubPackager.createEpub(
+                    outputFile = epubFile,
+                    title = title,
+                    author = author,
+                    coverBytes = coverBytes,
+                    coverFileName = coverFileName,
+                    galleryItems = emptyList(),
+                    chapters = chapters,
+                    resourceFiles = resourceBytes
+                )
+                LOGGER.info("RB successfully packaged to EPUB: {}", epubFile.absolutePath)
+            } catch (e: Exception) {
+                LOGGER.error("Error packaging RB to EPUB: {}", e.message, e)
+            }
+        } catch (e: Exception) {
+            LOGGER.warn("Could not process RB HTML: {}", e.message)
+        }
+
+        val epubFile = File(destDir, "book.epub")
+        if (epubFile.exists()) {
+            BookContent.EpubFile(epubFile.absolutePath)
+        } else {
+            BookContent.HtmlFile(indexHtml.absolutePath)
+        }
     }
 
     fun extractOutline(path: String): List<OutlineLink> {
@@ -246,13 +369,14 @@ object RbBookExtractor : BookExtractor {
                         }
                     }
                     inflater.end()
-                    htmlContent = outStream.toString("UTF-8")
+                    htmlContent = decodeHtmlBytes(outStream.toByteArray())
                 }
             }
 
-            if (htmlContent.isNullOrBlank()) return emptyList()
+            val content = htmlContent
+            if (content.isNullOrBlank()) return emptyList()
 
-            val doc = Jsoup.parse(htmlContent)
+            val doc = Jsoup.parse(content)
             val tocLinks = doc.select("a[href^=#]")
             val seenLinks = mutableSetOf<String>()
 

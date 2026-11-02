@@ -26,7 +26,6 @@ class ImageGetter(val context: Context, val textView: TextView, val maxWidth: In
                 image.length > 100 -> image.trim()
                 else -> null
             }
-            if (base64 == null) return drawable
             val screenWidth = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 context.resources.displayMetrics.heightPixels
             else
@@ -38,10 +37,29 @@ class ImageGetter(val context: Context, val textView: TextView, val maxWidth: In
                 else -> screenWidth
             }
 
-            var bmp = if (maxWidth > 0 || textViewWidth > 0)
-                ImageUtil.decodeImageBase64(base64, targetWidth, targetWidth)
-            else
-                ImageUtil.decodeImageBase64(base64)
+            var bmp = if (base64 != null) {
+                if (maxWidth > 0 || textViewWidth > 0)
+                    ImageUtil.decodeImageBase64(base64, targetWidth, targetWidth)
+                else
+                    ImageUtil.decodeImageBase64(base64)
+            } else {
+                val file = java.io.File(image)
+                val candidateFile = if (file.exists()) file else {
+                    br.com.ebook.foobnix.ext.CacheZipUtils.CACHE_BOOK_DIR?.listFiles()?.firstNotNullOfOrNull { dir ->
+                        if (dir.isDirectory) {
+                            val target = java.io.File(dir, image)
+                            if (target.exists()) target else null
+                        } else null
+                    }
+                }
+                if (candidateFile != null && candidateFile.exists()) {
+                    try {
+                        android.graphics.BitmapFactory.decodeFile(candidateFile.absolutePath)
+                    } catch (e: Exception) {
+                        null
+                    }
+                } else null
+            }
 
             if (bmp != null) {
                 if (bmp.width > targetWidth) {
