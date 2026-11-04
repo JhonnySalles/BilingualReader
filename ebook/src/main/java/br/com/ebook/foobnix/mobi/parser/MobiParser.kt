@@ -143,6 +143,7 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         var len: Int = 0
         var count: Int = 0
         val headers = HashMap<Int, ByteArray>()
+        val headersMulti = HashMap<Int, MutableList<ByteArray>>()
 
         fun parse(raw: ByteBuffer, mobiOffset: Int, rec0Len: Int): EXTH {
             val maxSearchLen = kotlin.math.min(rec0Len, 100_000)
@@ -168,6 +169,7 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
                 val data = getBytes(raw, rOffset + 8, rLen - 8)
                 rOffset += rLen
                 headers[rType] = data
+                headersMulti.computeIfAbsent(rType) { mutableListOf() }.add(data)
             }
             return this
         }
@@ -307,49 +309,89 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         }
     }
 
+    fun getSampleText(): String {
+        return try {
+            val sb = java.lang.StringBuilder()
+            if (recordsOffset.size > 1) {
+                // Record 1 (primeiro registro de texto com dados de capa/copyright inicial)
+                val start1 = recordsOffset[1]
+                val end1 = if (recordsOffset.size > 2) recordsOffset[2] else raw.capacity()
+                val coded1 = getBytes(raw, start1, end1 - start1)
+                val decoded1 = if (compression == COMPRESSION_PalmDOC) lz77(coded1) else coded1
+                sb.append(String(decoded1, Charsets.UTF_8)).append("\n")
+
+                // Último registro de texto (frequentemente contém colofão e editora final)
+                val lastIdx = recordsOffset.size - 1
+                if (lastIdx > 1) {
+                    val startLast = recordsOffset[lastIdx]
+                    val endLast = raw.capacity()
+                    val codedLast = getBytes(raw, startLast, endLast - startLast)
+                    val decodedLast = if (compression == COMPRESSION_PalmDOC) lz77(codedLast) else codedLast
+                    sb.append(String(decodedLast, Charsets.UTF_8))
+                }
+            }
+            sb.toString()
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
     val title: String
         get() = fullName
 
     val author: String?
         get() {
+            val list = exth.headersMulti[100]
+            if (!list.isNullOrEmpty()) {
+                val authors = list.map { String(it).trim() }.filter { it.isNotEmpty() }
+                if (authors.isNotEmpty()) {
+                    return authors.joinToString(", ")
+                }
+            }
             val bytes = exth.headers[100] ?: return null
-            return String(bytes)
+            return String(bytes).trim()
         }
 
     val subject: String?
         get() {
-            val bytes = exth.headers[105] ?: return null
-            return String(bytes)
+            val list = exth.headersMulti[105]
+            val raw = if (!list.isNullOrEmpty()) {
+                list.map { String(it).trim() }.filter { it.isNotEmpty() }.joinToString(", ")
+            } else {
+                val bytes = exth.headers[105] ?: return null
+                String(bytes).trim()
+            }
+            return raw.split(Regex("""[;,]""")).map { it.trim() }.filter { it.isNotEmpty() }.joinToString(", ")
         }
 
     val language: String?
         get() {
             val bytes = exth.headers[524] ?: return null
-            return String(bytes)
+            return String(bytes).trim()
         }
 
     val publisher: String?
         get() {
             val bytes = exth.headers[101] ?: return null
-            return String(bytes)
+            return String(bytes).trim()
         }
 
     val isbn: String?
         get() {
             val bytes = exth.headers[104] ?: return null
-            return String(bytes)
+            return String(bytes).trim()
         }
 
     val release: String?
         get() {
             val bytes = exth.headers[106] ?: return null
-            return String(bytes)
+            return String(bytes).trim()
         }
 
     val description: String?
         get() {
             val bytes = exth.headers[103] ?: return null
-            return String(bytes)
+            return String(bytes).trim()
         }
 
     val headers: Map<Int, ByteArray>
@@ -363,36 +405,15 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
         if (imgNumber == null) {
             imgNumber = exth.headers[202]
         }
-
         if (imgNumber != null) {
-            val index = byteArrayToInt(imgNumber)
-            return getRecordByIndex(index + firstImageIndex)
-        } else {
-            var i = firstImageIndex
-            while (i < lastContentIndex && i < recordsOffset.size) {
-                val img = getRecordByIndex(i)
-                if (img != null && img.size >= 2) {
-                    if ((img[0].toInt() and 0xff) == 0xFF && (img[1].toInt() and 0xff) == 0xD8) {
-                        return img
-                    }
-                }
-                i++
+            val coverIndex = firstImageIndex + byteArrayToInt(imgNumber)
+            if (coverIndex in recordsOffset.indices) {
+                val start = recordsOffset[coverIndex]
+                val end = if (coverIndex + 1 < recordsOffset.size) recordsOffset[coverIndex + 1] else raw.capacity()
+                return getBytes(raw, start, end - start)
             }
         }
         return null
     }
 
-    fun getRecordByIndex(index: Int): ByteArray? {
-        if (index >= recordsOffset.size) {
-            return null
-        }
-
-        val from = recordsOffset[index]
-        var to = raw.limit()
-        if (index + 1 < recordsOffset.size) {
-            to = recordsOffset[index + 1]
-        }
-
-        return getBytes(raw, from, to - from)
-    }
 }

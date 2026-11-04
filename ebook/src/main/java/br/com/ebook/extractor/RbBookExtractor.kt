@@ -3,6 +3,7 @@ package br.com.ebook.extractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
+import br.com.ebook.core.MetadataParseUtils
 import org.ebookdroid.core.codec.OutlineLink
 import org.jsoup.Jsoup
 import org.slf4j.LoggerFactory
@@ -76,6 +77,11 @@ object RbBookExtractor : BookExtractor {
     override suspend fun extractMetadata(path: String): Result<BookMetadata> = runCatching {
         var title = ""
         var author = ""
+        var publisher = ""
+        var releaseDate: java.time.LocalDate? = null
+        var series = ""
+        var seriesIndex = 0
+
         try {
             RandomAccessFile(path, "r").use { raf ->
                 val items = readToc(raf)
@@ -90,8 +96,19 @@ object RbBookExtractor : BookExtractor {
                         if (trimmed.startsWith("TITLE=", ignoreCase = true)) {
                             title = trimmed.substring(6).trim()
                         } else if (trimmed.startsWith("AUTHOR=", ignoreCase = true)) {
-                            author = trimmed.substring(7).trim()
+                            author = MetadataParseUtils.normalizeAuthors(trimmed.substring(7).trim())
                         }
+                    }
+                }
+
+                // Tenta extrair editora e ano de copyright do index.html (primeiro e último chunks)
+                val htmlItem = items.firstOrNull { it.name.equals("index.html", ignoreCase = true) }
+                if (htmlItem != null && htmlItem.flags == 8) {
+                    val sample = decompressSampleChunks(raf, htmlItem)
+                    if (sample.isNotBlank()) {
+                        val heuristics = MetadataParseUtils.extractCopyrightHeuristics(sample)
+                        if (heuristics.publisher.isNotBlank()) publisher = heuristics.publisher
+                        if (heuristics.year != null) releaseDate = java.time.LocalDate.of(heuristics.year, 1, 1)
                     }
                 }
             }
@@ -100,14 +117,87 @@ object RbBookExtractor : BookExtractor {
         }
 
         if (title.isBlank()) {
-            title = File(path).nameWithoutExtension
+            title = MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension)
+        }
+
+        val inferred = MetadataParseUtils.inferSeriesAndVolume(title)
+        if (inferred.first.isNotEmpty()) {
+            series = inferred.first
+            seriesIndex = inferred.second
         }
 
         BookMetadata(
             title = title,
             author = author,
+            series = series,
+            seriesIndex = seriesIndex,
+            publisher = publisher,
+            releaseDate = releaseDate,
             unzipPath = path
         )
+    }
+
+    private fun decompressSampleChunks(raf: RandomAccessFile, item: RbItem): String {
+        return try {
+            raf.seek(item.offset)
+            val hdr = ByteArray(8)
+            raf.readFully(hdr)
+            val bbHdr = ByteBuffer.wrap(hdr).order(ByteOrder.LITTLE_ENDIAN)
+            val chunkCount = bbHdr.int
+            if (chunkCount <= 0) return ""
+
+            val chunkSizes = IntArray(chunkCount)
+            for (i in 0 until chunkCount) {
+                chunkSizes[i] = Integer.reverseBytes(raf.readInt())
+            }
+
+            val dataStart = item.offset + 8 + chunkCount * 4
+            val sb = StringBuilder()
+
+            // 1. Descompacta o primeiro chunk
+            var curOffset = dataStart
+            if (chunkSizes.isNotEmpty()) {
+                raf.seek(curOffset)
+                val compData = ByteArray(chunkSizes[0])
+                raf.readFully(compData)
+                val inf = Inflater()
+                inf.setInput(compData)
+                val out = ByteArrayOutputStream()
+                val buf = ByteArray(4096)
+                while (!inf.needsInput() && !inf.finished()) {
+                    val count = inf.inflate(buf)
+                    if (count > 0) out.write(buf, 0, count) else break
+                }
+                inf.end()
+                sb.append(out.toString(Charsets.UTF_8.name())).append("\n")
+            }
+
+            // 2. Se houver mais de 1 chunk, descompacta também o último chunk
+            if (chunkCount > 1) {
+                var lastChunkOffset = dataStart
+                for (i in 0 until chunkCount - 1) {
+                    lastChunkOffset += chunkSizes[i]
+                }
+                raf.seek(lastChunkOffset)
+                val compData = ByteArray(chunkSizes[chunkCount - 1])
+                raf.readFully(compData)
+                val inf = Inflater()
+                inf.setInput(compData)
+                val out = ByteArrayOutputStream()
+                val buf = ByteArray(4096)
+                while (!inf.needsInput() && !inf.finished()) {
+                    val count = inf.inflate(buf)
+                    if (count > 0) out.write(buf, 0, count) else break
+                }
+                inf.end()
+                sb.append(out.toString(Charsets.UTF_8.name()))
+            }
+
+            sb.toString()
+        } catch (e: Exception) {
+            LOGGER.warn("Error decompressing sample chunks in RB: {}", e.message)
+            ""
+        }
     }
 
     private fun decompressFirstTextChunk(raf: RandomAccessFile, item: RbItem): String {

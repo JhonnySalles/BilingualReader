@@ -22,7 +22,22 @@ object DateParseUtils {
     fun parseFlexibleDate(dateStr: String?): LocalDate? {
         if (dateStr.isNullOrBlank()) return null
         val cleaned = dateStr.trim()
-        
+
+        // Trata datas PDF no formato D:YYYYMMDD...
+        if (cleaned.startsWith("D:", ignoreCase = true)) {
+            val pdfDate = cleaned.substring(2)
+            if (pdfDate.length >= 8 && pdfDate.take(8).all { it.isDigit() }) {
+                try {
+                    val y = pdfDate.substring(0, 4).toInt()
+                    val m = pdfDate.substring(4, 6).toInt()
+                    val d = pdfDate.substring(6, 8).toInt()
+                    return LocalDate.of(y, m, d)
+                } catch (e: Exception) {
+                    // segue para os formatters padrão
+                }
+            }
+        }
+
         for (formatter in formatters) {
             try {
                 if (formatter == DateTimeFormatter.ISO_DATE_TIME || cleaned.contains("-") || cleaned.contains("/") || cleaned.contains(".")) {
@@ -48,7 +63,7 @@ object DateParseUtils {
                 // Silenciosamente ignora e tenta o próximo
             }
         }
-        
+
         LOGGER.warn("Nao foi possivel converter a data: {}", dateStr)
         return null
     }

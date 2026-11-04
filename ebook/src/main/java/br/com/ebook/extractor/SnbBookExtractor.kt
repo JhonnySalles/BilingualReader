@@ -3,11 +3,12 @@ package br.com.ebook.extractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
+import br.com.ebook.core.DateParseUtils
+import br.com.ebook.core.MetadataParseUtils
 import br.com.ebook.foobnix.ext.XmlParser
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.ebookdroid.core.codec.OutlineLink
 import org.jsoup.Jsoup
-import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
 import org.xmlpull.v1.XmlPullParser
 import java.io.ByteArrayInputStream
@@ -88,75 +89,106 @@ object SnbBookExtractor : BookExtractor {
 
         // Parse VFAT
         val files = mutableListOf<SnbFileEntry>()
-        val fileNamesTable = vfat.copyOfRange(fileCount * 12, vfat.size)
-        val fileNames = String(fileNamesTable, Charsets.UTF_8).split('\u0000')
-
         val bbVfat = ByteBuffer.wrap(vfat).order(ByteOrder.BIG_ENDIAN)
         for (i in 0 until fileCount) {
             val attr = bbVfat.int
             val nameOffset = bbVfat.int
-            val fileSize = bbVfat.int
-            val name = if (i < fileNames.size) fileNames[i] else ""
-            files.add(SnbFileEntry(attr, nameOffset, fileSize, name))
+            val size = bbVfat.int
+            files.add(SnbFileEntry(attr, nameOffset, size))
         }
 
-        // Ler Tail no final do arquivo
-        raf.seek(raf.length() - 16)
-        val tailBlock = ByteArray(16)
-        raf.readFully(tailBlock)
-        val bbTail = ByteBuffer.wrap(tailBlock).order(ByteOrder.BIG_ENDIAN)
-        val tailSize = bbTail.int
-        val tailOffset = bbTail.int.toLong() and 0xFFFFFFFFL
-
-        raf.seek(tailOffset)
-        val tailCompData = ByteArray(tailSize)
-        raf.readFully(tailCompData)
-        val vTail = decompressZlib(tailCompData)
-
-        val binBlock = (binStreamSize + 0x8000 - 1) / 0x8000
-        val plainBlock = (plainStreamSizeUncompressed + 0x8000 - 1) / 0x8000
-
-        val blockOffsets = mutableListOf<Long>()
-        val bbVTail = ByteBuffer.wrap(vTail).order(ByteOrder.BIG_ENDIAN)
-        for (i in 0 until (binBlock + plainBlock)) {
-            val off = bbVTail.int.toLong() and 0xFFFFFFFFL
-            blockOffsets.add(off)
+        // Ler nomes de arquivo
+        val namesStart = fileCount * 12
+        for (f in files) {
+            val pos = namesStart + f.fileNameOffset
+            var end = pos
+            while (end < vfat.size && vfat[end] != 0.toByte()) {
+                end++
+            }
+            f.fileName = String(vfat, pos, end - pos, Charsets.UTF_8)
         }
 
-        // Se metaOnly for verdadeiro, precisamos apenas carregar book.snbf e imagens
-        // Descompactar Plain Stream (blocos BZip2)
+        // Bloco de streams (BinStream e PlainStream)
+        val streamsHeaderPos = 44L + vfatCompressed + binStreamSize
+        raf.seek(streamsHeaderPos)
+        val magicBz = ByteArray(3)
+        val readCount = raf.read(magicBz)
+        raf.seek(streamsHeaderPos)
+
         var uncompressedData: ByteArray? = null
-        if (plainBlock > 0) {
-            val outPlain = ByteArrayOutputStream(plainStreamSizeUncompressed)
-            for (i in 0 until plainBlock) {
-                val curOff = blockOffsets[binBlock + i]
-                val bSize = if (i < plainBlock - 1) {
-                    (blockOffsets[binBlock + i + 1] - curOff).toInt()
-                } else {
-                    (tailOffset - curOff).toInt()
-                }
-
-                raf.seek(curOff)
-                val blockBytes = ByteArray(bSize)
-                raf.readFully(blockBytes)
-
-                if (bSize < 32768) {
+        if (readCount == 3 && magicBz[0] == 'B'.code.toByte() && magicBz[1] == 'Z'.code.toByte() && magicBz[2] == 'h'.code.toByte()) {
+            // Fluxos BZip2 encadeados (Calibre SNB padrão: blocos contínuos até atingir plainStreamSizeUncompressed)
+            try {
+                val compLen = (raf.length() - streamsHeaderPos).toInt()
+                val compData = ByteArray(compLen)
+                raf.readFully(compData)
+                val bais = ByteArrayInputStream(compData)
+                val outPlain = ByteArrayOutputStream(plainStreamSizeUncompressed)
+                while (outPlain.size() < plainStreamSizeUncompressed && bais.available() > 0) {
                     try {
-                        BZip2CompressorInputStream(ByteArrayInputStream(blockBytes)).use { bzIn ->
-                            val buf = ByteArray(8192)
-                            var read: Int
-                            while (bzIn.read(buf).also { read = it } != -1) {
-                                outPlain.write(buf, 0, read)
-                            }
+                        val bzIn = BZip2CompressorInputStream(bais)
+                        val buf = ByteArray(8192)
+                        var read: Int
+                        while (bzIn.read(buf).also { read = it } != -1) {
+                            outPlain.write(buf, 0, read)
                         }
                     } catch (e: Exception) {
-                        LOGGER.warn("Error decompressing BZip2 block $i in SNB: {}", e.message)
+                        break
                     }
-                } else {
-                    outPlain.write(blockBytes)
                 }
+                uncompressedData = outPlain.toByteArray()
+            } catch (e: Exception) {
+                LOGGER.error("Error decompressing direct BZip2 stream in SNB: {}", e.message, e)
             }
-            uncompressedData = outPlain.toByteArray()
+        } else {
+            val streamHdr = ByteArray(12)
+            raf.readFully(streamHdr)
+            val bbStream = ByteBuffer.wrap(streamHdr).order(ByteOrder.BIG_ENDIAN)
+            val binBlock = bbStream.int
+            val plainBlock = bbStream.int
+            val totalBlock = binBlock + plainBlock
+
+            val blockOffsets = IntArray(totalBlock)
+            for (i in 0 until totalBlock) {
+                blockOffsets[i] = raf.readInt()
+            }
+
+            val tailPos = streamsHeaderPos + 12 + totalBlock * 4
+            raf.seek(tailPos)
+            val tailOffset = raf.readInt()
+
+            if (!metaOnly || plainBlock > 0) {
+                val outPlain = ByteArrayOutputStream(plainStreamSizeUncompressed)
+                for (i in 0 until plainBlock) {
+                    val curOff = blockOffsets[binBlock + i]
+                    val bSize = if (i < plainBlock - 1) {
+                        (blockOffsets[binBlock + i + 1] - curOff).toInt()
+                    } else {
+                        (tailOffset - curOff).toInt()
+                    }
+
+                    raf.seek(curOff.toLong())
+                    val blockBytes = ByteArray(bSize)
+                    raf.readFully(blockBytes)
+
+                    if (bSize < 32768) {
+                        try {
+                            BZip2CompressorInputStream(ByteArrayInputStream(blockBytes)).use { bzIn ->
+                                val buf = ByteArray(8192)
+                                var read: Int
+                                while (bzIn.read(buf).also { read = it } != -1) {
+                                    outPlain.write(buf, 0, read)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            LOGGER.warn("Error decompressing BZip2 block $i in SNB: {}", e.message)
+                        }
+                    } else {
+                        outPlain.write(blockBytes)
+                    }
+                }
+                uncompressedData = outPlain.toByteArray()
+            }
         }
 
         var binPos = 0L
@@ -187,10 +219,14 @@ object SnbBookExtractor : BookExtractor {
         var author = ""
         var publisher = ""
         var description = ""
+        var language = ""
+        var releaseDate: java.time.LocalDate? = null
+        var series = ""
+        var seriesIndex = 0
 
         try {
             RandomAccessFile(path, "r").use { raf ->
-                val snb = parseSnb(raf, metaOnly = true)
+                val snb = parseSnb(raf, metaOnly = false)
                 val metaXml = snb.getFileStream("snbf/book.snbf")
                 if (metaXml != null) {
                     val doc = Jsoup.parse(ByteArrayInputStream(metaXml), "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
@@ -198,13 +234,19 @@ object SnbBookExtractor : BookExtractor {
                     if (n.isNotEmpty()) title = n
 
                     val a = doc.select("author").text().trim()
-                    if (a.isNotEmpty()) author = a
+                    if (a.isNotEmpty()) author = MetadataParseUtils.normalizeAuthors(a)
 
                     val p = doc.select("publisher").text().trim()
                     if (p.isNotEmpty()) publisher = p
 
                     val d = doc.select("abstract").text().trim()
-                    if (d.isNotEmpty()) description = d
+                    if (d.isNotEmpty()) description = MetadataParseUtils.cleanHtmlAnnotation(d)
+
+                    val lang = doc.select("language").text().trim()
+                    if (lang.isNotEmpty()) language = lang
+
+                    val created = doc.select("created").text().trim()
+                    if (created.isNotEmpty()) releaseDate = DateParseUtils.parseFlexibleDate(created)
                 }
             }
         } catch (e: Exception) {
@@ -212,7 +254,13 @@ object SnbBookExtractor : BookExtractor {
         }
 
         if (title.isBlank()) {
-            title = File(path).nameWithoutExtension
+            title = MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension)
+        }
+
+        val inferred = MetadataParseUtils.inferSeriesAndVolume(title)
+        if (inferred.first.isNotEmpty()) {
+            series = inferred.first
+            seriesIndex = inferred.second
         }
 
         BookMetadata(
@@ -220,7 +268,11 @@ object SnbBookExtractor : BookExtractor {
             author = author,
             unzipPath = path,
             annotation = description,
-            publisher = publisher
+            publisher = publisher,
+            language = language,
+            releaseDate = releaseDate,
+            series = series,
+            seriesIndex = seriesIndex
         )
     }
 
@@ -228,7 +280,7 @@ object SnbBookExtractor : BookExtractor {
         var coverBytes: ByteArray? = null
         try {
             RandomAccessFile(path, "r").use { raf ->
-                val snb = parseSnb(raf, metaOnly = true)
+                val snb = parseSnb(raf, metaOnly = false)
                 var coverName = ""
                 val metaXml = snb.getFileStream("snbf/book.snbf")
                 if (metaXml != null) {
@@ -258,13 +310,13 @@ object SnbBookExtractor : BookExtractor {
         var overview = ""
         try {
             RandomAccessFile(path, "r").use { raf ->
-                val snb = parseSnb(raf, metaOnly = true)
+                val snb = parseSnb(raf, metaOnly = false)
                 val metaXml = snb.getFileStream("snbf/book.snbf")
                 if (metaXml != null) {
                     val doc = Jsoup.parse(ByteArrayInputStream(metaXml), "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
                     val abs = doc.select("abstract").text()
                     if (abs.isNotBlank()) {
-                        overview = Jsoup.clean(abs, Safelist.simpleText())
+                        overview = MetadataParseUtils.cleanHtmlAnnotation(abs)
                     }
                 }
             }

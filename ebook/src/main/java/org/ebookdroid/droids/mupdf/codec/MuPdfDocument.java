@@ -423,8 +423,10 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
             final long open = open(allocatedMemory, format, fname, pwd != null ? pwd : "", css != null ? css : "", useDocStyle, imageScale, antiAlias, accel, isImageScale);
 
-            if (open <= 0)
+            if (open == 0)
                 throw new RuntimeException("Document is corrupted or could not be opened: " + fname);
+
+            recycledDocHandles.remove(open);
 
             // final int pages = getPageCountWithException(open);
             return open;

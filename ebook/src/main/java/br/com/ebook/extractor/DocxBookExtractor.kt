@@ -3,6 +3,8 @@ package br.com.ebook.extractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
+import br.com.ebook.core.DateParseUtils
+import br.com.ebook.core.MetadataParseUtils
 import br.com.ebook.util.IOUtils.copyTo
 import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
@@ -19,16 +21,50 @@ object DocxBookExtractor : BookExtractor {
     override suspend fun extractMetadata(path: String): Result<BookMetadata> = runCatching {
         var title = ""
         var author = ""
+        var publisher = ""
+        var genre = ""
+        var annotation = ""
+        var language = ""
+        var releaseDate: java.time.LocalDate? = null
+        var series = ""
+        var seriesIndex = 0
+
         try {
             ZipFile(path).use { zip ->
-                val entry = zip.getEntry("docProps/core.xml")
-                if (entry != null) {
-                    zip.getInputStream(entry).use { stream ->
+                // 1. docProps/core.xml
+                val coreEntry = zip.getEntry("docProps/core.xml")
+                if (coreEntry != null) {
+                    zip.getInputStream(coreEntry).use { stream ->
                         val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
                         val t = doc.select("dc|title, title").text().trim()
                         if (t.isNotEmpty()) title = t
+
                         val a = doc.select("dc|creator, creator").text().trim()
-                        if (a.isNotEmpty()) author = a
+                        if (a.isNotEmpty()) author = MetadataParseUtils.normalizeAuthors(a)
+
+                        val d = doc.select("dc|description, description").text().trim()
+                        if (d.isNotEmpty()) annotation = MetadataParseUtils.cleanHtmlAnnotation(d)
+
+                        val k = doc.select("cp|keywords, keywords").text().trim()
+                        val s = doc.select("dc|subject, subject").text().trim()
+                        val combinedGenre = listOf(k, s).filter { it.isNotBlank() }.joinToString(", ")
+                        if (combinedGenre.isNotEmpty()) genre = combinedGenre
+
+                        val l = doc.select("dc|language, language").text().trim()
+                        if (l.isNotEmpty()) language = l
+
+                        val dateStr = doc.select("dcterms|created, created").text().trim()
+                        if (dateStr.isNotEmpty()) releaseDate = DateParseUtils.parseFlexibleDate(dateStr)
+                    }
+                }
+
+                // 2. docProps/app.xml (Calibre grava a Editora no campo <Company>)
+                val appEntry = zip.getEntry("docProps/app.xml")
+                if (appEntry != null) {
+                    zip.getInputStream(appEntry).use { stream ->
+                        val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
+                        val company = doc.select("Company").text().trim()
+                        if (company.isNotEmpty()) publisher = company
                     }
                 }
             }
@@ -37,13 +73,26 @@ object DocxBookExtractor : BookExtractor {
         }
 
         if (title.isBlank()) {
-            title = File(path).nameWithoutExtension
+            title = MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension)
+        }
+
+        val inferred = MetadataParseUtils.inferSeriesAndVolume(title)
+        if (inferred.first.isNotEmpty()) {
+            series = inferred.first
+            seriesIndex = inferred.second
         }
 
         BookMetadata(
             title = title,
             author = author,
-            unzipPath = path
+            unzipPath = path,
+            annotation = annotation,
+            publisher = publisher,
+            genre = genre,
+            language = language,
+            releaseDate = releaseDate,
+            series = series,
+            seriesIndex = seriesIndex
         )
     }
 
@@ -157,7 +206,22 @@ object DocxBookExtractor : BookExtractor {
     }
 
     override suspend fun extractOverview(path: String): Result<String> = runCatching {
-        ""
+        var annotation = ""
+        try {
+            ZipFile(path).use { zip ->
+                val coreEntry = zip.getEntry("docProps/core.xml")
+                if (coreEntry != null) {
+                    zip.getInputStream(coreEntry).use { stream ->
+                        val doc = Jsoup.parse(stream, "UTF-8", "", Parser.xmlParser())
+                        val d = doc.select("dc|description, description").text().trim()
+                        if (d.isNotEmpty()) annotation = MetadataParseUtils.cleanHtmlAnnotation(d)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            LOGGER.error("Error extracting DOCX overview: {}", e.message, e)
+        }
+        annotation
     }
 
     override suspend fun extractFooterNotes(path: String): Result<Map<String, String>> = runCatching {
@@ -239,7 +303,7 @@ object DocxBookExtractor : BookExtractor {
                     htmlBuilder.append("<img src=\"").append(coverTarget).append("\" style=\"width: 100%; height: auto; display: block; margin: 0 auto;\" alt=\"Cover\"/>")
                     htmlBuilder.append("</div>\n")
                 }
-                var headingCount = 0
+                var headingCount = 0
                 var coverAlreadySkipped = false
                 val blocks = mutableListOf<br.com.ebook.util.SpineSegmenter.Block>()
 

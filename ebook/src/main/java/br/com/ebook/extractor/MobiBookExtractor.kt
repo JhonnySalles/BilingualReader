@@ -5,6 +5,7 @@ import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
 import br.com.ebook.core.DateParseUtils
 import br.com.ebook.core.EbookSettings
+import br.com.ebook.core.MetadataParseUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.mobi.parser.MobiParser
 import br.com.ebook.foobnix.pdf.info.ExtUtils
@@ -28,7 +29,7 @@ object MobiBookExtractor : BookExtractor {
             val raw = getMappedByteBuffer(file)
             val parser = MobiParser(raw)
             if (parser.isMobi) {
-                info = parser.description ?: ""
+                info = MetadataParseUtils.cleanHtmlAnnotation(parser.description)
             }
         } catch (e: Throwable) {
             LOGGER.error("Error to get book overview: {}", e.message, e)
@@ -46,33 +47,61 @@ object MobiBookExtractor : BookExtractor {
         val subject = parser.subject ?: ""
         val lang = parser.language ?: ""
         val isbn = parser.isbn ?: ""
-        val publisher = parser.publisher ?: ""
+        var publisher = parser.publisher ?: ""
         val release = parser.release
+        var releaseDate = DateParseUtils.parseFlexibleDate(release)
+        val annotation = MetadataParseUtils.cleanHtmlAnnotation(parser.description)
+        var series = ""
+        var seriesIndex = 0
 
-        if (title.isBlank() || !parser.isMobi) {
-            val pair = TxtUtils.getTitleAuthorByPath(file.name)
-            if (title.isBlank() || title == file.name) {
-                title = pair.first ?: file.nameWithoutExtension
+        if (!parser.isMobi) {
+            // Formato PalmDOC / PDB: restaura título limpo do arquivo
+            title = MetadataParseUtils.cleanFileTitle(file.nameWithoutExtension)
+            val sampleText = parser.getSampleText()
+            if (sampleText.isNotBlank()) {
+                val heuristics = MetadataParseUtils.extractCopyrightHeuristics(sampleText)
+                if (heuristics.publisher.isNotBlank() && publisher.isBlank()) {
+                    publisher = heuristics.publisher
+                }
+                if (heuristics.year != null && releaseDate == null) {
+                    releaseDate = java.time.LocalDate.of(heuristics.year, 1, 1)
+                }
+                if (heuristics.author.isNotBlank() && author.isNullOrBlank()) {
+                    author = heuristics.author
+                }
             }
-            if (author.isNullOrBlank()) {
-                author = pair.second ?: ""
+        } else {
+            if (title.isBlank() || title == file.name) {
+                title = MetadataParseUtils.cleanFileTitle(file.nameWithoutExtension)
             }
         }
 
-        if (EbookSettings.isFirstSurname && !author.isNullOrBlank()) {
+        if (author.isNullOrBlank()) {
+            val pair = TxtUtils.getTitleAuthorByPath(file.name)
+            author = pair.second ?: ""
+        }
+
+        if (EbookSettings.isFirstSurname && !author.isNullOrBlank() && !author.contains(",")) {
             author = TxtUtils.replaceLastFirstName(author)
         }
 
-        val releaseDate = DateParseUtils.parseFlexibleDate(release)
+        val inferred = MetadataParseUtils.inferSeriesAndVolume(title)
+        if (inferred.first.isNotEmpty()) {
+            series = inferred.first
+            seriesIndex = inferred.second
+        }
 
         BookMetadata(
             title = title,
             author = author ?: "",
+            series = series,
+            seriesIndex = seriesIndex,
             genre = subject,
             language = lang,
             isbn = isbn,
             publisher = publisher,
             releaseDate = releaseDate,
+            annotation = annotation,
             unzipPath = path
         )
     }.onFailure { e ->
@@ -107,8 +136,6 @@ object MobiBookExtractor : BookExtractor {
     }
 
     override suspend fun extractFooterNotes(path: String): Result<Map<String, String>> = runCatching {
-        // Notas de rodapé não são extraídas diretamente do arquivo MOBI bruto, 
-        // mas sim após a conversão para EPUB intermediário.
         emptyMap()
     }
 

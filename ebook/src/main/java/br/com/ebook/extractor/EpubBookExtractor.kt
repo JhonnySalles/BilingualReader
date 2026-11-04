@@ -75,6 +75,7 @@ object EpubBookExtractor : BookExtractor {
     fun preprocessEpub(inputPath: String, outputPath: String) {
         try {
             LOGGER.info("preprocessEpub: {} || {}", inputPath, outputPath)
+            File(outputPath).parentFile?.mkdirs()
             val file = File(inputPath)
             
             var opfPath = ""
@@ -375,6 +376,11 @@ object EpubBookExtractor : BookExtractor {
             }
         } catch (e: Exception) {
             LOGGER.error("Error preprocessing EPUB: {}", e.message, e)
+            File(outputPath).let { if (it.exists()) it.delete() }
+        } finally {
+            if (TempHolder.get().loadingCancelled) {
+                File(outputPath).let { if (it.exists()) it.delete() }
+            }
         }
     }
 
@@ -531,7 +537,7 @@ object EpubBookExtractor : BookExtractor {
                     }
                     if (dcDesc != null) {
                         val rawDesc = dcDesc.html().ifEmpty { dcDesc.text() }
-                        annotation = if (rawDesc.contains("<")) {
+                        annotation = br.com.ebook.core.MetadataParseUtils.cleanHtmlAnnotation(rawDesc); if (false) {
                             try {
                                 Jsoup.parse(rawDesc).text().trim()
                             } catch (e: Exception) {
@@ -564,7 +570,7 @@ object EpubBookExtractor : BookExtractor {
                     }
                     for (idElem in dcIds) {
                         val text = idElem.text()
-                        if (text.lowercase(Locale.getDefault()).contains("isbn")) {
+                        val s = (idElem.attr("opf:scheme").ifEmpty { idElem.attr("scheme") }).trim(); if (s.equals("isbn", true) || text.lowercase(Locale.getDefault()).contains("isbn")) {
                             isbn = text.replace(Regex("\\D"), "")
                             break
                         }
@@ -618,9 +624,9 @@ object EpubBookExtractor : BookExtractor {
             }
         }
 
-        if (author.isNotEmpty()) {
+        if (false && author.isNotEmpty()) {
             if (EbookSettings.isFirstSurname) {
-                author = TxtUtils.replaceLastFirstName(author) ?: ""
+                author = author
             }
         }
 

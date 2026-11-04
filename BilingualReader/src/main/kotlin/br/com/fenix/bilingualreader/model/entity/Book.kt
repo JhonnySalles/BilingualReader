@@ -307,25 +307,30 @@ class Book(
     }
 
     fun update(meta: br.com.ebook.core.BookMetadata, language: Libraries) : Boolean {
-        val series = if (meta.series.isNotEmpty()) meta.series else let {
-            var index = -1
-            if (title.contains(" vol.", true)) {
-                index = title.lastIndexOf(" vol.", 0, true)
-                if (index < 0)
-                    index = title.indexOf(" vol.", 0, true)
-            } else if (title.contains("volume", true)) {
-                index = title.lastIndexOf("volume", 0, true)
-                if (index < 0)
-                    index = title.indexOf("volume", 0, true)
+        val effectiveTitle = if (meta.title.isNotBlank()) meta.title else this.title
+
+        val series = if (meta.series.isNotEmpty()) {
+            meta.series
+        } else {
+            val inferred = br.com.ebook.core.MetadataParseUtils.inferSeriesAndVolume(effectiveTitle)
+            if (inferred.first.isNotEmpty()) {
+                inferred.first
+            } else {
+                var index = -1
+                if (effectiveTitle.contains(" vol.", true)) {
+                    index = effectiveTitle.indexOf(" vol.", 0, true)
+                } else if (effectiveTitle.contains("volume", true)) {
+                    index = effectiveTitle.indexOf("volume", 0, true)
+                }
+                if (index > -1) effectiveTitle.substring(0, index).trim().trimEnd(',', '-', '–', '—', '_', ' ').trim() else ""
             }
-            if (index > -1) title.substring(0, index).trim() else ""
         }
 
-        val updated = this.title != meta.title || this.author != meta.author || this.annotation != meta.annotation ||
+        val updated = this.title != effectiveTitle || this.author != meta.author || this.annotation != meta.annotation ||
                 this.genre != meta.genre || this.publisher != meta.publisher || this.series != series ||
                 this.isbn != meta.isbn || this.release != meta.releaseDate
 
-        this.title = meta.title
+        this.title = effectiveTitle
         this.author = meta.author
         this.annotation = meta.annotation
         this.genre = meta.genre
@@ -335,17 +340,24 @@ class Book(
         this.release = meta.releaseDate
         this.fileSize = file.length()
 
-        if (meta.seriesIndex > 0)
+        if (meta.seriesIndex > 0) {
             this.volume = meta.seriesIndex.toString()
-        else if (title.lowercase().contains(" vol."))
-            this.volume = title.lowercase().substringAfterLast("vol.", "").substringBefore("—").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
-        else
-            this.volume = fileName.lowercase().substringAfterLast("volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+        } else {
+            val inferred = br.com.ebook.core.MetadataParseUtils.inferSeriesAndVolume(effectiveTitle)
+            if (inferred.second > 0) {
+                this.volume = inferred.second.toString()
+            } else if (effectiveTitle.lowercase(Locale.getDefault()).contains("vol.")) {
+                this.volume = effectiveTitle.lowercase(Locale.getDefault()).substringAfterLast("vol.", "").substringBefore("—").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+            } else {
+                this.volume = fileName.lowercase(Locale.getDefault()).substringAfterLast("volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+            }
+        }
 
-        this.language = when (meta.language.lowercase(Locale.getDefault())) {
-            "ja", "jp" -> Languages.JAPANESE
-            "en" -> Languages.ENGLISH
-            "pt" -> Languages.PORTUGUESE
+        val langCode = meta.language.lowercase(Locale.getDefault()).trim()
+        this.language = when {
+            langCode.startsWith("pt") || langCode == "por" -> Languages.PORTUGUESE
+            langCode.startsWith("en") || langCode == "eng" -> Languages.ENGLISH
+            langCode.startsWith("ja") || langCode == "jp" || langCode == "jpn" -> Languages.JAPANESE
             else -> when(language) {
                 Libraries.ENGLISH -> Languages.ENGLISH
                 Libraries.JAPANESE -> Languages.JAPANESE

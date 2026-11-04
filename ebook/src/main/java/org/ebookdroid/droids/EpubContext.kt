@@ -39,7 +39,7 @@ class EpubContext : PdfContext() {
 
         val cache = cacheFile ?: getCacheFileName(fileName)
 
-        if (!cache.isFile) {
+        if (!cache.isFile || cache.length() == 0L) {
             EpubBookExtractor.preprocessEpub(fileName, cache.path)
         }
 
@@ -48,8 +48,17 @@ class EpubContext : PdfContext() {
             return null
         }
 
-        val bookPath = cache.path
-        val muPdfDocument = MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, bookPath, password)
+        val bookPath = if (cache.isFile && cache.length() > 0L) cache.path else fileName
+        val muPdfDocument = try {
+            MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, bookPath, password).also {
+                it.setOriginalFname(fileName)
+            }
+        } catch (e: Exception) {
+            if (cache.exists()) {
+                cache.delete()
+            }
+            throw e
+        }
 
         val jsonFile = File(cache.parentFile, ExtUtils.getFileNameWithoutExt(cache.name) + ".json")
         if (jsonFile.isFile) {

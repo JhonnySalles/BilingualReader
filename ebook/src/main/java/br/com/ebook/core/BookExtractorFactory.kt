@@ -9,14 +9,19 @@ import br.com.ebook.extractor.EpubBookExtractor
 import br.com.ebook.extractor.Fb2BookExtractor
 import br.com.ebook.extractor.HtmlBookExtractor
 import br.com.ebook.extractor.HtmlzBookExtractor
+import br.com.ebook.extractor.LitBookExtractor
+import br.com.ebook.extractor.LrfBookExtractor
 import br.com.ebook.extractor.MarkdownBookExtractor
 import br.com.ebook.extractor.MobiBookExtractor
 import br.com.ebook.extractor.OdtBookExtractor
 import br.com.ebook.extractor.PdfBookExtractor
 import br.com.ebook.extractor.PmlzBookExtractor
+import br.com.ebook.extractor.RbBookExtractor
 import br.com.ebook.extractor.RtfBookExtractor
+import br.com.ebook.extractor.SnbBookExtractor
 import br.com.ebook.extractor.TcrBookExtractor
 import br.com.ebook.extractor.TxtBookExtractor
+import br.com.ebook.extractor.TxtzBookExtractor
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import org.jsoup.Jsoup
@@ -38,9 +43,9 @@ object BookExtractorFactory {
             "tcr" -> TcrBookExtractor
             "html", "htm", "xhtml", "xhtm", "mht", "mhtml" -> HtmlBookExtractor
             "htmlz" -> HtmlzBookExtractor
-            "txtz" -> br.com.ebook.extractor.TxtzBookExtractor
-            "rb" -> br.com.ebook.extractor.RbBookExtractor
-            "snb" -> br.com.ebook.extractor.SnbBookExtractor
+            "txtz" -> TxtzBookExtractor
+            "rb" -> RbBookExtractor
+            "snb" -> SnbBookExtractor
             "pmlz" -> PmlzBookExtractor
             "rtf" -> RtfBookExtractor
             "pdf", "xps" -> PdfBookExtractor
@@ -50,11 +55,13 @@ object BookExtractorFactory {
             "odt" -> OdtBookExtractor
             "md", "markdown" -> MarkdownBookExtractor
             "djvu" -> DjvuBookExtractor
+            "lrf" -> LrfBookExtractor
+            "lit" -> LitBookExtractor
             else -> null
         }
     }
 
-    suspend fun getMetadata(path: String, withPDF: Boolean = false): BookMetadata {
+    suspend fun getMetadata(path: String, withPDF: Boolean = true): BookMetadata {
         var metadata = BookMetadata("", "")
         try {
             val file = File(path)
@@ -89,21 +96,22 @@ object BookExtractorFactory {
 
             // 3. Fallback: Se o título veio em branco, infere a partir do nome do arquivo original
             if (metadata.title.isBlank()) {
-                val fileName = File(path).name
-                val pair = TxtUtils.getTitleAuthorByPath(fileName)
+                val cleanTitle = MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension)
+                val pair = TxtUtils.getTitleAuthorByPath(File(path).name)
                 metadata = metadata.copy(
-                    title = pair.first ?: fileName,
+                    title = cleanTitle.ifBlank { pair.first ?: "" },
                     author = if (metadata.author.isBlank()) pair.second ?: "" else metadata.author
                 )
             }
 
-            // 4. Fallback: Tenta inferir o volume se não estiver setado
-            if (metadata.seriesIndex == 0 && (path.contains("_") || path.contains(")"))) {
-                for (i in 20 downTo 1) {
-                    if (path.contains("_${i}_") || path.contains(" $i)") || path.contains(" 0$i)")) {
-                        metadata = metadata.copy(seriesIndex = i)
-                        break
-                    }
+            // 4. Fallback: Tenta inferir a série e volume se não estiverem setados
+            if (metadata.series.isBlank() || metadata.seriesIndex == 0) {
+                val inferred = MetadataParseUtils.inferSeriesAndVolume(metadata.title.ifEmpty { File(path).nameWithoutExtension })
+                if (metadata.series.isBlank() && inferred.first.isNotBlank()) {
+                    metadata = metadata.copy(series = inferred.first)
+                }
+                if (metadata.seriesIndex == 0 && inferred.second > 0) {
+                    metadata = metadata.copy(seriesIndex = inferred.second)
                 }
             }
         } catch (e: Exception) {

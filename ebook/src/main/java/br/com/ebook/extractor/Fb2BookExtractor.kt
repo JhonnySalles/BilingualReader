@@ -6,6 +6,9 @@ import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
 import br.com.ebook.core.DateParseUtils
 import br.com.ebook.core.EbookSettings
+import br.com.ebook.core.MetadataParseUtils
+import org.jsoup.Jsoup
+import org.jsoup.parser.Parser
 import br.com.ebook.foobnix.android.utils.StreamUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.XmlParser
@@ -45,141 +48,93 @@ object Fb2BookExtractor : BookExtractor {
     override val supportedFormats: Set<String> = setOf("fb2")
 
     override suspend fun extractOverview(path: String): Result<String> = runCatching {
-        val info = StringBuilder()
-        val encoding = findHeaderEncoding(path)
-        
-        FileInputStream(path).use { fis ->
-            val xpp = XmlParser.buildPullParser()
-            xpp.setInput(fis, encoding)
-            var eventType = xpp.eventType
-            var findAnnotation = false
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.name == "annotation") {
-                        findAnnotation = true
-                    }
-                    if (xpp.name == "body") {
-                        break
-                    }
-                }
-                if (eventType == XmlPullParser.TEXT && findAnnotation) {
-                    info.append(" ").append(xpp.text)
-                }
-                if (eventType == XmlPullParser.END_TAG && xpp.name == "annotation") {
-                    break
-                }
-                eventType = xpp.next()
-            }
-        }
-        info.toString().trim()
+        extractMetadata(path).getOrNull()?.annotation ?: ""
     }
 
     override suspend fun extractMetadata(path: String): Result<BookMetadata> = runCatching {
         val encoding = findHeaderEncoding(path)
         var bookTitle = ""
-        var firstName = ""
-        var lastName = ""
         var genre = ""
         var sequence = ""
         var lang = ""
         var number = ""
         var isbn = ""
         var publisher = ""
+        var annotation = ""
         var releaseDate: LocalDate? = null
-        var authors = mutableListOf<String>()
-        var currentAuthorFirst = ""
-        var currentAuthorLast = ""
-        var inAuthorTag = false
-        var titleInfo = false
+        val authors = mutableListOf<String>()
 
-        FileInputStream(path).use { fis ->
-            val xpp = XmlParser.buildPullParser()
-            xpp.setInput(fis, encoding)
-            var eventType = xpp.eventType
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.name == "title-info") {
-                        titleInfo = true
+        try {
+            val descContent = extractDescriptionXml(path, encoding)
+            if (descContent.isNotBlank()) {
+                val doc = Jsoup.parse(descContent, "", Parser.xmlParser())
+
+                bookTitle = doc.select("title-info > book-title").text().trim()
+                lang = doc.select("title-info > lang").text().trim()
+
+                val authorEls = doc.select("title-info > author")
+                for (a in authorEls) {
+                    val fn = a.select("first-name").text().trim()
+                    val mn = a.select("middle-name").text().trim()
+                    val ln = a.select("last-name").text().trim()
+                    val nk = a.select("nickname").text().trim()
+                    val formatted = if (nk.isNotEmpty() && fn.isEmpty() && ln.isEmpty()) {
+                        nk
+                    } else if (EbookSettings.isFirstSurname) {
+                        listOf(ln, fn, mn).filter { it.isNotEmpty() }.joinToString(" ")
+                    } else {
+                        listOf(fn, mn, ln).filter { it.isNotEmpty() }.joinToString(" ")
                     }
-                    if (titleInfo) {
-                        when (xpp.name) {
-                            "author" -> {
-                                inAuthorTag = true
-                                currentAuthorFirst = ""
-                                currentAuthorLast = ""
-                            }
-                            "book-title" -> bookTitle = xpp.nextText() ?: ""
-                            "lang" -> lang = xpp.nextText() ?: ""
-                            "first-name" -> {
-                                val fn = xpp.nextText() ?: ""
-                                if (inAuthorTag) {
-                                    currentAuthorFirst = fn
-                                } else if (firstName.isEmpty()) {
-                                    firstName = fn
-                                }
-                            }
-                            "last-name" -> {
-                                val ln = xpp.nextText() ?: ""
-                                if (inAuthorTag) {
-                                    currentAuthorLast = ln
-                                } else if (lastName.isEmpty()) {
-                                    lastName = ln
-                                }
-                            }
-                            "genre" -> {
-                                val gen = xpp.nextText() ?: ""
-                                genre = if (genre.isEmpty()) gen else "$genre,$gen"
-                            }
-                            "sequence" -> {
-                                sequence = xpp.getAttributeValue(null, "name") ?: ""
-                                val current = xpp.getAttributeValue(null, "number") ?: ""
-                                if (current.isNotEmpty() && current != "0" && current != "00") {
-                                    number = current
-                                }
-                            }
-                            "isbn" -> isbn = xpp.nextText() ?: ""
-                            "publisher" -> publisher = xpp.nextText() ?: ""
-                            "date" -> {
-                                val dateStr = xpp.nextText()
-                                releaseDate = DateParseUtils.parseFlexibleDate(dateStr)
-                            }
-                        }
-                    }
-                    if (xpp.name == "body") {
-                        break
+                    if (formatted.isNotEmpty() && !authors.contains(formatted)) {
+                        authors.add(formatted)
                     }
                 }
-                if (eventType == XmlPullParser.END_TAG) {
-                    if (xpp.name == "author" && inAuthorTag) {
-                        inAuthorTag = false
-                        val fn = currentAuthorFirst.trim()
-                        val ln = currentAuthorLast.trim()
-                        val formatted = if (EbookSettings.isFirstSurname) {
-                            if (fn.isNotEmpty() && ln.isNotEmpty()) "$ln $fn" else ln + fn
-                        } else {
-                            if (fn.isNotEmpty() && ln.isNotEmpty()) "$fn $ln" else fn + ln
-                        }
+
+                if (authors.isEmpty()) {
+                    val docAuthors = doc.select("document-info > author")
+                    for (a in docAuthors) {
+                        val fn = a.select("first-name").text().trim()
+                        val ln = a.select("last-name").text().trim()
+                        val nk = a.select("nickname").text().trim()
+                        val formatted = if (nk.isNotEmpty() && fn.isEmpty() && ln.isEmpty()) nk else listOf(fn, ln).filter { it.isNotEmpty() }.joinToString(" ")
                         if (formatted.isNotEmpty() && !authors.contains(formatted)) {
                             authors.add(formatted)
                         }
-                    } else if (xpp.name == "title-info") {
-                        titleInfo = false
                     }
                 }
-                eventType = xpp.next()
+
+                val genres = doc.select("title-info > genre").map { it.text().trim() }.filter { it.isNotEmpty() }
+                val keywords = doc.select("title-info > keywords").text().trim()
+                genre = if (genres.isNotEmpty()) genres.joinToString(", ") else keywords
+
+                val seqEl = doc.select("title-info > sequence").firstOrNull()
+                if (seqEl != null) {
+                    sequence = seqEl.attr("name").trim()
+                    number = seqEl.attr("number").trim()
+                }
+
+                val dateStr = doc.select("publish-info > year").text().trim().ifEmpty {
+                    doc.select("title-info > date").text().trim()
+                }
+                if (dateStr.isNotEmpty()) {
+                    releaseDate = DateParseUtils.parseFlexibleDate(dateStr)
+                }
+
+                publisher = doc.select("publish-info > publisher").text().trim()
+                isbn = doc.select("publish-info > isbn").text().trim()
+                val annoEl = doc.select("title-info > annotation").firstOrNull()
+                if (annoEl != null) {
+                    annotation = MetadataParseUtils.cleanHtmlAnnotation(annoEl.html().ifEmpty { annoEl.text() })
+                }
             }
+        } catch (e: Exception) {
+            LOGGER.error("Error parsing FB2 description with Jsoup for {}: {}", path, e.message)
         }
 
-        var author = if (authors.isNotEmpty()) {
+        val author = if (authors.isNotEmpty()) {
             authors.joinToString(", ")
         } else {
-            lastName = lastName.trim()
-            firstName = firstName.trim()
-            if (EbookSettings.isFirstSurname) {
-                if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$lastName $firstName" else lastName + firstName
-            } else {
-                if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$firstName $lastName" else firstName + lastName
-            }
+            ""
         }
 
         val sIndex = try {
@@ -189,7 +144,7 @@ object Fb2BookExtractor : BookExtractor {
         }
 
         BookMetadata(
-            title = bookTitle,
+            title = bookTitle.ifBlank { MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension) },
             author = author,
             series = sequence,
             genre = genre.replace(Regex(",$"), ""),
@@ -198,8 +153,30 @@ object Fb2BookExtractor : BookExtractor {
             releaseDate = releaseDate,
             seriesIndex = sIndex,
             language = lang,
+            annotation = annotation,
             unzipPath = path
         )
+    }
+
+    private fun extractDescriptionXml(path: String, encoding: String): String {
+        return try {
+            val file = File(path)
+            val maxLen = kotlin.math.min(file.length(), 256 * 1024L).toInt()
+            val buf = ByteArray(maxLen)
+            FileInputStream(file).use { it.read(buf) }
+            val raw = String(buf, java.nio.charset.Charset.forName(encoding))
+            val start = raw.indexOf("<description")
+            if (start >= 0) {
+                val end = raw.indexOf("</description>", start)
+                if (end >= 0) {
+                    return raw.substring(start, end + 14)
+                }
+                return raw.substring(start)
+            }
+            ""
+        } catch (e: Exception) {
+            ""
+        }
     }
 
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
@@ -786,8 +763,6 @@ object Fb2BookExtractor : BookExtractor {
         }
         return encoding
     }
-
-
 
     fun createNavPoint(id: Int, text: String): String {
         return "<navPoint id=\"toc-$id\" playOrder=\"$id\">\n" +

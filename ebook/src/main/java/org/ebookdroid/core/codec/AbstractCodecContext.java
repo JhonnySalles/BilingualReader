@@ -66,19 +66,26 @@ public abstract class AbstractCodecContext implements CodecContext {
             return openDocumentInnerCanceled(fileNameOriginal, password);
         }
 
-        File cacheFileName = getCacheFileName(fileNameOriginal);
-        if (CacheZipUtils.CACHE_BOOK_DIR != null) {
-            CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
-        }
-
-        if (cacheFileName != null && cacheFileName.isFile()) {
-            
-            return openDocumentInnerCanceled(fileNameOriginal, password);
-        }
-
         CacheZipUtils.cacheLock.lock();
         CacheZipUtils.createAllCacheDirs();
+        File cacheFileName = null;
         try {
+            cacheFileName = getCacheFileName(fileNameOriginal);
+            if (CacheZipUtils.CACHE_BOOK_DIR != null) {
+                CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
+            }
+
+            if (cacheFileName != null && cacheFileName.isFile() && cacheFileName.length() > 0) {
+                try {
+                    return openDocumentInnerCanceled(fileNameOriginal, password);
+                } catch (MuPdfPasswordException e) {
+                    throw new MuPdfPasswordRequiredException();
+                } catch (Throwable e) {
+                    LOGGER.warn("Cached document failed to open, regenerating cache {}: {}", cacheFileName, e.getMessage());
+                    cacheFileName.delete();
+                }
+            }
+
             String fileName = CacheZipUtils.extracIfNeed(fileNameOriginal, CacheDir.ZipApp).unZipPath;
             
             if (!ExtUtils.isValidFile(fileName))
@@ -90,6 +97,9 @@ public abstract class AbstractCodecContext implements CodecContext {
                 throw new MuPdfPasswordRequiredException();
             } catch (Throwable e) {
                 LOGGER.error("Error open document: {}", e.getMessage(), e);
+                if (cacheFileName != null && cacheFileName.isFile()) {
+                    cacheFileName.delete();
+                }
                 return null;
             }
         } finally {

@@ -3,13 +3,11 @@ package br.com.ebook.extractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
-import br.com.ebook.foobnix.ext.XmlParser
+import br.com.ebook.core.MetadataParseUtils
 import br.com.ebook.util.IOUtils.copyTo
 import org.ebookdroid.core.codec.OutlineLink
 import org.jsoup.Jsoup
-import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
-import org.xmlpull.v1.XmlPullParser
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -21,69 +19,30 @@ object HtmlzBookExtractor : BookExtractor {
     override val supportedFormats: Set<String> = setOf("htmlz")
 
     override suspend fun extractMetadata(path: String): Result<BookMetadata> = runCatching {
-        var title = ""
-        var author = ""
-        var publisher = ""
-        var description = ""
-        var series = ""
-        var seriesIndex = 0
-        var isbn = ""
+        var metadata = BookMetadata(
+            title = MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension),
+            author = "",
+            unzipPath = path
+        )
 
         try {
             ZipFile(path).use { zip ->
                 val entry = zip.getEntry("metadata.opf")
                 if (entry != null) {
-                    zip.getInputStream(entry).use { stream ->
-                        val doc = Jsoup.parse(stream, "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
-                        val t = doc.select("dc|title, title").text().trim()
-                        if (t.isNotEmpty()) title = t
-
-                        val authors = doc.select("dc|creator, creator").map { it.text().trim() }.filter { it.isNotEmpty() }
-                        if (authors.isNotEmpty()) {
-                            author = authors.joinToString(", ")
-                        }
-
-                        val pub = doc.select("dc|publisher, publisher").text().trim()
-                        if (pub.isNotEmpty()) publisher = pub
-
-                        val desc = doc.select("dc|description, description").text().trim()
-                        if (desc.isNotEmpty()) description = desc
-
-                        val seriesMeta = doc.select("meta[name=calibre:series]").firstOrNull()?.attr("content")?.trim()
-                        if (!seriesMeta.isNullOrEmpty()) series = seriesMeta
-
-                        val indexMeta = doc.select("meta[name=calibre:series_index]").firstOrNull()?.attr("content")?.trim()
-                        if (!indexMeta.isNullOrEmpty()) seriesIndex = indexMeta.toFloatOrNull()?.toInt() ?: 0
-
-                        val idents = doc.select("dc|identifier, identifier")
-                        for (el in idents) {
-                            val idVal = el.text().trim()
-                            if (idVal.startsWith("978") || idVal.length == 10 || idVal.length == 13) {
-                                isbn = idVal
-                                break
-                            }
-                        }
-                    }
+                    val opfContent = zip.getInputStream(entry).use { it.bufferedReader(Charsets.UTF_8).readText() }
+                    val parsed = MetadataParseUtils.parseOpfMetadata(opfContent)
+                    metadata = parsed.copy(unzipPath = path)
                 }
             }
         } catch (e: Exception) {
             LOGGER.error("Error reading HTMLZ metadata: {}", e.message, e)
         }
 
-        if (title.isBlank()) {
-            title = File(path).nameWithoutExtension
+        if (metadata.title.isBlank()) {
+            metadata = metadata.copy(title = MetadataParseUtils.cleanFileTitle(File(path).nameWithoutExtension))
         }
 
-        BookMetadata(
-            title = title,
-            author = author,
-            unzipPath = path,
-            annotation = description,
-            publisher = publisher,
-            series = series,
-            seriesIndex = seriesIndex,
-            isbn = isbn
-        )
+        metadata
     }
 
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
@@ -120,13 +79,8 @@ object HtmlzBookExtractor : BookExtractor {
             ZipFile(path).use { zip ->
                 val entry = zip.getEntry("metadata.opf")
                 if (entry != null) {
-                    zip.getInputStream(entry).use { stream ->
-                        val doc = Jsoup.parse(stream, "UTF-8", "", org.jsoup.parser.Parser.xmlParser())
-                        val descEl = doc.select("dc|description, description").firstOrNull()
-                        if (descEl != null && descEl.text().isNotBlank()) {
-                            description = Jsoup.clean(descEl.text(), Safelist.simpleText())
-                        }
-                    }
+                    val opfContent = zip.getInputStream(entry).use { it.bufferedReader(Charsets.UTF_8).readText() }
+                    description = MetadataParseUtils.parseOpfMetadata(opfContent).annotation
                 }
             }
         } catch (e: Exception) {
