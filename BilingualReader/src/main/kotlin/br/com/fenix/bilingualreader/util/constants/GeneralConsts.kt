@@ -395,6 +395,9 @@ class GeneralConsts private constructor() {
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
             const val STATISTICS_YEAR = "STATISTICS_YEAR"
+            const val SOCIAL_SHARE_TYPE = "SOCIAL_SHARE_TYPE"
+            const val SOCIAL_SHARE_YEAR = "SOCIAL_SHARE_YEAR"
+            const val SOCIAL_SHARE_LIBRARY = "SOCIAL_SHARE_LIBRARY"
         }
 
         object COLOR_FILTER {
@@ -444,6 +447,12 @@ class GeneralConsts private constructor() {
             const val ANILIST_TOKEN = "TRACKER_ANILIST_TOKEN"
             const val ANILIST_USER = "TRACKER_ANILIST_USER"
             const val ANILIST_LAST_SYNC = "TRACKER_ANILIST_LAST_SYNC"
+        }
+        object SOCIAL_SHARE {
+            const val USER_HANDLE = "SOCIAL_SHARE_USER_HANDLE"
+            const val DEFAULT_ASPECT_RATIO = "SOCIAL_SHARE_DEFAULT_ASPECT_RATIO"
+            const val DEFAULT_TEMPLATE = "SOCIAL_SHARE_DEFAULT_TEMPLATE"
+            const val DEFAULT_THEME = "SOCIAL_SHARE_DEFAULT_THEME"
         }
     }
 
@@ -526,6 +535,7 @@ class GeneralConsts private constructor() {
         const val BOOK_ANNOTATION = 612
         const val CHAPTERS = 620
         const val TOUCH_CONFIGURATION = 630
+        const val SOCIAL_SHARE = 640
         const val GOOGLE_SIGN_IN = 700
         const val DRIVE_AUTHORIZATION = 701
     }

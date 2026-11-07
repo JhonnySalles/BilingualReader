@@ -40,6 +40,8 @@ class HistoryRepository(private val context: Context) {
 
     fun listByType(type: Type): List<History> = mDataBase.listByType(type)
 
+    fun findByPeriod(start: java.time.LocalDateTime, end: java.time.LocalDateTime): List<History> = mDataBase.findByPeriod(start, end)
+
     fun listNotAutomatic(type: Type): List<History> = mDataBase.listNotAutomatic(type)
 
     fun update(obj: History) = mDataBase.update(obj)

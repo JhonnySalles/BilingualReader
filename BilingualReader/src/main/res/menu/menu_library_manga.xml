@@ -39,4 +39,12 @@
         android:title="@string/menu_library_generate_covers"
         android:visible="true"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_manga_library_social_share"
+        android:icon="@drawable/ico_shared"
+        android:orderInCategory="201"
+        android:title="@string/menu_social_share"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

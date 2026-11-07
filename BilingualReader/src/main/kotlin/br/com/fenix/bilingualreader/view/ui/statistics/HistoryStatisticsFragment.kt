@@ -59,6 +59,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
@@ -769,6 +770,24 @@ class HistoryStatisticsFragment : Fragment() {
                     R.id.menu_history_library -> true
                     R.id.menu_history_year -> true
                     R.id.menu_history_filter -> true
+                    R.id.menu_history_social_share -> {
+                        val intent = Intent(requireContext(), br.com.fenix.bilingualreader.view.ui.menu.MenuActivity::class.java)
+                        val bundle = Bundle()
+                        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_social_share)
+                        bundle.putString(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_TYPE, mViewModel.mTypeFilter.name)
+                        val years = mViewModel.selectedYears.value
+                        if (!years.isNullOrEmpty() && years.size == 1) {
+                            bundle.putInt(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_YEAR, years.first())
+                        }
+                        val currentLib = mViewModel.selectedLibrary.value
+                        if (currentLib != null && currentLib.id != null) {
+                            bundle.putLong(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_LIBRARY, currentLib.id!!)
+                        }
+                        intent.putExtras(bundle)
+                        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        startActivity(intent)
+                        true
+                    }
                     else -> false
                 }
             }

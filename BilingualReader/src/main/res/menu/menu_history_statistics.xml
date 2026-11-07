@@ -49,4 +49,11 @@
         app:showAsAction="always">
         <menu/>
     </item>
+
+    <item
+        android:id="@+id/menu_history_social_share"
+        android:icon="@drawable/ico_shared"
+        android:orderInCategory="200"
+        android:title="@string/menu_social_share"
+        app:showAsAction="never" />
 </menu>

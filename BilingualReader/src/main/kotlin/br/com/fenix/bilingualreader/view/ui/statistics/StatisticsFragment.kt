@@ -230,10 +230,20 @@ class StatisticsFragment : Fragment() {
             openHistory(Type.MANGA, mMangaSelectYear, library)
         }
 
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.statistics_manga_btn_social_share)?.setOnClickListener {
+            val library = if (::mMangaSelectLibrary.isInitialized && mMangaSelectLibrary.title != mDefaultAllLibraries) mMangaSelectLibrary else null
+            openSocialShare(Type.MANGA, mMangaSelectYear, library)
+        }
+
         mBookHistory.setOnClickListener {
             (mBookHistory.icon as AnimatedVectorDrawable).start()
             val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null
             openHistory(Type.BOOK, mBookSelectYear, library)
+        }
+
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.statistics_book_btn_social_share)?.setOnClickListener {
+            val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null
+            openSocialShare(Type.BOOK, mBookSelectYear, library)
         }
 
         val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
@@ -605,6 +615,21 @@ class StatisticsFragment : Fragment() {
             bundle.putInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, year)
         if (library != null && library.title != mDefaultAllLibraries)
             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, library)
+
+        intent.putExtras(bundle)
+        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivity(intent)
+    }
+
+    private fun openSocialShare(type: Type, year: Int?, library: Library? = null) {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_social_share)
+        bundle.putString(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_TYPE, type.name)
+        if (year != null)
+            bundle.putInt(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_YEAR, year)
+        if (library != null && library.id != null)
+            bundle.putLong(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_LIBRARY, library.id!!)
 
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)

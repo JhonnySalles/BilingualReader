@@ -71,6 +71,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
@@ -1007,6 +1008,20 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             CoverGenerationService.instance.enqueue(requireContext(), books)
                             Toast.makeText(requireContext(), R.string.notifications_generate_covers_started, Toast.LENGTH_SHORT).show()
                         }
+                        true
+                    }
+                    R.id.menu_book_library_social_share -> {
+                        val intent = Intent(requireContext(), br.com.fenix.bilingualreader.view.ui.menu.MenuActivity::class.java)
+                        val bundle = Bundle()
+                        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_social_share)
+                        bundle.putString(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_TYPE, Type.BOOK.name)
+                        val library = mViewModel.getLibrary()
+                        if (library.id != null) {
+                            bundle.putLong(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_LIBRARY, library.id!!)
+                        }
+                        intent.putExtras(bundle)
+                        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        startActivity(intent)
                         true
                     }
                     else -> false

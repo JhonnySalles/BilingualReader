@@ -55,6 +55,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.NavigationUtil.NavigationUtils.overrideActivityTransitionCompat
 import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
@@ -701,6 +702,25 @@ class HistoryFragment : Fragment() {
                     }
                     R.id.menu_history_type_layout -> {
                         mViewModel.changeHistoryType()
+                        true
+                    }
+                    R.id.menu_history_social_share -> {
+                        val intent = Intent(requireContext(), br.com.fenix.bilingualreader.view.ui.menu.MenuActivity::class.java)
+                        val bundle = Bundle()
+                        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_social_share)
+                        if (mFilterType != null) {
+                            bundle.putString(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_TYPE, mFilterType!!.name)
+                        }
+                        val selectedLibs = mViewModel.selectedLibraries.value
+                        if (!selectedLibs.isNullOrEmpty() && selectedLibs.size == 1) {
+                            val lib = selectedLibs.first()
+                            if (lib.id != null) {
+                                bundle.putLong(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_LIBRARY, lib.id!!)
+                            }
+                        }
+                        intent.putExtras(bundle)
+                        requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        startActivity(intent)
                         true
                     }
                     else -> false
