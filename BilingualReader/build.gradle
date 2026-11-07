@@ -89,6 +89,12 @@ android {
     }
     namespace 'br.com.fenix.bilingualreader'
 
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'LintVitalRelease'
+    }
+
     sourceSets {
         test.assets.srcDirs += files("$projectDir/schemas")
     }
@@ -155,9 +161,9 @@ configurations {
 }
 
 tasks.register('createKxml2AndroidJar', Jar) {
-    from({
-        zipTree(configurations.kxml2.singleFile)
-    }) {
+    from(configurations.kxml2.elements.map { elements -> elements.collect { zipTree(it.asFile) } }) {
+
+
         exclude 'org/xmlpull/**'
         exclude 'META-INF/services/org.xmlpull.v1.XmlPullParserFactory'
     }

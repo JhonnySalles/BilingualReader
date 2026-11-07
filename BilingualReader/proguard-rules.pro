@@ -86,3 +86,10 @@
 -dontwarn org.joda.time.format.DateTimeFormat
 -dontwarn org.joda.time.format.DateTimeFormatter
 -dontwarn springfox.documentation.spring.web.json.Json
+
+# Suppress missing JAX-RS service providers from transitive dependencies
+-dontwarn javax.ws.rs.**
+-dontwarn META-INF.services.javax.ws.rs.**
+
+# Suppress Kotlin 2.x metadata parsing warnings on AGP 8.3.2 R8
+-dontwarn kotlin.Metadata
