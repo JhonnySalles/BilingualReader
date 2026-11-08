@@ -779,10 +779,6 @@ class HistoryStatisticsFragment : Fragment() {
                         if (!years.isNullOrEmpty() && years.size == 1) {
                             bundle.putInt(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_YEAR, years.first())
                         }
-                        val currentLib = mViewModel.selectedLibrary.value
-                        if (currentLib != null && currentLib.id != null) {
-                            bundle.putLong(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_LIBRARY, currentLib.id!!)
-                        }
                         intent.putExtras(bundle)
                         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                         startActivity(intent)

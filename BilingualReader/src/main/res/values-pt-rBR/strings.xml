@@ -1352,6 +1352,7 @@
 
     <!-- SOCIAL SHARE -->
     <string name="social_share_title">Compartilhar Leituras</string>
+    <string name="social_share_default_title_month">Leituras de %1$s</string>
     <string name="social_share_btn_share">Compartilhar...</string>
     <string name="social_share_btn_save">Salvar na Galeria</string>
     <string name="social_share_saved_success">Imagem salva na galeria!</string>
@@ -1407,5 +1408,35 @@
     <string name="social_share_stat_pages">%1$d Páginas</string>
     <string name="social_share_stat_hours">%1$d Horas</string>
     <string name="social_share_stat_minutes">%1$d Min</string>
+    <string name="social_share_aspect_single_full">Imagem Única (Todas)</string>
+    <string name="social_share_card_blur_text">Efeito blur no texto do card</string>
+    <string name="social_share_covers_per_page_hint">Capas por página</string>
+    <string name="social_share_preview_pages_count">Pré-visualização (%1$d páginas)</string>
+    <string name="social_share_template_magazine">Destaque Magazine</string>
+    <string name="social_share_template_polaroid">Mural Polaroid</string>
+    <string name="social_share_template_podium">Pódio Ranking</string>
+    <string name="social_share_template_glass">Vitrine Glass</string>
+    <string name="social_share_theme_cover_blur">Cover Blur Atmosférico</string>
+    <string name="social_share_theme_aurora">Aurora Boreal</string>
+    <string name="social_share_theme_sunset">Sunset Horizon</string>
+    <string name="social_share_theme_royal_gold">Royal Gold &amp; Onyx</string>
+    <string name="social_share_theme_matcha">Matcha &amp; Sage</string>
+    <string name="social_share_theme_sakura">Sakura Pastel</string>
+    <string name="social_share_theme_nordic">Nordic Frost</string>
+    <string name="social_share_theme_custom">Personalizado</string>
+    <string name="social_share_section_pattern">Padrão de Fundo</string>
+    <string name="social_share_pattern_none">Liso</string>
+    <string name="social_share_pattern_grid">Grade</string>
+    <string name="social_share_pattern_dots">Pontos</string>
+    <string name="social_share_pattern_orbs">Orbs / Glow</string>
+    <string name="social_share_custom_theme_title">Cores do Tema Personalizado</string>
+    <string name="social_share_custom_color_primary">Fundo Principal</string>
+    <string name="social_share_custom_color_secondary">Gradiente Fim</string>
+    <string name="social_share_custom_color_accent">Destaque / Acento</string>
+    <string name="social_share_custom_text_mode">Contraste de Texto</string>
+    <string name="social_share_text_mode_auto">Automático</string>
+    <string name="social_share_text_mode_light">Claro</string>
+    <string name="social_share_text_mode_dark">Escuro</string>
+    <string name="social_share_dialog_pick_color">Escolher Cor</string>
     <string name="menu_social_share">Compartilhar Resumo</string>
 </resources>

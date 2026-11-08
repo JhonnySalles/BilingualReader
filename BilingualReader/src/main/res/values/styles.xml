@@ -985,4 +985,14 @@
         <item name="android:background">?attr/colorSurfaceVariant</item>
     </style>
 
+    <!-- Social Share Studio Filter Chip Style -->
+    <style name="Widget.Social.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/social_filter_chip_background</item>
+        <item name="android:textColor">@color/social_filter_chip_text</item>
+        <item name="checkedIconTint">@color/social_filter_chip_icon</item>
+        <item name="chipStrokeColor">@color/social_filter_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="checkedIconVisible">true</item>
+    </style>
+
 </resources>

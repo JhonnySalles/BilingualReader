@@ -12,7 +12,8 @@ enum class SocialAspectRatio(
     STORY_9_16(1080, 1920, R.string.social_share_aspect_9_16, "9:16"),
     SQUARE_1_1(1080, 1080, R.string.social_share_aspect_1_1, "1:1"),
     TWITTER_16_9(1600, 900, R.string.social_share_aspect_16_9, "16:9"),
-    TUMBLR_2_3(1200, 1800, R.string.social_share_aspect_2_3, "2:3");
+    TUMBLR_2_3(1200, 1800, R.string.social_share_aspect_2_3, "2:3"),
+    SINGLE_FULL(1080, 1350, R.string.social_share_aspect_single_full, "Full");
 
     val aspectRatio: Float
         get() = width.toFloat() / height.toFloat()
@@ -22,16 +23,41 @@ enum class SocialLayoutTemplate(val labelRes: Int) {
     BENTO_GRID(R.string.social_share_template_bento),
     PERSPECTIVE_SHELF(R.string.social_share_template_shelf),
     WRAPPED_STATS(R.string.social_share_template_wrapped),
-    MINIMALIST_LIST(R.string.social_share_template_list)
+    MINIMALIST_LIST(R.string.social_share_template_list),
+    MAGAZINE_HERO(R.string.social_share_template_magazine),
+    POLAROID_GALLERY(R.string.social_share_template_polaroid),
+    PODIUM_RANKING(R.string.social_share_template_podium),
+    GLASS_CARDS(R.string.social_share_template_glass)
 }
 
 enum class SocialColorTheme(val labelRes: Int) {
     DYNAMIC_AMBIENT(R.string.social_share_theme_dynamic),
+    COVER_BLUR_MOSAIC(R.string.social_share_theme_cover_blur),
     APP_THEME(R.string.social_share_theme_app),
     DARK_SLATE(R.string.social_share_theme_dark_slate),
     OLED_BLACK(R.string.social_share_theme_oled),
+    AURORA_BOREALIS(R.string.social_share_theme_aurora),
+    SUNSET_SYNTH(R.string.social_share_theme_sunset),
+    ROYAL_GOLD(R.string.social_share_theme_royal_gold),
+    MATCHA_BOTANICAL(R.string.social_share_theme_matcha),
+    MANGA_POP(R.string.social_share_theme_manga_pop),
     WARM_PAPER(R.string.social_share_theme_warm_paper),
-    MANGA_POP(R.string.social_share_theme_manga_pop)
+    SAKURA_DREAM(R.string.social_share_theme_sakura),
+    NORDIC_FROST(R.string.social_share_theme_nordic),
+    CUSTOM(R.string.social_share_theme_custom)
+}
+
+enum class SocialBackgroundPattern(val labelRes: Int) {
+    NONE(R.string.social_share_pattern_none),
+    GRID(R.string.social_share_pattern_grid),
+    DOTS(R.string.social_share_pattern_dots),
+    ORBS(R.string.social_share_pattern_orbs)
+}
+
+enum class SocialTextColorMode(val labelRes: Int) {
+    AUTO(R.string.social_share_text_mode_auto),
+    LIGHT(R.string.social_share_text_mode_light),
+    DARK(R.string.social_share_text_mode_dark)
 }
 
 enum class SocialPeriodFilter(val labelRes: Int) {
@@ -54,4 +80,3 @@ enum class SocialMediaTypeFilter(val labelRes: Int) {
     MANGA(R.string.social_share_media_manga),
     BOOK(R.string.social_share_media_book)
 }
-

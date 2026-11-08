@@ -231,8 +231,7 @@ class StatisticsFragment : Fragment() {
         }
 
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.statistics_manga_btn_social_share)?.setOnClickListener {
-            val library = if (::mMangaSelectLibrary.isInitialized && mMangaSelectLibrary.title != mDefaultAllLibraries) mMangaSelectLibrary else null
-            openSocialShare(Type.MANGA, mMangaSelectYear, library)
+            openSocialShare(Type.MANGA, mMangaSelectYear)
         }
 
         mBookHistory.setOnClickListener {
@@ -242,8 +241,7 @@ class StatisticsFragment : Fragment() {
         }
 
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.statistics_book_btn_social_share)?.setOnClickListener {
-            val library = if (::mBookSelectLibrary.isInitialized && mBookSelectLibrary.title != mDefaultAllLibraries) mBookSelectLibrary else null
-            openSocialShare(Type.BOOK, mBookSelectYear, library)
+            openSocialShare(Type.BOOK, mBookSelectYear)
         }
 
         val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)

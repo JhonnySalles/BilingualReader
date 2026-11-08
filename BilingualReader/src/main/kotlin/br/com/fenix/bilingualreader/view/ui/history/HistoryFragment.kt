@@ -711,13 +711,6 @@ class HistoryFragment : Fragment() {
                         if (mFilterType != null) {
                             bundle.putString(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_TYPE, mFilterType!!.name)
                         }
-                        val selectedLibs = mViewModel.selectedLibraries.value
-                        if (!selectedLibs.isNullOrEmpty() && selectedLibs.size == 1) {
-                            val lib = selectedLibs.first()
-                            if (lib.id != null) {
-                                bundle.putLong(GeneralConsts.KEYS.OBJECT.SOCIAL_SHARE_LIBRARY, lib.id!!)
-                            }
-                        }
                         intent.putExtras(bundle)
                         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                         startActivity(intent)

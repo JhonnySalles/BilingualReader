@@ -73,14 +73,14 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_period_week"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_period_week" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_period_month"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -88,14 +88,14 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_period_year"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_period_year" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_period_custom"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_period_custom" />
@@ -120,7 +120,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_media_all"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -128,14 +128,14 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_media_manga"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_media_manga" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_media_book"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_media_book" />
@@ -143,6 +143,32 @@
                 </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>
+
+            <!-- Bibliotecas (Filtradas pelo Tipo de Mídia selecionado) -->
+            <HorizontalScrollView
+                android:id="@+id/social_scroll_libraries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/social_chip_group_libraries"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_library_all"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/social_share_all_libraries" />
+
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/social_switch_only_completed"
@@ -183,7 +209,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_aspect_4_5"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -191,31 +217,38 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_aspect_9_16"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_aspect_9_16" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_aspect_1_1"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_aspect_1_1" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_aspect_16_9"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_aspect_16_9" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_aspect_2_3"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_aspect_2_3" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_aspect_single_full"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_aspect_single_full" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
@@ -236,7 +269,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_template_bento"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -244,24 +277,52 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_template_shelf"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_template_shelf" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_template_wrapped"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_template_wrapped" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_template_list"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_template_list" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_template_magazine"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_template_magazine" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_template_polaroid"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_template_polaroid" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_template_podium"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_template_podium" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_template_glass"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_template_glass" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
@@ -282,46 +343,263 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_theme_dynamic"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="@string/social_share_theme_dynamic" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_cover_blur"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_cover_blur" />
+
+                    <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_theme_app"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_theme_app" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_theme_dark_slate"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_theme_dark_slate" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_theme_oled"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_theme_oled" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_aurora"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_aurora" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_sunset"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_sunset" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_royal_gold"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_royal_gold" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_matcha"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_matcha" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_manga_pop"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_manga_pop" />
+
+                    <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_theme_warm_paper"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/social_share_theme_warm_paper" />
 
                     <com.google.android.material.chip.Chip
-                        android:id="@+id/social_chip_theme_manga_pop"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        android:id="@+id/social_chip_theme_sakura"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/social_share_theme_manga_pop" />
+                        android:text="@string/social_share_theme_sakura" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_nordic"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_nordic" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_theme_custom"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_theme_custom" />
+
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <!-- Painel Expansível de Cores Personalizadas (Aparece quando CUSTOM é selecionado) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/social_custom_theme_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutlineVariant">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_custom_theme_title"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/social_btn_color_primary"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:textSize="11sp"
+                            android:text="@string/social_share_custom_color_primary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/social_btn_color_secondary"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginEnd="2dp"
+                            android:textSize="11sp"
+                            android:text="@string/social_share_custom_color_secondary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/social_btn_color_accent"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:textSize="11sp"
+                            android:text="@string/social_share_custom_color_accent" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/social_share_custom_text_mode"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/social_chip_group_text_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/social_chip_text_auto"
+                            style="@style/Widget.Social.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:text="@string/social_share_text_mode_auto" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/social_chip_text_light"
+                            style="@style/Widget.Social.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/social_share_text_mode_light" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/social_chip_text_dark"
+                            style="@style/Widget.Social.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/social_share_text_mode_dark" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Padrões de Fundo Decorativos -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/social_share_section_pattern"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/social_chip_group_pattern"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_pattern_none"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/social_share_pattern_none" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_pattern_grid"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_pattern_grid" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_pattern_dots"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_pattern_dots" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/social_chip_pattern_orbs"
+                        style="@style/Widget.Social.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_share_pattern_orbs" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
@@ -343,19 +621,44 @@
                 android:textStyle="bold" />
 
             <!-- Campos de Texto -->
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/social_share_title_hint"
-                app:boxBackgroundMode="outline">
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/social_input_title"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:singleLine="true" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_weight="2"
+                    android:hint="@string/social_share_title_hint"
+                    app:boxBackgroundMode="outline">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/social_input_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/social_input_layout_covers_per_page"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:hint="@string/social_share_covers_per_page_hint"
+                    app:boxBackgroundMode="outline">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/social_input_covers_per_page"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:text="9" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -407,7 +710,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_metric_time"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -415,7 +718,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_metric_pages"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -423,7 +726,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_metric_titles"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -431,7 +734,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/social_chip_metric_progress"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Social.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -439,6 +742,13 @@
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/social_checkbox_card_blur"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/social_share_card_blur_text" />
 
             <!-- CURADORIA MANUAL (RECOLHÍVEL COM ROLAGEM HORIZONTAL) -->
             <com.google.android.material.card.MaterialCardView
@@ -533,6 +843,7 @@
 
             <!-- SEÇÃO 4: PREVIEW GRANDE (FINAL DA PÁGINA) -->
             <TextView
+                android:id="@+id/social_preview_section_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/social_share_section_preview"
@@ -540,50 +851,46 @@
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold" />
 
-            <com.google.android.material.card.MaterialCardView
+            <FrameLayout
                 android:id="@+id/social_preview_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline">
+                android:minHeight="160dp">
 
-                <FrameLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/social_preview_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-                    <ImageView
-                        android:id="@+id/social_preview_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:contentDescription="@string/social_share_section_preview"
-                        android:scaleType="fitCenter"
-                        tools:layout_height="400dp" />
+                <TextView
+                    android:id="@+id/social_preview_empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="24dp"
+                    android:text="@string/social_share_empty"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
 
-                    <ProgressBar
-                        android:id="@+id/social_preview_progress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:visibility="gone" />
+            </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/social_preview_empty"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:padding="24dp"
-                        android:text="@string/social_share_empty"
-                        android:textAlignment="center"
-                        android:textAppearance="?attr/textAppearanceBodyMedium"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:visibility="gone" />
-
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/social_preview_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorColor="?attr/colorPrimary"
+                app:trackColor="@android:color/transparent"
+                app:trackCornerRadius="2dp"
+                app:trackThickness="4dp" />
 
             <!-- BOTÕES DE AÇÃO (LOGO ABAIXO DO PREVIEW GRANDE) -->
             <LinearLayout

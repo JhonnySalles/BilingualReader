@@ -1352,6 +1352,7 @@
 
     <!-- SOCIAL SHARE -->
     <string name="social_share_title">Reading Recap</string>
+    <string name="social_share_default_title_month">Readings of %1$s</string>
     <string name="social_share_btn_share">Share...</string>
     <string name="social_share_btn_save">Save to Gallery</string>
     <string name="social_share_saved_success">Image saved to gallery!</string>
@@ -1407,5 +1408,35 @@
     <string name="social_share_stat_pages">%1$d Pages</string>
     <string name="social_share_stat_hours">%1$d Hours</string>
     <string name="social_share_stat_minutes">%1$d Min</string>
+    <string name="social_share_aspect_single_full">Single Image (All)</string>
+    <string name="social_share_card_blur_text">Blur effect on card text</string>
+    <string name="social_share_covers_per_page_hint">Covers per page</string>
+    <string name="social_share_preview_pages_count">Preview (%1$d pages)</string>
+    <string name="social_share_template_magazine">Magazine Hero</string>
+    <string name="social_share_template_polaroid">Polaroid Gallery</string>
+    <string name="social_share_template_podium">Podium Ranking</string>
+    <string name="social_share_template_glass">Glass Cards</string>
+    <string name="social_share_theme_cover_blur">Cover Blur Mosaic</string>
+    <string name="social_share_theme_aurora">Aurora Borealis</string>
+    <string name="social_share_theme_sunset">Sunset Horizon</string>
+    <string name="social_share_theme_royal_gold">Royal Gold &amp; Onyx</string>
+    <string name="social_share_theme_matcha">Matcha &amp; Sage</string>
+    <string name="social_share_theme_sakura">Sakura Pastel</string>
+    <string name="social_share_theme_nordic">Nordic Frost</string>
+    <string name="social_share_theme_custom">Custom</string>
+    <string name="social_share_section_pattern">Background Pattern</string>
+    <string name="social_share_pattern_none">Plain</string>
+    <string name="social_share_pattern_grid">Grid</string>
+    <string name="social_share_pattern_dots">Dots</string>
+    <string name="social_share_pattern_orbs">Orbs / Glow</string>
+    <string name="social_share_custom_theme_title">Custom Theme Colors</string>
+    <string name="social_share_custom_color_primary">Primary Background</string>
+    <string name="social_share_custom_color_secondary">Secondary Gradient</string>
+    <string name="social_share_custom_color_accent">Accent / Highlight</string>
+    <string name="social_share_custom_text_mode">Text Contrast</string>
+    <string name="social_share_text_mode_auto">Auto</string>
+    <string name="social_share_text_mode_light">Light</string>
+    <string name="social_share_text_mode_dark">Dark</string>
+    <string name="social_share_dialog_pick_color">Pick Color</string>
     <string name="menu_social_share">Share Recap</string>
 </resources>

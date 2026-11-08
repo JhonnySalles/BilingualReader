@@ -7,6 +7,7 @@ import br.com.fenix.bilingualreader.databinding.LineCardSocialShareCurationBindi
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 
@@ -15,12 +16,32 @@ class SocialShareCurationAdapter(
 ) : RecyclerView.Adapter<SocialShareCurationAdapter.ViewHolder>() {
 
     private var mItems = listOf<HistoryStatistics>()
-    private var mExcludedKeys = setOf<String>()
+    private val mExcludedKeys = mutableSetOf<String>()
+
+    init {
+        setHasStableIds(true)
+    }
 
     fun updateData(items: List<HistoryStatistics>, excludedKeys: Set<String>) {
         mItems = items
-        mExcludedKeys = excludedKeys
+        mExcludedKeys.clear()
+        mExcludedKeys.addAll(excludedKeys)
         notifyDataSetChanged()
+    }
+
+    fun updateExcludedKeys(excludedKeys: Set<String>) {
+        if (mExcludedKeys != excludedKeys) {
+            mExcludedKeys.clear()
+            mExcludedKeys.addAll(excludedKeys)
+            notifyDataSetChanged()
+        }
+    }
+
+    override fun getItemId(position: Int): Long {
+        if (position !in mItems.indices) return RecyclerView.NO_ID
+        val base = mItems[position].base
+        val id = base.id ?: position.toLong()
+        return if (base.type == Type.MANGA) id else -id - 1L
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -50,12 +71,23 @@ class SocialShareCurationAdapter(
 
             binding.socialCurationCheckbox.setOnCheckedChangeListener(null)
             binding.socialCurationCheckbox.isChecked = isChecked
-            binding.socialCurationCheckbox.setOnCheckedChangeListener { _, checked ->
+
+            val toggleAction: (Boolean) -> Unit = { checked ->
+                if (checked) {
+                    mExcludedKeys.remove(key)
+                } else {
+                    mExcludedKeys.add(key)
+                }
                 onToggleItem(key, checked)
             }
 
+            binding.socialCurationCheckbox.setOnCheckedChangeListener { _, checked ->
+                toggleAction(checked)
+            }
+
             binding.root.setOnClickListener {
-                binding.socialCurationCheckbox.isChecked = !binding.socialCurationCheckbox.isChecked
+                val newChecked = !binding.socialCurationCheckbox.isChecked
+                binding.socialCurationCheckbox.isChecked = newChecked
             }
 
             val context = binding.root.context

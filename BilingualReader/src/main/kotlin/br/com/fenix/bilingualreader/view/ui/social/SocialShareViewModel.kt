@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.social
 
 import android.app.Application
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -51,8 +52,8 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
     private val mFilteredReadings = MutableLiveData<List<HistoryStatistics>>(emptyList())
     val filteredReadings: LiveData<List<HistoryStatistics>> = mFilteredReadings
 
-    private val mPreviewBitmap = MutableLiveData<Bitmap?>()
-    val previewBitmap: LiveData<Bitmap?> = mPreviewBitmap
+    private val mPreviewBitmaps = MutableLiveData<List<Bitmap>>(emptyList())
+    val previewBitmaps: LiveData<List<Bitmap>> = mPreviewBitmaps
 
     private val mIsRendering = MutableLiveData(false)
     val isRendering: LiveData<Boolean> = mIsRendering
@@ -69,10 +70,26 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun loadSavedPreferences() {
-        val pref = GeneralConsts.getSharedPreferences(getApplication())
+        val app = getApplication<Application>()
+        val pref = GeneralConsts.getSharedPreferences(app)
         val handle = pref.getString(GeneralConsts.KEYS.SOCIAL_SHARE.USER_HANDLE, "") ?: ""
         val current = mConfig.value ?: SocialShareConfig()
-        mConfig.value = current.copy(userHandle = handle)
+        mConfig.value = current.copy(
+            title = getDefaultTitle(app),
+            subtitle = getDefaultSubtitle(),
+            userHandle = handle
+        )
+    }
+
+    fun getDefaultTitle(context: Context, date: LocalDate = LocalDate.now()): String {
+        val months = context.resources.getStringArray(R.array.mouth_descriptions)
+        val monthIndex = date.monthValue - 1
+        val monthName = if (monthIndex in months.indices) months[monthIndex] else date.month.name
+        return context.getString(R.string.social_share_default_title_month, monthName)
+    }
+
+    fun getDefaultSubtitle(date: LocalDate = LocalDate.now()): String {
+        return date.year.toString()
     }
 
     fun saveUserHandle(handle: String) {
@@ -83,7 +100,21 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
 
     private fun loadLibraries() {
         viewModelScope.launch(Dispatchers.IO) {
-            val list = mLibrariesRepository.listEnabled()
+            val app = getApplication<Application>()
+            val defaultManga = Library(
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
+                app.getString(R.string.manga_library_default),
+                "",
+                type = Type.MANGA
+            )
+            val defaultBook = Library(
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                app.getString(R.string.book_library_default),
+                "",
+                type = Type.BOOK
+            )
+            val dbLibraries = mLibrariesRepository.listEnabled()
+            val list = listOf(defaultManga, defaultBook) + dbLibraries
             withContext(Dispatchers.Main) {
                 mLibraries.value = list
             }
@@ -91,8 +122,9 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun updateConfig(modifier: (SocialShareConfig) -> SocialShareConfig) {
-        val updated = modifier(mConfig.value ?: SocialShareConfig())
         val old = mConfig.value
+        val updated = modifier(old ?: SocialShareConfig())
+        if (old == updated) return
         mConfig.value = updated
 
         if (old?.periodFilter != updated.periodFilter ||
@@ -185,7 +217,12 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
             val aggregatedMap = mutableMapOf<Pair<Type, Long>, HistoryStatistics>()
 
             for (log in rawHistory) {
-                if (config.libraryId != null && log.fkLibrary != config.libraryId) continue
+                val logLibId = if (log.fkLibrary == 0L) {
+                    if (log.type == Type.MANGA) GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA else GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
+                } else {
+                    log.fkLibrary
+                }
+                if (config.libraryId != null && logLibId != config.libraryId) continue
 
                 if (config.mediaType == SocialMediaTypeFilter.MANGA && log.type != Type.MANGA) continue
                 if (config.mediaType == SocialMediaTypeFilter.BOOK && log.type != Type.BOOK) continue
@@ -251,23 +288,23 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
             val currentConfig = mConfig.value ?: return@launch
             val items = mFilteredReadings.value ?: emptyList()
 
-            val bitmap = SocialImageGenerator.instance.generateImage(
+            val bitmaps = SocialImageGenerator.instance.generateImages(
                 context = getApplication(),
                 config = currentConfig,
                 items = items,
                 scale = 0.5f // Scaled preview for performance
             )
 
-            mPreviewBitmap.value = bitmap
+            mPreviewBitmaps.value = bitmaps
             mIsRendering.value = false
         }
     }
 
-    suspend fun generateExportBitmap(): Bitmap? {
-        val currentConfig = mConfig.value ?: return null
-        val items = mFilteredReadings.value ?: return null
+    suspend fun generateExportBitmaps(): List<Bitmap> {
+        val currentConfig = mConfig.value ?: return emptyList()
+        val items = mFilteredReadings.value ?: return emptyList()
 
-        return SocialImageGenerator.instance.generateImage(
+        return SocialImageGenerator.instance.generateImages(
             context = getApplication(),
             config = currentConfig,
             items = items,
