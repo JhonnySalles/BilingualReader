@@ -1,20 +1,31 @@
 package br.com.fenix.bilingualreader.view.ui.social
 
 import android.app.Dialog
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.RectF
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
@@ -33,18 +44,23 @@ import br.com.fenix.bilingualreader.model.enums.SocialTextColorMode
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.SocialImageGenerator
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import br.com.fenix.bilingualreader.view.components.GlassRenderScheduler
 import eightbitlab.com.blurview.GlassSetup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 class SocialShareFragment : Fragment() {
 
@@ -56,6 +72,9 @@ class SocialShareFragment : Fragment() {
     private lateinit var mPreviewAdapter: SocialSharePreviewAdapter
 
     private var mIsCurationExpanded = false
+    private var mIsDatePickerShowing = false
+    private val mHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var mScrollRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,20 +101,55 @@ class SocialShareFragment : Fragment() {
         }
         binding.socialToolbar.title = getString(R.string.social_share_title)
 
+        setupBlurViews()
+        setupTitleBackgrounds()
+        setupWindowInsets()
+    }
+
+    private fun setupBlurViews() {
         val context = requireContext()
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
 
-        if (isGlass) {
-            val background = ThemeUtil.getBlurFrameClearDrawable(context)
-            GlassSetup.setupGlass(binding.socialBlurTop, binding.socialScroll)
-                .setFrameClearDrawable(background)
-                .setBlurRadius(10F)
-        }
+        val background = ThemeUtil.getBlurFrameClearDrawable(context)
+        val rootLayout = (binding.frameSocialShare as? ViewGroup) ?: (requireActivity().window.decorView as ViewGroup)
+        GlassSetup.setupGlass(binding.socialBlurTop, rootLayout)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
 
+        binding.socialBlurTop.setBlurEnabled(isGlass)
+        if (isGlass) {
+            binding.socialBlurTop.setBlurAutoUpdate(true)
+            GlassRenderScheduler.requestUpdate(binding.socialBlurTop)
+            binding.socialBlurTop.blurOnceDeferred(mHandler, 100)
+            binding.socialBlurTop.setBlurAutoUpdate(false)
+        } else {
+            binding.socialBlurTop.setBlurAutoUpdate(false)
+        }
+    }
+
+    private fun setupTitleBackgrounds() {
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, binding.socialToolbar, binding.socialBlurTop, binding.socialAppbar)
+    }
+
+    private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.socialBlurTop) { v, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             v.setPadding(v.paddingLeft, statusBarHeight, v.paddingRight, v.paddingBottom)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.socialScroll) { _, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val headerHeight = resources.getDimensionPixelSize(R.dimen.default_navigator_header_size)
+            binding.socialScroll.setPadding(
+                binding.socialScroll.paddingLeft,
+                statusBarHeight + headerHeight,
+                binding.socialScroll.paddingRight,
+                (80 * resources.displayMetrics.density).toInt() + navBarHeight
+            )
             insets
         }
     }
@@ -175,8 +229,13 @@ class SocialShareFragment : Fragment() {
                 R.id.social_chip_period_week -> mViewModel.setPeriodPreset(SocialPeriodFilter.THIS_WEEK)
                 R.id.social_chip_period_month -> mViewModel.setPeriodPreset(SocialPeriodFilter.THIS_MONTH)
                 R.id.social_chip_period_year -> mViewModel.setPeriodPreset(SocialPeriodFilter.THIS_YEAR)
-                R.id.social_chip_period_custom -> openDateRangePicker()
+                R.id.social_chip_period_custom -> {
+                    // O diálogo é disparado exclusivamente pelo setOnClickListener para evitar abertura dupla
+                }
             }
+        }
+        binding.socialChipPeriodCustom.setOnClickListener {
+            openDateRangePicker()
         }
 
         // Media type chips
@@ -319,6 +378,34 @@ class SocialShareFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+
+        binding.socialInputLayoutCoversPerPage.setStartIconOnClickListener {
+            val current = binding.socialInputCoversPerPage.text?.toString()?.toIntOrNull() ?: 9
+            val newVal = (current - 1).coerceAtLeast(1)
+            binding.socialInputCoversPerPage.setText(newVal.toString())
+        }
+
+        binding.socialInputLayoutCoversPerPage.setEndIconOnClickListener {
+            val current = binding.socialInputCoversPerPage.text?.toString()?.toIntOrNull() ?: 9
+            val newVal = (current + 1).coerceAtMost(100)
+            binding.socialInputCoversPerPage.setText(newVal.toString())
+        }
+
+        // Scroll listener para efeito blur dinâmico na toolbar
+        binding.socialScroll.setOnScrollChangeListener { _, _, _, _, _ ->
+            val context = context ?: return@setOnScrollChangeListener
+            val isGlass = GeneralConsts.getSharedPreferences(context).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                binding.socialBlurTop.setBlurAutoUpdate(true)
+                mScrollRunnable?.let { mHandler.removeCallbacks(it) }
+                val runnable = Runnable {
+                    binding.socialBlurTop.setBlurAutoUpdate(false)
+                    GlassRenderScheduler.requestUpdate(binding.socialBlurTop)
+                }
+                mScrollRunnable = runnable
+                mHandler.postDelayed(runnable, 150)
+            }
+        }
 
         binding.socialInputSubtitle.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -509,14 +596,35 @@ class SocialShareFragment : Fragment() {
     }
 
     private fun openDateRangePicker() {
-        val picker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText(R.string.social_share_period_custom)
+        if (mIsDatePickerShowing || childFragmentManager.findFragmentByTag("SocialDateRangePicker") != null) return
+        mIsDatePickerShowing = true
+
+        val currentStart = mViewModel.config.value?.startDate ?: java.time.LocalDate.now().withDayOfMonth(1)
+        val openAtMillis = currentStart.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+        // Restrição ilimitada cobrindo desde 1970 até 2050 sem nenhum validador restritivo
+        val minMillis = java.time.LocalDate.of(1970, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val maxMillis = java.time.LocalDate.of(2050, 12, 31).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+        val constraints = CalendarConstraints.Builder()
+            .setStart(minMillis)
+            .setEnd(maxMillis)
+            .setOpenAt(openAtMillis)
             .build()
 
+        val picker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText(R.string.social_share_period_custom_title)
+            .setCalendarConstraints(constraints)
+            .build()
+
+        var confirmed = false
         picker.addOnPositiveButtonClickListener { selection ->
             if (selection != null && selection.first != null && selection.second != null) {
-                val start = Instant.ofEpochMilli(selection.first).atZone(ZoneId.systemDefault()).toLocalDate()
-                val end = Instant.ofEpochMilli(selection.second).atZone(ZoneId.systemDefault()).toLocalDate()
+                confirmed = true
+                val d1 = Instant.ofEpochMilli(selection.first).atZone(ZoneOffset.UTC).toLocalDate()
+                val d2 = Instant.ofEpochMilli(selection.second).atZone(ZoneOffset.UTC).toLocalDate()
+                val start = minOf(d1, d2)
+                val end = maxOf(d1, d2)
 
                 mViewModel.updateConfig {
                     it.copy(
@@ -527,20 +635,246 @@ class SocialShareFragment : Fragment() {
                 }
             }
         }
-        picker.show(parentFragmentManager, "SocialDateRangePicker")
+        picker.addOnDismissListener {
+            mIsDatePickerShowing = false
+            if (!confirmed && mViewModel.config.value?.periodFilter != SocialPeriodFilter.CUSTOM_RANGE) {
+                syncPeriodChip()
+            }
+        }
+        picker.show(childFragmentManager, "SocialDateRangePicker")
+    }
+
+    private fun syncPeriodChip() {
+        val currentPeriod = mViewModel.config.value?.periodFilter ?: SocialPeriodFilter.THIS_MONTH
+        val chipId = when (currentPeriod) {
+            SocialPeriodFilter.THIS_WEEK -> R.id.social_chip_period_week
+            SocialPeriodFilter.THIS_MONTH, SocialPeriodFilter.SPECIFIC_MONTH -> R.id.social_chip_period_month
+            SocialPeriodFilter.THIS_YEAR -> R.id.social_chip_period_year
+            SocialPeriodFilter.CUSTOM_RANGE -> R.id.social_chip_period_custom
+        }
+        if (binding.socialChipGroupPeriod.checkedChipId != chipId) {
+            binding.socialChipGroupPeriod.check(chipId)
+        }
     }
 
     private fun showFullScreenPreview(bitmap: Bitmap) {
         val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        val imageView = ImageView(requireContext()).apply {
+
+        val rootLayout = FrameLayout(requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(Color.BLACK)
+        }
+
+        val zoomImageView = ZoomablePreviewImageView(requireContext()).apply {
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
             setImageBitmap(bitmap)
-            scaleType = ImageView.ScaleType.FIT_CENTER
+            onSingleTap = {
+                dialog.dismiss()
+            }
+        }
+        rootLayout.addView(zoomImageView)
+
+        // Close button at top-right
+        val closeButton = ImageButton(requireContext()).apply {
+            val size = (44 * resources.displayMetrics.density).toInt()
+            val margin = (16 * resources.displayMetrics.density).toInt()
+            val pad = (10 * resources.displayMetrics.density).toInt()
+            layoutParams = FrameLayout.LayoutParams(size, size).apply {
+                gravity = Gravity.TOP or Gravity.END
+                topMargin = margin
+                marginEnd = margin
+            }
+            setImageResource(R.drawable.ico_close)
+            imageTintList = ColorStateList.valueOf(Color.WHITE)
+            setBackgroundResource(R.drawable.floating_button_close)
+            setPadding(pad, pad, pad, pad)
+            contentDescription = getString(R.string.popup_reading_manga_close)
             setOnClickListener { dialog.dismiss() }
         }
-        dialog.setContentView(imageView)
+        rootLayout.addView(closeButton)
+
+        dialog.setContentView(rootLayout)
         dialog.show()
+    }
+
+    private class ZoomablePreviewImageView @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
+    ) : AppCompatImageView(context, attrs, defStyleAttr) {
+
+        var onSingleTap: (() -> Unit)? = null
+
+        private val mMatrix = Matrix()
+        private val mMatrixValues = FloatArray(9)
+        private var mBaseScale = 1.0f
+        private var mCurrentScale = 1.0f
+        private val mMinScaleRatio = 1.0f
+        private val mMaxScaleRatio = 10.0f
+
+        private val mScaleDetector: ScaleGestureDetector
+        private val mGestureDetector: GestureDetector
+
+        init {
+            scaleType = ScaleType.MATRIX
+            mScaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    val factor = detector.scaleFactor
+                    val targetScale = mCurrentScale * factor
+
+                    val clampedFactor = if (targetScale < mMinScaleRatio) {
+                        mMinScaleRatio / mCurrentScale
+                    } else if (targetScale > mMaxScaleRatio) {
+                        mMaxScaleRatio / mCurrentScale
+                    } else {
+                        factor
+                    }
+
+                    if (clampedFactor != 1.0f) {
+                        mCurrentScale *= clampedFactor
+                        mMatrix.postScale(clampedFactor, clampedFactor, detector.focusX, detector.focusY)
+                        fixTranslation()
+                        imageMatrix = mMatrix
+                    }
+                    return true
+                }
+            })
+
+            mGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDown(e: MotionEvent): Boolean = true
+
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    if (mCurrentScale <= 1.05f) {
+                        onSingleTap?.invoke()
+                        return true
+                    }
+                    return false
+                }
+
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (mCurrentScale > 1.05f) {
+                        resetToFitCenter()
+                    } else {
+                        zoomTo(3.0f, e.x, e.y)
+                    }
+                    return true
+                }
+
+                override fun onScroll(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    distanceX: Float,
+                    distanceY: Float
+                ): Boolean {
+                    if (mCurrentScale > 1.0f) {
+                        mMatrix.postTranslate(-distanceX, -distanceY)
+                        fixTranslation()
+                        imageMatrix = mMatrix
+                        return true
+                    }
+                    return false
+                }
+            })
+        }
+
+        override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+            super.onSizeChanged(w, h, oldw, oldh)
+            resetToFitCenter()
+        }
+
+        override fun setImageBitmap(bm: Bitmap?) {
+            super.setImageBitmap(bm)
+            resetToFitCenter()
+        }
+
+        private fun resetToFitCenter() {
+            val d = drawable ?: return
+            val vw = width.toFloat()
+            val vh = height.toFloat()
+            if (vw <= 0f || vh <= 0f) return
+
+            val dw = d.intrinsicWidth.toFloat()
+            val dh = d.intrinsicHeight.toFloat()
+            if (dw <= 0f || dh <= 0f) return
+
+            mBaseScale = kotlin.math.min(vw / dw, vh / dh)
+            mCurrentScale = 1.0f
+
+            mMatrix.reset()
+            mMatrix.postScale(mBaseScale, mBaseScale)
+
+            val scaledWidth = dw * mBaseScale
+            val scaledHeight = dh * mBaseScale
+            val dx = (vw - scaledWidth) / 2f
+            val dy = (vh - scaledHeight) / 2f
+            mMatrix.postTranslate(dx, dy)
+
+            imageMatrix = mMatrix
+        }
+
+        private fun zoomTo(targetScaleRatio: Float, focusX: Float, focusY: Float) {
+            val d = drawable ?: return
+            val vw = width.toFloat()
+            val vh = height.toFloat()
+            if (vw <= 0f || vh <= 0f) return
+
+            val dw = d.intrinsicWidth.toFloat()
+            val dh = d.intrinsicHeight.toFloat()
+            if (dw <= 0f || dh <= 0f) return
+
+            val factor = targetScaleRatio / mCurrentScale
+            mCurrentScale = targetScaleRatio
+            mMatrix.postScale(factor, factor, focusX, focusY)
+            fixTranslation()
+            imageMatrix = mMatrix
+        }
+
+        private fun fixTranslation() {
+            val d = drawable ?: return
+            val vw = width.toFloat()
+            val vh = height.toFloat()
+            if (vw <= 0f || vh <= 0f) return
+
+            val rect = RectF(0f, 0f, d.intrinsicWidth.toFloat(), d.intrinsicHeight.toFloat())
+            mMatrix.mapRect(rect)
+
+            var deltaX = 0f
+            var deltaY = 0f
+
+            val rectWidth = rect.width()
+            val rectHeight = rect.height()
+
+            if (rectWidth <= vw) {
+                deltaX = (vw - rectWidth) / 2f - rect.left
+            } else {
+                if (rect.left > 0f) {
+                    deltaX = -rect.left
+                } else if (rect.right < vw) {
+                    deltaX = vw - rect.right
+                }
+            }
+
+            if (rectHeight <= vh) {
+                deltaY = (vh - rectHeight) / 2f - rect.top
+            } else {
+                if (rect.top > 0f) {
+                    deltaY = -rect.top
+                } else if (rect.bottom < vh) {
+                    deltaY = vh - rect.bottom
+                }
+            }
+
+            if (deltaX != 0f || deltaY != 0f) {
+                mMatrix.postTranslate(deltaX, deltaY)
+            }
+        }
+
+        override fun onTouchEvent(event: MotionEvent): Boolean {
+            val scaleHandled = mScaleDetector.onTouchEvent(event)
+            val gestureHandled = mGestureDetector.onTouchEvent(event)
+            return scaleHandled || gestureHandled || super.onTouchEvent(event)
+        }
     }
 
     private fun exportAndShare() {
@@ -635,7 +969,30 @@ class SocialShareFragment : Fragment() {
             .show()
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupTitleBackgrounds()
+        val context = context ?: return
+        val isGlass = GeneralConsts.getSharedPreferences(context).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        binding.socialBlurTop.setBlurEnabled(isGlass)
+        if (isGlass) {
+            binding.socialBlurTop.setBlurAutoUpdate(true)
+            GlassRenderScheduler.requestUpdate(binding.socialBlurTop)
+            binding.socialBlurTop.blurOnceDeferred(mHandler, 100)
+            binding.socialBlurTop.setBlurAutoUpdate(false)
+        } else {
+            binding.socialBlurTop.setBlurAutoUpdate(false)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.socialBlurTop.setBlurAutoUpdate(false)
+        binding.socialBlurTop.setBlurEnabled(false)
+    }
+
     override fun onDestroyView() {
+        mHandler.removeCallbacksAndMessages(null)
         super.onDestroyView()
         _binding = null
     }

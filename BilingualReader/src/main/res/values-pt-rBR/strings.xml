@@ -1381,6 +1381,7 @@
     <string name="social_share_period_specific_month">Mês Específico</string>
     <string name="social_share_period_year">Este Ano</string>
     <string name="social_share_period_custom">Personalizado</string>
+    <string name="social_share_period_custom_title">Selecione a Data Inicial e Final</string>
     <string name="social_share_sort_time">Tempo Lido</string>
     <string name="social_share_sort_pages">Páginas Lidas</string>
     <string name="social_share_sort_recent">Mais Recentes</string>
@@ -1392,7 +1393,7 @@
     <string name="social_share_only_completed">Apenas obras concluídas</string>
     <string name="social_share_title_hint">Título do Card</string>
     <string name="social_share_subtitle_hint">Subtítulo (opcional)</string>
-    <string name="social_share_handle_hint">@handle (opcional)</string>
+    <string name="social_share_handle_hint">@usuário (opcional)</string>
     <string name="social_share_max_covers_hint">Capas no card</string>
     <string name="social_share_show_time">Mostrar tempo de leitura</string>
     <string name="social_share_show_pages">Mostrar páginas lidas</string>

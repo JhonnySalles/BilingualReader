@@ -161,6 +161,16 @@ class BookRepository(private val context: Context) {
         }
     }
 
+    fun findById(id: Long): Book? {
+        return try {
+            loadLibrary(mDataBase.find(id) ?: mDataBase.get(id))
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Book by id: " + e.message, e)
+            Telemetry.recordException(e, "Error when find Book by id: " + e.message)
+            null
+        }
+    }
+
     fun findByFileName(name: String): Book? {
         return try {
             loadLibrary(mDataBase.getByFileName(name))

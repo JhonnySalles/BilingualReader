@@ -208,15 +208,31 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
     fun reloadHistoryData() {
         val config = mConfig.value ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            val startDateTime = config.startDate.atStartOfDay()
-            val endDateTime = config.endDate.atTime(23, 59, 59)
+            val startDate = config.startDate
+            val endDate = config.endDate
 
-            val rawHistory = mHistoryRepository.findByPeriod(startDateTime, endDateTime)
+            val allHistoryLogs = mHistoryRepository.listHistory()
+            val filteredLogs = allHistoryLogs.filter { log ->
+                val startDay = log.start.toLocalDate()
+                val endDay = log.getEnd().toLocalDate()
+                (startDay in startDate..endDate) || (endDay in startDate..endDate)
+            }
+
+            val cachedManga = mutableMapOf<Long, Manga?>()
+            val cachedBook = mutableMapOf<Long, Book?>()
+
+            fun getManga(id: Long): Manga? = cachedManga.getOrPut(id) {
+                mMangaRepository.get(id) ?: mMangaRepository.findById(id)
+            }
+
+            fun getBook(id: Long): Book? = cachedBook.getOrPut(id) {
+                mBookRepository.get(id) ?: mBookRepository.findById(id)
+            }
 
             // Group by type and reference
             val aggregatedMap = mutableMapOf<Pair<Type, Long>, HistoryStatistics>()
 
-            for (log in rawHistory) {
+            for (log in filteredLogs) {
                 val logLibId = if (log.fkLibrary == 0L) {
                     if (log.type == Type.MANGA) GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA else GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
                 } else {
@@ -233,18 +249,59 @@ class SocialShareViewModel(application: Application) : AndroidViewModel(applicat
                 val key = Pair(log.type, log.fkReference)
                 val existing = aggregatedMap[key]
                 if (existing != null) {
+                    val latestEnd = if (existing.lastAccess != null && log.getEnd().isAfter(existing.lastAccess)) log.getEnd() else existing.lastAccess
                     val updated = existing.copy(
                         timeRead = existing.timeRead + seconds,
-                        pagesRead = existing.pagesRead + pages
+                        pagesRead = existing.pagesRead + pages,
+                        lastAccess = latestEnd
                     )
                     aggregatedMap[key] = updated
                 } else {
                     val base = when (log.type) {
-                        Type.MANGA -> mMangaRepository.get(log.fkReference)
-                        Type.BOOK -> mBookRepository.get(log.fkReference)
+                        Type.MANGA -> getManga(log.fkReference)
+                        Type.BOOK -> getBook(log.fkReference)
                     }
                     if (base != null) {
                         aggregatedMap[key] = HistoryStatistics(base, seconds, pages, base.sort, log.getEnd())
+                    }
+                }
+            }
+
+            // Also complement with items that have lastAccess in the period (even if logs were cleared/aggregated)
+            if (config.mediaType == SocialMediaTypeFilter.ALL || config.mediaType == SocialMediaTypeFilter.MANGA) {
+                val mangas = mMangaRepository.listHistory().orEmpty()
+                for (manga in mangas) {
+                    val mId = manga.id ?: continue
+                    val libId = manga.fkLibrary ?: GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+                    if (config.libraryId != null && libId != config.libraryId) continue
+
+                    val accessDate = manga.lastAccess?.toLocalDate()
+                    if (accessDate != null && accessDate in startDate..endDate) {
+                        val key = Pair(Type.MANGA, mId)
+                        if (!aggregatedMap.containsKey(key)) {
+                            val pagesRead = if (manga.bookMark > 0) manga.bookMark else manga.pages
+                            val timeSeconds = (manga.pages * 30L).coerceAtLeast(60L) // estimated time if no explicit logs
+                            aggregatedMap[key] = HistoryStatistics(manga, timeSeconds, pagesRead, manga.sort, manga.lastAccess)
+                        }
+                    }
+                }
+            }
+
+            if (config.mediaType == SocialMediaTypeFilter.ALL || config.mediaType == SocialMediaTypeFilter.BOOK) {
+                val books = mBookRepository.listHistory().orEmpty()
+                for (book in books) {
+                    val bId = book.id ?: continue
+                    val libId = book.fkLibrary ?: GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
+                    if (config.libraryId != null && libId != config.libraryId) continue
+
+                    val accessDate = book.lastAccess?.toLocalDate()
+                    if (accessDate != null && accessDate in startDate..endDate) {
+                        val key = Pair(Type.BOOK, bId)
+                        if (!aggregatedMap.containsKey(key)) {
+                            val pagesRead = if (book.bookMark > 0) book.bookMark else book.pages
+                            val timeSeconds = (book.pages * 60L).coerceAtLeast(60L) // estimated time if no explicit logs
+                            aggregatedMap[key] = HistoryStatistics(book, timeSeconds, pagesRead, book.sort, book.lastAccess)
+                        }
                     }
                 }
             }

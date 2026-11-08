@@ -7,42 +7,16 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/social_appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="0dp">
-
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/social_blur_top"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/social_toolbar"
-                style="@style/MainToolbarThemeWithShadow"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/default_navigator_header_size"
-                android:background="@android:color/transparent"
-                android:gravity="start|center"
-                app:popupTheme="@style/MainToolbarStyle"
-                app:title="@string/social_share_title" />
-
-        </eightbitlab.com.blurview.BlurView>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <androidx.core.widget.NestedScrollView
         android:id="@+id/social_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:paddingBottom="80dp">
 
         <LinearLayout
+            android:id="@+id/social_scroll_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -621,70 +595,73 @@
                 android:textStyle="bold" />
 
             <!-- Campos de Texto -->
+            <!-- Linha 1: Título -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/social_share_title_hint"
+                app:boxBackgroundMode="outline">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/social_input_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Linha 2: Subtítulo -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/social_share_subtitle_hint"
+                app:boxBackgroundMode="outline">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/social_input_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Linha 3: Capas por página (com botões +/-) e @handle -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:hint="@string/social_share_title_hint"
-                    app:boxBackgroundMode="outline">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/social_input_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/social_input_layout_covers_per_page"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
                     android:hint="@string/social_share_covers_per_page_hint"
-                    app:boxBackgroundMode="outline">
+                    app:boxBackgroundMode="outline"
+                    app:startIconDrawable="@drawable/ic_remove"
+                    app:startIconContentDescription="Diminuir capas por página"
+                    app:endIconMode="custom"
+                    app:endIconDrawable="@drawable/ic_add"
+                    app:endIconContentDescription="Aumentar capas por página">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/social_input_covers_per_page"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:inputType="number"
                         android:singleLine="true"
                         android:text="9" />
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/social_share_subtitle_hint"
-                    app:boxBackgroundMode="outline">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/social_input_subtitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
                     android:hint="@string/social_share_handle_hint"
                     app:boxBackgroundMode="outline">
 
@@ -898,15 +875,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/social_btn_save"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
+                    android:minHeight="52dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
                     android:text="@string/social_share_btn_save"
                     app:icon="@drawable/ico_save_share_image" />
 
@@ -914,9 +896,12 @@
                     android:id="@+id/social_btn_share"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
+                    android:minHeight="52dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
                     android:text="@string/social_share_btn_share"
                     app:icon="@drawable/ico_shared" />
 
@@ -924,5 +909,35 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- App Bar posicionado por cima do Scroll com BlurView -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/social_appbar"
+        style="@style/AppBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="false"
+        android:theme="@style/MainToolbarContentTheme.NoElevation"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/social_blur_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/social_toolbar"
+                style="@style/MainToolbarThemeWithShadow"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/default_navigator_header_size"
+                android:background="@android:color/transparent"
+                android:gravity="start|center"
+                app:popupTheme="@style/MainToolbarStyle"
+                app:title="@string/social_share_title" />
+
+        </eightbitlab.com.blurview.BlurView>
+
+    </com.google.android.material.appbar.AppBarLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

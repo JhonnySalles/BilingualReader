@@ -158,6 +158,16 @@ class MangaRepository(private val context: Context) {
         }
     }
 
+    fun findById(id: Long): Manga? {
+        return try {
+            loadLibrary(mDataBase.find(id) ?: mDataBase.get(id))
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Manga by id: " + e.message, e)
+            Telemetry.recordException(e, "Error when find Manga by id: " + e.message)
+            null
+        }
+    }
+
     fun findByFileName(name: String): Manga? {
         return try {
             loadLibrary(mDataBase.getByFileName(name))

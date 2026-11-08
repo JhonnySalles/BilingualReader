@@ -176,7 +176,7 @@ class SocialImageGenerator private constructor() {
         when (config.template) {
             SocialLayoutTemplate.BENTO_GRID -> drawBentoGrid(canvas, contentRect, pageItems, config, themeColors)
             SocialLayoutTemplate.PERSPECTIVE_SHELF -> drawPerspectiveShelf(canvas, contentRect, pageItems, config, themeColors)
-            SocialLayoutTemplate.WRAPPED_STATS -> drawWrappedStats(canvas, contentRect, pageItems, config, themeColors, allStats)
+            SocialLayoutTemplate.WRAPPED_STATS -> drawWrappedStats(context, canvas, contentRect, pageItems, config, themeColors, allStats)
             SocialLayoutTemplate.MINIMALIST_LIST -> drawMinimalistList(canvas, contentRect, pageItems, config, themeColors)
             SocialLayoutTemplate.MAGAZINE_HERO -> drawMagazineHero(canvas, contentRect, pageItems, config, themeColors)
             SocialLayoutTemplate.POLAROID_GALLERY -> drawPolaroidGallery(canvas, contentRect, pageItems, config, themeColors)
@@ -592,10 +592,14 @@ class SocialImageGenerator private constructor() {
             SocialBackgroundPattern.NONE -> {}
             SocialBackgroundPattern.GRID -> {
                 val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = if (colors.isDark) Color.argb(18, 255, 255, 255) else Color.argb(14, 0, 0, 0)
-                    strokeWidth = 1.5f
+                    color = if (colors.isDark) Color.argb(48, 255, 255, 255) else Color.argb(38, 0, 0, 0)
+                    strokeWidth = 2.5f
                 }
-                val step = 64f
+                val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = if (colors.isDark) Color.argb(90, Color.red(colors.accent), Color.green(colors.accent), Color.blue(colors.accent))
+                            else Color.argb(70, Color.red(colors.accent), Color.green(colors.accent), Color.blue(colors.accent))
+                }
+                val step = 56f
                 var x = 0f
                 while (x <= width) {
                     canvas.drawLine(x, 0f, x, height, gridPaint)
@@ -606,13 +610,23 @@ class SocialImageGenerator private constructor() {
                     canvas.drawLine(0f, y, width, y, gridPaint)
                     y += step
                 }
+                // Subtle accent intersection nodes
+                x = 0f
+                while (x <= width) {
+                    y = 0f
+                    while (y <= height) {
+                        canvas.drawCircle(x, y, 2.8f, dotPaint)
+                        y += step
+                    }
+                    x += step
+                }
             }
             SocialBackgroundPattern.DOTS -> {
                 val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = if (colors.isDark) Color.argb(26, 255, 255, 255) else Color.argb(20, 0, 0, 0)
+                    color = if (colors.isDark) Color.argb(62, 255, 255, 255) else Color.argb(48, 0, 0, 0)
                 }
-                val step = 48f
-                val radius = 2.5f
+                val step = 44f
+                val radius = 4.5f
                 var x = step / 2
                 while (x <= width) {
                     var y = step / 2
@@ -624,25 +638,47 @@ class SocialImageGenerator private constructor() {
                 }
             }
             SocialBackgroundPattern.ORBS -> {
+                // 3 vibrant ambient glowing orbs that illuminate canvas gaps and background
                 val orb1Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     shader = RadialGradient(
-                        width * 0.85f, height * 0.15f, width * 0.5f,
-                        intArrayOf(Color.argb(55, Color.red(colors.accent), Color.green(colors.accent), Color.blue(colors.accent)), Color.TRANSPARENT),
-                        floatArrayOf(0f, 1f),
+                        width * 0.72f, height * 0.32f, width * 0.58f,
+                        intArrayOf(
+                            Color.argb(135, Color.red(colors.accent), Color.green(colors.accent), Color.blue(colors.accent)),
+                            Color.argb(40, Color.red(colors.accent), Color.green(colors.accent), Color.blue(colors.accent)),
+                            Color.TRANSPARENT
+                        ),
+                        floatArrayOf(0f, 0.55f, 1f),
                         Shader.TileMode.CLAMP
                     )
                 }
-                canvas.drawCircle(width * 0.85f, height * 0.15f, width * 0.5f, orb1Paint)
+                canvas.drawCircle(width * 0.72f, height * 0.32f, width * 0.58f, orb1Paint)
 
                 val orb2Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     shader = RadialGradient(
-                        width * 0.15f, height * 0.85f, width * 0.55f,
-                        intArrayOf(Color.argb(45, Color.red(colors.bgSecondary), Color.green(colors.bgSecondary), Color.blue(colors.bgSecondary)), Color.TRANSPARENT),
+                        width * 0.22f, height * 0.60f, width * 0.62f,
+                        intArrayOf(
+                            Color.argb(125, Color.red(colors.bgSecondary), Color.green(colors.bgSecondary), Color.blue(colors.bgSecondary)),
+                            Color.argb(35, Color.red(colors.bgSecondary), Color.green(colors.bgSecondary), Color.blue(colors.bgSecondary)),
+                            Color.TRANSPARENT
+                        ),
+                        floatArrayOf(0f, 0.55f, 1f),
+                        Shader.TileMode.CLAMP
+                    )
+                }
+                canvas.drawCircle(width * 0.22f, height * 0.60f, width * 0.62f, orb2Paint)
+
+                val orb3Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    shader = RadialGradient(
+                        width * 0.50f, height * 0.88f, width * 0.50f,
+                        intArrayOf(
+                            Color.argb(105, Color.red(colors.accent), Color.green(colors.accent), Color.blue(colors.accent)),
+                            Color.TRANSPARENT
+                        ),
                         floatArrayOf(0f, 1f),
                         Shader.TileMode.CLAMP
                     )
                 }
-                canvas.drawCircle(width * 0.15f, height * 0.85f, width * 0.55f, orb2Paint)
+                canvas.drawCircle(width * 0.50f, height * 0.88f, width * 0.50f, orb3Paint)
             }
         }
     }
@@ -1174,6 +1210,7 @@ class SocialImageGenerator private constructor() {
     }
 
     private fun drawWrappedStats(
+        context: Context,
         canvas: Canvas,
         rect: RectF,
         items: List<ItemRenderData>,
@@ -1185,10 +1222,17 @@ class SocialImageGenerator private constructor() {
         val statCardRect = RectF(rect.left, rect.top, rect.right, rect.top + statCardH)
 
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (colors.isDark) Color.argb(120, 255, 255, 255) else Color.argb(120, 0, 0, 0)
+            color = colors.cardBg
         }
         val radius = 24f
         canvas.drawRoundRect(statCardRect, radius, radius, bgPaint)
+
+        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            color = colors.cardBorder
+            strokeWidth = 1.5f
+        }
+        canvas.drawRoundRect(statCardRect, radius, radius, borderPaint)
 
         val colW = statCardRect.width() / 3f
         val numPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -1208,14 +1252,18 @@ class SocialImageGenerator private constructor() {
         val totalSecs = allStats.sumOf { it.timeRead }
         val hours = totalSecs / 3600
 
+        val worksLabel = context.getString(R.string.social_share_stat_works, allStats.size).substringAfter(" ")
+        val pagesLabel = context.getString(R.string.social_share_stat_pages, totalPages).substringAfter(" ")
+        val timeLabel = context.getString(R.string.social_share_sort_time)
+
         canvas.drawText("${allStats.size}", statCardRect.left + (colW * 0.5f), statCardRect.top + (statCardH * 0.45f), numPaint)
-        canvas.drawText("Obras Lidas", statCardRect.left + (colW * 0.5f), statCardRect.top + (statCardH * 0.72f), lblPaint)
+        canvas.drawText(worksLabel, statCardRect.left + (colW * 0.5f), statCardRect.top + (statCardH * 0.72f), lblPaint)
 
         canvas.drawText("$totalPages", statCardRect.left + (colW * 1.5f), statCardRect.top + (statCardH * 0.45f), numPaint)
-        canvas.drawText("Páginas", statCardRect.left + (colW * 1.5f), statCardRect.top + (statCardH * 0.72f), lblPaint)
+        canvas.drawText(pagesLabel, statCardRect.left + (colW * 1.5f), statCardRect.top + (statCardH * 0.72f), lblPaint)
 
         canvas.drawText("${hours}h", statCardRect.left + (colW * 2.5f), statCardRect.top + (statCardH * 0.45f), numPaint)
-        canvas.drawText("Tempo Total", statCardRect.left + (colW * 2.5f), statCardRect.top + (statCardH * 0.72f), lblPaint)
+        canvas.drawText(timeLabel, statCardRect.left + (colW * 2.5f), statCardRect.top + (statCardH * 0.72f), lblPaint)
 
         val gridRect = RectF(rect.left, statCardRect.bottom + 20f, rect.right, rect.bottom)
         drawBentoGrid(canvas, gridRect, items, config, colors)
