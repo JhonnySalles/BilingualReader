@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -70,5 +72,27 @@ class GeneralConstsTest {
         
         val date = LocalDateTime.of(2025, 4, 14, 0, 0)
         assertEquals("14/04/2025", GeneralConsts.formatterDate(context, date))
+    }
+
+    @Test
+    fun `test getSafeString and getSafeInt handle mismatched preference types safely`() {
+        prefs.edit()
+            .putInt("TEST_INT_AS_STR", 42)
+            .putString("TEST_STR_AS_INT", "123")
+            .putString("TEST_INVALID_INT", "abc")
+            .apply()
+
+        assertEquals("42", GeneralConsts.getSafeString(prefs, "TEST_INT_AS_STR", "default"))
+        assertEquals(123, GeneralConsts.getSafeInt(prefs, "TEST_STR_AS_INT", -1))
+        assertEquals(-1, GeneralConsts.getSafeInt(prefs, "TEST_INVALID_INT", -1))
+    }
+
+    @Test
+    fun `test applyThemeMode handles legacy integer or invalid values without ClassCastException`() {
+        prefs.edit().putInt(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.DARK.ordinal).apply()
+        assertTrue(ThemeUtil.applyThemeMode(context))
+
+        prefs.edit().putString(GeneralConsts.KEYS.THEME.THEME_MODE, "INVALID_MODE").apply()
+        ThemeUtil.applyThemeMode(context)
     }
 }

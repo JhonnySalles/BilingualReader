@@ -1,15 +1,18 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Spannable
 import android.text.method.MovementMethod
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.ActionMode
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.textclassifier.TextClassifier
 import androidx.appcompat.widget.AppCompatTextView
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
@@ -49,12 +52,18 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     init {
         autoLinkMask = 0
+        isEmojiCompatEnabled = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setTextClassifier(TextClassifier.NO_OP)
+        }
         mSelectionHandler = Handler(Looper.getMainLooper())
         mOriginalSize = textSize
 
         mGestureDetector = GestureDetector(context, SimpleGestureListener())
         super.setOnTouchListener { view, event ->
-            view.performClick()
+            if (event.action == MotionEvent.ACTION_UP) {
+                view.performClick()
+            }
 
             if (mCustomMovement != null) {
                 if (text is Spannable && mCustomMovement!!.onTouchEvent(this, text as Spannable, event))
@@ -109,6 +118,24 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     override fun getDefaultMovementMethod(): MovementMethod? {
         return mCustomMovement ?: super.getDefaultMovementMethod()
+    }
+
+    override fun startActionMode(callback: ActionMode.Callback?): ActionMode? {
+        return try {
+            super.startActionMode(callback)
+        } catch (e: Exception) {
+            mLOGGER.warn("Failed to start action mode safely: ${e.message}")
+            null
+        }
+    }
+
+    override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode? {
+        return try {
+            super.startActionMode(callback, type)
+        } catch (e: Exception) {
+            mLOGGER.warn("Failed to start action mode safely: ${e.message}")
+            null
+        }
     }
 
     fun setSelectionChangeListener(listener: SelectionChangeListener) {

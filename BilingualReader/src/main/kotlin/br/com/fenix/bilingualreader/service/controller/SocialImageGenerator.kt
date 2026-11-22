@@ -311,13 +311,18 @@ class SocialImageGenerator private constructor() {
             }
             SocialColorTheme.APP_THEME -> {
                 val pref = GeneralConsts.getSharedPreferences(context)
-                val themeStr = pref.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.name) ?: Themes.ORIGINAL.name
-                val currentTheme = try {
-                    Themes.valueOf(themeStr)
+                val themeStr = GeneralConsts.getSafeString(pref, GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.name)
+                val currentTheme = themeStr.toIntOrNull()?.let { Themes.values().getOrNull(it) }
+                    ?: try {
+                        Themes.valueOf(themeStr)
+                    } catch (_: Exception) {
+                        Themes.ORIGINAL
+                    }
+                val isDark = try {
+                    ThemeUtil.applyThemeMode(context)
                 } catch (_: Exception) {
-                    Themes.ORIGINAL
+                    false
                 }
-                val isDark = ThemeUtil.applyThemeMode(context)
                 val accent = when (currentTheme) {
                     Themes.BLUE -> Color.parseColor("#2563EB")
                     Themes.OCEAN_BLUE -> Color.parseColor("#0284C7")

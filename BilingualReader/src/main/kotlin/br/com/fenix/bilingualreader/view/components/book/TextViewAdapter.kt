@@ -207,8 +207,9 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
     }
 
     private fun TextView.fixTextSelection() {
-        setTextIsSelectable(false)
-        post { setTextIsSelectable(true) }
+        if (!isTextSelectable) {
+            setTextIsSelectable(true)
+        }
     }
 
     fun getHolder(position: Int): TextViewPagerHolder? = if (mHolders.containsKey(position)) mHolders[position] else null

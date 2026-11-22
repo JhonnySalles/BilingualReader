@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,15 +41,17 @@ public class MuPdfPage extends AbstractCodecPage {
     private static final char SPACE_CHAR = "\u00A0".charAt(0);
     private volatile long pageHandle;
     private final long docHandle;
+    private final long docGeneration;
     private int pageNumber;
 
     final RectF pageBounds;
     final int actualWidth;
     final int actualHeight;
 
-    private MuPdfPage(final long pageHandle, final long docHandle, int pageNumber) {
+    private MuPdfPage(final long pageHandle, final long docHandle, final long docGeneration, int pageNumber) {
         this.pageHandle = pageHandle;
         this.docHandle = docHandle;
+        this.docGeneration = docGeneration;
         this.pageNumber = pageNumber;
 
         this.pageBounds = getBounds();
@@ -114,15 +117,24 @@ public class MuPdfPage extends AbstractCodecPage {
         return matrixArray;
     }
 
-    static MuPdfPage createPage(final long dochandle, final int pageno) {
+    static MuPdfPage createPage(final long dochandle, final long docGeneration, final int pageno) {
         TempHolder.lock.lock();
         try {
-            
+            if (dochandle == 0 || (docGeneration > 0 && !MuPdfDocument.isDocHandleValid(dochandle, docGeneration))) {
+                return null;
+            }
             final long open = open(dochandle, pageno);
-            return new MuPdfPage(open, dochandle, pageno);
+            if (open == 0) {
+                return null;
+            }
+            return new MuPdfPage(open, dochandle, docGeneration, pageno);
         } finally {
             TempHolder.lock.unlock();
         }
+    }
+
+    static MuPdfPage createPage(final long dochandle, final int pageno) {
+        return createPage(dochandle, 0L, pageno);
     }
 
     @Override
@@ -142,7 +154,7 @@ public class MuPdfPage extends AbstractCodecPage {
                 long p = pageHandle;
                 pageHandle = 0;
                 
-                if (!MuPdfDocument.isDocHandleRecycled(docHandle)) {
+                if (MuPdfDocument.isDocHandleValid(docHandle, docGeneration)) {
                     free(docHandle, p);
                 }
             }
@@ -228,6 +240,9 @@ public class MuPdfPage extends AbstractCodecPage {
     public List<PageLink> getPageLinks() {
         try {
             TempHolder.lock.lock();
+            if (isRecycled() || (docGeneration > 0 && !MuPdfDocument.isDocHandleValid(docHandle, docGeneration))) {
+                return Collections.emptyList();
+            }
             return MuPdfLinks.getPageLinks(docHandle, pageHandle, pageBounds);
         } finally {
             TempHolder.lock.unlock();

@@ -163,6 +163,16 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
 
             return document
         }
+
+        @JvmStatic
+        @Synchronized
+        fun createDedicatedCodecDocument(path: String, passw: String): CodecDocument? {
+            val ctx = BookType.getCodecContextByPath(path) ?: return null
+            TempHolder.get().init(path)
+            LOGGER.info("createDedicatedCodecDocument: {}", path)
+            TempHolder.get().loadingCancelled = false
+            return ctx.openDocument(path, passw)
+        }
     }
 
     fun processCoverPage(pageUrl: PageUrl): Bitmap? {
@@ -258,11 +268,19 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
         } ?: return null
 
         val pageInfo = codeCache.getPageInfo(page)
+        if (pageInfo == null) {
+            if (isNeedDisableMagicInPDFDjvu) codeCache.recycle()
+            return null
+        }
         val k = pageInfo.height.toFloat() / pageInfo.width
         val width = pageUrl.width
         val height = (width * k).toInt()
 
         val pageCodec = codeCache.getPage(page)
+        if (pageCodec == null) {
+            if (isNeedDisableMagicInPDFDjvu) codeCache.recycle()
+            return null
+        }
         var bitmap: Bitmap? = null
         var bitmapRef: BitmapRef?
 

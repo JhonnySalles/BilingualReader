@@ -127,7 +127,11 @@ class ReadingTimeCalculator(private val context: Context) {
         for (i in start until end) {
             try {
                 val page = document.getPage(i)
-                val html = page.pageHTML
+                val html = try {
+                    page?.pageHTML
+                } finally {
+                    page?.recycle()
+                }
                 if (!html.isNullOrBlank()) {
                     totalWords += countWordsFromHtml(html)
                 }

@@ -106,8 +106,12 @@ class DocumentParse(
         return count
     }
 
+    private var isDestroyed = false
     private var mMainHandler = Handler(Looper.getMainLooper())
+
+    @Synchronized
     fun openBook(path: String, password: String = "", fontSize: Int, onEnding: (Boolean) -> (Unit)) {
+        isDestroyed = false
         AppState.get().currentBookImageScale = imageScale
         listener?.onLoading(false)
         Thread {
@@ -115,16 +119,24 @@ class DocumentParse(
                 isLoading = true
                 val start = Date()
                 clear()
-                mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize)
-                this@DocumentParse.fontSize = fontSize
-                isLoaded = mCodecDocument != null
+                val doc = ImageExtractor.createDedicatedCodecDocument(path, password)
+                synchronized(this@DocumentParse) {
+                    if (isDestroyed) {
+                        doc?.recycle()
+                        return@Thread
+                    }
+                    mCodecDocument = doc
+                    this@DocumentParse.fontSize = fontSize
+                    isLoaded = mCodecDocument != null
+                }
 
                 val diff = Date().time - start.time
 
                 if (diff < 2000)
                     sleep(2000 - diff)
-            } catch (e: Exception) {
-                mLOGGER.error("Could not open document file: $path -- " + e.message, e)
+            } catch (t: Throwable) {
+                isLoaded = false
+                mLOGGER.error("Could not open document file: $path -- " + t.message, t)
             } finally {
                 isLoading = false
                 try {
@@ -139,6 +151,7 @@ class DocumentParse(
         }.start()
     }
 
+    @Synchronized
     fun clear() {
         isLoaded = false
         mPageCountCache.clear()
@@ -165,9 +178,11 @@ class DocumentParse(
         TempHolder.get().loadingCancelled
     }
 
+    @Synchronized
     fun destroy() {
+        isDestroyed = true
         listener = null
-        mCodecDocument?.recycle()
+        clear()
     }
 
     private fun getFallbackOutline(filePath: String): List<OutlineLink> {
@@ -218,45 +233,53 @@ class DocumentParse(
         if (link == null) return -1
         var pageNum = OutlineLinkWrapper.getPageNumber(link)
         if (pageNum <= 0 && mCodecDocument is org.ebookdroid.droids.mupdf.codec.MuPdfDocument) {
-            try {
-                val docHandle = (mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument).documentHandle
-                var targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link)
-                if (targetPage < 0 && link.startsWith("OEBPS/")) {
-                    targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.substring(6))
-                }
-                if (targetPage < 0 && !link.startsWith("OEBPS/")) {
-                    targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + link)
-                }
-                if (targetPage < 0 && link.contains("#")) {
-                    val anchor = link.substring(link.indexOf('#'))
-                    targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, anchor)
-                    if (targetPage < 0 && link.contains(".fb2#")) {
-                        targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "fb2.fb2" + anchor)
-                    }
-                    if (targetPage < 0 && link.contains(".html#")) {
-                        targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "docx-converted.html" + anchor)
-                    }
-                }
-                if (targetPage < 0 && link.contains("#")) {
-                    val base = link.substringBefore("#")
-                    if (base.isNotEmpty()) {
-                        var basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
-                        if (basePage < 0 && base.startsWith("OEBPS/")) {
-                            basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base.substring(6))
+            val muDoc = mCodecDocument as org.ebookdroid.droids.mupdf.codec.MuPdfDocument
+            if (!muDoc.isRecycled) {
+                br.com.ebook.foobnix.sys.TempHolder.lock.lock()
+                try {
+                    val docHandle = muDoc.documentHandle
+                    if (!org.ebookdroid.droids.mupdf.codec.MuPdfDocument.isDocHandleRecycled(docHandle)) {
+                        var targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link)
+                        if (targetPage < 0 && link.startsWith("OEBPS/")) {
+                            targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, link.substring(6))
                         }
-                        if (basePage < 0 && !base.startsWith("OEBPS/")) {
-                            basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + base)
+                        if (targetPage < 0 && !link.startsWith("OEBPS/")) {
+                            targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + link)
                         }
-                        if (basePage >= 0) {
-                            targetPage = basePage
+                        if (targetPage < 0 && link.contains("#")) {
+                            val anchor = link.substring(link.indexOf('#'))
+                            targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, anchor)
+                            if (targetPage < 0 && link.contains(".fb2#")) {
+                                targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "fb2.fb2" + anchor)
+                            }
+                            if (targetPage < 0 && link.contains(".html#")) {
+                                targetPage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "docx-converted.html" + anchor)
+                            }
+                        }
+                        if (targetPage < 0 && link.contains("#")) {
+                            val base = link.substringBefore("#")
+                            if (base.isNotEmpty()) {
+                                var basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base)
+                                if (basePage < 0 && base.startsWith("OEBPS/")) {
+                                    basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, base.substring(6))
+                                }
+                                if (basePage < 0 && !base.startsWith("OEBPS/")) {
+                                    basePage = org.ebookdroid.droids.mupdf.codec.MuPdfLinks.getLinkPage(docHandle, "OEBPS/" + base)
+                                }
+                                if (basePage >= 0) {
+                                    targetPage = basePage
+                                }
+                            }
+                        }
+                        if (targetPage >= 0) {
+                            pageNum = targetPage + 1
                         }
                     }
+                } catch (e: Exception) {
+                    mLOGGER.warn("Error resolving page for link $link: ${e.message}")
+                } finally {
+                    br.com.ebook.foobnix.sys.TempHolder.lock.unlock()
                 }
-                if (targetPage >= 0) {
-                    pageNum = targetPage + 1
-                }
-            } catch (e: Exception) {
-                mLOGGER.warn("Error resolving page for link $link: ${e.message}")
             }
         }
         return pageNum
@@ -335,12 +358,26 @@ class DocumentParse(
         return mCodecDocument!!.getPageCount(width, height, fontSize)
     }
 
-    override fun getPage(pageNuber: Int): CodecPage {
-        return mCodecDocument!!.getPage(pageNuber)
+    override fun getPage(pageNuber: Int): CodecPage? {
+        val doc = mCodecDocument ?: return null
+        if (doc.isRecycled) return null
+        return try {
+            doc.getPage(pageNuber)
+        } catch (e: Exception) {
+            mLOGGER.error("Error getting page $pageNuber: ${e.message}", e)
+            null
+        }
     }
 
-    override fun getPageInner(pageNuber: Int): CodecPage {
-        return mCodecDocument!!.getPageInner(pageNuber)
+    override fun getPageInner(pageNuber: Int): CodecPage? {
+        val doc = mCodecDocument ?: return null
+        if (doc.isRecycled) return null
+        return try {
+            doc.getPageInner(pageNuber)
+        } catch (e: Exception) {
+            mLOGGER.error("Error getting inner page $pageNuber: ${e.message}", e)
+            null
+        }
     }
 
     override fun getUnifiedPageInfo(): CodecPageInfo {

@@ -20,47 +20,55 @@ public class MuPdfLinks {
     // private static final int FZ_LINK_NAMED = 4;
     // private static final int FZ_LINK_GOTOR = 5;
 
-    private static final float[] temp = new float[4];
-
     static List<PageLink> getPageLinks(final long docHandle, final long pageHandle, final RectF pageBounds) {
         final List<PageLink> links = new ArrayList<PageLink>();
+        if (docHandle == 0 || pageHandle == 0) {
+            return links;
+        }
+        final float[] temp = new float[4];
 
-        for (long linkHandle = getFirstPageLink(docHandle, pageHandle); linkHandle != 0; linkHandle = getNextPageLink(linkHandle)) {
+        try {
+            for (long linkHandle = getFirstPageLink(docHandle, pageHandle); linkHandle != 0; linkHandle = getNextPageLink(linkHandle)) {
 
-            final PageLink link = new PageLink();
-            
-            final int type = getPageLinkType(docHandle, linkHandle);
-            if (type == 1) {// external
-                link.url = getPageLinkUrl(linkHandle);
-                if (fillPageLinkSourceRect(linkHandle, temp)) {
-                    link.sourceRect = new RectF();
-                    link.sourceRect.left = (temp[0] - pageBounds.left) / pageBounds.width();
-                    link.sourceRect.top = (temp[1] - pageBounds.top) / pageBounds.height();
-                    link.sourceRect.right = (temp[2] - pageBounds.left) / pageBounds.width();
-                    link.sourceRect.bottom = (temp[3] - pageBounds.top) / pageBounds.height();
+                final PageLink link = new PageLink();
+
+                final int type = getPageLinkType(docHandle, linkHandle);
+                if (type == 1) {// external
+                    try {
+                        link.url = getPageLinkUrl(linkHandle);
+                    } catch (Throwable ignored) {
+                    }
+                    if (fillPageLinkSourceRect(linkHandle, temp)) {
+                        link.sourceRect = new RectF();
+                        link.sourceRect.left = (temp[0] - pageBounds.left) / pageBounds.width();
+                        link.sourceRect.top = (temp[1] - pageBounds.top) / pageBounds.height();
+                        link.sourceRect.right = (temp[2] - pageBounds.left) / pageBounds.width();
+                        link.sourceRect.bottom = (temp[3] - pageBounds.top) / pageBounds.height();
+                    }
+                    links.add(link);
+                } else if (type == 0) {// internal
+                    if (fillPageLinkSourceRect(linkHandle, temp)) {
+                        link.sourceRect = new RectF();
+                        link.sourceRect.left = (temp[0] - pageBounds.left) / pageBounds.width();
+                        link.sourceRect.top = (temp[1] - pageBounds.top) / pageBounds.height();
+                        link.sourceRect.right = (temp[2] - pageBounds.left) / pageBounds.width();
+                        link.sourceRect.bottom = (temp[3] - pageBounds.top) / pageBounds.height();
+                    }
+
+                    try {
+                        link.targetPage = getPageLinkTargetPage(docHandle, linkHandle);
+                        // link.targetPage--;
+                    } catch (Exception e) {
+                        link.targetPage = -1;
+                    }
+
+                    links.add(link);
                 }
-                links.add(link);
-            } else if (type == 0) {// internal
-                if (fillPageLinkSourceRect(linkHandle, temp)) {
-                    link.sourceRect = new RectF();
-                    link.sourceRect.left = (temp[0] - pageBounds.left) / pageBounds.width();
-                    link.sourceRect.top = (temp[1] - pageBounds.top) / pageBounds.height();
-                    link.sourceRect.right = (temp[2] - pageBounds.left) / pageBounds.width();
-                    link.sourceRect.bottom = (temp[3] - pageBounds.top) / pageBounds.height();
-                }
 
-                try {
-                    link.targetPage = getPageLinkTargetPage(docHandle, linkHandle);
-                    // link.targetPage--;
-                } catch (Exception e) {
-                    link.targetPage = -1;
-                }
-
-                links.add(link);
+                // dropLink(docHandle, linkHandle);
             }
-
-            
-            // dropLink(docHandle, linkHandle);
+        } catch (Throwable t) {
+            LOGGER.warn("Error extracting page links: {}", t.getMessage(), t);
         }
         return links;
     }

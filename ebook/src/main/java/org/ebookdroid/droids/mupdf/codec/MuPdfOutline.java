@@ -43,11 +43,7 @@ public class MuPdfOutline {
             }
         } catch (Throwable ignored) {
         }
-        try {
-            return getTitle(dochandle, outline);
-        } catch (Throwable ignored) {
-            return "";
-        }
+        return "";
     }
 
     private void ttOutline(final List<OutlineLink> ls, long outline, final int level) {

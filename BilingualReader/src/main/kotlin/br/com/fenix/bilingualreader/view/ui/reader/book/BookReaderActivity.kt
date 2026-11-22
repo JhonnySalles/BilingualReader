@@ -152,7 +152,12 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil.applyThemeMode(this)
         mPreferences = GeneralConsts.getSharedPreferences(this)
-        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        val themeStr = GeneralConsts.getSafeString(mPreferences, GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())
+        val theme = try {
+            Themes.valueOf(themeStr)
+        } catch (_: Exception) {
+            Themes.ORIGINAL
+        }
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
@@ -168,6 +173,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         Formatter.initializeAsync(applicationContext)
 
         mRepository = BookRepository(applicationContext)
+        if (!::mLibrary.isInitialized) {
+            mLibrary = LibraryUtil.getDefault(this, Type.BOOK)
+        }
 
         mToolBarTop = findViewById(R.id.toolbar_book_reader)
         MenuUtil.tintToolbar(mToolBarTop, theme)
@@ -277,9 +285,10 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                 if (intent.extras != null && intent.extras!!.containsKey(GeneralConsts.KEYS.BOOK.ID)) {
                     val book =
                         mRepository.get(intent.extras!!.getLong(GeneralConsts.KEYS.BOOK.ID))
-                    book?.fkLibrary?.let {
-                        val library = LibraryRepository(this)
-                        mLibrary = library.get(it) ?: mLibrary
+                    book?.fkLibrary?.let { libraryId ->
+                        LibraryRepository(this).get(libraryId)?.let { lib ->
+                            mLibrary = lib
+                        }
                     }
                     initialize(book)
                 } else
@@ -290,8 +299,11 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             } else {
                 val extras = intent.extras
 
-                if (extras != null)
-                    mLibrary = BundleCompat.getSerializable(extras, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java) as Library
+                if (extras != null) {
+                    BundleCompat.getSerializable(extras, GeneralConsts.KEYS.OBJECT.LIBRARY, Library::class.java)?.let {
+                        mLibrary = it
+                    }
+                }
 
                 val book = if (extras != null) BundleCompat.getSerializable(extras, GeneralConsts.KEYS.OBJECT.BOOK, Book::class.java) else null
                 book?.let {

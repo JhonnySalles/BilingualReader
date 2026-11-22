@@ -53,6 +53,34 @@ class GeneralConsts private constructor() {
             return context.getSharedPreferences(KEYS.PREFERENCE_NAME, Context.MODE_PRIVATE)
         }
 
+        fun getSafeString(preferences: SharedPreferences, key: String, defValue: String): String {
+            return try {
+                preferences.getString(key, defValue) ?: defValue
+            } catch (_: ClassCastException) {
+                try {
+                    preferences.all[key]?.toString() ?: defValue
+                } catch (_: Exception) {
+                    defValue
+                }
+            } catch (_: Exception) {
+                defValue
+            }
+        }
+
+        fun getSafeInt(preferences: SharedPreferences, key: String, defValue: Int): Int {
+            return try {
+                preferences.getInt(key, defValue)
+            } catch (_: ClassCastException) {
+                try {
+                    preferences.all[key]?.toString()?.toIntOrNull() ?: defValue
+                } catch (_: Exception) {
+                    defValue
+                }
+            } catch (_: Exception) {
+                defValue
+            }
+        }
+
         fun formatterDate(context: Context, dateTime: Date?, isSmall: Boolean = false): String {
             if (dateTime == null)
                 return context.getString(R.string.date_format_unknown)

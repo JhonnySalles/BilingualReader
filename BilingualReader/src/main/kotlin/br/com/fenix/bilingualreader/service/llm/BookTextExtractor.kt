@@ -73,7 +73,12 @@ object BookTextExtractor {
             for (page in chapter.startPage until chapter.endPageExclusive) {
                 val index0 = page - 1
                 if (index0 < 0 || index0 >= parse.pageCount) continue
-                val html = parse.getPage(index0)?.pageHTMLWithImages.orEmpty()
+                val pageObj = parse.getPage(index0)
+                val html = try {
+                    pageObj?.pageHTMLWithImages.orEmpty()
+                } finally {
+                    pageObj?.recycle()
+                }
                 val plain = htmlToPlainText(html)
                 if (plain.isNotBlank()) {
                     if (chapterBuilder.isNotEmpty()) chapterBuilder.append('\n')
@@ -92,7 +97,13 @@ object BookTextExtractor {
 
     fun extractPageText(parse: DocumentParse, page0Based: Int): String {
         if (page0Based < 0 || page0Based >= parse.pageCount) return ""
-        val raw = htmlToPlainText(parse.getPage(page0Based)?.pageHTMLWithImages.orEmpty())
+        val pageObj = parse.getPage(page0Based)
+        val html = try {
+            pageObj?.pageHTMLWithImages.orEmpty()
+        } finally {
+            pageObj?.recycle()
+        }
+        val raw = htmlToPlainText(html)
         return if (TextQualityValidator.isReadable(raw)) raw else ""
     }
 }

@@ -110,8 +110,14 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
 
                 val deferred = async {
                     for (i in 0 until parse!!.pageCount) {
+                        val pageObj = parse!!.getPage(i)
+                        val pageHtml = try {
+                            pageObj?.pageHTML.orEmpty()
+                        } finally {
+                            pageObj?.recycle()
+                        }
                         val lines =
-                            TextUtil.formatHtml(parse!!.getPage(i).pageHTML, "||").split("||").filter { it.isNotEmpty() }
+                            TextUtil.formatHtml(pageHtml, "||").split("||").filter { it.isNotEmpty() }
 
                         if (stopSearch)
                             break

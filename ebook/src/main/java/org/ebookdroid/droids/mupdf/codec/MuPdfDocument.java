@@ -39,6 +39,9 @@ public class MuPdfDocument extends AbstractCodecDocument {
         super(context, openFile(format, fname, pwd, BookCSS.get().toCssString()));
         this.fname = fname;
         isEpub = ExtUtils.isTextFomat(fname);
+        if (documentHandle != 0) {
+            activeDocGenerations.put(documentHandle, generationId);
+        }
     }
 
     @Override
@@ -47,8 +50,15 @@ public class MuPdfDocument extends AbstractCodecDocument {
         int pages = getPageCount();
         for (int i = 0; i < pages; i++) {
             CodecPage pageCodec = getPage(i);
-            String pageHTML = pageCodec.getPageHTML();
-            out.append(pageHTML);
+            if (pageCodec == null) continue;
+            try {
+                String pageHTML = pageCodec.getPageHTML();
+                if (pageHTML != null) {
+                    out.append(pageHTML);
+                }
+            } finally {
+                pageCodec.recycle();
+            }
         }
         return out.toString();
     }
@@ -237,7 +247,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
         try {
             TempHolder.lock.lock();
             if (isRecycled()) return null;
-            MuPdfPage createPage = MuPdfPage.createPage(documentHandle, pageNumber + 1);
+            MuPdfPage createPage = MuPdfPage.createPage(documentHandle, generationId, pageNumber + 1);
             return createPage;
         } finally {
             TempHolder.lock.unlock();
@@ -307,7 +317,21 @@ public class MuPdfDocument extends AbstractCodecDocument {
         }
     }
 
+    private static final java.util.concurrent.atomic.AtomicLong GENERATION_COUNTER = new java.util.concurrent.atomic.AtomicLong(1);
+    private final long generationId = GENERATION_COUNTER.incrementAndGet();
+    private static final java.util.concurrent.ConcurrentHashMap<Long, Long> activeDocGenerations = new java.util.concurrent.ConcurrentHashMap<>();
+
     private static final java.util.Set<Long> recycledDocHandles = java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<Long, Boolean>());
+
+    public long getGenerationId() {
+        return generationId;
+    }
+
+    public static boolean isDocHandleValid(long handle, long genId) {
+        if (handle == 0 || genId == 0) return false;
+        Long cur = activeDocGenerations.get(handle);
+        return cur != null && cur == genId;
+    }
 
     public static boolean isDocHandleRecycled(long handle) {
         return handle == 0 || recycledDocHandles.contains(handle);
@@ -316,6 +340,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     @Override
     protected void freeDocument() {
         if (documentHandle != 0) {
+            activeDocGenerations.remove(documentHandle, generationId);
             recycledDocHandles.add(documentHandle);
             free(documentHandle);
         }
@@ -366,8 +391,11 @@ public class MuPdfDocument extends AbstractCodecDocument {
     public String getMeta(String option) {
         try {
             TempHolder.lock.lock();
-            if (isRecycled()) return null;
+            if (isRecycled() || !isDocHandleValid(documentHandle, generationId)) return null;
             return getMeta(documentHandle, option);
+        } catch (Throwable t) {
+            LOGGER.warn("Error getting meta {}: {}", option, t.getMessage());
+            return null;
         } finally {
             TempHolder.lock.unlock();
         }

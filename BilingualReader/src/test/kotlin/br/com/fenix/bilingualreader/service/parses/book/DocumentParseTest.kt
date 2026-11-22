@@ -12,6 +12,7 @@ import io.mockk.unmockkAll
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.OutlineLink
 import org.junit.After
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -117,5 +118,38 @@ class DocumentParseTest {
             latch.await(2, TimeUnit.SECONDS)
             docParse.destroy()
         }
+    }
+
+    @Test
+    fun testGetPageReturnsNullSafelyWhenCodecReturnsNullOrRecycled() {
+        val testFile = File(testDir, "null_page.pdf")
+        testFile.createNewFile()
+
+        val codecMock = mockk<CodecDocument>(relaxed = true)
+        every { codecMock.isRecycled } returns false
+        every { codecMock.getPage(any()) } returns null
+        every { codecMock.getPageInner(any()) } returns null
+        ShadowImageExtractor.codecMock = codecMock
+
+        val latch = CountDownLatch(1)
+        val listener = object : BookParseListener {
+            override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
+                if (isFinished) latch.countDown()
+            }
+            override fun onSearching(isSearching: Boolean) {}
+            override fun onConverting(isConverting: Boolean) {}
+        }
+
+        val docParse = DocumentParse(testFile.absolutePath, "", 12, false, false, listener)
+        latch.await(2, TimeUnit.SECONDS)
+
+        assertNull(docParse.getPage(999))
+        assertNull(docParse.getPageInner(999))
+
+        every { codecMock.isRecycled } returns true
+        assertNull(docParse.getPage(0))
+
+        docParse.destroy()
+        assertNull(docParse.getPage(0))
     }
 }

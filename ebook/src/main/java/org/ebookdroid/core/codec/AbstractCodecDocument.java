@@ -2,6 +2,8 @@ package org.ebookdroid.core.codec;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ public abstract class AbstractCodecDocument implements CodecDocument {
 
 
     @Override
+    @Nullable
     public CodecPage getPage(int pageNuber) {
         CodecPage pageInner = getPageInner(pageNuber);
         return pageInner;

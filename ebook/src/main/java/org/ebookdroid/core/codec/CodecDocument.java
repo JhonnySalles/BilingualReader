@@ -3,6 +3,8 @@ package org.ebookdroid.core.codec;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +17,10 @@ public interface CodecDocument extends Serializable {
 
     int getPageCount(int w, int h, int fsize);
 
+    @Nullable
     CodecPage getPage(int pageNuber);
 
+    @Nullable
     CodecPage getPageInner(int pageNuber);
 
     CodecPageInfo getUnifiedPageInfo();

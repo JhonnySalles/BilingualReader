@@ -285,9 +285,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     mViewModel.imageScale.value ?: 1.0f
                 )
 
-                if (mBook != null) {
+                mBook?.let { book ->
                     mFileName = file.name
-                    mLocalCurrentPage = if (mBook!!.bookMark > 0) mBook!!.bookMark - 1 else 0
+                    mLocalCurrentPage = if (book.bookMark > 0) book.bookMark - 1 else 0
                 }
             } else {
                 mLOGGER.info("File not founded.")
@@ -353,9 +353,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
             mHandler.postDelayed({
                     if (mCoverWarning.visibility != View.VISIBLE)
-                        BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
+                        mBook?.let { book ->
+                            BookImageCoverController.instance.setImageCoverAsync(requireContext(), book, mCoverImage, null, false)
+                        }
             }, 300)
-            generateHistory(mBook!!)
+            generateHistory(mBook)
         } else {
             mCoverMessage.visibility = View.VISIBLE
             mCoverWarning.visibility = View.VISIBLE
@@ -680,7 +682,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onPause() {
         if (mBook != null) {
             mBook?.bookMark = if (mCoverWarning.isVisible) 0 else getCurrentPage()
-            mStorage.updateBookMark(mBook!!)
+            mBook?.let { mStorage.updateBookMark(it) }
         }
 
         mViewModel.history?.let {
@@ -748,21 +750,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         })
                 }, delay)
                 setBookDots(pages)
-                if (mBook != null && mBook!!.pages != pages) {
-                    if (mBook!!.completed) {
-                        mBook!!.bookMark = pages
-                        mLocalCurrentPage = mBook!!.bookMark - 1
+                val currentBook = mBook
+                if (currentBook != null && currentBook.pages != pages) {
+                    if (currentBook.completed) {
+                        currentBook.bookMark = pages
+                        mLocalCurrentPage = currentBook.bookMark - 1
                     }
 
-                    mBook!!.pages = pages
-                    mStorage.updateLastAccess(mBook!!)
+                    currentBook.pages = pages
+                    mStorage.updateLastAccess(currentBook)
                 }
                 preparePager()
             } else {
                 mParse = null
                 mLocalCurrentPage = 0
 
-                val cover = if (mBook != null) BookImageCoverController.instance.getBookCover(requireContext(), mBook!!, isCoverSize = true) else null
+                val cover = mBook?.let { BookImageCoverController.instance.getBookCover(requireContext(), it, isCoverSize = true) }
                 mCoverMessage.visibility = View.VISIBLE
                 mCoverWarning.visibility = View.VISIBLE
 
@@ -1362,29 +1365,27 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         if (mParse != null)
             mParse!!.getChapter(mLocalCurrentPage)?.let {
-                mBook!!.chapter = it.first
-                mBook!!.chapterDescription = it.second
+                mBook?.chapter = it.first
+                mBook?.chapterDescription = it.second
             }
 
         mPageSeekBar.progress = seekbar
-        (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, page, mPagerAdapter.itemCount)
+        (activity as? BookReaderActivity)?.changePageDescription(mBook?.chapter ?: 0, mBook?.chapterDescription ?: "", page, mPagerAdapter.itemCount)
     }
 
     fun isFullscreen(): Boolean = mIsFullscreen
 
     fun hitBeginning() {
-        if (mBook != null) {
-            val c: Book? = mStorage.getPrevBook(mLibrary, mBook!!)
-            confirmSwitch(c, R.string.switch_prev_book)
-        }
+        val book = mBook ?: return
+        val c: Book? = mStorage.getPrevBook(mLibrary, book)
+        confirmSwitch(c, R.string.switch_prev_book)
     }
 
     fun hitEnding() {
-        if (mBook != null) {
-            checkTrackerProgress()
-            val c: Book? = mStorage.getNextBook(mLibrary, mBook!!)
-            confirmSwitch(c, R.string.switch_next_book)
-        }
+        val book = mBook ?: return
+        checkTrackerProgress()
+        val c: Book? = mStorage.getNextBook(mLibrary, book)
+        confirmSwitch(c, R.string.switch_next_book)
     }
 
     private fun openTracker() {
@@ -1400,20 +1401,20 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun checkTrackerProgress() {
-        if (mBook == null) return
+        val book = mBook ?: return
         try {
             val trackRepository = br.com.fenix.bilingualreader.service.repository.TrackRepository(requireContext())
-            val existingTracks = trackRepository.listByLibrary(mBook!!.fkLibrary ?: mLibrary.id ?: 0L)
+            val existingTracks = trackRepository.listByLibrary(book.fkLibrary ?: mLibrary.id ?: 0L)
             val matchedTrack = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.matchTrack(
                 existingTracks,
                 null,
-                mBook!!.fileName
+                book.fileName
             )
 
             if (matchedTrack != null) {
-                val parsed = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.parseFileName(mBook!!.fileName)
-                val inferredVol = parsed.volume ?: mBook!!.volume.toIntOrNull()
-                val inferredChap = parsed.chapter?.toInt() ?: mBook!!.chapter
+                val parsed = br.com.fenix.bilingualreader.service.tracker.TrackerMatcher.parseFileName(book.fileName)
+                val inferredVol = parsed.volume ?: book.volume.toIntOrNull()
+                val inferredChap = parsed.chapter?.toInt() ?: book.chapter
 
                 br.com.fenix.bilingualreader.view.ui.tracker.TrackerConfigDialog.showReadingConfirmation(
                     context = requireContext(),
@@ -1522,13 +1523,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun openBookAnnotation() {
+        val book = mBook ?: return
         if (mTextToSpeech != null)
             mTextToSpeech?.stop()
 
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_annotation)
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         bookAnnotationLauncher.launch(intent)
@@ -1565,6 +1567,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     fun configTouchFunctions() {
+        val book = mBook ?: return
         if (mTextToSpeech != null)
             mTextToSpeech?.stop()
 
@@ -1572,7 +1575,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_touch_screen_config)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, Type.BOOK)
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         intent.putExtras(bundle)
         requireActivity().overrideActivityTransitionCompat(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         touchConfigurationLauncher.launch(intent)
@@ -1608,9 +1611,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     private var mWakeLock : PowerManager.WakeLock? = null
     fun executeTTS(page: Int, initial: String = "") {
+        val book = mBook ?: return
         if (mTextToSpeech == null) {
             setFullscreen(fullscreen = true)
-            mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
+            val coverBitmap = (mCoverImage.drawable as? BitmapDrawable)?.bitmap
+            mTextToSpeech = TextToSpeechController(requireContext(), book, mParse, coverBitmap, mViewModel.getFontSize(true).toInt())
             mTextToSpeech!!.addListener(this)
             when (val adapter = mPagerAdapter) {
                 is TTSListener -> mTextToSpeech!!.addListener(adapter)
@@ -1634,7 +1639,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 TransitionManager.beginDelayedTransition(mRoot, transition)
                 mReaderTTSContainer.visibility = visibility
 
-                generateHistory(mBook!!)
+                generateHistory(mBook)
                 mViewModel.history?.let { it.useTTS = true }
 
                 try {
@@ -1675,7 +1680,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ico_tts_play)
             AudioStatus.STOP -> {
                 mReaderTTSPlay.setIconResource(R.drawable.ico_tts_close)
-                generateHistory(mBook!!)
+                generateHistory(mBook)
 
                 try {
                     requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -1712,18 +1717,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSelectReadingFrom(page: Int, text: String) = executeTTS(page, text)
 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
-        val chapter = mParse!!.getChapter(if (page > 0) page - 1 else 0) ?: Pair(0, "")
+        val bookId = mBook?.id ?: 0L
+        val pageCount = mParse?.pageCount ?: 0
+        val fontSize = mViewModel.fontSize.value ?: 18f
+        val chapter = mParse?.getChapter(if (page > 0) page - 1 else 0) ?: Pair(0, "")
         val annotation = BookAnnotation(
-            mBook!!.id!!, page, mParse!!.pageCount, mViewModel.fontSize.value!!, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
+            bookId, page, pageCount, fontSize, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
         )
-        mViewModel.save(annotation)
+        if (bookId > 0L) {
+            mViewModel.save(annotation)
+        }
         return annotation
     }
 
     override fun textSelectRemoveMark(page: Int, start: Int, end: Int) {
+        val book = mBook ?: return
         var refresh = false
-        val annotations = mViewModel.findAnnotationByPage(mBook!!, page)
+        val annotations = mViewModel.findAnnotationByPage(book, page)
         if (annotations.isNotEmpty()) {
             for (annotation in annotations) {
                 if (annotation.range[0] == start && annotation.range[1] == end) {
@@ -1739,8 +1750,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
         }
         if (refresh) {
-            mViewModel.refreshAnnotations(mBook)
-            mViewPager.adapter!!.notifyItemChanged(if (page > 0) page - 1 else 0)
+            mViewModel.refreshAnnotations(book)
+            mViewPager.adapter?.notifyItemChanged(if (page > 0) page - 1 else 0)
         }
     }
 
@@ -1748,22 +1759,31 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun textSelectChangeMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(if (annotation.page > 0) annotation.page - 1 else 0)
 
-    override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page))
-
+    override fun textSearch(page: Int, text: String) {
+        val bookId = mBook?.id ?: 0L
+        openBookSearch(BookSearch(bookId, text, page))
+    }
 
     fun markCurrentPage() {
+        val book = mBook ?: return
+        val parse = mParse ?: return
         val msg: String
 
         val page = getCurrentPage()
         val current = getCurrentPage(isInternal = true)
-        val mark = mViewModel.findAnnotationByPage(mBook!!, page).find { it.markType == MarkType.PageMark }
+        val mark = mViewModel.findAnnotationByPage(book, page).find { it.markType == MarkType.PageMark }
         if (mark != null) {
             mViewModel.delete(mark)
             msg = getString(R.string.book_annotation_page_unmarked, page)
         } else {
-            val chapter = mParse!!.getChapter(current) ?: Pair(0, "")
+            val chapter = parse.getChapter(current) ?: Pair(0, "")
 
-            val rawHtml = mParse!!.getPage(current).pageHTMLWithImages
+            val pageObj = parse.getPage(current)
+            val rawHtml = try {
+                pageObj?.pageHTMLWithImages.orEmpty()
+            } finally {
+                pageObj?.recycle()
+            }
             val html = if (rawHtml.contains("<image-begin>data:"))
                 rawHtml.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
             else
@@ -1779,29 +1799,30 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     break
             }
 
-            val annotation = BookAnnotation(mBook!!.id!!, page, mParse!!.pageCount, mViewModel.fontSize.value!!, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
+            val annotation = BookAnnotation(book.id ?: 0L, page, parse.pageCount, mViewModel.fontSize.value ?: 18f, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
             mViewModel.save(annotation)
             msg = getString(R.string.book_annotation_page_marked, page)
         }
 
-        (mPagerAdapter as TextViewAdapter).getHolder(getCurrentPage(isInternal = true))?.pageMark?.let {
+        (mPagerAdapter as? TextViewAdapter)?.getHolder(getCurrentPage(isInternal = true))?.pageMark?.let {
             it.visibility = if (mark == null) View.VISIBLE else View.GONE
         }
 
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
-    private fun generateHistory(book: Book) {
-        val libId = book.fkLibrary ?: return
-        val bookId = book.id ?: return
+    private fun generateHistory(book: Book?) {
+        val b = book ?: return
+        val libId = b.fkLibrary ?: mLibrary.id ?: return
+        val bookId = b.id ?: return
         if (mViewModel.history != null) {
             if (mViewModel.history!!.fkLibrary != libId || mViewModel.history!!.fkReference != bookId) {
                 mViewModel.history!!.setEnd(LocalDateTime.now())
                 mHistoryRepository.save(mViewModel.history!!)
-                mViewModel.history = History(libId, bookId, Type.BOOK, book.bookMark, book.pages, book.volume)
+                mViewModel.history = History(libId, bookId, Type.BOOK, b.bookMark, b.pages, b.volume)
             }
         } else
-            mViewModel.history = History(libId, bookId, Type.BOOK, book.bookMark, book.pages, book.volume)
+            mViewModel.history = History(libId, bookId, Type.BOOK, b.bookMark, b.pages, b.volume)
     }
 
     private fun generatePageAverage(isOnlyCalculate: Boolean = false) {
@@ -1817,9 +1838,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             val charCount = try {
                 val documentPage = mParse?.getPage(mReadingPageInternal)
-                val html = documentPage?.pageHTMLWithImages.orEmpty()
-                documentPage?.recycle()
-                TextUtil.replaceHtmlTags(TextUtil.formatHtml(html)).trim().length
+                try {
+                    val html = documentPage?.pageHTMLWithImages.orEmpty()
+                    TextUtil.replaceHtmlTags(TextUtil.formatHtml(html)).trim().length
+                } finally {
+                    documentPage?.recycle()
+                }
             } catch (e: Exception) {
                 0
             }

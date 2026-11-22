@@ -579,7 +579,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     @SuppressLint("JavascriptInterface")
     fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener: View.OnTouchListener? = null, javascript: WebInterface? = null) {
-        var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
+        val documentPage = parse?.getPage(page)
+        var text = try {
+            documentPage?.pageHTMLWithImages.orEmpty()
+        } finally {
+            documentPage?.recycle()
+        }
 
         if (text.contains("<image-begin>")) {
             text = if (text.contains("<image-begin>data:"))
@@ -598,8 +603,6 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     text +
                     "</div>" +
                     "</body></html>"
-
-        parse?.getPage(page)?.recycle()
 
         web.loadDataWithBaseURL("file:///android_res/", html, "text/html", "UTF-8", null)
 
@@ -625,107 +628,119 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewAdapter.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
         holder.pageMark.visibility = if (mAnnotation.any { it.page == page + 1 && it.markType == MarkType.PageMark }) View.VISIBLE else View.GONE
 
-        // Abre a pagina nativa uma unica vez (antes abria duas: uma sem reciclar - vazamento -
-        // e outra apenas para reciclar), reduzindo o custo de JNI por bind.
+        // Abre a pagina nativa uma unica vez e garante a reciclagem no bloco finally
         val documentPage = parse?.getPage(page)
-        var text = documentPage?.pageHTMLWithImages.orEmpty()
-
-        if (text.contains("<image-begin>")) {
-            text = if (text.contains("<image-begin>data:"))
-                text.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
-            else
-                text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
-        }
-
-        val content = TextUtil.formatHtml(text).trim()
-        holder.isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
-
-        if (holder.isOnlyImage) {
-            try {
-                val images = TextUtil.getImagesFromTag(text)
-                var bitmaps = emptyList<Bitmap>()
-                if (images.isNotEmpty()) {
-                    bitmaps = images.mapNotNull {
-                        val img = it.substringAfter(",").trim()
-                        ImageUtil.decodeImageBase64(img)
-                    }
-                }
-                if (bitmaps.isEmpty()) {
-                    val displayMetrics = context.resources.displayMetrics
-                    val width = minOf(displayMetrics.widthPixels, displayMetrics.heightPixels)
-                    val nativeBitmap = try {
-                        documentPage?.renderThumbnail(width)
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error to render page thumbnail natively: ${e.message}", e)
-                        null
-                    }
-                    if (nativeBitmap != null) {
-                        bitmaps = listOf(nativeBitmap)
-                    } else if (parse != null) {
-                        val fallbackBitmap = try {
-                            ImageParse(context).getPage(parse.path, page)
-                        } catch (e: Exception) {
-                            null
-                        }
-                        if (fallbackBitmap != null) {
-                            bitmaps = listOf(fallbackBitmap)
-                        }
-                    }
-                }
-                if (bitmaps.isNotEmpty()) {
-                    val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
-                    val combined = if (TextUtil.hasBrBetweenImages(text)) {
-                        ImageUtil.combineImagesVertically(bitmaps, alignment)
-                    } else {
-                        ImageUtil.combineImagesHorizontally(bitmaps)
-                    }
-                    holder.imageView.setImageBitmap(combined)
-                } else {
-                    holder.imageView.setImageBitmap(null)
-                }
-            } catch (e: Exception) {
-                mLOGGER.error("Error to generate image: " + e.message, e)
-                holder.imageView.setImageBitmap(null)
-                Telemetry.recordException(e, "Error to generate image: " + e.message)
-            }
+        if (documentPage == null) {
+            holder.isOnlyImage = false
+            holder.imageView.setImageBitmap(null)
+            holder.textView.text = ""
             holder.textView.linksClickable = false
             holder.textView.movementMethod = null
             holder.textView.customSelectionActionModeCallback = null
-        } else {
-            val html = "<body>${content}</body>"
-            holder.imageView.setImageBitmap(null)
-            var processed: Spanned = SpannableString("")
-            try {
-                processed = if (html.contains("<img"))
-                    Html.fromHtml(
-                        html,
-                        Html.FROM_HTML_MODE_LEGACY,
-                        ImageGetter(context, holder.textView),
-                        null
-                    )
-                else
-                    Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
-
-                processed = SpannableString(processed)
-
-                if (isProcessJapaneseText && isJapanese)
-                    Formatter.generateTextView(context, processed, isFurigana)
-
-                val createSpanSelect = { annotation: BookAnnotation, _: Int, _: Int ->
-                    val span = SpannableString(holder.textView.text)
-                    createSpan(context, span, annotation, listener)
-                    holder.textView.text = span
-                }
-                holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder, page + 1, createSpanSelect, listener)
-                processed = prepareSpan(context, processed, page + 1, listener)
-                holder.textView.isClickable = true
-                holder.textView.linksClickable = true
-                holder.textView.setCustomMovement(TextViewClickMovement.getInstance(holder))
-            } finally {
-                holder.textView.text = processed
-            }
+            holder.textView.setBackgroundColor(Color.TRANSPARENT)
+            return
         }
-        documentPage?.recycle()
+        try {
+            var text = documentPage.pageHTMLWithImages.orEmpty()
+
+            if (text.contains("<image-begin>")) {
+                text = if (text.contains("<image-begin>data:"))
+                    text.replace("<image-begin>", "<img src=\"").replace("<image-end>", "\" />")
+                else
+                    text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+            }
+
+            val content = TextUtil.formatHtml(text).trim()
+            holder.isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
+
+            if (holder.isOnlyImage) {
+                try {
+                    val images = TextUtil.getImagesFromTag(text)
+                    var bitmaps = emptyList<Bitmap>()
+                    if (images.isNotEmpty()) {
+                        bitmaps = images.mapNotNull {
+                            val img = it.substringAfter(",").trim()
+                            ImageUtil.decodeImageBase64(img)
+                        }
+                    }
+                    if (bitmaps.isEmpty()) {
+                        val displayMetrics = context.resources.displayMetrics
+                        val width = minOf(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                        val nativeBitmap = try {
+                            documentPage?.renderThumbnail(width)
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error to render page thumbnail natively: ${e.message}", e)
+                            null
+                        }
+                        if (nativeBitmap != null) {
+                            bitmaps = listOf(nativeBitmap)
+                        } else if (parse != null) {
+                            val fallbackBitmap = try {
+                                ImageParse(context).getPage(parse.path, page)
+                            } catch (e: Exception) {
+                                null
+                            }
+                            if (fallbackBitmap != null) {
+                                bitmaps = listOf(fallbackBitmap)
+                            }
+                        }
+                    }
+                    if (bitmaps.isNotEmpty()) {
+                        val alignment = alignmentType.value ?: AlignmentLayoutType.Justify
+                        val combined = if (TextUtil.hasBrBetweenImages(text)) {
+                            ImageUtil.combineImagesVertically(bitmaps, alignment)
+                        } else {
+                            ImageUtil.combineImagesHorizontally(bitmaps)
+                        }
+                        holder.imageView.setImageBitmap(combined)
+                    } else {
+                        holder.imageView.setImageBitmap(null)
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to generate image: " + e.message, e)
+                    holder.imageView.setImageBitmap(null)
+                    Telemetry.recordException(e, "Error to generate image: " + e.message)
+                }
+                holder.textView.linksClickable = false
+                holder.textView.movementMethod = null
+                holder.textView.customSelectionActionModeCallback = null
+            } else {
+                val html = "<body>${content}</body>"
+                holder.imageView.setImageBitmap(null)
+                var processed: Spanned = SpannableString("")
+                try {
+                    processed = if (html.contains("<img"))
+                        Html.fromHtml(
+                            html,
+                            Html.FROM_HTML_MODE_LEGACY,
+                            ImageGetter(context, holder.textView),
+                            null
+                        )
+                    else
+                        Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+
+                    processed = SpannableString(processed)
+
+                    if (isProcessJapaneseText && isJapanese)
+                        Formatter.generateTextView(context, processed, isFurigana)
+
+                    val createSpanSelect = { annotation: BookAnnotation, _: Int, _: Int ->
+                        val span = SpannableString(holder.textView.text)
+                        createSpan(context, span, annotation, listener)
+                        holder.textView.text = span
+                    }
+                    holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder, page + 1, createSpanSelect, listener)
+                    processed = prepareSpan(context, processed, page + 1, listener)
+                    holder.textView.isClickable = true
+                    holder.textView.linksClickable = true
+                    holder.textView.setCustomMovement(TextViewClickMovement.getInstance(holder))
+                } finally {
+                    holder.textView.text = processed
+                }
+            }
+        } finally {
+            documentPage?.recycle()
+        }
         holder.textView.setBackgroundColor(Color.TRANSPARENT)
     }
 
@@ -859,7 +874,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView: TextView, imageMaxWidth: Int): Bitmap? {
         try {
             if (parse.isRecycled) return null
-            val documentPage = parse.getPage(page)
+            val documentPage = parse.getPage(page) ?: return null
             var text = documentPage.pageHTMLWithImages.orEmpty()
 
             if (text.contains("<image-begin>")) {

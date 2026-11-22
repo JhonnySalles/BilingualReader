@@ -51,6 +51,15 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         const val SHOW_LOG = false
     }
 
+    private fun getPageHtml(page: Int): String {
+        val p = mParse?.getPage(page) ?: return ""
+        return try {
+            p.pageHTMLWithImages.orEmpty()
+        } finally {
+            p.recycle()
+        }
+    }
+
     private var mListener = mutableListOf<TTSListener>()
 
     private val mLOGGER = LoggerFactory.getLogger(TextToSpeechController::class.java)
@@ -168,7 +177,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 val old = mPage
                 mPage--
                 mLines.clear()
-                mLines.addAll(formatHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+                mLines.addAll(formatHtml(mPage, getPageHtml(mPage)))
                 mLine = (mLines.size - 1)
                 mMainHandler.post {
                     mListener.forEach { it.changePageTTS(old, mPage) }
@@ -192,7 +201,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPage++
                 mLine = 0
                 mLines.clear()
-                mLines.addAll(formatHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+                mLines.addAll(formatHtml(mPage, getPageHtml(mPage)))
                 mMainHandler.post {
                     mListener.forEach { it.changePageTTS(old, mPage) }
                 }
@@ -215,7 +224,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPage = page
                 mLine = 0
                 mLines.clear()
-                mLines.addAll(formatHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+                mLines.addAll(formatHtml(mPage, getPageHtml(mPage)))
             }
 
             mMainHandler.post {
@@ -466,7 +475,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             try {
                 mPage = page
                 mLine = -1
-                mLines.addAll(formatHtml(page, mParse!!.getPage(page).pageHTMLWithImages))
+                mLines.addAll(formatHtml(page, getPageHtml(page)))
                 if (initial.isNotEmpty()) {
                     val find = initial.substringBefore(",", initial.substringBefore(".", initial))
                     for ((index, line) in mLines.withIndex()) {
@@ -518,7 +527,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
                             mLine = 0
                             mLines.clear()
-                            mLines.addAll(formatHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+                            mLines.addAll(formatHtml(mPage, getPageHtml(mPage)))
                         }
 
                         if (mLines.isEmpty()) {

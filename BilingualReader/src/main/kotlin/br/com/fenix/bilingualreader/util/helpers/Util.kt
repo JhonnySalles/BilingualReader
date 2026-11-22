@@ -1600,7 +1600,13 @@ class ThemeUtil {
 
         fun applyThemeMode(context: Context): Boolean {
             val preferences = GeneralConsts.getSharedPreferences(context)
-            val themeMode = ThemeMode.valueOf(preferences.getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)
+            val modeValue = GeneralConsts.getSafeString(preferences, GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())
+            val themeMode = modeValue.toIntOrNull()?.let { ThemeMode.values().getOrNull(it) }
+                ?: try {
+                    ThemeMode.valueOf(modeValue)
+                } catch (_: Exception) {
+                    ThemeMode.SYSTEM
+                }
             val mode = when (themeMode) {
                 ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
                 ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO

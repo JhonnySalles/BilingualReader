@@ -11,7 +11,7 @@ class ReaderConstsTest {
         assertEquals(2400, ReaderConsts.READER.MAX_PAGE_HEIGHT)
         assertEquals(3000, ReaderConsts.READER.MAX_PAGE_WIDTH)
         assertEquals(6, ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT)
-        assertEquals(6, ReaderConsts.READER.BOOK_OFF_SCREEN_PAGE_LIMIT)
+        assertEquals(2, ReaderConsts.READER.BOOK_OFF_SCREEN_PAGE_LIMIT)
         assertFalse(ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
         assertFalse(ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
     }

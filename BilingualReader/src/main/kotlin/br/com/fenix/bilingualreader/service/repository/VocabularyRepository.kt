@@ -43,6 +43,15 @@ import java.util.stream.Collectors
 
 class VocabularyRepository(var context: Context) {
 
+    companion object {
+        private val mFindCache = java.util.concurrent.ConcurrentHashMap<String, Vocabulary?>()
+        private const val MAX_CACHE_SIZE = 3000
+
+        fun clearCache() {
+            mFindCache.clear()
+        }
+    }
+
     private val mLOGGER = LoggerFactory.getLogger(VocabularyRepository::class.java)
     private val mBase = DataBase.getDataBase(context)
     private var mDataBaseDAO = mBase.getVocabularyDao()
@@ -57,6 +66,7 @@ class VocabularyRepository(var context: Context) {
     }
 
     fun save(obj: Vocabulary): Long {
+        mFindCache.clear()
         val exist = mDataBaseDAO.exists(obj.word, obj.basicForm ?: "")
         return if (exist != null)
             exist.id!!
@@ -65,10 +75,12 @@ class VocabularyRepository(var context: Context) {
     }
 
     fun update(obj: Vocabulary) {
+        mFindCache.clear()
         mDataBaseDAO.update(obj)
     }
 
     fun delete(obj: Vocabulary) {
+        mFindCache.clear()
         mDataBaseDAO.delete(obj)
     }
 
@@ -83,11 +95,18 @@ class VocabularyRepository(var context: Context) {
     }
 
     fun find(vocabulary: String): Vocabulary? {
+        if (mFindCache.containsKey(vocabulary)) {
+            return mFindCache[vocabulary]
+        }
         return try {
-            mDataBaseDAO.find(vocabulary)
+            val result = mDataBaseDAO.find(vocabulary)
+            if (mFindCache.size < MAX_CACHE_SIZE) {
+                mFindCache[vocabulary] = result
+            }
+            result
         } catch (e: Exception) {
-            mLOGGER.error("Error when get Library: " + e.message, e)
-            Telemetry.recordException(e, "Error when get Library: " + e.message)
+            mLOGGER.error("Error when get Vocabulary: " + e.message, e)
+            Telemetry.recordException(e, "Error when get Vocabulary: " + e.message)
             null
         }
     }
@@ -403,7 +422,12 @@ class VocabularyRepository(var context: Context) {
 
                     val pages = document.pageCount
                     for (i in 0 until pages) {
-                        val page = document.getPage(i).pageHTML
+                        val pageObj = document.getPage(i)
+                        val page = try {
+                            pageObj?.pageHTML
+                        } finally {
+                            pageObj?.recycle()
+                        }
                         if (page != null && page.isNotEmpty())
                             list.addAll(Formatter.generateVocabulary(page))
 
